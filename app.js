@@ -517,7 +517,11 @@ function switchTab(id) {
   
 function refresh(viewId) {
 
-  // --- TAMBAHAN VISUAL ---
+    // --- FUNGSI RESET SLIDER (WHAT-IF ANALYSIS) ---
+    // Memastikan tuas slider kembali ke 0 setiap kali data/cabang baru dimuat
+    if (typeof resetSimSliders === 'function') resetSimSliders();
+
+    // --- TAMBAHAN VISUAL ---
     // Cari elemen angka utama dan beri efek loading "shimmer" (Skeleton)
     const loadIds = ['kr_os', 'kr_noa', 'v_os', 'v_npl', 'v_kkr', 'v_tgk'];
     loadIds.forEach(id => {
@@ -527,7 +531,6 @@ function refresh(viewId) {
             el.innerHTML = '<div class="animate-pulse bg-gray-200 dark:bg-slate-700 h-6 w-24 rounded"></div>';
         }
     });
-
 
     // 1. DEFINISI STATE (PENTING!)
     var s = app.state; 
@@ -550,7 +553,8 @@ function refresh(viewId) {
     // Tampilkan Loader
     var loader = document.getElementById('loader');
     if(loader) loader.style.display = 'flex';
-    // --- TAMBAHKAN BLOK SKELETON INI ---
+    
+    // --- BLOK SKELETON (SHIMMER EFFECT) ---
     // 1. Redupkan area yang sedang loading
     const activeView = document.querySelector('.tab-view:not(.hidden)');
     if (activeView) {
@@ -635,7 +639,6 @@ function refresh(viewId) {
         google.script.run.withSuccessHandler(renderFreshDropPage).getFreshDropData(s.filter.b, s.filter.d);
     }
     
-
     // Tambahkan Router untuk Debtor Journey di sini:
     else if(id === 'view-journey') {
         // Kita gunakan getDashboardData karena di sana sudah ada npl_list (KOL 2-5)
@@ -651,19 +654,16 @@ function refresh(viewId) {
         }).getDashboardData(s.filter.b, s.filter.d, s.filter.c);
     }
 
-
     // Laporan Preview
     else if(id === 'view-report') {
         if(!s.filter.c) console.warn("Pembanding kosong, laporan mungkin tidak lengkap.");
         google.script.run.withSuccessHandler(renderReportPreview).getFullReportData(s.filter.b, s.filter.d, s.filter.c);
     }
     
-   // --- TAMBAHKAN BLOK INI ---
     // Arsip Kredit
     else if(id === 'view-archive') {
         loadArchiveData();
     }
-    // -------------------------
 
     // Fallback: Jika view tidak dikenali, matikan loader
     else {
@@ -7636,6 +7636,37 @@ function executeDeleteSheets() {
       }
   }
 
+  // --- FUNGSI RESET SLIDER SIMULASI (DIPANGGIL SAAT GANTI CABANG) ---
+  function resetSimSliders() {
+      const types = ['ALL', 'KUR', 'KONS', 'PROD'];
+      
+      types.forEach(type => {
+          // 1. Kembalikan posisi tuas slider ke 0 (Tengah)
+          const slider = document.getElementById('slide_os_' + type);
+          if (slider) slider.value = 0;
+
+          // 2. Hapus memori (cache) rasio cabang lama agar siap diisi rasio cabang baru
+          const ratioEl = document.getElementById('k_npl_rat_' + type);
+          if (ratioEl) {
+              delete ratioEl.dataset.original; 
+              ratioEl.style.color = ''; // Hapus sisa efek warna merah/hijau
+          }
+
+          // 3. Kembalikan teks indikator UI ke posisi default
+          const osBadge = document.getElementById('sim_os_' + type);
+          if (osBadge) osBadge.innerText = "Geser Slider 👉";
+
+          const pctBadge = document.getElementById('sim_pct_' + type);
+          if (pctBadge) {
+              pctBadge.innerText = "0%";
+              // Kembalikan ke warna background transparan bawaan
+              pctBadge.className = 'text-white bg-white/10 px-3 py-1 rounded-full border border-white/10 shadow-inner';
+          }
+      });
+  }
+
+    
+
 
 
  
@@ -7785,6 +7816,7 @@ function executeDeleteSheets() {
     changeStatus: changeStatus,
     changePage: changePage,
     calcSim: calcSim,
+    resetSimSliders: resetSimSliders,
     togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
