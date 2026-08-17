@@ -1231,16 +1231,36 @@
   </div>
   <!-- ======================================================= -->
   
-  <!-- App Javascript -->
-  <script src="app.js"></script>
-
-  <!-- Service Worker Registration -->
+ <!-- Service Worker Registration & Auto-Update Catcher -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker Registered!', reg))
-          .catch(err => console.error('Service Worker Registration Failed', err));
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+          console.log('Service Worker Registered!', reg);
+          
+          // DETEKSI KODINGAN BARU
+          reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                // Kodingan baru terdeteksi! Tampilkan efek loading, bersihkan cache, dan reload otomatis
+                document.body.insertAdjacentHTML('beforeend', '<div style="position:fixed;inset:0;background:rgba(255,255,255,0.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(10px);"><i class="fas fa-rocket fa-bounce" style="font-size:3rem;color:#0284c7;margin-bottom:1rem;"></i><h2 style="font-family:sans-serif;font-weight:900;color:#0f172a;">Menginstal Pembaruan Sistem...</h2><p style="font-family:sans-serif;font-size:12px;color:#64748b;">Aplikasi akan dimuat ulang secara otomatis.</p></div>');
+                
+                setTimeout(() => {
+                   window.location.reload(true); // Memaksa Hard Reload
+                }, 1500);
+              }
+            });
+          });
+        }).catch(err => console.error('Service Worker Registration Failed', err));
+
+        // Listener jika Service Worker mengambil alih halaman secara paksa
+        let refreshing;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (refreshing) return;
+          refreshing = true;
+          window.location.reload(true);
+        });
       });
     }
   </script>
