@@ -2383,6 +2383,7 @@ function initRiskChart(points) {
             el.classList.remove('opacity-0', '-translate-x-4');
         });
     });
+      unlockMenu();
 }
 
 function renderFreshDropPage(res) {
@@ -2503,6 +2504,7 @@ function renderFreshDropPage(res) {
     html += `<div class="mt-2 text-[10px] text-slate-400 text-right px-2 italic">*Data dibandingkan dengan posisi akhir bulan sebelumnya.</div>`;
 
     container.innerHTML = html;
+    unlockMenu();
 }
 
   
@@ -2726,6 +2728,7 @@ function renderMutasiPage(res) {
     animateValue('m_val_lunas', oldLunas, res.summary.repayment_amt, 800, true);
     animateValue('m_val_net', oldNet, netGrowth, 1000, true);
     animateValue('m_val_drop', oldDrop, res.summary.downgrade_amt, 800, true);
+    unlockMenu();
 }
 
 
@@ -3710,6 +3713,7 @@ function renderMaturityPage(res) {
 
     html += '</tbody></table></div>';
     container.innerHTML = html;
+    unlockMenu();
 }
 
 
@@ -3785,6 +3789,7 @@ function renderReportPreview(res) {
     renderMaturityPage(res.maturity); 
     
     container.innerHTML = generateFullReportHTML(res);
+    unlockMenu();
 }
 
 
