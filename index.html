@@ -14,25 +14,31 @@
   <meta name="apple-mobile-web-app-title" content="DaKOPen PPU">
   <link rel="apple-touch-icon" href="icon-192.png"> 
 
-  <!-- External Libraries -->
+  <!-- External Libraries & Fonts -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- ========================================== -->
+  <!-- 1. LEAFLET CORE (WAJIB DI ATAS) -->
+  <!-- ========================================== -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <!-- TAMBAHKAN 3 BARIS INI (Leaflet MarkerCluster) -->
+  <!-- ========================================== -->
+  <!-- 2. LEAFLET PLUGIN: MARKER CLUSTER (WAJIB DI BAWAH CORE) -->
+  <!-- ========================================== -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
   <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-  
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=60">
 
-  <!-- Scripts CDN -->
+  <!-- Scripts CDN Lainnya -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css?v=60">
 
   <!-- Tailwind Configuration Baru -->
   <script>
