@@ -541,8 +541,6 @@ function refresh(viewId) {
     var id = viewId || (activeTab ? activeTab.id : 'view-dashboard');
 
     // 3. Update Filter State dari DOM
-    // Asumsi fungsi 'el' adalah helper document.getElementById. 
-    // Jika tidak, ganti el('...') dengan document.getElementById('...')
     if(document.getElementById('selDate')) s.filter.d = document.getElementById('selDate').value;
     if(document.getElementById('selBranch')) s.filter.b = document.getElementById('selBranch').value;
     if(document.getElementById('selComp')) s.filter.c = document.getElementById('selComp').value;
@@ -550,10 +548,23 @@ function refresh(viewId) {
     // Update Label Tanggal di Header
     if(typeof updateHeaderDate === 'function') updateHeaderDate();
 
-    // Tampilkan Loader
+    // Tampilkan Loader Utama
     var loader = document.getElementById('loader');
     if(loader) loader.style.display = 'flex';
     
+    // --- FITUR BARU: MENU LOCK (UI DEBOUNCE) ---
+    // Mengunci sidebar dan navigasi bawah agar user tidak memencet menu lain saat loading
+    const navMenu = document.getElementById('sidebar');
+    const bottomNav = document.getElementById('bottom-nav');
+    
+    if (navMenu) {
+        navMenu.classList.add('pointer-events-none', 'opacity-70', 'transition-all');
+    }
+    if (bottomNav) {
+        bottomNav.classList.add('pointer-events-none', 'opacity-70', 'transition-all');
+    }
+    // ------------------------------------------
+
     // --- BLOK SKELETON (SHIMMER EFFECT) ---
     // 1. Redupkan area yang sedang loading
     const activeView = document.querySelector('.tab-view:not(.hidden)');
@@ -617,40 +628,40 @@ function refresh(viewId) {
         google.script.run.withSuccessHandler(renderWriteOffPage).getWriteOffData(s.filter.b, s.filter.d);
     }
     
-    // Mutasi (Perbaikan Syntax: Menggunakan IF biasa agar tidak error)
+    // Mutasi
     else if(id === 'view-mutasi') {
         if (!s.filter.c) {
             alert("Harap pilih Tanggal Pembanding untuk melihat Mutasi!");
             if(loader) loader.style.display = 'none';
+            if (typeof unlockMenu === 'function') unlockMenu(); // Pastikan menu terbuka kembali jika dibatalkan
         } else {
             google.script.run.withSuccessHandler(renderMutasiPage).getMovementExtended(s.filter.b, s.filter.d, s.filter.c);
         }
     }
     
-    // Jatuh Tempo (Mengambil Range dari Dropdown)
+    // Jatuh Tempo
     else if(id === 'view-maturity') {
         var elRange = document.getElementById('selMatRange');
         var range = elRange ? elRange.value : 2;
         google.script.run.withSuccessHandler(renderMaturityPage).getMaturityDashboard(s.filter.b, s.filter.d, range);
     }
     
-    // Fresh Drop (Auto Detect - Tanpa parameter ke-3)
+    // Fresh Drop
     else if(id === 'view-freshdrop') {
         google.script.run.withSuccessHandler(renderFreshDropPage).getFreshDropData(s.filter.b, s.filter.d);
     }
     
-    // Tambahkan Router untuk Debtor Journey di sini:
+    // Debtor Journey
     else if(id === 'view-journey') {
-        // Kita gunakan getDashboardData karena di sana sudah ada npl_list (KOL 2-5)
         google.script.run.withSuccessHandler(function(res) {
-            // 1. Simpan data ke state agar bisa diakses global
+            app.state = app.state || {};
+            app.state.data = app.state.data || {};
             s.data.npl_list = res.npl_list;
             
-            // 2. Gambar daftar debiturnya
             renderJourneyPage();
             
-            // 3. Matikan loader
             if(loader) loader.style.display = 'none';
+            if (typeof unlockMenu === 'function') unlockMenu(); // Buka kunci navigasi
         }).getDashboardData(s.filter.b, s.filter.d, s.filter.c);
     }
 
@@ -665,11 +676,21 @@ function refresh(viewId) {
         loadArchiveData();
     }
 
-    // Fallback: Jika view tidak dikenali, matikan loader
+    // Fallback: Jika view tidak dikenali
     else {
         console.log("View tidak dikenal: " + id);
         if(loader) loader.style.display = 'none';
+        if (typeof unlockMenu === 'function') unlockMenu(); // Buka kunci navigasi
     }
+}
+
+// Fungsi untuk membuka kunci menu setelah loading selesai
+function unlockMenu() {
+    const navMenu = document.getElementById('sidebar');
+    const bottomNav = document.getElementById('bottom-nav');
+    
+    if (navMenu) navMenu.classList.remove('pointer-events-none', 'opacity-70');
+    if (bottomNav) bottomNav.classList.remove('pointer-events-none', 'opacity-70');
 }
 
 
@@ -1088,6 +1109,7 @@ window.setScenario = function(type) {
             renderChart('chartSec', 'doughnut', res.chart_sector.labels, res.chart_sector.data, 'Sektor');
         }, 300);
     }
+      unlockMenu();
 }
 
 
@@ -1110,11 +1132,15 @@ function formatNumber(angka) {
 
 
   function renderAllNPLPage(res) { renderGenericPage(res, 'ALL');
-  }
-  function renderKURPage(res) { renderGenericPage(res, 'KUR'); }
-  function renderKonsumtifPage(res) { renderGenericPage(res, 'Kons'); }
-  function renderProdPage(res) { renderGenericPage(res, 'Prod'); }
-  function render4SPage(res) { renderGenericPage(res, '4S'); }
+                                 unlockMenu();}
+  function renderKURPage(res) { renderGenericPage(res, 'KUR'); 
+                              unlockMenu();}
+  function renderKonsumtifPage(res) { renderGenericPage(res, 'Kons'); 
+                                    unlockMenu();}
+  function renderProdPage(res) { renderGenericPage(res, 'Prod'); 
+                               unlockMenu();}
+  function render4SPage(res) { renderGenericPage(res, '4S'); 
+                             unlockMenu();}
 
 
 
@@ -1194,14 +1220,18 @@ function renderSimTable(type) {
 
 
 
-// =================================================================
+   // =================================================================
     // 1. RENDER GENERIC PAGE (PENGENDALI HALAMAN MENU)
     // =================================================================
     function renderGenericPage(res, type) { 
         if(el('loader')) el('loader').style.display='none';
         
+        // --- 1. SAFE ASSIGNMENT (Mencegah Error Null saat Pindah Tab Cepat) ---
+        app.state = app.state || {};
+        app.state.data = app.state.data || {};
+        
         // A. Tentukan Variabel State
-        let dataVar = type==='KUR' ? 'kur' : (type==='Kons' ? 'kons' : (type==='Prod' ? 'prod' : 'allnpl'));
+        let dataVar = type === 'KUR' ? 'kur' : (type === 'Kons' ? 'kons' : (type === 'Prod' ? 'prod' : 'allnpl'));
         let allRows = res.npl_list || []; // Data dari Backend (Top Risk/KKR)
         
         // B. Filter Data Sesuai Menu (Agar tidak tercampur)
@@ -1219,69 +1249,68 @@ function renderSimTable(type) {
         s.data.npl_list = allRows;
         s['sim'+type] = { heal:[], crash:[] }; // Reset simulasi saat ganti menu
         
-        const c = res.curr; 
-        const d = res.diff;
+        const c = res.curr || {}; 
+        const d = res.diff || {};
 
         // D. Update Kartu Atas (Manual Mapping agar Akurat)
-       // ... (kode atas renderGenericPage tetap sama)
-
-        // 2. UPDATE KARTU (Manual Mapping)
         if(type === 'KUR') { 
             // Kartu 1: KUR Mikro (Data OS)
-            // Backend mengirim diff Mikro di variabel 'd.sub1' (Lihat Kode.gs)
-            updateCard('k_mikro', c.mikro_os, d?.sub1, d?.prev_sub1, false); 
+            updateCard('k_mikro', c.mikro_os, d.sub1, d.prev_sub1, false); 
             
             // Kartu 2: KUR Kecil (Data OS)
-            // Backend mengirim diff Kecil di variabel 'd.sub2'
-            updateCard('k_kecil', c.kecil_os, d?.sub2, d?.prev_sub2, false);
+            updateCard('k_kecil', c.kecil_os, d.sub2, d.prev_sub2, false);
             
-            // Kartu 3: Total NPL KUR (BARU)
-            updateCard('k_kur_npl', c.kur_npl, d?.kur_npl, d?.prev_kur_npl, true);
+            // Kartu 3: Total NPL KUR
+            updateCard('k_kur_npl', c.kur_npl, d.kur_npl, d.prev_kur_npl, true);
             
-            // Kartu 4: Total KKR KUR (BARU)
-            updateCard('k_kur_kkr', c.kur_kkr, d?.kur_kkr, d?.prev_kur_kkr, true);
-
+            // Kartu 4: Total KKR KUR
+            updateCard('k_kur_kkr', c.kur_kkr, d.kur_kkr, d.prev_kur_kkr, true);
         } 
         else if(type === 'ALL') { 
-            updateCard('k_all_tot', c.total_os, d?.os, d?.prev_os, false); 
-            updateCard('k_all_npl', c.npl_os, d?.npl_os, d?.prev_npl, true);
-            updateCard('k_all_kkr', c.kkr_os, d?.kkr, d?.prev_kkr, true);
+            updateCard('k_all_tot', c.total_os, d.os, d.prev_os, false); 
+            updateCard('k_all_npl', c.npl_os, d.npl_os, d.prev_npl, true);
+            updateCard('k_all_kkr', c.kkr_os, d.kkr, d.prev_kkr, true);
         } 
         else if(type === 'Kons') {
-            updateCard('k_kons_tot', c.cons_os, d?.cons_os, d?.prev_cons, false); 
-            updateCard('k_kons_npl', c.cons_npl, d?.cons_npl, d?.prev_cons_npl, true);
-            updateCard('k_kons_kkr', c.cons_kkr, d?.cons_kkr, d?.prev_cons_kkr, true);
+            updateCard('k_kons_tot', c.cons_os, d.cons_os, d.prev_cons, false); 
+            updateCard('k_kons_npl', c.cons_npl, d.cons_npl, d.prev_cons_npl, true);
+            updateCard('k_kons_kkr', c.cons_kkr, d.cons_kkr, d.prev_cons_kkr, true);
         }
         else if(type === 'Prod') {
-            updateCard('k_prod_tot', c.prod_os, d?.prod_os, d?.prev_prod, false); 
-            updateCard('k_prod_npl', c.prod_npl, d?.prod_npl, d?.prev_prod_npl, true);
-            updateCard('k_prod_kkr', c.prod_kkr, d?.prod_kkr, d?.prev_prod_kkr, true);
+            updateCard('k_prod_tot', c.prod_os, d.prod_os, d.prev_prod, false); 
+            updateCard('k_prod_npl', c.prod_npl, d.prod_npl, d.prev_prod_npl, true);
+            updateCard('k_prod_kkr', c.prod_kkr, d.prod_kkr, d.prev_prod_kkr, true);
         }
 
         // E. Update Ratio Header
         let num = 0, den = 1;
-        if(type==='ALL') { num=c.npl_os; den=c.total_os; }
-        else if(type==='Kons') { num=c.cons_npl; den=c.cons_os; }
-        else if(type==='4S') { num=c.fours_npl; den=c.fours_os; }
-        else if(type==='KUR') { num=c.kur_npl; den=c.kur_os; }
-        let r = den>0 ? (num/den)*100 : 0; 
-        safeTxt('k_npl_rat_'+type, r.toFixed(2)+"%");
+        if(type === 'ALL') { num = c.npl_os || 0; den = c.total_os || 1; }
+        else if(type === 'Kons') { num = c.cons_npl || 0; den = c.cons_os || 1; }
+        else if(type === 'Prod') { num = c.prod_npl || 0; den = c.prod_os || 1; } // Perbaikan: Ganti '4S' menjadi 'Prod'
+        else if(type === 'KUR') { num = c.kur_npl || 0; den = c.kur_os || 1; }
+        
+        let r = den > 0 ? (num / den) * 100 : 0; 
+        safeTxt('k_npl_rat_' + type, r.toFixed(2) + "%");
 
         // F. Update Statistik Simulasi Awal
-        updateSimStats(type); 
+        if (typeof updateSimStats === 'function') updateSimStats(type); 
         
         // G. Render Chart Sektor
-        if(res.chart_sector) renderChart('chSec_'+type, 'doughnut', res.chart_sector.labels, res.chart_sector.data, 'Sektor NPL');
+        if(res.chart_sector && typeof renderChart === 'function') {
+            renderChart('chSec_'+type, 'doughnut', res.chart_sector.labels, res.chart_sector.data, 'Sektor NPL');
+        }
         
-        // --- UPDATE DI renderGenericPage (Bagian Bawah) ---
-        
-        // Render Tabel (Split NPL & KKR)
+        // H. Render Tabel (Split NPL & KKR)
         let tableNpl = filteredRows.filter(r => r.kol >= 3);
         let tableKkr = filteredRows.filter(r => r.kol === 2);
         
-        // PERBAIKAN: Tambahkan parameter ke-5 ('NPL' dan 'KKR') sebagai penanda unik
-        renderSimTableHTML('tbl'+type+'Npl', tableNpl.slice(0,50), type, true, 'NPL'); 
-        renderSimTableHTML('tbl'+type+'Kkr', tableKkr.slice(0,50), type, true, 'KKR'); 
+        if (typeof renderSimTableHTML === 'function') {
+            renderSimTableHTML('tbl'+type+'Npl', tableNpl.slice(0,50), type, true, 'NPL'); 
+            renderSimTableHTML('tbl'+type+'Kkr', tableKkr.slice(0,50), type, true, 'KKR'); 
+        }
+
+        // --- 2. BUKA KUNCI MENU (Debounce Navigasi) ---
+        if (typeof unlockMenu === 'function') unlockMenu();
     }
     
 
