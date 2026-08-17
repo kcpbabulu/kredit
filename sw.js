@@ -1,46 +1,63 @@
-const CACHE_NAME = 'dakopen-v60-cache-v2';
+// UBAH NAMA ATAU ANGKA VERSI INI SETIAP KALI ANDA MENGUBAH KODINGAN!
+const CACHE_VERSION = 'dakopen-cache-v60'; 
+
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './app.js',
-  './manifest.json'
+  './manifest.json',
+  './icon-192.png'
 ];
 
+// 1. Proses Install: Langsung paksakan versi baru tanpa menunggu pengguna menutup aplikasi
 self.addEventListener('install', event => {
+  self.skipWaiting(); 
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(CACHE_VERSION)
+      .then(cache => cache.addAll(urlsToCache))
   );
 });
 
-self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
-      })
-  );
-});
-
+// 2. Proses Activate: Hapus SEMUA cache versi lama agar memori HP pengguna bersih
 self.addEventListener('activate', event => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
-          if (cacheWhitelist.indexOf(cacheName) === -1) {
+          if (cacheName !== CACHE_VERSION) {
+            console.log('🧹 Membersihkan cache kodingan lama:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // Ambil alih kontrol halaman saat ini juga
+  );
+});
+
+// 3. Proses Fetch (Network-First Strategy)
+// Selalu usahakan ambil kodingan terbaru dari internet (GitHub). Jika tidak ada sinyal, baru pakai Cache.
+self.addEventListener('fetch', event => {
+  // Abaikan request ke server Google Apps Script (biarkan app.js yang menanganinya)
+  if (event.request.url.includes('script.google.com')) {
+      return; 
+  }
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        // Jika berhasil ambil versi terbaru dari internet, simpan ke Cache
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseToCache = response.clone();
+          caches.open(CACHE_VERSION).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Jika HP tidak ada sinyal (Offline), gunakan file yang ada di Cache
+        return caches.match(event.request);
+      })
   );
 });
