@@ -1,7 +1,7 @@
 // =========================================================================
 // BRIDGE PROXY: MENYULAP google.script.run MENJADI FETCH API OTOMATIS
 // =========================================================================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbyck07bvRRtow084FWUkJc1MtNaOAofZLhGv2Q1iwpqAFA7lE2IK2NtmnMDwRa0MlfV/exec";
+const GAS_URL = "MASUKKAN_URL_WEB_APP_APPS_SCRIPT_ANDA_YANG_BARU_DISINI";
 
 window.google = { script: { run: null } };
 
@@ -50,7 +50,6 @@ window.google.script.run = createGasProxy(null, null);
 
 // ================= BATAS BRIDGE PROXY =================
 
-<script>
 window.app = (function() {
   var s = { 
     data: null, snaps: [], filter: { d:'', b:'ALL', c:'' }, 
@@ -7694,4 +7693,3 @@ function executeDeleteSheets() {
 document.addEventListener("DOMContentLoaded", function() { 
     if(window.app && window.app.init) window.app.init(); 
 });
-</script>
