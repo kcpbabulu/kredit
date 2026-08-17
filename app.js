@@ -648,13 +648,19 @@ function refresh(viewId) {
         google.script.run.withSuccessHandler(renderReportPreview).getFullReportData(s.filter.b, s.filter.d, s.filter.c);
     }
     
+   // --- TAMBAHKAN BLOK INI ---
+    // Arsip Kredit
+    else if(id === 'view-archive') {
+        loadArchiveData();
+    }
+    // -------------------------
+
     // Fallback: Jika view tidak dikenali, matikan loader
     else {
         console.log("View tidak dikenal: " + id);
         if(loader) loader.style.display = 'none';
     }
 }
-
 
 
 
@@ -6857,6 +6863,9 @@ function loadArchiveData() {
     const branch = (typeof s !== 'undefined' && s.filter) ? s.filter.b : 'ALL';
 
     google.script.run.withSuccessHandler(res => {
+        // --- TAMBAHKAN BARIS INI UNTUK MATIKAN LOADER PUTIH ---
+        if(document.getElementById('loader')) document.getElementById('loader').style.display = 'none';
+
         if (!res || !res.data) {
             if(grid) grid.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold uppercase">Data Kosong</div>`;
             return;
@@ -6903,6 +6912,9 @@ function loadArchiveData() {
         if(elTotal) elTotal.innerText = res.active_count || 0;
         
     }).withFailureHandler(err => {
+        // --- TAMBAHKAN BARIS INI JUGA ---
+        if(document.getElementById('loader')) document.getElementById('loader').style.display = 'none';
+        
         if(grid) grid.innerHTML = `<div class="p-4 text-center text-red-500 font-bold text-xs">Error: ${err.message}</div>`;
     }).getArchiveList(branch);
 }
@@ -7554,6 +7566,7 @@ function executeDeleteSheets() {
     toggleNativeMenu: toggleNativeMenu,
     toggleSpecificSheet: toggleSpecificSheet,
     internalCloseAll: internalCloseAll,
+    toggleSidebar: toggleSidebar,
 
     // FIX 1: Fungsi penutupan total yang membersihkan overlay dan semua laci
     closeAllSheets: function() {
