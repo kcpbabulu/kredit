@@ -7558,6 +7558,84 @@ function executeDeleteSheets() {
     }).deleteDatabaseSheets(sheetNames);
 }
 
+// --- FUNGSI SIMULASI NPL RATIO (WHAT-IF ANALYSIS) ---
+  function calcSim(type) {
+      const slider = document.getElementById('slide_os_' + type);
+      if(!slider) return;
+      
+      const pct = parseInt(slider.value); // Nilai persentase -50 hingga 100
+      
+      // 1. Ekstrak data asli dari text di layar (DOM Parser) 
+      // Hal ini dilakukan agar kita tidak merusak state data utama
+      let osText = '';
+      let nplText = '';
+      
+      if(type === 'ALL') {
+          osText = document.getElementById('k_all_tot')?.innerText || '0';
+          nplText = document.getElementById('k_all_npl')?.innerText || '0';
+      } else if(type === 'KUR') {
+          // KUR OS adalah gabungan Mikro dan Kecil
+          let m = document.getElementById('k_mikro')?.innerText || '0';
+          let k = document.getElementById('k_kecil')?.innerText || '0';
+          let valM = parseInt(m.replace(/[^\d]/g, '')) || 0;
+          let valK = parseInt(k.replace(/[^\d]/g, '')) || 0;
+          osText = (valM + valK).toString(); 
+          nplText = document.getElementById('k_kur_npl')?.innerText || '0';
+      } else if(type === 'KONS') {
+          osText = document.getElementById('k_kons_tot')?.innerText || '0';
+          nplText = document.getElementById('k_kons_npl')?.innerText || '0';
+      } else if(type === 'PROD') {
+          osText = document.getElementById('k_prod_tot')?.innerText || '0';
+          nplText = document.getElementById('k_prod_npl')?.innerText || '0';
+      }
+
+      // 2. Bersihkan karakter non-angka
+      const baseOS = parseInt(osText.replace(/[^\d]/g, '')) || 0;
+      const baseNPL = parseInt(nplText.replace(/[^\d]/g, '')) || 0;
+      
+      if(baseOS === 0) return; // Mencegah hitungan jika data belum load
+
+      // 3. Backup text ratio asli (untuk reset)
+      const ratioEl = document.getElementById('k_npl_rat_' + type);
+      if(!ratioEl.dataset.original) {
+          ratioEl.dataset.original = ratioEl.innerText; 
+      }
+
+      // 4. Reset jika kembali ke 0 (tengah)
+      if(pct === 0) {
+          ratioEl.innerText = ratioEl.dataset.original;
+          ratioEl.style.color = '';
+          document.getElementById('sim_os_' + type).innerText = "Geser Slider 👉";
+          document.getElementById('sim_pct_' + type).innerText = "0%";
+          document.getElementById('sim_pct_' + type).classList.replace('bg-emerald-500', 'bg-white/10');
+          document.getElementById('sim_pct_' + type).classList.replace('bg-red-500', 'bg-white/10');
+          return;
+      }
+
+      // 5. Kalkulasi Matematis Simulasi
+      const newOS = baseOS + (baseOS * (pct / 100));
+      let newRatio = 0;
+      if(newOS > 0) newRatio = (baseNPL / newOS) * 100;
+
+      // 6. Tampilkan ke UI
+      const badge = document.getElementById('sim_pct_' + type);
+      badge.innerText = (pct > 0 ? '+' : '') + pct + '%';
+      
+      // Update warna badge
+      badge.className = `text-white px-3 py-1 rounded-full border border-white/10 shadow-inner ${pct > 0 ? 'bg-emerald-500' : 'bg-red-500'}`;
+      
+      document.getElementById('sim_os_' + type).innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(newOS);
+      ratioEl.innerText = newRatio.toFixed(2) + '%';
+      
+      // 7. Berikan Efek Warna Indikator Kesehatan
+      const baseRatio = (baseNPL / baseOS) * 100;
+      if (newRatio > baseRatio) {
+          ratioEl.style.color = '#fda4af'; // Merah Muda (Memburuk)
+      } else if (newRatio < baseRatio) {
+          ratioEl.style.color = '#86efac'; // Hijau Muda (Membaik)
+      }
+  }
+
 
 
  
@@ -7706,6 +7784,7 @@ function executeDeleteSheets() {
     printSelectedLabels: printSelectedLabels,
     changeStatus: changeStatus,
     changePage: changePage,
+    calcSim: calcSim,
     togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
