@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=62">
+  <link rel="stylesheet" href="style.css?v=63">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -436,7 +436,10 @@
               <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
                   <div class="flex justify-between items-end mb-3">
                       <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest"><i class="fas fa-sliders-h mr-1 text-blue-400"></i> Simulasi Ekspansi / Run-off Baki Debet</div>
-                      <div class="text-sm font-black text-white font-mono bg-black/30 px-3 py-1 rounded-lg border border-white/10" id="sim_os_ALL">Geser Slider 👉</div>
+                      <div class="flex flex-col items-end">
+                          <div class="text-sm font-black text-white font-mono bg-black/30 px-3 py-1 rounded-lg border border-white/10 transition-all" id="sim_os_ALL">Geser Slider 👉</div>
+                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider transition-all" id="sim_diff_ALL"></div>
+                      </div>
                   </div>
                   <input type="range" id="slide_os_ALL" min="-50" max="100" value="0" class="sim-slider" oninput="app.calcSim('ALL')">
                   <div class="flex justify-between text-[9px] font-bold text-slate-400 uppercase mt-2">
@@ -446,6 +449,7 @@
                   </div>
               </div>
               <!-- ==================================== -->
+            
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div class="glass-card rounded-3xl overflow-hidden flex flex-col h-[500px]">
@@ -519,7 +523,10 @@
               <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
                   <div class="flex justify-between items-end mb-3">
                       <div class="text-[10px] font-bold text-purple-200 uppercase tracking-widest"><i class="fas fa-sliders-h mr-1 text-purple-300"></i> Simulasi Ekspansi / Run-off Baki Debet</div>
-                      <div class="text-sm font-black text-white font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/10" id="sim_os_KUR">Geser Slider 👉</div>
+                      <div class="flex flex-col items-end">
+                          <div class="text-sm font-black text-white font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/10 transition-all" id="sim_os_KUR">Geser Slider 👉</div>
+                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider transition-all" id="sim_diff_KUR"></div>
+                      </div>
                   </div>
                   <input type="range" id="slide_os_KUR" min="-50" max="100" value="0" class="sim-slider" oninput="app.calcSim('KUR')">
                   <div class="flex justify-between text-[9px] font-bold text-purple-300 uppercase mt-2">
@@ -529,6 +536,7 @@
                   </div>
               </div>
               <!-- ==================================== -->
+            
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div class="glass-card rounded-3xl overflow-hidden flex flex-col h-[400px]">
@@ -585,7 +593,10 @@
               <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
                   <div class="flex justify-between items-end mb-3">
                       <div class="text-[10px] font-bold text-indigo-200 uppercase tracking-widest"><i class="fas fa-sliders-h mr-1 text-indigo-300"></i> Simulasi Ekspansi / Run-off Baki Debet</div>
-                      <div class="text-sm font-black text-white font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/10" id="sim_os_KONS">Geser Slider 👉</div>
+                      <div class="flex flex-col items-end">
+                          <div class="text-sm font-black text-white font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/10 transition-all" id="sim_os_KONS">Geser Slider 👉</div>
+                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider transition-all" id="sim_diff_KONS"></div>
+                      </div>
                   </div>
                   <input type="range" id="slide_os_KONS" min="-50" max="100" value="0" class="sim-slider" oninput="app.calcSim('KONS')">
                   <div class="flex justify-between text-[9px] font-bold text-indigo-300 uppercase mt-2">
@@ -595,6 +606,7 @@
                   </div>
               </div>
               <!-- ========================================== -->
+            
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div class="glass-card rounded-3xl overflow-hidden flex flex-col h-[450px]">
@@ -651,7 +663,10 @@
               <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
                   <div class="flex justify-between items-end mb-3">
                       <div class="text-[10px] font-bold text-emerald-100 uppercase tracking-widest"><i class="fas fa-sliders-h mr-1 text-emerald-200"></i> Simulasi Ekspansi / Run-off Baki Debet</div>
-                      <div class="text-sm font-black text-white font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/10" id="sim_os_PROD">Geser Slider 👉</div>
+                      <div class="flex flex-col items-end">
+                          <div class="text-sm font-black text-white font-mono bg-black/20 px-3 py-1 rounded-lg border border-white/10 transition-all" id="sim_os_PROD">Geser Slider 👉</div>
+                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider transition-all" id="sim_diff_PROD"></div>
+                      </div>
                   </div>
                   <input type="range" id="slide_os_PROD" min="-50" max="100" value="0" class="sim-slider" oninput="app.calcSim('PROD')">
                   <div class="flex justify-between text-[9px] font-bold text-emerald-200 uppercase mt-2">
@@ -661,6 +676,7 @@
                   </div>
               </div>
               <!-- ========================================== -->
+            
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div class="glass-card rounded-3xl overflow-hidden flex flex-col h-[450px]">
@@ -1303,7 +1319,7 @@
   <!-- ======================================================= -->
 
    <!-- App Javascript -->
-  <script src="app.js?v=62"></script>
+  <script src="app.js?v=63"></script>
   
  <!-- Service Worker Registration & Auto-Update Catcher -->
   <script>
