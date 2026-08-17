@@ -184,6 +184,7 @@ function renderMapPage(res) {
 
     // 2. Tunda sedikit agar animasi fade-in layout selesai sebelum memuat map
     setTimeout(function() { initLeafletMap(res.points); }, 300);
+    unlockMenu();
 }
 
 // --- LOGIKA UTAMA LEAFLET JS ---
@@ -1021,6 +1022,7 @@ window.setScenario = function(type) {
             row.classList.remove('opacity-0', 'translate-y-4');
         });
     }, 100);
+      unlockMenu();
 }
 
   function renderDashboard(res) {
@@ -1580,6 +1582,7 @@ function renderSimTable(type) {
             bar.style.width = bar.getAttribute('data-width');
         });
     }, 100);
+      unlockMenu();
 }
 
 
@@ -1692,6 +1695,7 @@ function renderSimTable(type) {
             card.classList.remove('opacity-0', 'translate-y-4');
         });
     }, 100);
+     unlockMenu();
 }
 
 
@@ -1893,6 +1897,7 @@ function renderCKPNPage(res) {
             row.classList.remove('opacity-0', 'translate-x-4');
         });
     }, 100);
+    unlockMenu();
 }
 
 // Helper: Warna berdasarkan Kol
@@ -2110,6 +2115,7 @@ function renderCKPNRow(r, totalCKPN) {
             animateValue(`v_top_os_${index}`, 0, r.os, 800, true);
         }, index * 50); 
     });
+      unlockMenu();
 }
 
 
@@ -2191,6 +2197,7 @@ function renderRiskMatrix(res) {
 
     container.innerHTML = html;
     setTimeout(() => { initRiskChart(points); }, 150);
+    unlockMenu();
 }
 
 
@@ -2930,6 +2937,7 @@ function renderKreditPage() {
              if(tb) tb.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">FAILURE: ${err.message}</td></tr>`;
         })
         .searchCreditGlobal(branchVal, dateVal, ''); 
+    unlockMenu();
 }
 
 
@@ -3282,6 +3290,7 @@ window.filterCreditTable = function(keyword) {
              </div>
         </div>
     </div>`;
+      unlockMenu();
 }
 
   function fetchDetail(loanId) { 
