@@ -7609,7 +7609,12 @@ function executeDeleteSheets() {
           const slider = document.getElementById('slide_os_' + type);
           if (slider) slider.value = 0;
 
-          const ratioEl = document.getElementById('k_npl_rat_' + type);
+          // PENYESUAIAN ID (Case Sensitive Fix)
+          let ratioIdSuffix = type;
+          if (type === 'KONS') ratioIdSuffix = 'Kons';
+          if (type === 'PROD') ratioIdSuffix = 'Prod';
+
+          const ratioEl = document.getElementById('k_npl_rat_' + ratioIdSuffix);
           if (ratioEl) {
               delete ratioEl.dataset.original; 
               ratioEl.style.color = ''; 
@@ -7624,7 +7629,6 @@ function executeDeleteSheets() {
               pctBadge.className = 'text-white bg-white/10 px-3 py-1 rounded-full border border-white/10 shadow-inner';
           }
           
-          // Hapus Teks Selisih saat di-reset
           const diffBadge = document.getElementById('sim_diff_' + type);
           if (diffBadge) diffBadge.innerHTML = '';
       });
@@ -7664,7 +7668,14 @@ function executeDeleteSheets() {
       
       if(baseOS === 0) return;
 
-      const ratioEl = document.getElementById('k_npl_rat_' + type);
+      // PENYESUAIAN ID (Case Sensitive Fix)
+      let ratioIdSuffix = type;
+      if (type === 'KONS') ratioIdSuffix = 'Kons';
+      if (type === 'PROD') ratioIdSuffix = 'Prod';
+
+      const ratioEl = document.getElementById('k_npl_rat_' + ratioIdSuffix);
+      if(!ratioEl) return; // Mencegah error jika elemen tetap tidak ditemukan
+
       if(!ratioEl.dataset.original) {
           ratioEl.dataset.original = ratioEl.innerText; 
       }
@@ -7685,7 +7696,7 @@ function executeDeleteSheets() {
 
       // 3. Kalkulasi Matematis (Proyeksi OS & Selisih)
       const newOS = baseOS + (baseOS * (pct / 100));
-      const diffOS = newOS - baseOS; // Menghitung Gap/Selisih
+      const diffOS = newOS - baseOS; 
       let newRatio = 0;
       if(newOS > 0) newRatio = (baseNPL / newOS) * 100;
 
@@ -7710,9 +7721,9 @@ function executeDeleteSheets() {
       // 6. Efek Warna NPL Ratio Berubah
       const baseRatio = (baseNPL / baseOS) * 100;
       if (newRatio > baseRatio) {
-          ratioEl.style.color = '#fda4af'; // Memburuk (Merah)
+          ratioEl.style.color = '#fda4af'; // Memburuk (Merah Muda)
       } else if (newRatio < baseRatio) {
-          ratioEl.style.color = '#86efac'; // Membaik (Hijau)
+          ratioEl.style.color = '#86efac'; // Membaik (Hijau Muda)
       }
   }
 
