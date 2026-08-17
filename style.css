@@ -173,3 +173,27 @@ header, select, button { transition: background-color 0.3s ease, border-color 0.
 /* --- GLASSMORPHISM MODERN --- */
 .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); }
 .dark .glass-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+/* --- 9. GRADIENT ICONS (MODERN PLAYFUL) --- */
+.grad-icon {
+    display: inline-block;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent; /* Fallback */
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Tema Gradasi Spesifik */
+.grad-blue { background-image: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); }      /* Ocean Blue */
+.grad-emerald { background-image: linear-gradient(135deg, #10b981 0%, #059669 100%); }   /* Money Green */
+.grad-purple { background-image: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); }    /* Royal Purple */
+.grad-orange { background-image: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%); }    /* Sunset Orange */
+.grad-red { background-image: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); }       /* Alert Red */
+.grad-gold { background-image: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }      /* Premium Gold */
+
+/* Tambahan: Efek Glow pada Icon saat di-hover (Opsional tapi keren) */
+.glass-card:hover .grad-icon {
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+    transform: scale(1.15) rotate(5deg);
+}
