@@ -3515,24 +3515,29 @@ function updateUploadUI(pct, status) {
 
   function internalCloseAll() {
     // 1. Tutup Menu Utama & Bottom Sheets
-    const menu = el('nativeMenuSheet');
+    const menu = document.getElementById('nativeMenuSheet');
     if (menu) menu.classList.add('translate-y-full');
     
     document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
         sheet.classList.remove('open');
     });
 
-    // 2. TUTUP SEMUA MODAL (Tambahkan ini)
-    document.getElementById('modalDetail').classList.add('hidden');
-    document.getElementById('modalUpload').classList.add('hidden');
-    document.getElementById('modalWA').classList.add('hidden');
+    // 2. TUTUP SEMUA MODAL
+    document.getElementById('modalDetail')?.classList.add('hidden');
+    document.getElementById('modalUpload')?.classList.add('hidden');
+    document.getElementById('modalWA')?.classList.add('hidden');
 
     // 3. Sembunyikan Overlays
-    const overlay = el('nativeOverlay');
+    const overlay = document.getElementById('nativeOverlay');
     if (overlay) overlay.classList.add('hidden');
-    const sidebarOverlay = el('sidebarOverlay');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
     if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
-}
+
+    // --- TAMBAHAN BARIS INI UNTUK MENUTUP SIDEBAR HP ---
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) sidebar.classList.add('-translate-x-full');
+    // --------------------------------------------------
+  }
 
 
   function toggleSidebar() {
