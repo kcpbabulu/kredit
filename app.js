@@ -29,6 +29,11 @@ function createGasProxy(successHandler, failureHandler) {
                 })
                 .then(res => res.json())
                 .then(res => {
+                    // --- TAMBAHKAN 3 BARIS INI (AUTO-CLEANER) ---
+                    document.querySelectorAll('.tab-view').forEach(el => {
+                        el.classList.remove('opacity-50', 'pointer-events-none');
+                    });
+                    // -----------------
                     if (res.status === 'success' && successHandler) {
                         successHandler(res.data);
                     } else if (res.status === 'error') {
@@ -561,6 +566,27 @@ function refresh(viewId) {
     // Tampilkan Loader
     var loader = document.getElementById('loader');
     if(loader) loader.style.display = 'flex';
+    // --- TAMBAHKAN BLOK SKELETON INI ---
+    // 1. Redupkan area yang sedang loading
+    const activeView = document.querySelector('.tab-view:not(.hidden)');
+    if (activeView) {
+        activeView.classList.add('opacity-50', 'pointer-events-none', 'transition-opacity', 'duration-300');
+    }
+
+    // 2. Suntikkan efek Shimmering (Garis Berdenyut) ke dalam tabel yang aktif
+    const activeTableBodies = document.querySelectorAll('.tab-view:not(.hidden) tbody');
+    activeTableBodies.forEach(tbody => {
+        tbody.innerHTML = `
+            <tr><td colspan="10" class="p-8">
+                <div class="animate-pulse space-y-5 w-full">
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-3/4"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-1/2"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-5/6"></div>
+                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-2/3"></div>
+                </div>
+            </td></tr>
+        `;
+    });
 
     // Bersihkan Chart Lama (Memory Management)
     if(typeof charts !== 'undefined') {
