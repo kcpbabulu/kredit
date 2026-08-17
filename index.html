@@ -129,9 +129,9 @@
     </div>
     
     <div class="flex-1 relative -mt-8 flex flex-col items-center" onclick="app.toggleNativeMenu()">
-      <div class="w-14 h-14 bg-gradient-to-tr from-blue-500 to-emerald-400 text-white rounded-full flex items-center justify-center shadow-lg shadow-blue-500/40 border-4 border-white dark:border-slate-900 active:scale-90 transition-all duration-300 animate-float">
-        <i class="fas fa-layer-group text-xl"></i>
-      </div>
+      <div class="w-14 h-14 bg-white text-white rounded-full flex items-center justify-center shadow-lg border-2 border-slate-100 active:scale-90 transition-all duration-300 animate-float">
+    <i class="fas fa-layer-group text-2xl grad-icon grad-purple"></i>
+</div>
     </div>
 
     <div class="flex-1 nav-item flex flex-col items-center gap-1 active:scale-90 transition-all cursor-pointer group" onclick="app.closeAllSheets(); app.toggleSpecificSheet('sheet-ops'); updateMobileNav(this)">
@@ -203,7 +203,30 @@
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition-all hover:shadow-lg hover:border-blue-300" onclick="app.switchTab('view-kredit')">
                <div class="flex justify-between items-start">
                   <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Outstanding</div><div class="text-xl font-bold mt-1 text-gray-800 dark:text-white" id="v_os">...</div></div>
-                  <div class="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:bg-blue-100 transition-colors"><i class="fas fa-wallet"></i></div>
+                  <!-- Kartu Outstanding (Biru) -->
+<div class="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors">
+    <i class="fas fa-wallet text-3xl grad-icon grad-blue"></i>
+</div>
+
+<!-- Kartu NPL Ratio (Merah) -->
+<div class="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors">
+    <i class="fas fa-exclamation-triangle text-3xl grad-icon grad-red"></i>
+</div>
+
+<!-- Kartu KKR (Pink/Ungu) -->
+<div class="p-2 bg-pink-50 rounded-lg group-hover:bg-pink-100 transition-colors">
+    <i class="fas fa-radiation text-3xl grad-icon grad-purple"></i>
+</div>
+
+<!-- Kartu Total Tunggakan (Oranye) -->
+<div class="p-2 bg-orange-50 rounded-lg group-hover:bg-orange-100 transition-colors">
+    <i class="fas fa-clock text-3xl grad-icon grad-orange"></i>
+</div>
+
+<!-- Kartu Debitur NOA (Hijau) -->
+<div class="p-2 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors">
+    <i class="fas fa-users text-3xl grad-icon grad-emerald"></i>
+</div>
                </div>
                <div id="bdg_v_os" class="mt-2 hidden"></div>
             </div>
