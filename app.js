@@ -7558,15 +7558,43 @@ function executeDeleteSheets() {
     }).deleteDatabaseSheets(sheetNames);
 }
 
-// --- FUNGSI SIMULASI NPL RATIO (WHAT-IF ANALYSIS) ---
+// --- FUNGSI RESET SLIDER SIMULASI ---
+  function resetSimSliders() {
+      const types = ['ALL', 'KUR', 'KONS', 'PROD'];
+      
+      types.forEach(type => {
+          const slider = document.getElementById('slide_os_' + type);
+          if (slider) slider.value = 0;
+
+          const ratioEl = document.getElementById('k_npl_rat_' + type);
+          if (ratioEl) {
+              delete ratioEl.dataset.original; 
+              ratioEl.style.color = ''; 
+          }
+
+          const osBadge = document.getElementById('sim_os_' + type);
+          if (osBadge) osBadge.innerText = "Geser Slider 👉";
+
+          const pctBadge = document.getElementById('sim_pct_' + type);
+          if (pctBadge) {
+              pctBadge.innerText = "0%";
+              pctBadge.className = 'text-white bg-white/10 px-3 py-1 rounded-full border border-white/10 shadow-inner';
+          }
+          
+          // Hapus Teks Selisih saat di-reset
+          const diffBadge = document.getElementById('sim_diff_' + type);
+          if (diffBadge) diffBadge.innerHTML = '';
+      });
+  }
+
+  // --- FUNGSI SIMULASI NPL RATIO (WHAT-IF ANALYSIS) ---
   function calcSim(type) {
       const slider = document.getElementById('slide_os_' + type);
       if(!slider) return;
       
-      const pct = parseInt(slider.value); // Nilai persentase -50 hingga 100
+      const pct = parseInt(slider.value);
       
-      // 1. Ekstrak data asli dari text di layar (DOM Parser) 
-      // Hal ini dilakukan agar kita tidak merusak state data utama
+      // 1. Dapatkan OS Asli & NPL Asli
       let osText = '';
       let nplText = '';
       
@@ -7574,7 +7602,6 @@ function executeDeleteSheets() {
           osText = document.getElementById('k_all_tot')?.innerText || '0';
           nplText = document.getElementById('k_all_npl')?.innerText || '0';
       } else if(type === 'KUR') {
-          // KUR OS adalah gabungan Mikro dan Kecil
           let m = document.getElementById('k_mikro')?.innerText || '0';
           let k = document.getElementById('k_kecil')?.innerText || '0';
           let valM = parseInt(m.replace(/[^\d]/g, '')) || 0;
@@ -7589,19 +7616,19 @@ function executeDeleteSheets() {
           nplText = document.getElementById('k_prod_npl')?.innerText || '0';
       }
 
-      // 2. Bersihkan karakter non-angka
       const baseOS = parseInt(osText.replace(/[^\d]/g, '')) || 0;
       const baseNPL = parseInt(nplText.replace(/[^\d]/g, '')) || 0;
       
-      if(baseOS === 0) return; // Mencegah hitungan jika data belum load
+      if(baseOS === 0) return;
 
-      // 3. Backup text ratio asli (untuk reset)
       const ratioEl = document.getElementById('k_npl_rat_' + type);
       if(!ratioEl.dataset.original) {
           ratioEl.dataset.original = ratioEl.innerText; 
       }
 
-      // 4. Reset jika kembali ke 0 (tengah)
+      const diffBadge = document.getElementById('sim_diff_' + type);
+
+      // 2. Jika Slider Kembali ke Tengah (0%)
       if(pct === 0) {
           ratioEl.innerText = ratioEl.dataset.original;
           ratioEl.style.color = '';
@@ -7609,60 +7636,41 @@ function executeDeleteSheets() {
           document.getElementById('sim_pct_' + type).innerText = "0%";
           document.getElementById('sim_pct_' + type).classList.replace('bg-emerald-500', 'bg-white/10');
           document.getElementById('sim_pct_' + type).classList.replace('bg-red-500', 'bg-white/10');
+          if (diffBadge) diffBadge.innerHTML = '';
           return;
       }
 
-      // 5. Kalkulasi Matematis Simulasi
+      // 3. Kalkulasi Matematis (Proyeksi OS & Selisih)
       const newOS = baseOS + (baseOS * (pct / 100));
+      const diffOS = newOS - baseOS; // Menghitung Gap/Selisih
       let newRatio = 0;
       if(newOS > 0) newRatio = (baseNPL / newOS) * 100;
 
-      // 6. Tampilkan ke UI
+      // 4. Update UI Angka Persentase & Proyeksi OS
       const badge = document.getElementById('sim_pct_' + type);
       badge.innerText = (pct > 0 ? '+' : '') + pct + '%';
-      
-      // Update warna badge
       badge.className = `text-white px-3 py-1 rounded-full border border-white/10 shadow-inner ${pct > 0 ? 'bg-emerald-500' : 'bg-red-500'}`;
       
-      document.getElementById('sim_os_' + type).innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(newOS);
+      const formatRupiah = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 });
+      document.getElementById('sim_os_' + type).innerText = formatRupiah.format(newOS);
       ratioEl.innerText = newRatio.toFixed(2) + '%';
       
-      // 7. Berikan Efek Warna Indikator Kesehatan
+      // 5. Update UI Selisih Penambahan / Pengurangan
+      if (diffBadge) {
+          if (diffOS > 0) {
+              diffBadge.innerHTML = `<span class="text-emerald-300">Ekspansi OS: +${formatRupiah.format(Math.abs(diffOS))}</span>`;
+          } else {
+              diffBadge.innerHTML = `<span class="text-red-300">Run-off OS: -${formatRupiah.format(Math.abs(diffOS))}</span>`;
+          }
+      }
+      
+      // 6. Efek Warna NPL Ratio Berubah
       const baseRatio = (baseNPL / baseOS) * 100;
       if (newRatio > baseRatio) {
-          ratioEl.style.color = '#fda4af'; // Merah Muda (Memburuk)
+          ratioEl.style.color = '#fda4af'; // Memburuk (Merah)
       } else if (newRatio < baseRatio) {
-          ratioEl.style.color = '#86efac'; // Hijau Muda (Membaik)
+          ratioEl.style.color = '#86efac'; // Membaik (Hijau)
       }
-  }
-
-  // --- FUNGSI RESET SLIDER SIMULASI (DIPANGGIL SAAT GANTI CABANG) ---
-  function resetSimSliders() {
-      const types = ['ALL', 'KUR', 'KONS', 'PROD'];
-      
-      types.forEach(type => {
-          // 1. Kembalikan posisi tuas slider ke 0 (Tengah)
-          const slider = document.getElementById('slide_os_' + type);
-          if (slider) slider.value = 0;
-
-          // 2. Hapus memori (cache) rasio cabang lama agar siap diisi rasio cabang baru
-          const ratioEl = document.getElementById('k_npl_rat_' + type);
-          if (ratioEl) {
-              delete ratioEl.dataset.original; 
-              ratioEl.style.color = ''; // Hapus sisa efek warna merah/hijau
-          }
-
-          // 3. Kembalikan teks indikator UI ke posisi default
-          const osBadge = document.getElementById('sim_os_' + type);
-          if (osBadge) osBadge.innerText = "Geser Slider 👉";
-
-          const pctBadge = document.getElementById('sim_pct_' + type);
-          if (pctBadge) {
-              pctBadge.innerText = "0%";
-              // Kembalikan ke warna background transparan bawaan
-              pctBadge.className = 'text-white bg-white/10 px-3 py-1 rounded-full border border-white/10 shadow-inner';
-          }
-      });
   }
 
     
