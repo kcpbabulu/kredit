@@ -1038,20 +1038,8 @@
             <button onclick="app.doUpload(this)" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white py-3.5 rounded-xl font-black shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex justify-center items-center gap-2">PROSES UPLOAD <i class="fas fa-arrow-right text-xs"></i></button>
             <button onclick="app.closeModal('modalUpload')" class="w-full py-3 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 rounded-xl">Batal</button>
         </div>
-    </div>
-  </div>
 
-  <!-- Modal WA -->
-  <div id="modalWA" class="fixed inset-0 z-[70] hidden bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl">
-        <h3 class="font-black mb-4 dark:text-white flex items-center gap-2"><i class="fab fa-whatsapp text-2xl grad-icon grad-emerald"></i> Laporan Harian</h3>
-        <textarea id="waText" class="w-full h-64 border border-slate-200 rounded-xl p-3 text-xs font-mono dark:bg-slate-700 mb-4 focus:ring-2 focus:ring-emerald-500 outline-none" readonly></textarea>
-        <div class="flex gap-2">
-            <button onclick="app.closeModal('modalWA')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition active:scale-95">Tutup</button>
-            <button onclick="app.copyWA()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition active:scale-95">Copy Text</button>
-        </div>
-
-        <!-- ========================================================== -->
+     <!-- ========================================================== -->
         <!-- SISIPKAN FITUR MANAJEMEN DATABASE (HAPUS SHEET) DI SINI!   -->
         <!-- ========================================================== -->
         <div class="mt-8 border-t-2 border-dashed border-slate-200 dark:border-slate-700 pt-6">
@@ -1078,8 +1066,20 @@
             </button>
         </div>
         <!-- ========================================================== -->
-    
+
       
+    </div>
+  </div>
+
+  <!-- Modal WA -->
+  <div id="modalWA" class="fixed inset-0 z-[70] hidden bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl">
+        <h3 class="font-black mb-4 dark:text-white flex items-center gap-2"><i class="fab fa-whatsapp text-2xl grad-icon grad-emerald"></i> Laporan Harian</h3>
+        <textarea id="waText" class="w-full h-64 border border-slate-200 rounded-xl p-3 text-xs font-mono dark:bg-slate-700 mb-4 focus:ring-2 focus:ring-emerald-500 outline-none" readonly></textarea>
+        <div class="flex gap-2">
+            <button onclick="app.closeModal('modalWA')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition active:scale-95">Tutup</button>
+            <button onclick="app.copyWA()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition active:scale-95">Copy Text</button>
+        </div>
     </div>
   </div>
 
