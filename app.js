@@ -66,67 +66,66 @@ window.app = (function() {
   var charts = {};
   var map = null;
   // --- KOORDINAT GPS DESA/KELURAHAN SE-PENAJAM PASER UTARA ---
-  // Pastikan nama Key di sini SAMA PERSIS dengan label di Kode.gs
-  const cityCoords = {
-      // === KEC PENAJAM ===
-      "KEL. PETUNG": [-1.2989, 116.7118],
-      "DESA GIRI MUKTI": [-1.3250, 116.6800],
-      "DESA SIDOREJO": [-1.3100, 116.6900],
-      "KEL. NIPAH-NIPAH": [-1.2450, 116.7650], // Area Kantor Bupati
-      "KEL. NENANG": [-1.2650, 116.7500],
-      "KEL. PENAJAM": [-1.2523, 116.7725],     // Pelabuhan Ferry
-      "KEL. GUNUNG SETELENG": [-1.2600, 116.7600],
-      "KEL. SOTEK": [-1.3653, 116.5867],
-      "KEL. RIKO": [-1.1500, 116.7000],
-      "KEL. GERSIK": [-1.1800, 116.7500],
-      "KEL. JENEBORA": [-1.1600, 116.7600],
-      "KEL. PANTAI LANGO": [-1.1300, 116.7400],
-      "KEL. SALOLOANG": [-1.3500, 116.6500],
-      "KEL. KAMPUNG BARU": [-1.2300, 116.7700],
-      "KEL. SESUMPU": [-1.2800, 116.7300],
-      "KEL. TANJUNG TENGAH": [-1.3300, 116.6600],
+const cityCoords = {
+    // === KEC PENAJAM ===
+    "KEL. PETUNG": [-1.2989, 116.7118],
+    "DESA GIRI MUKTI": [-1.3250, 116.6800],
+    "DESA SIDOREJO": [-1.3100, 116.6900],
+    "KEL. NIPAH-NIPAH": [-1.2450, 116.7650], 
+    "KEL. NENANG": [-1.2650, 116.7500],
+    "KEL. PENAJAM": [-1.2523, 116.7725],      
+    "KEL. GUNUNG SETELENG": [-1.2600, 116.7600],
+    "KEL. SOTEK": [-1.3653, 116.5867],
+    "KEL. RIKO": [-1.1500, 116.7000],
+    "KEL. GERSIK": [-1.1800, 116.7500],
+    "KEL. JENEBORA": [-1.1600, 116.7600],
+    "KEL. PANTAI LANGO": [-1.1300, 116.7400],
+    "KEL. SALOLOANG": [-1.3500, 116.6500],
+    "KEL. KAMPUNG BARU": [-1.2300, 116.7700],
+    "KEL. SESUMPU": [-1.2800, 116.7300],
+    "KEL. TANJUNG TENGAH": [-1.3300, 116.6600],
 
-      // === KEC WARU ===
-      "DESA WARU": [-1.3965, 116.6340],
-      "DESA SESULU": [-1.4100, 116.6200],
-      "DESA BANGUN MULYA": [-1.4200, 116.6400],
-      "DESA API-API": [-1.4500, 116.6000],
+    // === KEC WARU ===
+    "DESA WARU": [-1.3965, 116.6340],
+    "DESA SESULU": [-1.4100, 116.6200],
+    "DESA BANGUN MULYA": [-1.4200, 116.6400],
+    "DESA API-API": [-1.4500, 116.6000],
 
-      // === KEC BABULU ===
-      "DESA BABULU DARAT": [-1.5165, 116.4800],
-      "DESA BABULU LAUT": [-1.5300, 116.4500],
-      "DESA GUNUNG MAKMUR": [-1.5000, 116.5000],
-      "DESA SEBAKUNG JAYA": [-1.5500, 116.4200],
-      "DESA RAWA MULIA": [-1.5200, 116.5200],
-      "DESA LABANGKA": [-1.5600, 116.5500],
-      "DESA SUMBER SARI": [-1.4900, 116.5100],
-      "DESA GUNUNG INTAN": [-1.4800, 116.5300],
-      "DESA SRI RAHARJA": [-1.4700, 116.5400],
+    // === KEC BABULU ===
+    "DESA BABULU DARAT": [-1.5165, 116.4800],
+    "DESA BABULU LAUT": [-1.5300, 116.4500],
+    "DESA GUNUNG MAKMUR": [-1.5000, 116.5000],
+    "DESA SEBAKUNG JAYA": [-1.5500, 116.4200],
+    "DESA RAWA MULIA": [-1.5200, 116.5200],
+    "DESA LABANGKA": [-1.5600, 116.5500],
+    "DESA SUMBER SARI": [-1.4900, 116.5100],
+    "DESA GUNUNG INTAN": [-1.4800, 116.5300],
+    "DESA SRI RAHARJA": [-1.4700, 116.5400],
 
-      // === KEC SEPAKU (IKN) ===
-      "DESA SEPAKU": [-0.9258, 116.7725],
-      "DESA TENGIN BARU": [-0.9500, 116.7800],
-      "DESA BUKIT RAYA": [-0.9700, 116.7600],
-      "DESA SUKARAJA": [-0.9900, 116.7500],
-      "DESA BUMI HARAPAN": [-0.9000, 116.7200],
-      "KEL. PEMALUAN": [-1.0500, 116.8000],
-      "KEL. MARIDAN": [-1.1000, 116.8200],
-      "DESA SEMOI DUA": [-0.8500, 116.8500],
-      "DESA ARGO MULYO": [-0.8800, 116.8800],
-      "DESA MENTAWIR": [-1.0200, 116.8500],
-      "DESA WONOSARI": [-0.9100, 116.7900],
+    // === KEC SEPAKU (IKN) ===
+    "DESA SEPAKU": [-0.9258, 116.7725],
+    "DESA TENGIN BARU": [-0.9500, 116.7800],
+    "DESA BUKIT RAYA": [-0.9700, 116.7600],
+    "DESA SUKARAJA": [-0.9900, 116.7500],
+    "DESA BUMI HARAPAN": [-0.9000, 116.7200],
+    "KEL. PEMALUAN": [-1.0500, 116.8000],
+    "KEL. MARIDAN": [-1.1000, 116.8200],
+    "DESA SEMOI DUA": [-0.8500, 116.8500],
+    "DESA ARGO MULYO": [-0.8800, 116.8800],
+    "DESA MENTAWIR": [-1.0200, 116.8500],
+    "DESA WONOSARI": [-0.9100, 116.7900],
 
-      // === FALLBACK (Jika Desa Tidak Terdeteksi) ===
-      "KEC. PENAJAM (UMUM)": [-1.2800, 116.7300],
-      "KEC. WARU (UMUM)": [-1.4000, 116.6300],
-      "KEC. BABULU (UMUM)": [-1.5100, 116.4900],
-      "KEC. SEPAKU (UMUM)": [-0.9300, 116.7700],
-      "KEC. PENAJAM (SOTEK AREA)": [-1.3600, 116.5800],
-      "PENAJAM KOTA (UMUM)": [-1.2523, 116.7725],
-      "LAINNYA": [-1.2523, 116.7725]
-  };
+    // === FALLBACK (Jika Desa Tidak Terdeteksi) ===
+    "KEC. PENAJAM (UMUM)": [-1.2800, 116.7300],
+    "KEC. WARU (UMUM)": [-1.4000, 116.6300],
+    "KEC. BABULU (UMUM)": [-1.5100, 116.4900],
+    "KEC. SEPAKU (UMUM)": [-0.9300, 116.7700],
+    "KEC. PENAJAM (SOTEK AREA)": [-1.3600, 116.5800],
+    "PENAJAM KOTA (UMUM)": [-1.2523, 116.7725],
+    "DEFAULT": [-1.3093, 116.7274] // Fallback absolut
+};
 
-  // --- VARIABEL GLOBAL PETA (LEAFLET VERSION) ---
+// --- VARIABEL GLOBAL PETA (LEAFLET VERSION) ---
 var mapInstance = null;
 var mapMarkers = [];
 
@@ -136,10 +135,9 @@ function renderMapPage(res) {
     var container = document.getElementById('view-map');
     var fmtIDR = function(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); };
 
-    // 1. Render Layout dengan Staggered Sidebar
+    // 1. Render Layout (Kodingan asli Anda dipertahankan karena sudah sangat bagus)
     container.innerHTML = `
     <div class="flex flex-col h-[calc(100vh-100px)] lg:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 animate-fade-in">
-        
         <div class="w-full lg:w-1/3 h-1/3 lg:h-full flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-10 shadow-2xl overflow-hidden">
             <div class="p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
                 <h3 class="font-black text-slate-800 dark:text-white flex items-center gap-2 uppercase tracking-tighter">
@@ -177,33 +175,19 @@ function renderMapPage(res) {
         <div class="w-full lg:w-2/3 h-2/3 lg:h-full relative z-0">
             <div id="map_canvas" class="w-full h-full"></div>
             
-            <div id="map_loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/90 dark:bg-slate-900/90 z-20 backdrop-blur-md">
+            <div id="map_loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/90 dark:bg-slate-900/90 z-20 backdrop-blur-md transition-opacity duration-500">
                 <div class="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
                 <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mt-4">Calibrating Map...</span>
             </div>
         </div>
     </div>`;
 
-    // 2. Library Loader (Tetap sama, trigger initLeafletMap)
-    if (typeof L === 'undefined') {
-        var link = document.createElement('link'); link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        document.head.appendChild(link);
-
-        var script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        script.onload = function() { initLeafletMap(res.points); };
-        document.head.appendChild(script);
-    } else {
-        setTimeout(function() { initLeafletMap(res.points); }, 200);
-    }
+    // 2. Tunda sedikit agar animasi fade-in layout selesai sebelum memuat map
+    setTimeout(function() { initLeafletMap(res.points); }, 300);
 }
 
 // --- LOGIKA UTAMA LEAFLET JS ---
 function initLeafletMap(points) {
-    var loader = document.getElementById('map_loader');
-    if(loader) loader.style.display = 'none';
-
     // Munculkan Sidebar dengan Stagger
     document.querySelectorAll('.region-card').forEach(el => {
         el.classList.remove('opacity-0', 'translate-x-[-20px]');
@@ -214,94 +198,94 @@ function initLeafletMap(points) {
     var centerPPU = [-1.3093, 116.7274]; 
     mapInstance = L.map('map_canvas', { zoomControl: false }).setView(centerPPU, 10);
 
-    // Style Peta: Gunakan CartoDB Positron untuk tampilan lebih "bersih" dan profesional
+    // Style Peta: CartoDB Positron
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap'
     }).addTo(mapInstance);
 
-    // Tambahkan Zoom Control di kanan bawah
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    // Pasang Marker dengan Animasi Drop & Stagger
-    points.forEach(function(p, i) {
-        var baseCoord = getCoordByRegion(p.area);
-        var lat = baseCoord.lat + (Math.random() - 0.5) * 0.02;
-        var lng = baseCoord.lng + (Math.random() - 0.5) * 0.02;
-
-        // Gunakan Delay agar marker jatuh satu per satu
-        setTimeout(function() {
-            var marker = L.circleMarker([lat, lng], {
-                color: '#fff', weight: 2, fillColor: '#EF4444',
-                fillOpacity: 0.9, radius: 0 // Mulai dari 0 untuk animasi grow
-            }).addTo(mapInstance);
-
-            // Animasi Grow pada Marker
-            var targetRadius = p.os > 500000000 ? 12 : 8;
-            var currentRadius = 0;
-            var interval = setInterval(function() {
-                if(currentRadius >= targetRadius) clearInterval(interval);
-                marker.setRadius(currentRadius++);
-            }, 20);
-
-            var content = `
-                <div class="p-2 min-w-[180px] font-sans">
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">${p.area}</div>
-                    <div class="font-black text-slate-800 text-sm leading-tight mb-2">${p.nama}</div>
-                    <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100">
-                        <span class="text-[9px] font-bold text-red-600 uppercase">Outstanding</span>
-                        <span class="font-black text-red-700 text-xs">Rp ${new Intl.NumberFormat('id-ID').format(p.os)}</span>
-                    </div>
-                </div>`;
-            marker.bindPopup(content);
-        }, i * 20); // Delay per marker 20ms
+    // --- INISIALISASI MARKER CLUSTER ---
+    // Pastikan Anda sudah memasukkan script plugin MarkerCluster di index.html
+    const markerClusterGroup = L.markerClusterGroup({
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        maxClusterRadius: 50 // Ubah angka ini (contoh: 30-80) untuk mengatur kepadatan pengelompokan
     });
+
+    // Pasang Marker ke dalam Cluster
+    points.forEach(function(p) {
+        var baseCoord = getCoordByRegion(p.area);
+        
+        // Tetap gunakan sedikit jittering (pengacakan titik) agar tidak 100% menumpuk saat Spiderfy
+        var lat = baseCoord.lat + (Math.random() - 0.5) * 0.005;
+        var lng = baseCoord.lng + (Math.random() - 0.5) * 0.005;
+        
+        var targetRadius = p.os > 500000000 ? 10 : 6; // Dikecilkan sedikit agar rapi saat bergerombol
+
+        var marker = L.circleMarker([lat, lng], {
+            color: '#fff', weight: 2, fillColor: '#EF4444',
+            fillOpacity: 0.9, radius: targetRadius
+        });
+
+        var content = `
+            <div class="p-2 min-w-[180px] font-sans">
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">${p.area}</div>
+                <div class="font-black text-slate-800 text-sm leading-tight mb-2">${p.nama}</div>
+                <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100">
+                    <span class="text-[9px] font-bold text-red-600 uppercase">Outstanding</span>
+                    <span class="font-black text-red-700 text-xs">Rp ${new Intl.NumberFormat('id-ID').format(p.os)}</span>
+                </div>
+            </div>`;
+        
+        marker.bindPopup(content);
+        
+        // Masukkan marker ke Cluster, BUKAN langsung ke mapInstance
+        markerClusterGroup.addLayer(marker); 
+    });
+
+    // Tambahkan wadah cluster ke peta sekaligus
+    mapInstance.addLayer(markerClusterGroup);
+
+    // Hilangkan loading screen perlahan
+    var loader = document.getElementById('map_loader');
+    if(loader) {
+        loader.classList.add('opacity-0');
+        setTimeout(() => { loader.style.display = 'none'; }, 500);
+    }
 }
 
-// --- FUNGSI ZOOM KE WILAYAH (LEAFLET VERSION) ---
+// --- FUNGSI ZOOM KE WILAYAH ---
 window.zoomToRegion = function(regionName) {
     if(!mapInstance) return;
     
     var coord = getCoordByRegion(regionName);
     
-    // FlyTo: Animasi terbang yang halus ala Leaflet
-    mapInstance.flyTo([coord.lat, coord.lng], 14, {
-        duration: 1.5 // Durasi terbang 1.5 detik
+    // Zoom in (level 13) agak dekat saat menu region diklik
+    mapInstance.flyTo([coord.lat, coord.lng], 13, {
+        duration: 1.5 
     });
 };
 
-// --- KAMUS KOORDINAT (WAJIB DILENGKAPI) ---
-// Note: Google Maps & Leaflet sama-sama pakai Lat/Lng Decimal
+// --- FUNGSI PENCARIAN KOORDINAT PERBAIKAN ---
 function getCoordByRegion(name) {
     var n = String(name).toUpperCase().trim();
     
-    // DATABASE KOORDINAT MANUAL (Cari di Google Maps -> Klik Kanan -> Ambil Angka)
-    var DB_COORD = {
-        "PENAJAM": { lat: -1.258, lng: 116.764 },
-        "WARU": { lat: -1.416, lng: 116.657 },
-        "BABULU": { lat: -1.533, lng: 116.516 },
-        "SEPAKU": { lat: -0.925, lng: 116.758 }, // Dekat IKN
-        
-        "GUNUNG INTAN": { lat: -1.516, lng: 116.483 }, 
-        "GUNUNG SETELENG": { lat: -1.267, lng: 116.733 },
-        "PETUNG": { lat: -1.295, lng: 116.690 },
-        "GIRI MUKTI": { lat: -1.283, lng: 116.650 },
-        "SOTEK": { lat: -1.166, lng: 116.666 },
-        
-        // Default Center jika tidak ketemu
-        "DEFAULT": { lat: -1.3093, lng: 116.7274 }
-    };
-
-    return DB_COORD[n] || DB_COORD["DEFAULT"];
+    // Cari di kamus utama (cityCoords) terlebih dahulu
+    if (cityCoords[n]) {
+        return { lat: cityCoords[n][0], lng: cityCoords[n][1] };
+    }
+    
+    // Fallback jika desa spesifik tidak ditemukan, cari kecamatannya saja
+    if (n.includes('PENAJAM')) return { lat: cityCoords["KEC. PENAJAM (UMUM)"][0], lng: cityCoords["KEC. PENAJAM (UMUM)"][1] };
+    if (n.includes('WARU')) return { lat: cityCoords["KEC. WARU (UMUM)"][0], lng: cityCoords["KEC. WARU (UMUM)"][1] };
+    if (n.includes('BABULU')) return { lat: cityCoords["KEC. BABULU (UMUM)"][0], lng: cityCoords["KEC. BABULU (UMUM)"][1] };
+    if (n.includes('SEPAKU')) return { lat: cityCoords["KEC. SEPAKU (UMUM)"][0], lng: cityCoords["KEC. SEPAKU (UMUM)"][1] };
+    
+    // Fallback absolut
+    return { lat: cityCoords["DEFAULT"][0], lng: cityCoords["DEFAULT"][1] };
 }
-
-
-
- 
-
-
-
-
-
 
   function el(id) { return document.getElementById(id); }
   function 
