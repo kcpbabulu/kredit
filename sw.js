@@ -10,12 +10,21 @@ const urlsToCache = [
   './icon-192.png'
 ];
 
-// 1. Proses Install: Langsung paksakan versi baru tanpa menunggu pengguna menutup aplikasi
+// 1. Proses Install: Simpan satu per satu agar tidak error jika ada file yang hilang
 self.addEventListener('install', event => {
   self.skipWaiting(); 
   event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_VERSION).then(cache => {
+      console.log('Mulai menyimpan cache...');
+      // Menggunakan Promise.all dan map agar error 1 file tidak membatalkan semuanya
+      return Promise.all(
+        urlsToCache.map(url => {
+          return cache.add(url).catch(err => {
+            console.warn('⚠️ File ini dilewati karena tidak ditemukan di server:', url);
+          });
+        })
+      );
+    })
   );
 });
 
