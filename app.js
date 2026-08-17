@@ -1,7 +1,7 @@
 // =========================================================================
 // BRIDGE PROXY: MENYULAP google.script.run MENJADI FETCH API OTOMATIS
 // =========================================================================
-const GAS_URL = "MASUKKAN_URL_WEB_APP_APPS_SCRIPT_ANDA_YANG_BARU_DISINI";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbyck07bvRRtow084FWUkJc1MtNaOAofZLhGv2Q1iwpqAFA7lE2IK2NtmnMDwRa0MlfV/exec";
 
 window.google = { script: { run: null } };
 
