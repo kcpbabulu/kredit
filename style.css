@@ -1,0 +1,185 @@
+/* --- 1. BASE & SCROLLBAR --- */
+body { 
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent; 
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    color: #1e293b;
+    transition: background-color 0.4s ease, color 0.3s ease;
+    overflow: hidden;
+}
+.dark body { 
+    background: linear-gradient(135deg, #0f172a 0%, #020617 100%); 
+    color: #f1f5f9; 
+}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark ::-webkit-scrollbar-thumb { background: #475569; }
+
+/* --- 2. NAVIGATION (SIDEBAR & BOTTOM NAV) --- */
+#sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.nav-btn {
+    position: relative; overflow: hidden; display: flex; align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #475569;
+}
+.dark .nav-btn { color: #cbd5e1; }
+.nav-btn::before {
+    content: ''; position: absolute; left: 0; height: 0; width: 4px;
+    background: #0284c7; transition: height 0.3s ease;
+}
+.nav-btn:hover::before, .nav-btn.active::before { height: 70%; }
+.nav-btn i { min-width: 24px; text-align: center; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.nav-btn:hover i { transform: scale(1.2); }
+
+.nav-item.active i { color: #0284c7; transform: scale(1.1); transition: all 0.3s ease; }
+.nav-item.active span { color: #0284c7; font-weight: 800; }
+
+/* --- 3. BOTTOM SHEETS & OVERLAYS --- */
+.custom-bottom-sheet {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white; border-radius: 2.5rem 2.5rem 0 0;
+    z-index: 90; transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 0 -20px 40px rgba(0,0,0,0.1);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+.dark .custom-bottom-sheet { background: #1e293b; border-top: 1px solid rgba(255,255,255,0.1); }
+.custom-bottom-sheet.open { transform: translateY(0); }
+
+.sheet-header { width: 3rem; height: 0.3rem; background: #e2e8f0; border-radius: 1rem; margin: 1rem auto; }
+.dark .sheet-header { background: #334155; }
+
+#nativeOverlay, #sidebarOverlay {
+    position: fixed; inset: 0; z-index: 70;
+    background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px); transition: all 0.3s ease;
+}
+
+/* --- 4. GLASSMORPHISM & CARDS --- */
+.glass-card { 
+  background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.dark .glass-card { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.05); }
+.glass-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
+
+.mobile-menu-card {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 1.5rem 1rem; border-radius: 1.5rem; font-size: 11px; font-weight: 800;
+  gap: 0.75rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); transition: all 0.2s;
+}
+.mobile-menu-card:active { transform: scale(0.95); opacity: 0.8; }
+
+/* --- 5. MAPS & CHARTS --- */
+#mapContainer { height: 100%; width: 100%; z-index: 1; border-radius: 16px; }
+.dark .leaflet-tile-container { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+.leaflet-popup-content-wrapper { border-radius: 12px; background: rgba(255,255,255,0.9); backdrop-filter: blur(8px); }
+.dark .leaflet-popup-content-wrapper { background: #1e293b; color: white; }
+
+/* --- 6. ANIMATIONS --- */
+.animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.animate-pulse-slow { animation: pulse-slow 2s infinite; }
+@keyframes pulse-slow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    50% { box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.2); }
+}
+
+.counting { animation: countPulse 0.3s ease-out; }
+@keyframes countPulse { 50% { transform: scale(1.05); color: #0284c7; } }
+
+#tblTop tr { animation: slideInRight 0.4s ease-out forwards; opacity: 0; }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+.animate-bounce-short { animation: bounce-short 1s ease-in-out infinite; }
+@keyframes bounce-short { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+/* Animasi Overlay */
+.modal-container { animation: fadeInBg 0.3s ease-out forwards; }
+@keyframes fadeInBg { from { opacity: 0; } to { opacity: 1; } }
+
+/* Animasi Konten Modal (Scale Up) */
+.modal-content { animation: modalBounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+@keyframes modalBounce { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+@media (max-width: 640px) {
+  .modal-container { align-items: flex-end; padding: 0; }
+  .modal-content { border-radius: 2rem 2rem 0 0; animation: slideUpModal 0.5s cubic-bezier(0.32, 0.72, 0, 1) forwards; }
+  @keyframes slideUpModal { from { transform: translateY(100%); } to { transform: translateY(0); } }
+}
+
+.modal-closing { animation: fadeOutDown 0.3s ease-in forwards !important; }
+@keyframes fadeOutDown { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95) translateY(20px); } }
+
+/* Animasi Khusus Peta */
+.region-card { will-change: transform, opacity; transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.region-card:hover { transform: scale(1.02) translateX(5px); z-index: 20; }
+.leaflet-popup-content-wrapper { border-radius: 20px !important; padding: 5px !important; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2) !important; }
+.leaflet-popup-tip { background: white !important; }
+
+/* Scrollbar halus untuk sidebar wilayah */
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+/* Transition Menu Utama */
+#nativeMenuSheet { transition: transform 0.6s cubic-bezier(0.32, 0.72, 0, 1); }
+.menu-item-animate { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform, opacity; }
+.menu-item-animate div { transition: transform 0.2s ease; }
+.menu-item-animate:active div { transform: scale(0.85); }
+
+/* Efek Glassmorphism pada Dark Mode */
+.dark #nativeMenuSheet {
+  background: rgba(30, 41, 59, 0.8) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mobile-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+.mobile-scroll::-webkit-scrollbar { display: none; }
+
+/* --- 7. FORM ELEMENTS & UPLOAD --- */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+  background: white; border: 3px solid #0284c7; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+#uploadCircle { filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.6)); transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+#uploadPct { text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
+
+/* --- 8. UTILITIES --- */
+@media (max-width: 768px) { .bottom-nav { box-shadow: 0 -4px 15px rgba(0,0,0,0.08); } }
+@media print { .no-print { display: none !important; } body { background: white !important; } main { margin-left: 0 !important; } }
+
+/* Standar Ukuran A4 */
+.pdf-container { width: 210mm; padding: 15mm; background: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+.pdf-header { border-bottom: 3px solid #0f172a; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+.pdf-title { color: #0f172a; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: -1px; }
+.pdf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+.pdf-stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; }
+.pdf-stat-label { font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+.pdf-stat-value { font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 4px; }
+.pdf-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 15px; }
+.pdf-table th { background: #1e293b !important; color: #ffffff !important; padding: 10px; text-align: left; text-transform: uppercase; }
+.pdf-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+.pdf-table tr:nth-child(even) { background: #fcfcfc; }
+.pdf-badge { padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 9px; }
+.bg-npl-red { background: #fee2e2; color: #b91c1c; }
+.bg-kkr-orange { background: #ffedd5; color: #c2410c; }
+
+.mut-btn { color: #94a3b8; border: none; outline: none; }
+.mut-btn.active-mut { color: #1e293b; }
+.dark .mut-btn.active-mut { color: #f8fafc; }
+.custom-scrollbar-hide::-webkit-scrollbar { display: none; }
+.custom-scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+header, select, button { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
+
+/* --- SKELETON LOADING ANIMATION --- */
+.skeleton { background: #e2e8f0; background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); border-radius: 5px; background-size: 200% 100%; animation: 1.5s shine linear infinite; }
+.dark .skeleton { background: #1e293b; background: linear-gradient(110deg, #1e293b 8%, #334155 18%, #1e293b 33%); }
+@keyframes shine { to { background-position-x: -200%; } }
+
+/* --- GLASSMORPHISM MODERN --- */
+.glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); }
+.dark .glass-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
