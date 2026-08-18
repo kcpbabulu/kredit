@@ -1142,10 +1142,69 @@ window.setScenario = function(type) {
     if(res.chart_sector) {
         // Gunakan delay kecil agar chart muncul setelah kartu selesai berhitung
         setTimeout(() => {
-            renderChart('chartSec', 'bar', res.chart_sector.labels, res.chart_sector.data, 'Sektor');
+            renderSectorList(res.chart_sector.labels, res.chart_sector.data);
         }, 300);
     }
       unlockMenu();
+}
+
+// --- FUNGSI RENDER INTERACTIVE SECTOR LIST ---
+function renderSectorList(labels, data) {
+    const container = document.getElementById('list-sektor-container');
+    if (!container) return;
+
+    let html = '';
+    // Cari nilai tertinggi untuk menghitung persentase lebar background bar
+    const maxData = Math.max(...data) || 1; 
+    
+    // Format angka menjadi ringkas (Misal: 1.500.000.000 menjadi 1,5 M)
+    const fmtCompact = new Intl.NumberFormat('id-ID', { notation: "compact", maximumFractionDigits: 2 });
+
+    labels.forEach((label, i) => {
+        const value = data[i];
+        const pct = (value / maxData) * 100;
+        
+        // Pilih warna acak yang selaras untuk setiap baris agar playful
+        const colors = ['blue', 'emerald', 'indigo', 'violet', 'rose'];
+        const color = colors[i % colors.length];
+
+        html += `
+        <div onclick="if(typeof app.openSectorModal === 'function') app.openSectorModal('${label}')" 
+             class="group relative bg-white/60 dark:bg-slate-800/60 border border-white/40 dark:border-slate-700 p-3 rounded-2xl cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_8px_20px_rgba(0,0,0,0.08)] overflow-hidden">
+            
+            <!-- Background Progress Bar (Animasi Lebar) -->
+            <div class="absolute left-0 top-0 bottom-0 bg-${color}-100/60 dark:bg-${color}-900/30 rounded-2xl transition-all duration-1000 ease-out origin-left" style="width: 0%;" data-width="${pct}%"></div>
+
+            <!-- Konten Kartu -->
+            <div class="relative flex justify-between items-center z-10 gap-3">
+                <div class="flex flex-col w-2/3">
+                    <span class="text-[11px] font-black text-slate-700 dark:text-slate-200 truncate group-hover:text-${color}-600 dark:group-hover:text-${color}-400 transition-colors" title="${label}">
+                        ${label}
+                    </span>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-mono font-black text-slate-800 dark:text-white bg-white/50 dark:bg-black/20 px-2 py-1 rounded-lg backdrop-blur-sm">
+                        Rp ${fmtCompact.format(value)}
+                    </span>
+                </div>
+            </div>
+        </div>
+        `;
+    });
+
+    if(labels.length === 0) {
+        html = `<div class="text-center text-slate-400 text-xs py-8">Tidak ada data sektor.</div>`;
+    }
+
+    container.innerHTML = html;
+
+    // Trigger Animasi Progress Bar setelah dirender ke DOM
+    setTimeout(() => {
+        const bars = container.querySelectorAll('[data-width]');
+        bars.forEach(bar => {
+            bar.style.width = bar.getAttribute('data-width');
+        });
+    }, 50);
 }
 
 
