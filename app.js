@@ -7821,17 +7821,19 @@ function executeDeleteSheets() {
   }
 
 
- // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FULL KOL 1-5) ---
+// --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FINAL & EXACT MATCH) ---
   function openSectorModal(sectorName) {
       // 1. Ambil data dari all_list (yang sudah memuat KOL 1-5)
       const allData = (app.state.data && app.state.data.all_list) ? app.state.data.all_list : [];
       
-      const searchTarget = sectorName.substring(0, 10).toLowerCase().trim();
+      // 2. Filter Cerdas (EXACT MATCH / SAMA PERSIS)
+      // Kita tidak lagi menggunakan substring, melainkan mencocokkan teks secara utuh
+      const searchTarget = sectorName.toLowerCase().trim();
       
       const filtered = allData.filter(r => {
           if (r.sektor) {
-              const rowSector = String(r.sektor).toLowerCase();
-              return rowSector.includes(searchTarget);
+              const rowSector = String(r.sektor).toLowerCase().trim();
+              return rowSector === searchTarget;
           }
           return false;
       });
@@ -7899,7 +7901,7 @@ function executeDeleteSheets() {
       
       // 5. Suntikkan Data ke Footer HTML
       document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
-      document.getElementById('modal-sector-count').innerText = filtered.length; // Jumlah NOA
+      document.getElementById('modal-sector-count').innerText = filtered.length; 
       
       document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
       document.getElementById('modal-sector-kkr').innerText = fmtIDR(totalKKR);
