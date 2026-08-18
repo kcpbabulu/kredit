@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=65">
+  <link rel="stylesheet" href="style.css?v=67">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1316,10 +1316,62 @@
       </button>
     </div>
   </div>
+
+  <!-- ========================================== -->
+<!-- MODAL DETAIL SEKTOR NPL (INTERAKTIF) -->
+<!-- ========================================== -->
+<div id="modal-sector" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+    <!-- Backdrop Blur (Klik untuk menutup) -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer" onclick="app.closeSectorModal()"></div>
+    
+    <!-- Konten Modal (Glassmorphism & Bouncy) -->
+    <div class="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.3)] w-full max-w-5xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300 border border-white/20 dark:border-slate-700 overflow-hidden">
+        
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-700">
+            <h3 class="font-black text-white text-lg flex items-center gap-3">
+                <i class="fas fa-chart-pie text-blue-200 animate-pulse"></i> 
+                Rincian Sektor: <span id="modal-sector-title" class="text-blue-100 font-mono tracking-wider bg-black/20 px-3 py-1 rounded-lg">...</span>
+            </h3>
+            <button onclick="app.closeSectorModal()" class="text-white hover:text-red-300 transition-all transform hover:scale-110 hover:rotate-90 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Body (Tabel Interaktif) -->
+        <div class="flex-1 overflow-auto custom-scrollbar p-0 bg-slate-50/50 dark:bg-slate-900/50">
+            <table class="w-full text-sm text-left">
+                <thead class="bg-white dark:bg-slate-800 sticky top-0 z-10 text-[9px] uppercase font-black text-slate-400 border-b border-slate-200 dark:border-slate-700 shadow-sm">
+                    <tr>
+                        <th class="p-4 text-center">No</th>
+                        <th class="p-4">Identitas Debitur</th>
+                        <th class="p-4 hidden sm:table-cell">Unit Cabang</th>
+                        <th class="p-4 text-center">KOL</th>
+                        <th class="p-4 text-right">Baki Debet</th>
+                        <th class="p-4 text-right">Tunggakan</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-modal-sector" class="divide-y divide-slate-100 dark:divide-slate-800">
+                    <!-- Data akan disuntikkan secara dinamis di sini -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Footer (Summary) -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center text-xs font-bold text-slate-500">
+            <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-xl text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
+                Total: <span id="modal-sector-count" class="font-black text-lg">0</span> Debitur
+            </div>
+            <div class="bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded-xl text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50">
+                Total Eksposur: <span id="modal-sector-os" class="font-black text-lg font-mono">Rp 0</span>
+            </div>
+        </div>
+    </div>
+</div>
   <!-- ======================================================= -->
 
    <!-- App Javascript -->
-  <script src="app.js?v=66"></script>
+  <script src="app.js?v=67"></script>
   
  <!-- Service Worker Registration & Auto-Update Catcher -->
   <script>
