@@ -2981,9 +2981,7 @@ window.switchMutasiTab = function(btn, tabId) {
 }
 
 
-  // --- FRONTEND: HALAMAN DATA KREDIT (ANTI-HANG) ---
-
-// =================================================================
+ // =================================================================
 // 1. VARIABLE GLOBAL & RESETTER
 // =================================================================
 var isSearching = false; 
@@ -2997,74 +2995,93 @@ function renderKreditPage() {
     var container = document.getElementById('view-kredit');
     if(!container) return; 
 
-    // 1. Render Struktur HTML
+    // 1. Render Struktur HTML (Modern Playful & Glassmorphism)
     var html = `
-    <div class="flex flex-col h-full bg-slate-50 dark:bg-slate-900 p-4 md:p-6 gap-6 fade-in">
+    <div class="p-4 md:p-6 space-y-6 md:space-y-8 animate-fade-in min-h-screen">
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex justify-between items-center group hover:border-blue-500 transition-all">
+        <!-- HEADER & SEARCH BAR -->
+        <div class="flex flex-col md:flex-row gap-5 justify-between items-center bg-white/60 dark:bg-slate-900/60 p-4 md:p-6 rounded-[2rem] border border-white/80 dark:border-slate-700 shadow-sm backdrop-blur-xl">
+            <div class="flex items-center gap-4 w-full md:w-auto">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform"><i class="fas fa-database text-2xl"></i></div>
                 <div>
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Outstanding</div>
-                    <div class="text-2xl font-black text-slate-800 dark:text-white leading-none" id="kr_os">...</div>
-                    <div id="bdg_kr_os" class="mt-2 text-xs font-bold text-blue-500">Baki Debet Global</div>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
-                    <i class="fas fa-coins"></i>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex justify-between items-center group hover:border-emerald-500 transition-all">
-                <div>
-                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Debitur (NOA)</div>
-                    <div class="text-2xl font-black text-slate-800 dark:text-white leading-none" id="kr_noa">...</div>
-                    <div id="bdg_kr_noa" class="mt-2 text-xs font-bold text-emerald-500">Rekening Aktif</div>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
-                    <i class="fas fa-user-friends"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center shadow-lg"><i class="fas fa-layer-group"></i></div>
-                <div>
-                    <h2 class="font-black text-slate-800 dark:text-white leading-tight">Portofolio Kredit</h2>
-                    <p id="creditInfoStatus" class="text-[10px] text-slate-500 font-bold uppercase tracking-tighter">Sinkronisasi data...</p>
+                    <h2 class="font-black text-slate-800 dark:text-white text-lg md:text-xl leading-tight">Data Master Kredit</h2>
+                    <p id="creditInfoStatus" class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Sinkronisasi data...</p>
                 </div>
             </div>
             
-            <div class="relative w-full md:w-96 group">
+            <div class="relative w-full md:w-[400px] group">
                 <input type="text" id="searchCreditInput" 
-                       placeholder="Cari Nama / No. PK..." 
-                       onkeydown="handleSearchEnter(event)"
+                       placeholder="Ketik Nama atau No. PK..." 
+                       onkeydown="window.handleSearchEnter(event)"
                        autocomplete="off"
-                       class="w-full pl-11 pr-12 py-3 rounded-2xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-blue-500 dark:focus:border-blue-500 outline-none transition-all shadow-sm font-medium text-sm">
-                <i class="fas fa-search absolute left-4 top-3.5 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
-                <div class="absolute right-3 top-2 flex gap-1">
-                    <button onclick="resetSearchCredit()" id="btnResetSearch" class="h-8 w-8 text-slate-400 hover:text-red-500 hidden transition-colors"><i class="fas fa-times-circle"></i></button>
-                    <button onclick="handleSearchEnter({key:'Enter'})" class="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[10px] font-black transition-all active:scale-95 shadow-lg shadow-blue-500/30">CARI</button>
+                       class="w-full pl-12 pr-16 py-3.5 rounded-full border-2 border-white dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 focus:border-blue-500 outline-none transition-all shadow-inner font-medium text-sm backdrop-blur-sm placeholder-slate-400">
+                <i class="fas fa-search absolute left-5 top-4 text-slate-400 group-focus-within:text-blue-500 transition-colors"></i>
+                <div class="absolute right-2 top-1.5 flex gap-1">
+                    <button onclick="window.resetSearchCredit()" id="btnResetSearch" class="h-10 w-10 text-slate-400 hover:text-rose-500 hidden transition-colors rounded-full hover:bg-rose-50 dark:hover:bg-rose-900/30"><i class="fas fa-times text-lg"></i></button>
+                    <button onclick="window.handleSearchEnter({key:'Enter'})" class="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-[10px] font-black tracking-wider transition-all active:scale-95 shadow-md shadow-blue-500/30">CARI</button>
                 </div>
             </div>
         </div>
 
-        <div class="flex-1 bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col relative">
-            <div class="overflow-auto flex-1 custom-scrollbar">
+        <!-- KPI & CHARTS GRID -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- KPI Cards (Kiri) -->
+            <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-6">
+                <!-- Card OS -->
+                <div class="glass-card p-6 rounded-[2rem] border-b-4 border-blue-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/50 dark:from-slate-800 dark:to-blue-900/20 flex-1">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-500"><i class="fas fa-coins text-9xl text-blue-500"></i></div>
+                    <div class="relative z-10 flex flex-col h-full justify-center">
+                        <div class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-3 bg-blue-100 dark:bg-blue-900/50 inline-block px-3 py-1 rounded-full w-fit">Total Outstanding</div>
+                        <div class="text-3xl font-black text-slate-800 dark:text-white drop-shadow-sm" id="kr_os">...</div>
+                        <div class="mt-2 text-[10px] font-bold text-slate-500 bg-white/50 dark:bg-black/20 w-fit px-2 py-0.5 rounded shadow-inner">Baki Debet Global PPU</div>
+                    </div>
+                </div>
+                
+                <!-- Card NOA -->
+                <div class="glass-card p-6 rounded-[2rem] border-b-4 border-emerald-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-emerald-50/50 dark:from-slate-800 dark:to-emerald-900/20 flex-1">
+                    <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 group-hover:rotate-12 transition-transform duration-500"><i class="fas fa-users text-9xl text-emerald-500"></i></div>
+                    <div class="relative z-10 flex flex-col h-full justify-center">
+                        <div class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3 bg-emerald-100 dark:bg-emerald-900/50 inline-block px-3 py-1 rounded-full w-fit">Total Debitur</div>
+                        <div class="text-3xl font-black text-slate-800 dark:text-white drop-shadow-sm" id="kr_noa">...</div>
+                        <div class="mt-2 text-[10px] font-bold text-slate-500 bg-white/50 dark:bg-black/20 w-fit px-2 py-0.5 rounded shadow-inner">Rekening Aktif (NOA)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts (Kanan) -->
+            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card p-5 rounded-[2rem] border border-white/60 dark:border-slate-700/50 shadow-sm bg-white/50 dark:bg-slate-900/50 flex flex-col h-[280px]">
+                    <div class="text-[11px] font-black mb-4 flex items-center gap-2 text-slate-700 dark:text-white uppercase tracking-widest"><div class="p-1.5 bg-purple-100 dark:bg-purple-900/50 text-purple-600 rounded-lg shadow-inner"><i class="fas fa-chart-pie"></i></div> Komposisi Kredit</div>
+                    <div class="chart-box-sm flex-1 relative w-full h-full"><canvas id="chKr1"></canvas></div>
+                </div>
+                <div class="glass-card p-5 rounded-[2rem] border border-white/60 dark:border-slate-700/50 shadow-sm bg-white/50 dark:bg-slate-900/50 flex flex-col h-[280px]">
+                    <div class="text-[11px] font-black mb-4 flex items-center gap-2 text-slate-700 dark:text-white uppercase tracking-widest"><div class="p-1.5 bg-orange-100 dark:bg-orange-900/50 text-orange-600 rounded-lg shadow-inner"><i class="fas fa-chart-doughnut"></i></div> Sektor Ekonomi</div>
+                    <div class="chart-box-sm flex-1 relative w-full h-full"><canvas id="chKr2"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABLE SECTION -->
+        <div class="glass-card rounded-[2.5rem] shadow-xl border border-white/60 dark:border-slate-700 overflow-hidden bg-white/60 dark:bg-slate-900/60 flex flex-col h-[600px] relative pb-2">
+            <div class="overflow-auto flex-1 custom-scrollbar px-2">
                 <table class="w-full text-sm text-left border-collapse">
-                    <thead class="bg-slate-50 dark:bg-slate-900/50 text-slate-400 sticky top-0 z-10">
+                    <thead class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl text-slate-500 sticky top-0 z-20 shadow-sm">
                         <tr>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b dark:border-slate-700">Debitur</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b dark:border-slate-700 text-center">KOL</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b dark:border-slate-700 text-right">Limit Plafond</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b dark:border-slate-700 text-right">Baki Debet</th>
-                            <th class="px-6 py-4 text-[10px] font-black uppercase tracking-widest border-b dark:border-slate-700 text-center">Jatuh Tempo</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-700/50 cursor-pointer hover:text-blue-500 transition-colors rounded-tl-3xl" onclick="if(window.app && app.sortKredit) app.sortKredit('nama')">Identitas Debitur <i class="fas fa-sort ml-1 opacity-50"></i></th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-700/50 text-center">No. Perjanjian</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-700/50 text-center">Status</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-700/50 text-right hidden lg:table-cell">Plafond Limit</th>
+                            <th class="px-6 py-5 text-[10px] font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-700/50 text-right cursor-pointer hover:text-blue-500 transition-colors rounded-tr-3xl" onclick="if(window.app && app.sortKredit) app.sortKredit('os')">Baki Debet <i class="fas fa-sort ml-1 opacity-50"></i></th>
                         </tr>
                     </thead>
-                    <tbody id="creditTableBody" class="divide-y divide-slate-100 dark:divide-slate-700">
+                    <tbody id="creditTableBody" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2">
                         <tr>
-                            <td colspan="6" class="p-20 text-center">
-                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent mb-4"></div>
-                                <div class="text-slate-500 font-bold text-xs uppercase tracking-widest">Sinkronisasi Database...</div>
+                            <td colspan="5" class="p-20 text-center">
+                                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-500 mb-4 shadow-inner">
+                                    <i class="fas fa-sync-alt animate-spin text-3xl"></i>
+                                </div>
+                                <div class="text-slate-500 font-black text-xs uppercase tracking-widest animate-pulse">Menghubungkan Database...</div>
                             </td>
                         </tr>
                     </tbody>
@@ -3081,19 +3098,16 @@ function renderKreditPage() {
 
     google.script.run
     .withSuccessHandler(function(res) {
-        unlockSearch(); 
+        window.unlockSearch(); 
         if(res.error) {
              var tb = document.getElementById('creditTableBody');
-             if(tb) tb.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">${res.error}</td></tr>`;
+             if(tb) tb.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold bg-red-50 dark:bg-red-900/20 rounded-2xl m-4 inline-block">${res.error}</td></tr>`;
         } else {
-             // --- IMPLEMENTASI TOTAL KESELURUHAN DARI SERVER ---
-             
-             // Ambil nilai dari res.summary (sesuaikan dengan nama properti dari Kode.gs Anda)
              const totalGlobalOS = res.totalOS || 0; 
              const totalGlobalNOA = res.totalNOA || 0;
 
              // Tampilkan ke Card Stats
-             if (window.animateValue) {
+             if (typeof animateValue === 'function') {
                 animateValue('kr_os', 0, totalGlobalOS, 1000, true);
                 animateValue('kr_noa', 0, totalGlobalNOA, 1000, false);
              } else {
@@ -3102,24 +3116,21 @@ function renderKreditPage() {
                 document.getElementById('kr_noa').innerText = totalGlobalNOA.toLocaleString('id-ID');
              }
 
-             // Update text keterangan bawah agar user tidak bingung
-             document.getElementById('creditInfoStatus').innerText = `Database: ${totalGlobalNOA.toLocaleString('id-ID')} Debitur ditemukan`;
+             document.getElementById('creditInfoStatus').innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> ${totalGlobalNOA.toLocaleString('id-ID')} Debitur Ditemukan`;
 
-             // Render baris tabel (tetap hanya 50 data agar tidak berat)
              renderCreditRows(res.list);
              window.allCreditData = res.list; 
         }
     })
         .withFailureHandler(function(err) {
-             unlockSearch();
+             window.unlockSearch();
              var tb = document.getElementById('creditTableBody');
-             if(tb) tb.innerHTML = `<tr><td colspan="6" class="p-10 text-center text-red-500 font-bold">FAILURE: ${err.message}</td></tr>`;
+             if(tb) tb.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold"><i class="fas fa-wifi text-3xl mb-3 block"></i>FAILURE: ${err.message}</td></tr>`;
         })
         .searchCreditGlobal(branchVal, dateVal, ''); 
-    unlockMenu();
+    
+    if(typeof unlockMenu === 'function') unlockMenu();
 }
-
-
 
 
 // =================================================================
@@ -3136,22 +3147,22 @@ window.handleSearchEnter = function(e) {
         if (keyword.length > 2) {
             isSearching = true; 
             inputEl.disabled = true; 
-            inputEl.classList.add('ring-2', 'ring-blue-400', 'opacity-70');
+            inputEl.classList.add('opacity-50');
 
             var tbody = document.getElementById('creditTableBody');
             if(tbody) tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="p-20 text-center">
-                        <div class="relative inline-block">
-                             <i class="fas fa-database text-4xl text-slate-100 animate-pulse"></i>
-                             <i class="fas fa-search absolute bottom-0 right-0 text-blue-500 animate-bounce"></i>
+                    <td colspan="5" class="p-24 text-center">
+                        <div class="relative inline-block w-24 h-24 bg-blue-50 dark:bg-slate-800 rounded-full shadow-inner flex items-center justify-center mb-4 mx-auto">
+                             <i class="fas fa-database text-4xl text-blue-200 dark:text-slate-600"></i>
+                             <i class="fas fa-search absolute bottom-4 right-4 text-2xl text-blue-500 animate-bounce"></i>
                         </div>
-                        <div class="mt-4 text-slate-500 text-xs font-bold tracking-widest animate-pulse">SEARCHING DATABASE...</div>
+                        <div class="text-blue-500 text-[10px] font-black tracking-[0.2em] uppercase animate-pulse">Memindai Database...</div>
                     </td>
                 </tr>`;
             
-            var branchVal = document.getElementById('selBranch')?.value || 'ALL';
-            var dateVal = document.getElementById('selDate')?.value || '';
+            var branchVal = document.getElementById('sel-branch')?.value || 'ALL';
+            var dateVal = document.getElementById('sel-date')?.value || '';
             
             google.script.run
                 .withSuccessHandler(onSearchResult)
@@ -3159,9 +3170,9 @@ window.handleSearchEnter = function(e) {
                 .searchCreditGlobal(branchVal, dateVal, keyword);
 
         } else if (keyword.length === 0) {
-            resetSearchCredit();
+            window.resetSearchCredit();
         } else {
-             alert("Ketik minimal 3 huruf.");
+             alert("Ketik minimal 3 huruf untuk mencari.");
         }
     }
 }
@@ -3170,15 +3181,14 @@ window.handleSearchEnter = function(e) {
 // =================================================================
 // 3. HANDLER HASIL SEARCH (SUKSES)
 // =================================================================
-function onSearchResult(res) {
-    // 1. LANGSUNG BUKA GEMBOK (PRIORITAS UTAMA)
-    unlockSearch(); 
+window.onSearchResult = function(res) {
+    window.unlockSearch(); 
 
     var tbody = document.getElementById('creditTableBody');
     if (!tbody) return; 
 
     if (res.error) { 
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">${res.error}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><div class="bg-rose-50 text-rose-500 font-bold p-4 rounded-xl inline-block shadow-inner">${res.error}</div></td></tr>`;
         return; 
     }
     
@@ -3195,7 +3205,7 @@ function onSearchResult(res) {
     // Update Info Status
     var infoEl = document.getElementById('creditInfoStatus');
     if (infoEl) {
-        var msg = `Hasil: <b>${res.count}</b> data.`;
+        var msg = `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded shadow-inner">Ditemukan</span> <b>${res.count}</b> kecocokan.`;
         if (isLimited) msg += " (Top 100)";
         infoEl.innerHTML = msg;
     }
@@ -3204,7 +3214,7 @@ function onSearchResult(res) {
     var btnReset = document.getElementById('btnResetSearch');
     if (btnReset) btnReset.classList.remove('hidden');
     
-    // Focus balik ke input (tapi beri delay sedikit)
+    // Focus balik
     setTimeout(() => { 
         var inp = document.getElementById('searchCreditInput');
         if(inp && !inp.disabled) inp.focus(); 
@@ -3214,40 +3224,34 @@ function onSearchResult(res) {
 // =================================================================
 // 4. HANDLER GAGAL / ERROR
 // =================================================================
-function onSearchFail(err) {
-    unlockSearch(); // Pastikan gembok terbuka walau error
+window.onSearchFail = function(err) {
+    window.unlockSearch();
     console.error(err);
-    
     var tbody = document.getElementById('creditTableBody');
-    if(tbody) tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-red-500">Koneksi Gagal. Coba lagi.</td></tr>`;
+    if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><div class="bg-rose-50 text-rose-500 font-bold p-4 rounded-xl inline-block shadow-inner">Koneksi Gagal. Silakan coba lagi.</div></td></tr>`;
 }
 
 // =================================================================
-// 5. FUNGSI UNLOCK (BUKA GEMBOK) - REVISI
+// 5. FUNGSI UNLOCK (BUKA GEMBOK)
 // =================================================================
-function unlockSearch() {
-    isSearching = false; // Reset Flag Global
-    
+window.unlockSearch = function() {
+    isSearching = false; 
     var inputEl = document.getElementById('searchCreditInput');
     if(inputEl) {
-        inputEl.disabled = false; // Hidupkan Input
-        inputEl.classList.remove('bg-slate-100', 'cursor-wait'); // Hapus warna abu
-        inputEl.classList.add('bg-slate-50'); // Balik putih
+        inputEl.disabled = false;
+        inputEl.classList.remove('opacity-50'); 
     }
 }
-
-
 
 // 7. RESET SEARCH
 window.resetSearchCredit = function() {
     if(isSearching) return; 
     
     document.getElementById('searchCreditInput').value = '';
-    // Kembalikan ke cache
     if(window.allCreditData) {
         renderCreditRows(window.allCreditData);
         var infoEl = document.getElementById('creditInfoStatus');
-        if(infoEl) infoEl.innerText = "Menampilkan 50 data teratas";
+        if(infoEl) infoEl.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> Menampilkan 50 data teratas`;
     }
     document.getElementById('btnResetSearch').classList.add('hidden');
     window.isServerSearchMode = false;
@@ -3255,121 +3259,105 @@ window.resetSearchCredit = function() {
 
 
 // =================================================================
-// 6. RENDER ROWS (KLIK DETAIL DISINI)
+// 6. RENDER ROWS (MODERN PLAYFUL ROW)
 // =================================================================
 function renderCreditRows(data) {
     var tbody = document.getElementById('creditTableBody');
     if(!tbody) return;
     
-    // Konfigurasi Format Mata Uang Presisi
     var fmtIDR = (v) => new Intl.NumberFormat('id-ID', { 
-        style: 'currency', 
-        currency: 'IDR', 
-        maximumFractionDigits: 0 
+        style: 'currency', currency: 'IDR', maximumFractionDigits: 0 
     }).format(v || 0);
 
-    // Empty State Modern
+    // Empty State Playful
     if(!data || data.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="p-24 text-center animate-fade-in">
-                    <div class="flex flex-col items-center justify-center space-y-3 opacity-30">
-                        <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
-                            <i class="fas fa-database text-2xl text-slate-400"></i>
+                <td colspan="5" class="p-24 text-center animate-fade-in">
+                    <div class="flex flex-col items-center justify-center space-y-4">
+                        <div class="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center shadow-inner">
+                            <i class="fas fa-ghost text-4xl text-slate-300"></i>
                         </div>
-                        <p class="text-sm font-bold tracking-widest uppercase">Data Tidak Ditemukan</p>
+                        <div>
+                            <p class="text-sm font-black tracking-widest uppercase text-slate-400">Pencarian Kosong</p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1">Coba gunakan kata kunci lain.</p>
+                        </div>
                     </div>
                 </td>
             </tr>`;
         return;
     }
 
-    // Logic Render Baris dengan Layered Typography
+    // Logic Render Baris Playful
     tbody.innerHTML = data.map((r, idx) => {
         var k = r.kol || 1; 
         
-        // Color Mapping yang lebih tajam & berstandar perbankan
         var kolConfig = {
-            1: { bg: 'bg-emerald-100 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-400', label: 'LANCAR' },
-            2: { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-400', label: 'DPK' },
-            3: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-400', label: 'KL' },
-            4: { bg: 'bg-rose-100 dark:bg-rose-900/30', text: 'text-rose-700 dark:text-rose-400', label: 'DIR' },
-            5: { bg: 'bg-slate-900', text: 'text-white', label: 'MACET' },
-            'E': { bg: 'bg-blue-100', text: 'text-blue-700', label: 'NEW' }
+            1: { bg: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600', icon: 'fa-check-circle' },
+            2: { bg: 'bg-amber-100 dark:bg-amber-900/40 text-amber-600', icon: 'fa-exclamation-circle' },
+            3: { bg: 'bg-orange-100 dark:bg-orange-900/40 text-orange-600', icon: 'fa-exclamation-triangle' },
+            4: { bg: 'bg-rose-100 dark:bg-rose-900/40 text-rose-600', icon: 'fa-skull' },
+            5: { bg: 'bg-red-600 text-white shadow-md animate-pulse-slow', icon: 'fa-skull-crossbones' },
+            'E': { bg: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600', icon: 'fa-star' }
         };
         
         var style = kolConfig[k] || kolConfig[1];
+        var isNpl = (k >= 3 && k <= 5);
+        var bakiColor = isNpl ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-white';
         
         return `
-        <tr class="group opacity-0 transform translate-y-3 transition-all duration-700 ease-out hover:bg-blue-50/40 dark:hover:bg-blue-900/10 border-b border-slate-50 dark:border-slate-800/50 credit-row-item" 
-            style="transition-delay: ${idx * 25}ms">
+        <tr class="group hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 cursor-pointer credit-row-item hover:shadow-[0_4px_20px_rgb(0,0,0,0.05)] relative z-0 hover:z-10" 
+            onclick="if(window.app && typeof window.app.fetchDetail === 'function') window.app.fetchDetail('${r.loan}')">
             
-            <td class="px-6 py-4">
-                <div class="flex flex-col">
-                    <span class="font-extrabold text-slate-800 dark:text-slate-100 text-xs uppercase tracking-tight group-hover:text-blue-600 transition-colors cursor-pointer" 
-                          onclick="window.app.fetchDetail('${r.loan}')">
-                        ${r.nama || 'NASABAH'}
-                    </span>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span class="text-[9px] font-black font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200/50 dark:border-slate-700">
-                            ${r.loan}
+            <!-- Kolom Identitas -->
+            <td class="px-6 py-4 rounded-l-2xl">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-black text-slate-800 dark:text-white text-xs sm:text-sm uppercase tracking-wide group-hover:text-blue-600 transition-colors line-clamp-1">
+                            ${r.nama || 'NASABAH'}
                         </span>
+                        <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                            <span class="text-[9px] font-black font-mono text-slate-500 bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-fingerprint mr-1 opacity-50"></i>${r.loan}</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-building mr-1 opacity-50"></i>${r.br || '-'}</span>
+                        </div>
                     </div>
                 </div>
             </td>
 
-            <td class="px-6 py-4">
-                <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-tighter uppercase italic">
-                    ${r.pk || '-'}
+            <!-- Kolom PK -->
+            <td class="px-6 py-4 text-center align-middle">
+                <div class="text-[9px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-lg inline-block border border-slate-100 dark:border-slate-700/50 shadow-inner">
+                    <i class="fas fa-file-contract mr-1 opacity-50 text-brand-500"></i> ${r.pk || '-'}
                 </div>
             </td>
 
-            <td class="px-6 py-4 text-center">
-                <div class="inline-flex flex-col items-center">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black shadow-sm ${style.bg} ${style.text} ring-1 ring-white/20">
-                        ${k}
-                    </span>
-                    <span class="text-[7px] font-black mt-1 text-slate-300 dark:text-slate-600 uppercase tracking-tighter">${style.label}</span>
+            <!-- Kolom Status KOL -->
+            <td class="px-6 py-4 text-center align-middle">
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black ${style.bg} border border-white/20">
+                    <i class="fas ${style.icon}"></i> KOL ${k}
                 </div>
             </td>
 
-            <td class="px-6 py-4 text-right">
-                <div class="text-[10px] font-bold text-slate-400 tracking-tighter">${fmtIDR(r.plafond)}</div>
-                <div class="text-[8px] font-black text-slate-300 uppercase -mt-0.5">Limit</div>
+            <!-- Kolom Plafond -->
+            <td class="px-6 py-4 text-right align-middle hidden lg:table-cell">
+                <div class="text-[11px] font-bold text-slate-400 tracking-wider">${fmtIDR(r.plafond)}</div>
             </td>
 
-            <td class="px-6 py-4 text-right">
-                <div class="font-mono font-black text-slate-800 dark:text-white text-xs group-hover:scale-105 transition-transform origin-right tracking-tighter">
+            <!-- Kolom Baki Debet -->
+            <td class="px-6 py-4 text-right align-middle rounded-r-2xl">
+                <div class="font-mono font-black ${bakiColor} text-sm group-hover:scale-105 transition-transform origin-right tracking-tight">
                     ${fmtIDR(r.os)}
                 </div>
-                <div class="text-[8px] font-black text-blue-500/50 uppercase -mt-0.5">Baki Debet</div>
-            </td>
-
-            <td class="px-6 py-4 text-center">
-                <div class="flex flex-col items-center">
-                    <i class="far fa-calendar-alt text-[9px] text-slate-300 mb-1"></i>
-                    <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 font-mono tracking-tighter">
-                        ${r.tgl_jt || '-'}
-                    </span>
+                <div class="text-[9px] font-bold text-slate-400 flex items-center justify-end gap-1 mt-1">
+                    <i class="far fa-calendar-alt opacity-50"></i> JT: ${r.tgl_jt || '-'}
                 </div>
             </td>
         </tr>`;
     }).join('');
-
-    // Trigger Animasi Cascade
-    requestAnimationFrame(() => {
-        const rows = document.querySelectorAll('.credit-row-item');
-        rows.forEach(el => {
-            el.classList.remove('opacity-0', 'translate-y-3');
-        });
-    });
 }
-
-
-
-
-
-
 
 // Fungsi Filter Client-Side (Sangat Cepat)
 window.filterCreditTable = function(keyword) {
@@ -3382,7 +3370,7 @@ window.filterCreditTable = function(keyword) {
         (item.pk && item.pk.toLowerCase().includes(k))
     );
     
-    renderCreditRows(filtered.slice(0, 100)); // Tetap batasi render 50 biar browser ga lag
+    renderCreditRows(filtered.slice(0, 100)); // Dibatasi 100 agar DOM rendering sangat mulus
 };
 
   function sortKredit(key) {
