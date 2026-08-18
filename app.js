@@ -1143,7 +1143,7 @@ window.setScenario = function(type) {
         // Gunakan delay kecil agar chart muncul setelah kartu selesai berhitung
         setTimeout(() => {
             renderSectorList(res.chart_sector.labels, res.chart_sector.data);
-        }, 300);
+        }, 100);
     }
       unlockMenu();
 }
