@@ -7835,6 +7835,16 @@ function executeDeleteSheets() {
       }, 10);
   }
 
+  // --- FUNGSI MENUTUP MODAL ---
+  function closeSectorModal() {
+      const modal = document.getElementById('modal-sector');
+      modal.classList.add('opacity-0');
+      modal.children[1].classList.add('scale-95'); // Efek Zoom Out
+      setTimeout(() => {
+          modal.classList.add('hidden');
+      }, 300); // Tunggu animasi CSS selesai
+  }
+
     
 
 
