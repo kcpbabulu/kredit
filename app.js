@@ -54,52 +54,6 @@ function createGasProxy(successHandler, failureHandler) {
 window.google.script.run = createGasProxy(null, null);
 
 // ================= BATAS BRIDGE PROXY =================
-// --- ANIMASI BOTTOM NAVIGATION BAR ---
-window.updateBottomNav = function(activeTabId) {
-    // Pemetaan ID Halaman ke ID Tombol Navigasi
-    const navMap = {
-        'view-dash': { id: 'nav-dash', color: 'text-blue-500' },
-        'view-kredit': { id: 'nav-kredit', color: 'text-emerald-500' },
-        'view-map': { id: 'nav-map', color: 'text-purple-500' },
-        'view-mutasi': { id: 'nav-mutasi', color: 'text-orange-500' }
-    };
-
-    const targetNav = navMap[activeTabId] || { id: 'nav-menu', color: 'text-rose-500' };
-
-    // 1. Reset Semua Tombol ke Mode Pasif
-    document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-        // Reset Warna
-        btn.classList.remove('text-blue-500', 'text-emerald-500', 'text-purple-500', 'text-orange-500', 'text-rose-500');
-        btn.classList.add('text-slate-400');
-        
-        // Reset Animasi Ikon & Teks
-        btn.querySelector('.nav-icon-wrap').classList.remove('-translate-y-1');
-        btn.querySelector('.nav-text').classList.replace('opacity-100', 'opacity-70');
-        
-        // Sembunyikan Indikator Garis Atas
-        const indicator = btn.querySelector('.nav-indicator');
-        indicator.classList.remove('opacity-100', 'scale-100');
-        indicator.classList.add('opacity-0', 'scale-0');
-    });
-
-    // 2. Aktifkan Tombol yang Dipilih
-    const activeBtn = document.getElementById(targetNav.id);
-    if (activeBtn) {
-        activeBtn.classList.remove('text-slate-400');
-        activeBtn.classList.add(targetNav.color);
-        
-        activeBtn.querySelector('.nav-icon-wrap').classList.add('-translate-y-1');
-        activeBtn.querySelector('.nav-text').classList.replace('opacity-70', 'opacity-100');
-        
-        const indicator = activeBtn.querySelector('.nav-indicator');
-        indicator.classList.remove('opacity-0', 'scale-0');
-        indicator.classList.add('opacity-100', 'scale-100');
-        
-        // UX Magic: Beri getaran halus saat menu pindah (Haptic Feedback)
-        if (navigator.vibrate) navigator.vibrate(15);
-    }
-};
-
 
 window.app = (function() {
   var s = { 
@@ -1313,6 +1267,75 @@ function formatNumber(angka) {
   function render4SPage(res) { renderGenericPage(res, '4S'); 
                              unlockMenu();}
 
+
+
+// --- 2. RENDER TABLE WITH CHECKLIST (FIX SIMULASI VISUAL) ---
+// --- UPDATE: RENDER TABLE (SUPPORT DETAIL KLIK NAMA) ---
+    function renderSimTableHTML(elementId, rows, type, isSimulation, suffix) {
+    let tbody = el(elementId); 
+    if (!tbody) return; 
+    tbody.innerHTML = '';
+    
+    if (rows.length === 0) { 
+        tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-slate-400 italic">Tidak ada data ditemukan</td></tr>'; 
+        return; 
+    }
+
+    rows.forEach((r, i) => {
+        let tr = document.createElement('tr'); 
+        tr.className = "group border-b border-slate-100 dark:border-slate-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all duration-200"; 
+        tr.id = `row_${type}_${suffix}_${i}`;
+        
+        // Premium Badge Style
+        const kolStyle = {
+            1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+            2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+            3: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+            4: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+            5: 'bg-slate-900 text-white dark:bg-black dark:text-slate-300 shadow-sm'
+        };
+        let colBadgeClass = kolStyle[r.kol] || 'bg-slate-100 text-slate-600';
+        
+        // Modern Simulation Checkbox
+        let checkHTML = '';
+        if (isSimulation) { 
+            tr.style.cursor = "pointer"; 
+            tr.onclick = function(e) { 
+                if(e.target.closest('.click-detail')) return; 
+                if(e.target.type !== 'checkbox') window.app.toggleSim(type, i, r.os, r.kol, suffix); 
+            }; 
+            checkHTML = `
+                <div class="relative flex items-center justify-center">
+                    <input type="checkbox" id="chk_${type}_${suffix}_${i}" 
+                           class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:border-blue-600 checked:bg-blue-600 transition-all" 
+                           onclick="window.app.toggleSim('${type}', ${i}, ${r.os}, ${r.kol}, '${suffix}')">
+                    <i class="fas fa-check absolute text-[10px] text-white opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                </div>`; 
+        } else { 
+            checkHTML = `<span class="text-[10px] font-bold text-slate-300 font-mono">${(i+1).toString().padStart(2, '0')}</span>`; 
+        }
+
+        tr.innerHTML = `
+            <td class="p-3 text-center">${checkHTML}</td>
+            <td class="p-3">
+                <div class="click-detail flex flex-col group/item" onclick="event.stopPropagation(); window.app.fetchDetail('${r.loan}')">
+                    <div class="truncate w-32 md:w-48 font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight text-xs">${r.nama}</div>
+                    <div class="text-[9px] font-black font-mono text-slate-400 mt-0.5">${r.loan} | PK: ${r.pk || '-'}</div>
+                </div>
+            </td>
+            <td class="p-3 hidden sm:table-cell"><span class="text-[10px] font-bold text-slate-500 uppercase">${r.br}</span></td>
+            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-md text-[9px] font-black shadow-sm ${colBadgeClass}">KOL ${r.kol}</span></td>
+            <td class="p-3 text-right font-mono text-[10px] text-slate-400 hidden lg:table-cell">${formatRupiah(r.plafond || 0)}</td>
+            <td class="p-3 text-right font-mono text-xs font-black text-slate-700 dark:text-slate-200">${formatRupiah(r.os)}</td>
+            <td class="p-3 text-right">
+                <div class="font-mono text-xs font-black text-red-600 dark:text-red-400">${formatRupiah(r.tgk || 0)}</div>
+                ${r.tgk > 0 ? `<div class="text-[8px] text-red-400 font-bold uppercase tracking-tighter mt-0.5">Arrears</div>` : ''}
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
 // --- 4. RENDER SIM TABLE WRAPPER (UTK KOMPATIBILITAS) ---
 function renderSimTable(type) {
     // Fungsi ini dipanggil renderGenericPage, tapi logika rendering sudah kita pindah ke renderSimTableHTML
@@ -1320,25 +1343,28 @@ function renderSimTable(type) {
     updateSimStats(type);
 }
 
-    // =================================================================
-    // 1. RENDER GENERIC PAGE (PENGENDALI HALAMAN MENU NPL)
+
+
+   // =================================================================
+    // 1. RENDER GENERIC PAGE (PENGENDALI HALAMAN MENU)
     // =================================================================
     function renderGenericPage(res, type) { 
         if(el('loader')) el('loader').style.display='none';
-
-        // --- 1. SAFE ASSIGNMENT ---
+        
+        // --- 1. SAFE ASSIGNMENT (Mencegah Error Null saat Pindah Tab Cepat) ---
         app.state = app.state || {};
         app.state.data = app.state.data || {};
-
+        
         // A. Tentukan Variabel State
         let dataVar = type === 'KUR' ? 'kur' : (type === 'Kons' ? 'kons' : (type === 'Prod' ? 'prod' : 'allnpl'));
-        let allRows = res.npl_list || []; 
-
+        let allRows = res.npl_list || []; // Data dari Backend (Top Risk/KKR)
+        
         // B. Filter Data Sesuai Menu (Agar tidak tercampur)
         let filteredRows = [];
         if (type === 'ALL') {
             filteredRows = allRows;
         } else {
+            // Filter berdasarkan Tags yang dikirim Backend
             filteredRows = allRows.filter(r => r.tags && r.tags.includes(type));
         }
 
@@ -1346,16 +1372,23 @@ function renderSimTable(type) {
         s[dataVar] = res.curr;
         s[dataVar].rows = filteredRows; 
         s.data.npl_list = allRows;
-        s['sim'+type] = { heal:[], crash:[] }; // Reset simulasi
-
+        s['sim'+type] = { heal:[], crash:[] }; // Reset simulasi saat ganti menu
+        
         const c = res.curr || {}; 
         const d = res.diff || {};
 
         // D. Update Kartu Atas (Manual Mapping agar Akurat)
         if(type === 'KUR') { 
+            // Kartu 1: KUR Mikro (Data OS)
             updateCard('k_mikro', c.mikro_os, d.sub1, d.prev_sub1, false); 
+            
+            // Kartu 2: KUR Kecil (Data OS)
             updateCard('k_kecil', c.kecil_os, d.sub2, d.prev_sub2, false);
+            
+            // Kartu 3: Total NPL KUR
             updateCard('k_kur_npl', c.kur_npl, d.kur_npl, d.prev_kur_npl, true);
+            
+            // Kartu 4: Total KKR KUR
             updateCard('k_kur_kkr', c.kur_kkr, d.kur_kkr, d.prev_kur_kkr, true);
         } 
         else if(type === 'ALL') { 
@@ -1378,57 +1411,38 @@ function renderSimTable(type) {
         let num = 0, den = 1;
         if(type === 'ALL') { num = c.npl_os || 0; den = c.total_os || 1; }
         else if(type === 'Kons') { num = c.cons_npl || 0; den = c.cons_os || 1; }
-        else if(type === 'Prod') { num = c.prod_npl || 0; den = c.prod_os || 1; } 
+        else if(type === 'Prod') { num = c.prod_npl || 0; den = c.prod_os || 1; } // Perbaikan: Ganti '4S' menjadi 'Prod'
         else if(type === 'KUR') { num = c.kur_npl || 0; den = c.kur_os || 1; }
-
-        let r = den > 0 ? (num / den) * 100 : 0; 
         
-        // UX Magic: Animasi Counter untuk Persentase
-        if (typeof animateValueDecimal === 'function') {
-            const ratioId = 'k_npl_rat_' + type;
-            const oldRatioEl = el(ratioId);
-            const oldRatioVal = oldRatioEl ? parseFloat(oldRatioEl.innerText) || 0 : 0;
-            animateValueDecimal(ratioId, oldRatioVal, r, 800);
-        } else {
-            safeTxt('k_npl_rat_' + type, r.toFixed(2) + "%");
-        }
+        let r = den > 0 ? (num / den) * 100 : 0; 
+        safeTxt('k_npl_rat_' + type, r.toFixed(2) + "%");
 
         // F. Update Statistik Simulasi Awal
         if (typeof updateSimStats === 'function') updateSimStats(type); 
-
-        // G. Render Tabel (Split NPL & KKR)
-        // Kita batasi render maksimum 50 baris per tabel agar browser tidak ngelag
+        
+        // G. Render Chart Sektor
+        if(res.chart_sector && typeof renderChart === 'function') {
+            renderChart('chSec_'+type, 'doughnut', res.chart_sector.labels, res.chart_sector.data, 'Sektor NPL');
+        }
+        
+        // H. Render Tabel (Split NPL & KKR)
         let tableNpl = filteredRows.filter(r => r.kol >= 3);
         let tableKkr = filteredRows.filter(r => r.kol === 2);
-
+        
         if (typeof renderSimTableHTML === 'function') {
-            // PENYESUAIAN ID PENTING! Sesuaikan dengan HTML (KONS, PROD, KUR, ALL)
-            let prefixId = type.toUpperCase();
-            if (type === 'Kons') prefixId = 'Kons'; // Case-sensitive di HTML Anda id="tblKonsNpl"
-            if (type === 'Prod') prefixId = 'Prod'; // id="tblProdNpl"
-            
-            // Panggil Render Tabel HTML
-            renderSimTableHTML('tbl' + prefixId + 'Npl', tableNpl.slice(0, 50), type, true, 'NPL'); 
-            renderSimTableHTML('tbl' + prefixId + 'Kkr', tableKkr.slice(0, 50), type, true, 'KKR'); 
-            
-            // Animasi Cascade Baris Tabel
-            requestAnimationFrame(() => {
-                const rows = document.querySelectorAll('#tbl' + prefixId + 'Npl tr, #tbl' + prefixId + 'Kkr tr');
-                rows.forEach((row, i) => {
-                    row.style.transitionDelay = `${i * 30}ms`;
-                    row.classList.remove('opacity-0', 'translate-x-4');
-                });
-            });
+            renderSimTableHTML('tbl'+type+'Npl', tableNpl.slice(0,50), type, true, 'NPL'); 
+            renderSimTableHTML('tbl'+type+'Kkr', tableKkr.slice(0,50), type, true, 'KKR'); 
         }
 
-        // --- 2. BUKA KUNCI MENU ---
+        // --- 2. BUKA KUNCI MENU (Debounce Navigasi) ---
         if (typeof unlockMenu === 'function') unlockMenu();
     }
-
+    
 
     // =================================================================
-    // 2. TOGGLE SIMULATION (LOGIKA KLIK CHECKBOX MODERN)
+    // 2. TOGGLE SIMULATION (LOGIKA KLIK CHECKLIST)
     // =================================================================
+    // --- UPDATE: TOGGLE SIM (UNIQUE TARGETING) ---
     function toggleSim(type, idx, nominal, kol, suffix) {
         let simKey = 'sim' + type; 
         if (!s[simKey]) s[simKey] = { heal: [], crash: [] };
@@ -1436,8 +1450,8 @@ function renderSimTable(type) {
         if (!s[simKey].crash) s[simKey].crash = [];
 
         let state = s[simKey];
-
-        // Cari elemen berdasarkan ID Unik
+        
+        // FIX: Cari elemen berdasarkan ID Unik (dengan suffix)
         let rowEl = el(`row_${type}_${suffix}_${idx}`); 
         let chkEl = el(`chk_${type}_${suffix}_${idx}`);
 
@@ -1448,142 +1462,39 @@ function renderSimTable(type) {
         let pos = targetArray.indexOf(nominal);
 
         if (pos === -1) {
-            // BELUM ADA -> MASUKKAN KE LIST (CHECK)
+            // BELUM ADA -> MASUKKAN KE LIST
             targetArray.push(nominal);
-
-            // VISUAL EFFECT PLAYFUL
+            
+            // VISUAL
             if(rowEl) {
                 if (isNpl) {
                     // NPL Dilunasi -> Hijau & Coret
-                    rowEl.classList.add('bg-emerald-50/50', 'dark:bg-emerald-900/20');
-                    rowEl.classList.remove('hover:bg-blue-50/30', 'dark:hover:bg-blue-900/10');
-                    let namaEl = rowEl.querySelector('.debitur-name');
-                    if(namaEl) namaEl.classList.add('line-through', 'text-emerald-500', 'opacity-50');
-                    
-                    // UX Magic: Haptic Feedback pelan
-                    if(navigator.vibrate) navigator.vibrate(10);
+                    rowEl.classList.add('bg-green-50', 'dark:bg-green-900/20');
+                    let namaEl = rowEl.querySelector('td:nth-child(2)');
+                    if(namaEl) namaEl.classList.add('line-through', 'text-green-600', 'opacity-50');
                 } else {
                     // KKR Jatuh ke NPL -> Merah & Bold (Alert)
-                    rowEl.classList.add('bg-red-50/50', 'dark:bg-red-900/20');
-                    rowEl.classList.remove('hover:bg-blue-50/30', 'dark:hover:bg-blue-900/10');
-                    let namaEl = rowEl.querySelector('.debitur-name');
-                    if(namaEl) namaEl.classList.add('text-red-500');
-                    
-                    // UX Magic: Haptic Feedback peringatan
-                    if(navigator.vibrate) navigator.vibrate([10, 50, 10]);
+                    rowEl.classList.add('bg-red-50', 'dark:bg-red-900/20');
+                    let namaEl = rowEl.querySelector('td:nth-child(2)');
+                    if(namaEl) namaEl.classList.add('text-red-600', 'font-bold');
                 }
             }
             if(chkEl) chkEl.checked = true;
-
+            
         } else {
-            // SUDAH ADA -> BATALKAN (UNCHECK)
+            // SUDAH ADA -> BATALKAN
             targetArray.splice(pos, 1);
-
+            
             // VISUAL RESET
             if(rowEl) {
-                rowEl.classList.remove('bg-emerald-50/50', 'dark:bg-emerald-900/20', 'bg-red-50/50', 'dark:bg-red-900/20');
-                rowEl.classList.add('hover:bg-blue-50/30', 'dark:hover:bg-blue-900/10');
-                let namaEl = rowEl.querySelector('.debitur-name');
-                if(namaEl) namaEl.classList.remove('line-through', 'text-emerald-500', 'opacity-50', 'text-red-500');
+                rowEl.classList.remove('bg-green-50', 'dark:bg-green-900/20', 'bg-red-50', 'dark:bg-red-900/20');
+                let namaEl = rowEl.querySelector('td:nth-child(2)');
+                if(namaEl) namaEl.classList.remove('line-through', 'text-green-600', 'opacity-50', 'text-red-600', 'font-bold');
             }
             if(chkEl) chkEl.checked = false;
         }
 
         updateSimStats(type);
-    }
-
-    // =================================================================
-    // 3. RENDER TABEL HTML MODERN BENTO STYLE
-    // =================================================================
-    function renderSimTableHTML(elementId, rows, type, isSimulation, suffix) {
-        let tbody = el(elementId); 
-        if (!tbody) return; 
-        tbody.innerHTML = '';
-
-        const fmtIDR = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
-
-        if (!rows || rows.length === 0) { 
-            tbody.innerHTML = `
-                <tr><td colspan="7" class="p-16 text-center animate-fade-in">
-                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
-                        <i class="fas fa-check-circle text-2xl text-emerald-400"></i>
-                    </div>
-                    <span class="text-xs font-black uppercase tracking-widest text-slate-400">Clear!</span>
-                    <p class="text-[10px] text-slate-400 mt-1">Tidak ada data di kategori ini.</p>
-                </td></tr>`; 
-            return; 
-        }
-
-        rows.forEach((r, i) => {
-            let tr = document.createElement('tr'); 
-            tr.className = "group border-b border-slate-100/50 dark:border-slate-800/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors duration-300 opacity-0 transform translate-x-4 cursor-pointer"; 
-            tr.id = `row_${type}_${suffix}_${i}`;
-
-            // Premium Badge Style
-            const kolStyle = {
-                1: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                2: 'bg-amber-100 text-amber-700 border-amber-200',
-                3: 'bg-orange-100 text-orange-700 border-orange-200',
-                4: 'bg-rose-100 text-rose-700 border-rose-200',
-                5: 'bg-red-600 text-white shadow-sm border-transparent'
-            };
-            let colBadgeClass = kolStyle[r.kol] || 'bg-slate-100 text-slate-600';
-
-            // Modern Simulation Checkbox (Gaya Kapsul)
-            let checkHTML = '';
-            if (isSimulation) { 
-                tr.onclick = function(e) { 
-                    if(e.target.closest('.click-detail')) return; 
-                    if(e.target.type !== 'checkbox') window.app.toggleSim(type, i, r.os, r.kol, suffix); 
-                }; 
-                checkHTML = `
-                    <div class="relative flex items-center justify-center">
-                        <input type="checkbox" id="chk_${type}_${suffix}_${i}" 
-                               class="peer w-6 h-6 cursor-pointer appearance-none rounded-xl border-2 border-slate-200 dark:border-slate-600 checked:border-blue-500 checked:bg-blue-500 transition-all shadow-sm hover:scale-110 active:scale-95" 
-                               onclick="window.app.toggleSim('${type}', ${i}, ${r.os}, ${r.kol}, '${suffix}')">
-                        <i class="fas fa-check absolute text-[12px] text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity"></i>
-                    </div>`; 
-            } else { 
-                checkHTML = `<span class="text-[10px] font-black text-slate-400 font-mono">${(i+1).toString().padStart(2, '0')}</span>`; 
-            }
-
-            // Mencegah error jika teks memiliki petik
-            const safeNama = (r.nama || 'NASABAH').replace(/'/g, "\\'");
-
-            tr.innerHTML = `
-                <td class="p-3 text-center align-middle w-12">${checkHTML}</td>
-                <td class="p-4 align-middle">
-                    <div class="click-detail flex items-center gap-3 w-48 sm:w-64" onclick="event.stopPropagation(); window.app.fetchDetail('${r.loan}')">
-                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="debitur-name truncate font-black text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase tracking-tight text-sm">${safeNama}</span>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-[9px] font-black font-mono text-slate-400 bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 px-1.5 py-0.5 rounded shadow-sm">${r.loan}</span>
-                            </div>
-                        </div>
-                    </div>
-                </td>
-                <td class="p-4 hidden sm:table-cell text-center align-middle">
-                    <span class="text-[9px] font-bold text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-700 shadow-inner uppercase">${r.br || '-'}</span>
-                </td>
-                <td class="p-4 text-center align-middle">
-                    <span class="inline-block px-3 py-1 rounded-full text-[10px] font-black shadow-sm border ${colBadgeClass}">KOL ${r.kol}</span>
-                </td>
-                <td class="p-4 text-right align-middle hidden lg:table-cell">
-                    <div class="text-[10px] font-bold text-slate-400 tracking-wider">${fmtIDR(r.plafond || 0)}</div>
-                </td>
-                <td class="p-4 text-right align-middle">
-                    <div class="font-mono font-black text-slate-800 dark:text-white text-sm group-hover:scale-105 transition-transform origin-right tracking-tight">${fmtIDR(r.os)}</div>
-                </td>
-                <td class="p-4 text-right align-middle">
-                    <div class="font-mono font-black text-red-500 dark:text-red-400 text-xs">${fmtIDR(r.tgk || 0)}</div>
-                    ${r.tgk > 0 ? `<div class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-hand-holding-usd text-red-400"></i> Tunggakan</div>` : ''}
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
     }
 
 
@@ -7983,13 +7894,18 @@ function executeDeleteSheets() {
 
 // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FINAL & EXACT MATCH) ---
   function openSectorModal(sectorName) {
-      // 1. Ambil data dari all_list
+      // 1. Ambil data dari all_list (yang sudah memuat KOL 1-5)
       const allData = (app.state.data && app.state.data.all_list) ? app.state.data.all_list : [];
       
       // 2. Filter Cerdas (EXACT MATCH / SAMA PERSIS)
+      // Kita tidak lagi menggunakan substring, melainkan mencocokkan teks secara utuh
       const searchTarget = sectorName.toLowerCase().trim();
+      
       const filtered = allData.filter(r => {
-          if (r.sektor) return String(r.sektor).toLowerCase().trim() === searchTarget;
+          if (r.sektor) {
+              const rowSector = String(r.sektor).toLowerCase().trim();
+              return rowSector === searchTarget;
+          }
           return false;
       });
 
@@ -7997,19 +7913,24 @@ function executeDeleteSheets() {
       const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
       
       let html = '';
-      let totalOS = 0; let totalKKR = 0; let totalNPL = 0;
       
-      // 3. Render Baris per Baris
+      // Variabel Penampung Kalkulasi
+      let totalOS = 0;
+      let totalKKR = 0;
+      let totalNPL = 0;
+      
+      // 3. Render Baris per Baris & Lakukan Perhitungan
       filtered.forEach((r, i) => {
           const bakiDebet = Number(r.os || 0);
           const kol = parseInt(r.kol) || 1;
           
+          // --- KALKULASI TOTAL ---
           totalOS += bakiDebet;
           if(kol >= 2) totalKKR += bakiDebet;
           if(kol >= 3) totalNPL += bakiDebet;
           
-          // Styling Playful
-          let kolColor = 'bg-emerald-500 text-white'; 
+          // --- STYLING KOL WARNA-WARNI ---
+          let kolColor = 'bg-emerald-500 text-white'; // Default KOL 1 (Lancar)
           if(kol == 5) kolColor = 'bg-red-500 text-white animate-pulse-slow';
           else if(kol == 4) kolColor = 'bg-pink-500 text-white';
           else if(kol == 3) kolColor = 'bg-orange-500 text-white';
@@ -8021,10 +7942,10 @@ function executeDeleteSheets() {
           const nilaiTunggakan = Number(r.tgk || 0);
           
           html += `
-          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50" onclick="if(window.app && app.fetchDetail) app.fetchDetail('${r.loan}')">
+          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50">
               <td class="p-4 text-center font-bold text-slate-400 group-hover:text-blue-500 transition-colors">${i+1}</td>
               <td class="p-4">
-                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 transition-all transform group-hover:translate-x-1">${namaDebitur}</div>
+                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all transform group-hover:translate-x-1">${namaDebitur}</div>
                   <div class="text-[10px] font-bold opacity-50 uppercase tracking-widest mt-1"><i class="fas fa-fingerprint mr-1"></i> ${noRekening}</div>
               </td>
               <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${unitCabang}</td>
@@ -8038,8 +7959,8 @@ function executeDeleteSheets() {
       
       if(filtered.length === 0) {
           html = `<tr><td colspan="6" class="p-12 text-center flex flex-col items-center justify-center">
-                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3 shadow-inner"><i class="fas fa-folder-open text-2xl text-slate-300"></i></div>
-                    <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Tidak ada rincian untuk ${sectorName}</span>
+                    <i class="fas fa-folder-open text-4xl text-slate-300 mb-3 hover:scale-110 transition-transform"></i>
+                    <span class="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Tidak ada detail rincian untuk ${sectorName}</span>
                   </td></tr>`;
       }
       
@@ -8049,267 +7970,202 @@ function executeDeleteSheets() {
       const pctKKR = totalOS > 0 ? ((totalKKR / totalOS) * 100).toFixed(2) : 0;
       const pctNPL = totalOS > 0 ? ((totalNPL / totalOS) * 100).toFixed(2) : 0;
       
-      // 5. Suntikkan Data
+      // 5. Suntikkan Data ke Footer HTML
       document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
       document.getElementById('modal-sector-count').innerText = filtered.length; 
+      
       document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
       document.getElementById('modal-sector-kkr').innerText = fmtIDR(totalKKR);
       document.getElementById('modal-sector-pct-kkr').innerText = `${pctKKR}% dari Total`;
+      
       document.getElementById('modal-sector-npl').innerText = fmtIDR(totalNPL);
       document.getElementById('modal-sector-pct-npl').innerText = `${pctNPL}% dari Total`;
       
-      // 6. Animasi Masuk (Meluncur dari bawah)
+      // 6. Animasi Masuk
       const modal = document.getElementById('modal-sector');
-      const backdrop = document.getElementById('modal-sector-backdrop');
-      const content = document.getElementById('modal-sector-content');
-      
       modal.classList.remove('hidden');
-      modal.style.display = 'flex'; 
-      
-      // UX Magic: Haptic pop saat membuka di HP
-      if (navigator.vibrate) navigator.vibrate(10);
-      
-      requestAnimationFrame(() => {
-          backdrop.classList.remove('opacity-0');
-          content.classList.remove('translate-y-full'); 
-      });
-  } 
+      setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          if(modal.children[1]) modal.children[1].classList.remove('scale-95'); 
+      }, 10);
+  }
 
-  // --- FUNGSI MENUTUP BOTTOM SHEET ---
+  // --- FUNGSI MENUTUP MODAL ---
   function closeSectorModal() {
       const modal = document.getElementById('modal-sector');
-      const backdrop = document.getElementById('modal-sector-backdrop');
-      const content = document.getElementById('modal-sector-content');
-      
-      if(!modal || modal.classList.contains('hidden')) return;
-
-      backdrop.classList.add('opacity-0');
-      content.style.transform = ''; 
-      content.classList.add('translate-y-full'); 
-      
+      modal.classList.add('opacity-0');
+      modal.children[1].classList.add('scale-95'); // Efek Zoom Out
       setTimeout(() => {
           modal.classList.add('hidden');
-          modal.style.display = '';
-      }, 300);
+      }, 300); // Tunggu animasi CSS selesai
   }
 
-  // --- FISIKA BOTTOM SHEET (SWIPE TO DISMISS & RUBBER BAND) ---
-  function initBottomSheetPhysics() {
-      const handle = document.getElementById('modal-sector-handle');
-      const content = document.getElementById('modal-sector-content');
-      
-      if(!handle || !content) return;
+    
 
-      let startY = 0;
-      let currentY = 0;
-      let isDragging = false;
 
-      handle.addEventListener('touchstart', (e) => {
-          startY = e.touches[0].clientY;
-          isDragging = true;
-          content.style.transition = 'none'; 
-      }, { passive: true });
 
-      handle.addEventListener('touchmove', (e) => {
-          if (!isDragging) return;
-          currentY = e.touches[0].clientY;
-          const deltaY = currentY - startY;
-          
-          if (deltaY > 0) {
-              // Ditarik ke bawah: Gerak normal
-              content.style.transform = `translateY(${deltaY}px)`;
-          } else {
-              // UX Magic (Rubber Band): Ditarik ke atas akan terasa berat/tertahan
-              content.style.transform = `translateY(${deltaY * 0.15}px)`;
-          }
-      }, { passive: false });
-
-      handle.addEventListener('touchend', (e) => {
-          if (!isDragging) return;
-          isDragging = false;
-          
-          content.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-          const deltaY = currentY - startY;
-          
-          // Threshold 100px untuk menutup
-          if (deltaY > 100) {
-              // UX Magic: Haptic bump saat tertutup oleh usapan
-              if (navigator.vibrate) navigator.vibrate(30); 
-              closeSectorModal();
-          } else {
-              // Membal kembali ke bentuk semula
-              content.style.transform = 'translateY(0)'; 
-          }
-      });
-  }
-
-  // Jalankan fisika setelah DOM dimuat
-  document.addEventListener('DOMContentLoaded', () => {
-      initBottomSheetPhysics();
-  });
-
-  // --- FUNGSI TEMA ---
-  function toggleTheme() { 
-      document.documentElement.classList.toggle('dark'); 
-      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); 
-  }
-
-  // =================================================================
+ 
+  function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light'); }
   // --- PUBLIC API EXPORT ---
-  // =================================================================
+  // --- PUBLIC API EXPORT ---
   return {
-      state: s, 
+    state: s, 
 
-      // 1. Core Functions
-      init: init, 
-      refresh: refresh, 
-      
-      // 2. Event Handlers
-      onDateChange: function() { 
-          s.filter.d = document.getElementById('selDate').value; 
-          loadBranches(); 
-      },
+    // 1. Core Functions
+    init: init, 
+    refresh: refresh, 
+    
+    // 2. Event Handlers
+    onDateChange: function() { 
+        s.filter.d = document.getElementById('selDate').value; 
+        loadBranches(); 
+    },
 
-      toggleTheme: toggleTheme,
-      toggleNativeMenu: toggleNativeMenu,
-      toggleSpecificSheet: toggleSpecificSheet,
-      internalCloseAll: internalCloseAll,
-      toggleSidebar: toggleSidebar,
+    toggleTheme: toggleTheme,
+    toggleNativeMenu: toggleNativeMenu,
+    toggleSpecificSheet: toggleSpecificSheet,
+    internalCloseAll: internalCloseAll,
+    toggleSidebar: toggleSidebar,
 
-      // FIX 1: Penutupan total overlay dan laci
-      closeAllSheets: function() {
-          document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
-              sheet.classList.remove('open');
-          });
-          const menu = document.getElementById('nativeMenuSheet');
-          if (menu) menu.classList.add('translate-y-full');
-          const overlay = document.getElementById('nativeOverlay');
-          if (overlay) overlay.classList.add('hidden');
-          const sideOverlay = document.getElementById('sidebarOverlay');
-          if (sideOverlay) sideOverlay.classList.add('hidden');
-      },
+    // FIX 1: Fungsi penutupan total yang membersihkan overlay dan semua laci
+    closeAllSheets: function() {
+        // Tutup semua Bottom Sheets (Laci)
+        document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
+            sheet.classList.remove('open');
+        });
+        
+        // Tutup Menu Utama
+        const menu = document.getElementById('nativeMenuSheet');
+        if (menu) menu.classList.add('translate-y-full');
 
-      // FIX 2: Tutup laci SEBELUM pindah halaman & Jalankan Animasi Navigasi
-      switchTab: function(id) {
-          this.closeAllSheets(); 
+        // Sembunyikan Overlay Gelap
+        const overlay = document.getElementById('nativeOverlay');
+        if (overlay) overlay.classList.add('hidden');
+        
+        const sideOverlay = document.getElementById('sidebarOverlay');
+        if (sideOverlay) sideOverlay.classList.add('hidden');
+    },
 
-          if(id === 'npl-menu') { toggleSheet(); return; }
+    // FIX 2: Perbaikan fungsi switchTab (Tutup laci SEBELUM pindah halaman)
+    switchTab: function(id) {
+        this.closeAllSheets(); // Membersihkan menu yang menumpuk
 
-          document.querySelectorAll('.tab-view').forEach(e => e.classList.add('hidden')); 
-          const target = document.getElementById(id);
-          if(target) target.classList.remove('hidden');
+        if(id === 'npl-menu') { toggleSheet(); return; }
 
-          // --- TRIGGER ANIMASI BOTTOM NAV DI SINI ---
-          if(window.updateBottomNav) window.updateBottomNav(id);
+        document.querySelectorAll('.tab-view').forEach(e => e.classList.add('hidden')); 
+        const target = document.getElementById(id);
+        if(target) target.classList.remove('hidden');
 
-          this.refresh(id);
-      },
+        this.refresh(id);
+    },
 
-      // FIX 3: Upload Modal dengan delay (Anti-Tumpuk & Z-Index Safety)
-      openUploadModal: function() {
-          this.closeAllSheets(); 
-          setTimeout(() => {
-              const modal = document.getElementById('modalUpload');
-              if(modal) {
-                  modal.classList.remove('hidden');
-                  const upDate = document.getElementById('upDate');
-                  if(upDate) upDate.value = "";
-              }
-          }, 300);
-      },
+    // FIX 3: Fungsi pembuka Upload Modal dengan delay (Anti-Tumpuk & Z-Index Safety)
+    openUploadModal: function() {
+        this.closeAllSheets(); // Bersihkan laci utilitas dulu
+        
+        // Jeda agar laci turun sempurna, baru modal muncul di atas
+        setTimeout(() => {
+            const modal = document.getElementById('modalUpload');
+            if(modal) {
+                modal.classList.remove('hidden');
+                // Reset input tanggal
+                const upDate = document.getElementById('upDate');
+                if(upDate) upDate.value = "";
+            }
+        }, 300);
+    },
 
-      // 3. Data Operations
-      togSimSpecific: togSimSpecific, 
-      sortKredit: sortKredit, 
-      fetchDetail: fetchDetail, 
-      detectDateFromFile: detectDateFromFile,
-      doUpload: doUpload,
-      renderSheetManager: renderSheetManager,
-      updateDeleteCount: updateDeleteCount,
-      executeDeleteSheets: executeDeleteSheets,
-      
-      // 4. Simulation & Tools
-      updateStress: updateStress, 
-      initStressTest: initStressTest, 
-      toggleSim: toggleSim,
-      
-      // 5. WhatsApp Helpers
-      getWA: getWA,      
-      copyWA: copyWA,    
-      sendWA: sendWA,    
-      copyAndOpenWA: copyAndOpenWA, 
-      actionWA : actionWA,
-      
-      // 6. Report & Print
-      renderReportPage: renderReportPage, 
-      printPDF: printPDF, 
-      downloadPDF: downloadPDF, 
-      renderReportPreview: renderReportPreview, 
-      refreshReport: refreshReport, 
-      
-      // 7. Render Pages (View)
-      renderDashboard: renderDashboard,
-      renderMaturityPage: renderMaturityPage, 
-      renderWriteOffPage: renderWriteOffPage, 
-      renderFreshDropPage: renderFreshDropPage,
-      renderMapPage: renderMapPage,
-      renderJourneyPage: renderJourneyPage,
-      showJourneyDetail: showJourneyDetail,
-      openMitigationForm: openMitigationForm,
-      closeMitigasiModal: closeMitigasiModal,
-      submitMitigasi: submitMitigasi,
-      exportJourneyResume: exportJourneyResume,
-      generateResumeFinal: generateResumeFinal,
-      addDasarText: addDasarText,
-      toggleDasarCheck: toggleDasarCheck,
-      addNewDasarItem: addNewDasarItem,
-      removeDasarItem: removeDasarItem,
-      updateStatusKomitmen: updateStatusKomitmen,
-      setTemplateSolusi: setTemplateSolusi,
-      searchDebtorJourney: searchDebtorJourney,
-      toggleJourneyView: toggleJourneyView,
-      changeCalendarMonth: changeCalendarMonth,
-      showCalendarDetail: showCalendarDetail,
-      openDetailFromCalendar: openDetailFromCalendar,
-      printDailyReport: printDailyReport,
-      saveDailyPDF: saveDailyPDF,
-      openReportModal: openReportModal,
-      generatePeriodicReport: generatePeriodicReport,
-      savePeriodicPDF: savePeriodicPDF,
-      printResumeCustom: printResumeCustom,
-      formatRupiahInput: formatRupiahInput,
-      editLog: editLog, 
-      deleteLog: deleteLog,
-      loadArchiveData: loadArchiveData,
-      filterArchive: filterArchive,
-      exportArchiveData: exportArchiveData,
-      printSingleLabel: printSingleLabel,
-      openDetailFromArchive: openDetailFromArchive,
-      filterNewFiles: filterNewFiles,
-      selectAllForPrint: selectAllForPrint,
-      toggleSelect: toggleSelect,
-      printSelectedLabels: printSelectedLabels,
-      changeStatus: changeStatus,
-      changePage: changePage,
-      calcSim: calcSim,
-      resetSimSliders: resetSimSliders,
-      
-      // Binding Modal Functions
-      openSectorModal: openSectorModal,
-      closeSectorModal: closeSectorModal,
-      
-      togglePageSelection: togglePageSelection,
-      closeModal: function(id) {
-          const modal = document.getElementById(id);
-          if (modal) modal.classList.add('hidden');
-          const overlay = document.getElementById('nativeOverlay');
-          if (overlay) overlay.classList.add('hidden');
-      }
+
+
+    // 3. Data Operations
+    togSimSpecific: togSimSpecific, 
+    sortKredit: sortKredit, 
+    fetchDetail: fetchDetail, 
+    detectDateFromFile: detectDateFromFile,
+    doUpload: doUpload,
+    renderSheetManager: renderSheetManager,
+    updateDeleteCount: updateDeleteCount,
+    executeDeleteSheets: executeDeleteSheets,
+    
+    // 4. Simulation & Tools
+    updateStress: updateStress, 
+    initStressTest: initStressTest, 
+    toggleSim: toggleSim,
+    
+    // 5. WhatsApp Helpers
+    getWA: getWA,      
+    copyWA: copyWA,    
+    sendWA: sendWA,    
+    copyAndOpenWA: copyAndOpenWA, 
+    actionWA : actionWA,
+    
+    // 6. Report & Print
+    renderReportPage: renderReportPage, 
+    printPDF: printPDF, 
+    downloadPDF: downloadPDF, 
+    renderReportPreview: renderReportPreview, 
+    refreshReport: refreshReport, 
+    
+    // 7. Render Pages (View)
+    renderDashboard: renderDashboard,
+    renderMaturityPage: renderMaturityPage, 
+    renderWriteOffPage: renderWriteOffPage, 
+    renderFreshDropPage: renderFreshDropPage,
+    renderMapPage: renderMapPage,
+    renderJourneyPage: renderJourneyPage,
+    showJourneyDetail: showJourneyDetail,
+    openMitigationForm: openMitigationForm,
+    closeMitigasiModal: closeMitigasiModal,
+    submitMitigasi: submitMitigasi,
+    exportJourneyResume: exportJourneyResume,
+    generateResumeFinal: generateResumeFinal,
+    addDasarText: addDasarText,
+    toggleDasarCheck: toggleDasarCheck,
+    addNewDasarItem: addNewDasarItem,
+    removeDasarItem: removeDasarItem,
+    updateStatusKomitmen: updateStatusKomitmen,
+    setTemplateSolusi: setTemplateSolusi,
+    searchDebtorJourney: searchDebtorJourney,
+    toggleJourneyView: toggleJourneyView,
+    changeCalendarMonth: changeCalendarMonth,
+    showCalendarDetail: showCalendarDetail,
+    openDetailFromCalendar: openDetailFromCalendar,
+    printDailyReport: printDailyReport,
+    saveDailyPDF: saveDailyPDF,
+    openReportModal: openReportModal,
+    generatePeriodicReport: generatePeriodicReport,
+    savePeriodicPDF: savePeriodicPDF,
+    printResumeCustom: printResumeCustom,
+    formatRupiahInput: formatRupiahInput,
+    editLog: editLog, 
+    deleteLog: deleteLog,
+    loadArchiveData: loadArchiveData,
+    filterArchive: filterArchive,
+    exportArchiveData: exportArchiveData,
+    printSingleLabel: printSingleLabel,
+    openDetailFromArchive: openDetailFromArchive,
+    filterNewFiles: filterNewFiles,
+    selectAllForPrint: selectAllForPrint,
+    toggleSelect: toggleSelect,
+    printSelectedLabels: printSelectedLabels,
+    changeStatus: changeStatus,
+    changePage: changePage,
+    calcSim: calcSim,
+    resetSimSliders: resetSimSliders,
+    openSectorModal: openSectorModal,
+    closeSectorModal: closeSectorModal,
+    togglePageSelection: togglePageSelection,
+    closeModal: function(id) {
+        const modal = document.getElementById(id);
+        if (modal) modal.classList.add('hidden');
+        const overlay = document.getElementById('nativeOverlay');
+        if (overlay) overlay.classList.add('hidden');
+    }
   };   
 
 })(); // Tutup IIFE
 
-// Init Listener Terluar
+// Init Listener
 document.addEventListener("DOMContentLoaded", function() { 
     if(window.app && window.app.init) window.app.init(); 
 });
