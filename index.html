@@ -224,103 +224,158 @@
 
     <div class="flex-1 overflow-y-auto p-0 space-y-0 mobile-scroll">
       
-     <!-- 1. DASHBOARD -->
-      <div id="view-dash" class="tab-view fade-in p-4 md:p-6 space-y-6">
+    <!-- 1. DASHBOARD -->
+      <div id="view-dash" class="tab-view fade-in p-4 md:p-6 space-y-6 md:space-y-8 min-h-screen bg-transparent">
          
          <!-- Baris 1: 4 KPI Utama -->
-         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-kredit')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Outstanding</div><div class="text-xl font-bold mt-1 text-gray-800 dark:text-white" id="v_os">...</div></div>
-                  <div class="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors"><i class="fas fa-wallet text-3xl grad-icon grad-blue"></i></div>
+         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            
+            <!-- Card: Outstanding -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-blue-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/50 dark:from-slate-800 dark:to-blue-900/20 cursor-pointer" onclick="app.switchTab('view-kredit')">
+               <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500 group-hover:-rotate-12"><i class="fas fa-wallet text-9xl text-blue-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 bg-blue-100 dark:bg-blue-900/50 inline-block px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800 shadow-inner">Outstanding</div>
+                     <div class="text-2xl md:text-3xl font-black text-slate-800 dark:text-white drop-shadow-sm" id="v_os">...</div>
+                  </div>
+                  <div id="bdg_v_os" class="mt-4 hidden text-[10px] font-bold text-blue-600 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm"></div>
                </div>
-               <div id="bdg_v_os" class="mt-2 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplall')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">NPL Ratio</div><div class="text-xl font-bold mt-1 text-red-600" id="v_npl">...</div></div>
-                  <div class="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors"><i class="fas fa-exclamation-triangle text-3xl grad-icon grad-red"></i></div>
+            <!-- Card: NPL Ratio -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-red-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-red-50/50 dark:from-slate-800 dark:to-red-900/20 cursor-pointer" onclick="app.switchTab('view-nplall')">
+               <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500 group-hover:rotate-12"><i class="fas fa-exclamation-triangle text-9xl text-red-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[10px] font-black text-red-600 uppercase tracking-widest mb-2 bg-red-100 dark:bg-red-900/50 inline-block px-3 py-1 rounded-full border border-red-200 dark:border-red-800 shadow-inner">NPL Ratio</div>
+                     <div class="text-2xl md:text-3xl font-black text-red-600 drop-shadow-sm" id="v_npl">...</div>
+                  </div>
+                  <div id="bdg_rat_npl" class="mt-4 text-[10px] font-bold text-red-600 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm"></div>
                </div>
-               <div id="bdg_rat_npl" class="mt-2"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-freshdrop')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">KKR (Kol 2-5)</div><div class="text-xl font-bold mt-1 text-pink-600" id="v_kkr">...</div></div>
-                  <div class="p-2 bg-pink-50 rounded-lg group-hover:bg-pink-100 transition-colors"><i class="fas fa-radiation text-3xl grad-icon grad-purple"></i></div>
+            <!-- Card: KKR (Kol 2-5) -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-pink-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-pink-50/50 dark:from-slate-800 dark:to-pink-900/20 cursor-pointer" onclick="app.switchTab('view-freshdrop')">
+               <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500 group-hover:-rotate-12"><i class="fas fa-radiation text-9xl text-pink-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[10px] font-black text-pink-600 uppercase tracking-widest mb-2 bg-pink-100 dark:bg-pink-900/50 inline-block px-3 py-1 rounded-full border border-pink-200 dark:border-pink-800 shadow-inner">KKR (KOL 2-5)</div>
+                     <div class="text-2xl md:text-3xl font-black text-pink-600 drop-shadow-sm" id="v_kkr">...</div>
+                  </div>
+                  <div id="bdg_v_kkr" class="mt-4 hidden text-[10px] font-bold text-pink-600 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm"></div>
                </div>
-               <div id="bdg_v_kkr" class="mt-2 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-collection')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Tunggakan</div><div class="text-xl font-bold mt-1 text-orange-600" id="v_tgk">...</div></div>
-                  <div class="p-2 bg-orange-50 rounded-lg group-hover:bg-orange-100 transition-colors"><i class="fas fa-clock text-3xl grad-icon grad-orange"></i></div>
+            <!-- Card: Total Tunggakan -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-orange-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-orange-900/20 cursor-pointer" onclick="app.switchTab('view-collection')">
+               <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500 group-hover:rotate-12"><i class="fas fa-clock text-9xl text-orange-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-2 bg-orange-100 dark:bg-orange-900/50 inline-block px-3 py-1 rounded-full border border-orange-200 dark:border-orange-800 shadow-inner">Total Tunggakan</div>
+                     <div class="text-2xl md:text-3xl font-black text-orange-600 drop-shadow-sm" id="v_tgk">...</div>
+                  </div>
+                  <div id="bdg_v_tgk" class="mt-4 hidden text-[10px] font-bold text-orange-600 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm"></div>
                </div>
-               <div id="bdg_v_tgk" class="mt-2 hidden"></div>
             </div>
          </div>
          
          <!-- Baris 2: 3 KPI Tambahan -->
-         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-mutasi')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Debitur (NOA)</div><div class="text-xl font-bold mt-1 text-gray-800 dark:text-white" id="v_noa">...</div></div>
-                  <div class="p-2 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors"><i class="fas fa-users text-3xl grad-icon grad-emerald"></i></div>
+         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            
+            <!-- Card: Debitur (NOA) -->
+            <div class="glass-card p-5 rounded-[2rem] border-l-4 border-emerald-500 shadow-sm hover:shadow-lg group hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-md cursor-pointer" onclick="app.switchTab('view-mutasi')">
+               <div class="flex justify-between items-center z-10 relative">
+                  <div>
+                     <div class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">Debitur (NOA)</div>
+                     <div class="text-xl font-black text-slate-800 dark:text-white" id="v_noa">...</div>
+                  </div>
+                  <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center text-xl shadow-inner border border-emerald-100 dark:border-emerald-800 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                     <i class="fas fa-users"></i>
+                  </div>
                </div>
                <div id="bdg_v_noa" class="mt-2 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplprod')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Produktif</div><div class="text-xl font-bold mt-1 text-teal-600" id="v_prod">...</div></div>
-                  <div class="p-2 bg-teal-50 rounded-lg group-hover:bg-teal-100 transition-colors"><i class="fas fa-industry text-3xl grad-icon grad-gold"></i></div>
+            <!-- Card: Produktif -->
+            <div class="glass-card p-5 rounded-[2rem] border-l-4 border-teal-500 shadow-sm hover:shadow-lg group hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-md cursor-pointer" onclick="app.switchTab('view-nplprod')">
+               <div class="flex justify-between items-center z-10 relative">
+                  <div>
+                     <div class="text-[10px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest mb-1">NPL Produktif</div>
+                     <div class="text-xl font-black text-teal-600" id="v_prod">...</div>
+                  </div>
+                  <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center text-xl shadow-inner border border-teal-100 dark:border-teal-800 group-hover:scale-110 group-hover:-rotate-6 transition-transform">
+                     <i class="fas fa-industry"></i>
+                  </div>
                </div>
                <div id="bdg_v_prod" class="mt-2 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Konsumtif</div><div class="text-xl font-bold mt-1 text-indigo-600" id="v_cons">...</div></div>
-                  <div class="p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors"><i class="fas fa-home text-3xl grad-icon grad-blue"></i></div>
+            <!-- Card: Konsumtif -->
+            <div class="glass-card p-5 rounded-[2rem] border-l-4 border-indigo-500 shadow-sm hover:shadow-lg group hover:-translate-y-1.5 transition-all duration-300 relative overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-md cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
+               <div class="flex justify-between items-center z-10 relative">
+                  <div>
+                     <div class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1">NPL Konsumtif</div>
+                     <div class="text-xl font-black text-indigo-600" id="v_cons">...</div>
+                  </div>
+                  <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center text-xl shadow-inner border border-indigo-100 dark:border-indigo-800 group-hover:scale-110 group-hover:rotate-6 transition-transform">
+                     <i class="fas fa-home"></i>
+                  </div>
                </div>
                <div id="bdg_v_cons" class="mt-2 hidden"></div>
             </div>
          </div>
          
          <!-- Baris 3: Sebaran Sektor & Top NPL -->
-         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
             
             <!-- KARTU SEBARAN SEKTOR (INTERACTIVE LIST) -->
-            <div class="glass-card rounded-xl p-4 lg:col-span-1 flex flex-col h-chart-lg max-h-[500px]">
-               <div class="font-bold text-sm mb-4 text-gray-700 dark:text-white flex items-center gap-2">
-                  <i class="fas fa-chart-pie grad-icon grad-purple"></i> Sebaran Sektor
+            <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col lg:col-span-1 h-[520px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(139,92,246,0.15)] relative group bg-white/50 dark:bg-slate-900/50 transition-shadow hover:shadow-[0_20px_50px_-15px_rgba(139,92,246,0.3)]">
+               
+               <!-- Header Playful -->
+               <div class="p-5 bg-gradient-to-r from-violet-500 to-fuchsia-600 text-white relative z-10 shadow-md flex justify-between items-center">
+                  <div class="flex items-center gap-3">
+                     <div class="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md shadow-inner text-xl group-hover:rotate-12 transition-transform"><i class="fas fa-chart-pie"></i></div>
+                     <div>
+                        <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Sebaran Sektor</div>
+                        <div class="text-[9px] font-bold text-violet-100 uppercase tracking-widest mt-0.5">Distribusi Portofolio</div>
+                     </div>
+                  </div>
                </div>
+
                <!-- Wadah Scroll Sektor -->
-               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3 relative z-10 bg-slate-50/30 dark:bg-transparent">
                   <!-- Data kartu sektor akan disuntikkan oleh app.js di sini -->
                </div>
             </div>
             
             <!-- KARTU TOP NPL -->
-            <div class="glass-card rounded-xl overflow-hidden lg:col-span-2 flex flex-col h-chart-lg max-h-[500px]">
-               <div class="p-4 border-b border-gray-100 dark:border-slate-700 font-bold text-gray-800 dark:text-white text-sm flex items-center gap-2">
-                  <i class="fas fa-list-ol grad-icon grad-red"></i> Top NPL (Global)
+            <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col lg:col-span-2 h-[520px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(239,68,68,0.15)] relative group bg-white/50 dark:bg-slate-900/50 transition-shadow hover:shadow-[0_20px_50px_-15px_rgba(239,68,68,0.3)]">
+               
+               <!-- Header Playful -->
+               <div class="p-5 bg-gradient-to-r from-rose-500 to-red-600 text-white relative z-10 shadow-md flex justify-between items-center">
+                  <div class="flex items-center gap-3">
+                     <div class="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md shadow-inner text-xl group-hover:-rotate-12 transition-transform"><i class="fas fa-list-ol"></i></div>
+                     <div>
+                        <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Top NPL (Global)</div>
+                        <div class="text-[9px] font-bold text-red-100 uppercase tracking-widest mt-0.5">Debitur Risiko Tinggi</div>
+                     </div>
+                  </div>
+                  <span class="bg-white text-red-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider animate-bounce-slow">Kritis</span>
                </div>
-               <div class="overflow-y-auto custom-scrollbar flex-1">
+
+               <div class="overflow-y-auto custom-scrollbar flex-1 p-3 relative z-10 bg-slate-50/30 dark:bg-transparent">
                   <table class="w-full text-left text-sm whitespace-nowrap">
-                     <thead class="bg-gray-50 dark:bg-slate-700/50 text-gray-500 sticky top-0 z-10 backdrop-blur-sm">
-                        <tr>
-                           <th class="p-3">Nama / Loan</th>
-                           <th class="p-3">Unit</th>
-                           <th class="p-3 text-center">Kol</th>
-                           <th class="p-3 text-right">Plafond</th>
-                           <th class="p-3 text-right">Baki</th>
+                     <thead class="sticky top-0 z-10">
+                        <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
+                           <th class="p-4 rounded-l-xl">Nama / Loan</th>
+                           <th class="p-4 hidden sm:table-cell">Unit</th>
+                           <th class="p-4 text-center">Kol</th>
+                           <th class="p-4 text-right hidden lg:table-cell">Plafond</th>
+                           <th class="p-4 text-right rounded-r-xl">Baki Debet</th>
                         </tr>
                      </thead>
-                     <tbody id="tblTop" class="divide-y divide-gray-100 dark:divide-slate-700/50">
-                        <!-- Data Tabel Top NPL -->
+                     <tbody id="tblTop" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2">
+                        <!-- Data Tabel Top NPL (di-render oleh JS) -->
                      </tbody>
                   </table>
                </div>
