@@ -7739,14 +7739,21 @@ function executeDeleteSheets() {
   }
 
 
-  // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR ---
+ // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (REVISI) ---
   function openSectorModal(sectorName) {
-      // 1. Ambil seluruh memori data NPL yang sudah di-load di Dashboard
-      const allData = s.data.npl_list || [];
+      // 1. Ambil memori data mentah yang di-load dari res.npl_list di renderDashboard
+      // Karena renderDashboard menyimpan response penuh di app.state.data = res
+      const allData = (app.state.data && app.state.data.npl_list) ? app.state.data.npl_list : [];
       
-      // 2. Filter data secara pintar (Cari kata sektor di seluruh isi data debitur)
-      // (Kita gunakan cara 'kasar' namun sangat aman untuk menghindari error nama kolom dari Backend)
-      const filtered = allData.filter(r => JSON.stringify(r).toLowerCase().includes(sectorName.toLowerCase()));
+      // 2. Filter data secara pintar (Toleransi Huruf Besar Kecil & Spasi)
+      const cleanSectorName = sectorName.toLowerCase().trim();
+      
+      const filtered = allData.filter(r => {
+          // Jadikan 1 baris debitur menjadi Teks Utuh, lalu cari kata sektornya
+          // Ini cara ampuh karena kita tidak tahu persis kolom apa yang menyimpan 'sektor' dari Backend
+          const rowText = JSON.stringify(r).toLowerCase();
+          return rowText.includes(cleanSectorName);
+      });
 
       const tbody = document.getElementById('tbl-modal-sector');
       const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
@@ -7754,32 +7761,47 @@ function executeDeleteSheets() {
       let html = '';
       let totalOS = 0;
       
-      // 3. Render Baris per Baris dengan efek animasi hover (Glassmorphism)
+      // 3. Render Baris per Baris
       filtered.forEach((r, i) => {
-          totalOS += (r.os || 0);
+          // Ambil nilai Baki Debet. Cek properti 'os' (huruf kecil) atau 'OS' (huruf besar)
+          const bakiDebet = Number(r.os || r.OS || r.baki || 0);
+          totalOS += bakiDebet;
           
-          let kolColor = r.kol == 5 ? 'bg-red-500' : (r.kol == 4 ? 'bg-pink-500' : (r.kol == 3 ? 'bg-orange-500' : 'bg-yellow-500 text-black'));
+          // Penentuan Warna KOL
+          const kol = r.kol || r.KOL || '-';
+          let kolColor = 'bg-slate-500'; // Default
+          if(kol == 5) kolColor = 'bg-red-500';
+          else if(kol == 4) kolColor = 'bg-pink-500';
+          else if(kol == 3) kolColor = 'bg-orange-500';
+          else if(kol == 2) kolColor = 'bg-yellow-500 text-black';
+          
+          // Ambil Identitas (Bisa dari properti 'nama', 'NAMA', 'debitur', dll)
+          const namaDebitur = r.nama || r.NAMA || r.nama_debitur || 'Tanpa Nama';
+          const noRekening = r.rekening || r.REKENING || r.id || '-';
+          const unitCabang = r.unit || r.UNIT || r.cabang || '-';
+          const nilaiTunggakan = Number(r.tunggakan || r.TUNGGAKAN || r.tgk || 0);
           
           html += `
           <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50">
               <td class="p-4 text-center font-bold text-slate-400 group-hover:text-blue-500 transition-colors">${i+1}</td>
               <td class="p-4">
-                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all transform group-hover:translate-x-1">${r.nama || '-'}</div>
-                  <div class="text-[10px] font-bold opacity-50 uppercase tracking-widest mt-1"><i class="fas fa-fingerprint mr-1"></i> ${r.rekening || r.id || '-'}</div>
+                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all transform group-hover:translate-x-1">${namaDebitur}</div>
+                  <div class="text-[10px] font-bold opacity-50 uppercase tracking-widest mt-1"><i class="fas fa-fingerprint mr-1"></i> ${noRekening}</div>
               </td>
-              <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${r.unit || '-'}</td>
+              <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${unitCabang}</td>
               <td class="p-4 text-center">
-                  <span class="px-2 py-1 text-[10px] font-black text-white rounded-md shadow-sm ${kolColor}">KOL ${r.kol || '-'}</span>
+                  <span class="px-2 py-1 text-[10px] font-black text-white rounded-md shadow-sm ${kolColor}">KOL ${kol}</span>
               </td>
-              <td class="p-4 text-right font-mono font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${fmtIDR(r.os)}</td>
-              <td class="p-4 text-right font-mono font-black text-red-500">${fmtIDR(r.tunggakan || 0)}</td>
+              <td class="p-4 text-right font-mono font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${fmtIDR(bakiDebet)}</td>
+              <td class="p-4 text-right font-mono font-black text-red-500">${fmtIDR(nilaiTunggakan)}</td>
           </tr>`;
       });
       
       if(filtered.length === 0) {
           html = `<tr><td colspan="6" class="p-12 text-center flex flex-col items-center justify-center">
-                    <i class="fas fa-folder-open text-4xl text-slate-300 mb-3"></i>
-                    <span class="text-slate-400 font-bold uppercase tracking-widest text-xs">Tidak ada detail rincian untuk sektor ini</span>
+                    <i class="fas fa-folder-open text-4xl text-slate-300 mb-3 hover:scale-110 transition-transform"></i>
+                    <span class="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Tidak ada detail rincian untuk ${sectorName}</span>
+                    <span class="text-[9px] text-slate-300 mt-1">Pastikan penulisan sektor di data mentah cocok.</span>
                   </td></tr>`;
       }
       
@@ -7795,7 +7817,7 @@ function executeDeleteSheets() {
       modal.classList.remove('hidden');
       setTimeout(() => {
           modal.classList.remove('opacity-0');
-          modal.children[1].classList.remove('scale-95'); // Efek Zoom In
+          if(modal.children[1]) modal.children[1].classList.remove('scale-95'); 
       }, 10);
   }
 
