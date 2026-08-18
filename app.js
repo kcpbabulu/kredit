@@ -2788,65 +2788,104 @@ function renderMutasiPage(res) {
 
     var container = document.getElementById('view-mutasi');
     
-    // --- FIX ERROR: Definisi Variabel Sebelum Digunakan ---
-    // Mengambil nilai angka dari UI saat ini, jika tidak ada (null) maka mulai dari 0
+    // --- AMAN: Mengambil nilai angka dari UI saat ini ---
     const oldCair  = clean(document.getElementById('m_val_cair')?.innerText) || 0;
     const oldLunas = clean(document.getElementById('m_val_lunas')?.innerText) || 0;
     const oldNet   = clean(document.getElementById('m_val_net')?.innerText) || 0;
     const oldDrop  = clean(document.getElementById('m_val_drop')?.innerText) || 0;
 
     var netGrowth = res.summary.booking_amt - res.summary.repayment_amt;
-    var growthColor = netGrowth >= 0 ? 'text-emerald-600' : 'text-red-600';
-    var netSign = netGrowth >= 0 ? '+' : '';
+    var growthColor = netGrowth >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-red-500 dark:text-red-400';
+    var growthBg = netGrowth >= 0 ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200' : 'bg-red-50 dark:bg-red-900/30 border-red-200';
 
-    // Render Struktur Dashboard Mutasi
+    // Render Struktur Dashboard Mutasi (Modern Playful Bento Box)
     container.innerHTML = `
-    <div class="p-4 md:p-6 space-y-6 animate-fade-in bg-slate-50 dark:bg-slate-900/50 min-h-screen">
+    <div class="p-4 md:p-6 space-y-8 animate-fade-in min-h-screen">
         
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="glass-card p-5 rounded-2xl border-l-4 border-emerald-500 shadow-sm group hover:shadow-md transition-all">
-                <div class="text-[9px] uppercase font-black text-emerald-600 mb-1 tracking-widest">New Booking</div>
-                <div id="m_val_cair" class="text-xl font-black text-slate-800 dark:text-white">Rp 0</div>
-                <div class="mt-1 text-[10px] font-bold text-emerald-500"><i class="fas fa-user-plus"></i> ${res.details.new_booking.length} NoA</div>
+        <!-- 4 KPI CARDS (Bouncy & Playful) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            
+            <!-- Card: Pencairan -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-emerald-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-emerald-50/50 dark:from-slate-800 dark:to-emerald-900/20">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-hand-holding-usd text-9xl text-emerald-500"></i></div>
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <div>
+                        <div class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1 bg-emerald-100 dark:bg-emerald-900/50 inline-block px-2 py-0.5 rounded-md">New Booking</div>
+                        <div id="m_val_cair" class="text-xl md:text-2xl font-black text-slate-800 dark:text-white drop-shadow-sm mt-1">Rp 0</div>
+                    </div>
+                    <div class="mt-4 text-[10px] font-bold text-emerald-600 flex items-center gap-1.5 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm">
+                        <i class="fas fa-user-plus text-[9px]"></i> <span>${res.details.new_booking.length} Debitur</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="glass-card p-5 rounded-2xl border-l-4 border-rose-500 shadow-sm group hover:shadow-md transition-all">
-                <div class="text-[9px] uppercase font-black text-rose-600 mb-1 tracking-widest">Repayment</div>
-                <div id="m_val_lunas" class="text-xl font-black text-slate-800 dark:text-white">Rp 0</div>
-                <div class="mt-1 text-[10px] font-bold text-rose-500"><i class="fas fa-user-check"></i> ${res.details.repayment.length} NoA</div>
+            <!-- Card: Pelunasan -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-rose-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-rose-50/50 dark:from-slate-800 dark:to-rose-900/20">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-flag-checkered text-9xl text-rose-500"></i></div>
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <div>
+                        <div class="text-[9px] font-black text-rose-600 uppercase tracking-widest mb-1 bg-rose-100 dark:bg-rose-900/50 inline-block px-2 py-0.5 rounded-md">Repayment</div>
+                        <div id="m_val_lunas" class="text-xl md:text-2xl font-black text-slate-800 dark:text-white drop-shadow-sm mt-1">Rp 0</div>
+                    </div>
+                    <div class="mt-4 text-[10px] font-bold text-rose-600 flex items-center gap-1.5 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm">
+                        <i class="fas fa-user-check text-[9px]"></i> <span>${res.details.repayment.length} Debitur</span>
+                    </div>
+                </div>
             </div>
             
-            <div class="glass-card p-5 rounded-2xl border-l-4 border-blue-500 shadow-sm group hover:shadow-md transition-all">
-                <div class="text-[9px] uppercase font-black text-blue-500 mb-1 tracking-widest">Net Growth</div>
-                <div id="m_val_net" class="text-xl font-black ${growthColor}">Rp 0</div>
-                <div class="mt-1 text-[10px] font-medium text-slate-400">MTD Performance</div>
+            <!-- Card: Net Growth -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 ${netGrowth >= 0 ? 'border-blue-500' : 'border-red-500'} shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900">
+                <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-chart-pie text-9xl text-slate-500"></i></div>
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <div>
+                        <div class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 bg-slate-100 dark:bg-slate-700 inline-block px-2 py-0.5 rounded-md">Net Growth</div>
+                        <div id="m_val_net" class="text-xl md:text-2xl font-black ${growthColor} drop-shadow-sm mt-1">Rp 0</div>
+                    </div>
+                    <div class="mt-4 text-[10px] font-bold text-slate-500 flex items-center gap-1.5 ${growthBg} w-fit px-3 py-1 rounded-full shadow-inner border backdrop-blur-sm">
+                        <i class="fas fa-bolt text-[9px] text-yellow-500"></i> <span>MTD Performance</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="glass-card p-5 rounded-2xl border-l-4 border-orange-500 shadow-sm group hover:shadow-md transition-all">
-                <div class="text-[9px] uppercase font-black text-orange-600 mb-1 tracking-widest">Quality Drop</div>
-                <div id="m_val_drop" class="text-xl font-black text-orange-800 dark:text-orange-400">Rp 0</div>
-                <div class="mt-1 text-[10px] font-bold text-orange-500"><i class="fas fa-arrow-down transform rotate-45"></i> ${res.details.downgrade.length} NoA</div>
+            <!-- Card: Downgrade -->
+            <div class="glass-card p-5 rounded-[2rem] border-b-4 border-orange-500 shadow-sm hover:shadow-xl group hover:-translate-y-2 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-orange-50/50 dark:from-slate-800 dark:to-orange-900/20">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-sort-amount-down text-9xl text-orange-500"></i></div>
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <div>
+                        <div class="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-1 bg-orange-100 dark:bg-orange-900/50 inline-block px-2 py-0.5 rounded-md">Quality Drop</div>
+                        <div id="m_val_drop" class="text-xl md:text-2xl font-black text-orange-600 dark:text-orange-400 drop-shadow-sm mt-1">Rp 0</div>
+                    </div>
+                    <div class="mt-4 text-[10px] font-bold text-orange-600 flex items-center gap-1.5 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm">
+                        <i class="fas fa-exclamation-triangle text-[9px]"></i> <span>${res.details.downgrade.length} Debitur</span>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            <div class="flex p-1.5 bg-slate-100 dark:bg-slate-900 gap-1">
-                <button onclick="switchMutasiTab(this, 'tab_new')" class="mut-btn active-mut flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all">Pencairan</button>
-                <button onclick="switchMutasiTab(this, 'tab_lunas')" class="mut-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all">Pelunasan</button>
-                <button onclick="switchMutasiTab(this, 'tab_drop')" class="mut-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all">Downgrade</button>
-                <button onclick="switchMutasiTab(this, 'tab_rise')" class="mut-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all">Upgrade</button>
+        <!-- LIST AREA (Floating Tabs & Rows) -->
+        <div class="glass-card rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 dark:border-slate-700 overflow-hidden bg-white/40 dark:bg-slate-900/40 pb-2">
+            
+            <!-- Segmented Control (Tabs gaya iOS) -->
+            <div class="p-4 md:p-6 pb-2">
+                <div class="flex p-1.5 bg-slate-200/50 dark:bg-slate-800/80 backdrop-blur-md gap-1 rounded-full shadow-inner overflow-x-auto custom-scrollbar">
+                    <button onclick="switchMutasiTab(this, 'tab_new')" class="mut-btn active-mut flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300">Pencairan</button>
+                    <button onclick="switchMutasiTab(this, 'tab_lunas')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Pelunasan</button>
+                    <button onclick="switchMutasiTab(this, 'tab_drop')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Downgrade</button>
+                    <button onclick="switchMutasiTab(this, 'tab_rise')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Upgrade</button>
+                </div>
             </div>
 
-            <div class="p-0 h-[480px] overflow-y-auto custom-scrollbar relative">
-                <div id="tab_new" class="mutasi-tab p-2 animate-fade-in">${renderMutasiList(res.details.new_booking, 'NEW')}</div>
-                <div id="tab_lunas" class="mutasi-tab hidden p-2 animate-fade-in">${renderMutasiList(res.details.repayment, 'LUNAS')}</div>
-                <div id="tab_drop" class="mutasi-tab hidden p-2 animate-fade-in">${renderMutasiList(res.details.downgrade, 'DROP')}</div>
-                <div id="tab_rise" class="mutasi-tab hidden p-2 animate-fade-in">${renderMutasiList(res.details.upgrade, 'RISE')}</div>
+            <!-- Area Data Tabel -->
+            <div class="px-4 md:px-6 h-[500px] overflow-y-auto custom-scrollbar relative">
+                <div id="tab_new" class="mutasi-tab py-2 animate-fade-in">${renderMutasiList(res.details.new_booking, 'NEW')}</div>
+                <div id="tab_lunas" class="mutasi-tab hidden py-2 animate-fade-in">${renderMutasiList(res.details.repayment, 'LUNAS')}</div>
+                <div id="tab_drop" class="mutasi-tab hidden py-2 animate-fade-in">${renderMutasiList(res.details.downgrade, 'DROP')}</div>
+                <div id="tab_rise" class="mutasi-tab hidden py-2 animate-fade-in">${renderMutasiList(res.details.upgrade, 'RISE')}</div>
             </div>
         </div>
     </div>`;
 
-    // --- TRIGGER ANIMASI (Variabel sekarang sudah aman) ---
+    // --- TRIGGER ANIMASI ---
     animateValue('m_val_cair', oldCair, res.summary.booking_amt, 800, true);
     animateValue('m_val_lunas', oldLunas, res.summary.repayment_amt, 800, true);
     animateValue('m_val_net', oldNet, netGrowth, 1000, true);
@@ -2854,77 +2893,91 @@ function renderMutasiPage(res) {
     unlockMenu();
 }
 
-
-
 function renderMutasiList(data, type) {
     if(!data || data.length === 0) {
-        return `<div class="flex flex-col items-center justify-center p-20 opacity-30 text-slate-400">
-                    <i class="fas fa-folder-open text-5xl mb-4"></i>
-                    <p class="text-xs font-black uppercase tracking-widest">Tidak ada aktivitas</p>
+        return `<div class="flex flex-col items-center justify-center p-16 h-full text-slate-400 animate-pulse-slow">
+                    <div class="bg-white/50 dark:bg-slate-800 w-24 h-24 rounded-full flex items-center justify-center shadow-inner mb-4">
+                        <i class="fas fa-ghost text-5xl opacity-50"></i>
+                    </div>
+                    <p class="text-xs font-black uppercase tracking-widest">Tidak Ada Aktivitas</p>
+                    <p class="text-[10px] mt-1 opacity-60">Belum ada pergerakan data di kategori ini.</p>
                 </div>`;
     }
 
-    return `
-    <table class="w-full text-sm text-left">
-        <thead class="bg-slate-50 dark:bg-slate-900/50 text-[9px] font-black text-slate-400 uppercase tracking-widest sticky top-0 z-10">
-            <tr>
-                <th class="px-4 py-3">Informasi Debitur</th>
-                <th class="px-4 py-3 text-right">Nominal & Status</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-            ${data.map((r, idx) => {
-                let badge = '';
-                let amtColor = 'text-slate-700 dark:text-slate-200';
-                
-                if(type === 'LUNAS') {
-                    badge = '<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[8px] font-black">LUNAS</span>';
-                    amtColor = 'text-slate-400 line-through';
-                } else if(type === 'NEW') {
-                    badge = '<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 text-[8px] font-black">PENCAIRAN</span>';
-                    amtColor = 'text-emerald-600';
-                } else if(type === 'DROP') {
-                    badge = `<span class="px-2 py-0.5 rounded-md bg-orange-100 text-orange-700 text-[8px] font-black">K${r.kol_old} ➔ K${r.kol_new}</span>`;
-                    amtColor = 'text-orange-600';
-                }
+    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
-                return `
-                <tr class="group hover:bg-blue-50/50 dark:hover:bg-slate-700/30 transition-all cursor-pointer" onclick="app.fetchDetail('${r.loan}')">
-                    <td class="px-4 py-4">
-                        <div class="flex flex-col">
-                            <span class="font-extrabold text-slate-800 dark:text-slate-100 text-xs uppercase group-hover:text-blue-600">${r.nama || 'Nasabah'}</span>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-[9px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-1 rounded">${r.loan}</span>
-                                <span class="text-[9px] font-bold text-slate-500 uppercase">${r.br || ''}</span>
-                            </div>
-                            <div class="flex flex-wrap gap-x-3 gap-y-1 mt-2">
-                                <span class="text-[8px] font-bold text-slate-400"><i class="fas fa-landmark mr-1"></i>Plaf: ${fmtIDR(r.plafond || 0)}</span>
-                                <span class="text-[8px] font-bold text-red-500"><i class="fas fa-hand-holding-dollar mr-1"></i>Tgk: ${fmtIDR(r.tgk || 0)}</span>
-                                <span class="text-[8px] font-bold text-slate-400"><i class="fas fa-tag mr-1"></i>${(r.segmen || 'UMUM').substring(0,15)}</span>
-                            </div>
+    return `
+    <div class="flex flex-col gap-3 pb-4">
+        ${data.map((r, idx) => {
+            let badge = '';
+            let amtColor = 'text-slate-700 dark:text-white';
+            let iconBox = '';
+            
+            if(type === 'LUNAS') {
+                badge = '<span class="px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-600 text-[9px] font-black tracking-widest uppercase border border-rose-200 dark:border-rose-800">Lunas</span>';
+                amtColor = 'text-slate-400 line-through opacity-60';
+                iconBox = '<div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 shadow-inner border border-rose-100"><i class="fas fa-check-double"></i></div>';
+            } else if(type === 'NEW') {
+                badge = '<span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 text-[9px] font-black tracking-widest uppercase border border-emerald-200 dark:border-emerald-800">Cair</span>';
+                amtColor = 'text-emerald-600 dark:text-emerald-400';
+                iconBox = '<div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 shadow-inner border border-emerald-100"><i class="fas fa-hand-holding-usd"></i></div>';
+            } else if(type === 'DROP') {
+                badge = `<span class="px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 text-[9px] font-black tracking-widest uppercase border border-orange-200 dark:border-orange-800">K${r.kol_old} <i class="fas fa-arrow-right mx-1"></i> K${r.kol_new}</span>`;
+                amtColor = 'text-orange-600 dark:text-orange-400';
+                iconBox = '<div class="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 shadow-inner border border-orange-100"><i class="fas fa-sort-amount-down"></i></div>';
+            } else if(type === 'RISE') {
+                badge = `<span class="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 text-[9px] font-black tracking-widest uppercase border border-blue-200 dark:border-blue-800">K${r.kol_old} <i class="fas fa-arrow-right mx-1"></i> K${r.kol_new}</span>`;
+                amtColor = 'text-blue-600 dark:text-blue-400';
+                iconBox = '<div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 shadow-inner border border-blue-100"><i class="fas fa-level-up-alt"></i></div>';
+            }
+
+            return `
+            <!-- Kartu Baris (Floating Row Bento) -->
+            <div class="group bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border border-slate-100 dark:border-slate-700/50 p-3.5 sm:p-4 rounded-2xl hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4" onclick="if(typeof app.fetchDetail === 'function') app.fetchDetail('${r.loan}')">
+                
+                <!-- Info Kiri -->
+                <div class="flex items-start gap-3">
+                    ${iconBox}
+                    <div class="flex flex-col">
+                        <span class="font-black text-slate-800 dark:text-white text-xs sm:text-sm uppercase tracking-wide group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">${r.nama || 'Nasabah'}</span>
+                        
+                        <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5">
+                            <span class="text-[9px] font-mono font-bold text-slate-500 bg-slate-100 dark:bg-slate-900/80 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-fingerprint mr-1 opacity-50"></i>${r.loan}</span>
+                            <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-900/80 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-building mr-1 opacity-50"></i>${r.br || '-'}</span>
+                            <span class="text-[9px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded hidden md:inline-block">${(r.segmen || 'UMUM').substring(0,20)}</span>
                         </div>
-                    </td>
-                    <td class="px-4 py-4 text-right align-top">
-                        <div class="mb-1">${badge}</div>
-                        <div class="font-mono font-black ${amtColor} text-xs">
-                            ${fmtIDR(r.os || r.amount || 0)}
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('')}
-        </tbody>
-    </table>`;
+                    </div>
+                </div>
+
+                <!-- Info Kanan (Badge & Nominal) -->
+                <div class="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t border-slate-100 dark:border-slate-700/50 sm:border-0 pt-3 sm:pt-0 mt-1 sm:mt-0">
+                    <div class="mb-0 sm:mb-1.5">${badge}</div>
+                    <div class="font-mono font-black ${amtColor} text-sm sm:text-base bg-white dark:bg-black/20 sm:bg-transparent px-3 py-1 sm:p-0 rounded-lg shadow-inner sm:shadow-none">
+                        ${fmtIDR(r.os || r.amount || 0)}
+                    </div>
+                </div>
+            </div>`;
+        }).join('')}
+    </div>`;
 }
 
-
-
-// Global Tab Switcher
+// Global Tab Switcher (Animasi gaya Segmented Control)
 window.switchMutasiTab = function(btn, tabId) {
+    // Sembunyikan semua tab content
     document.querySelectorAll('.mutasi-tab').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('.mut-btn').forEach(b => b.classList.remove('active-mut', 'bg-white', 'dark:bg-slate-800', 'shadow-sm'));
     
+    // Kembalikan semua tombol ke style pasif
+    document.querySelectorAll('.mut-btn').forEach(b => {
+        b.classList.remove('active-mut', 'bg-white', 'dark:bg-slate-700', 'shadow-md', 'text-slate-800', 'dark:text-white', 'scale-105');
+        b.classList.add('text-slate-500');
+    });
+    
+    // Munculkan tab content target
     document.getElementById(tabId).classList.remove('hidden');
-    btn.classList.add('active-mut', 'bg-white', 'dark:bg-slate-800', 'shadow-sm');
+    
+    // Aktifkan style tombol yang diklik
+    btn.classList.remove('text-slate-500');
+    btn.classList.add('active-mut', 'bg-white', 'dark:bg-slate-700', 'shadow-md', 'text-slate-800', 'dark:text-white', 'scale-105');
 }
 
 
