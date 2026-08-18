@@ -1358,12 +1358,24 @@
         </div>
         
         <!-- Footer (Summary) -->
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center text-xs font-bold text-slate-500">
-            <div class="bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-xl text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50">
-                Total: <span id="modal-sector-count" class="font-black text-lg">0</span> Debitur
+        <!-- Footer (Summary) -->
+        <div class="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 grid grid-cols-3 gap-2 text-[9px] sm:text-xs font-bold text-slate-500">
+            <!-- Kotak 1: Total Semua KOL -->
+            <div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 flex flex-col justify-center items-center text-center shadow-inner">
+                <span class="uppercase tracking-wider">TOTAL (<span id="modal-sector-count">0</span> NOA)</span>
+                <span id="modal-sector-os" class="font-black text-[11px] sm:text-base mt-1">Rp 0</span>
             </div>
-            <div class="bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded-xl text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50">
-                Total Eksposur: <span id="modal-sector-os" class="font-black text-lg font-mono">Rp 0</span>
+            <!-- Kotak 2: KKR (KOL 2-5) -->
+            <div class="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-xl text-yellow-700 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-800/50 flex flex-col justify-center items-center text-center shadow-inner">
+                <span class="uppercase tracking-wider">KKR (KOL 2-5)</span>
+                <span id="modal-sector-kkr" class="font-black text-[11px] sm:text-base mt-1 text-yellow-600">Rp 0</span>
+                <span id="modal-sector-pct-kkr" class="bg-yellow-200 dark:bg-yellow-800/80 text-yellow-800 dark:text-yellow-100 px-2 py-0.5 rounded-full text-[8px] mt-1 shadow-sm">0%</span>
+            </div>
+            <!-- Kotak 3: NPL (KOL 3-5) -->
+            <div class="bg-red-50 dark:bg-red-900/30 p-2 rounded-xl text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 flex flex-col justify-center items-center text-center shadow-inner">
+                <span class="uppercase tracking-wider">NPL (KOL 3-5)</span>
+                <span id="modal-sector-npl" class="font-black text-[11px] sm:text-base mt-1 text-red-500">Rp 0</span>
+                <span id="modal-sector-pct-npl" class="bg-red-200 dark:bg-red-800/80 text-red-800 dark:text-red-100 px-2 py-0.5 rounded-full text-[8px] mt-1 shadow-sm">0%</span>
             </div>
         </div>
     </div>
