@@ -54,6 +54,52 @@ function createGasProxy(successHandler, failureHandler) {
 window.google.script.run = createGasProxy(null, null);
 
 // ================= BATAS BRIDGE PROXY =================
+// --- ANIMASI BOTTOM NAVIGATION BAR ---
+window.updateBottomNav = function(activeTabId) {
+    // Pemetaan ID Halaman ke ID Tombol Navigasi
+    const navMap = {
+        'view-dash': { id: 'nav-dash', color: 'text-blue-500' },
+        'view-kredit': { id: 'nav-kredit', color: 'text-emerald-500' },
+        'view-map': { id: 'nav-map', color: 'text-purple-500' },
+        'view-mutasi': { id: 'nav-mutasi', color: 'text-orange-500' }
+    };
+
+    const targetNav = navMap[activeTabId] || { id: 'nav-menu', color: 'text-rose-500' };
+
+    // 1. Reset Semua Tombol ke Mode Pasif
+    document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+        // Reset Warna
+        btn.classList.remove('text-blue-500', 'text-emerald-500', 'text-purple-500', 'text-orange-500', 'text-rose-500');
+        btn.classList.add('text-slate-400');
+        
+        // Reset Animasi Ikon & Teks
+        btn.querySelector('.nav-icon-wrap').classList.remove('-translate-y-1');
+        btn.querySelector('.nav-text').classList.replace('opacity-100', 'opacity-70');
+        
+        // Sembunyikan Indikator Garis Atas
+        const indicator = btn.querySelector('.nav-indicator');
+        indicator.classList.remove('opacity-100', 'scale-100');
+        indicator.classList.add('opacity-0', 'scale-0');
+    });
+
+    // 2. Aktifkan Tombol yang Dipilih
+    const activeBtn = document.getElementById(targetNav.id);
+    if (activeBtn) {
+        activeBtn.classList.remove('text-slate-400');
+        activeBtn.classList.add(targetNav.color);
+        
+        activeBtn.querySelector('.nav-icon-wrap').classList.add('-translate-y-1');
+        activeBtn.querySelector('.nav-text').classList.replace('opacity-70', 'opacity-100');
+        
+        const indicator = activeBtn.querySelector('.nav-indicator');
+        indicator.classList.remove('opacity-0', 'scale-0');
+        indicator.classList.add('opacity-100', 'scale-100');
+        
+        // UX Magic: Beri getaran halus saat menu pindah (Haptic Feedback)
+        if (navigator.vibrate) navigator.vibrate(15);
+    }
+};
+
 
 window.app = (function() {
   var s = { 
@@ -8100,7 +8146,7 @@ function executeDeleteSheets() {
           if (sideOverlay) sideOverlay.classList.add('hidden');
       },
 
-      // FIX 2: Tutup laci SEBELUM pindah halaman
+      // FIX 2: Tutup laci SEBELUM pindah halaman & Jalankan Animasi Navigasi
       switchTab: function(id) {
           this.closeAllSheets(); 
 
@@ -8109,6 +8155,9 @@ function executeDeleteSheets() {
           document.querySelectorAll('.tab-view').forEach(e => e.classList.add('hidden')); 
           const target = document.getElementById(id);
           if(target) target.classList.remove('hidden');
+
+          // --- TRIGGER ANIMASI BOTTOM NAV DI SINI ---
+          if(window.updateBottomNav) window.updateBottomNav(id);
 
           this.refresh(id);
       },
