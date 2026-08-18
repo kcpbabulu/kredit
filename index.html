@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=67">
+  <link rel="stylesheet" href="style.css?v=68">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -224,8 +224,10 @@
 
     <div class="flex-1 overflow-y-auto p-0 space-y-0 mobile-scroll">
       
-      <!-- 1. DASHBOARD -->
+     <!-- 1. DASHBOARD -->
       <div id="view-dash" class="tab-view fade-in p-4 md:p-6 space-y-6">
+         
+         <!-- Baris 1: 4 KPI Utama -->
          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-kredit')">
                <div class="flex justify-between items-start">
@@ -234,6 +236,7 @@
                </div>
                <div id="bdg_v_os" class="mt-2 hidden"></div>
             </div>
+            
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplall')">
                <div class="flex justify-between items-start">
                   <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">NPL Ratio</div><div class="text-xl font-bold mt-1 text-red-600" id="v_npl">...</div></div>
@@ -241,6 +244,7 @@
                </div>
                <div id="bdg_rat_npl" class="mt-2"></div>
             </div>
+            
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-freshdrop')">
                <div class="flex justify-between items-start">
                   <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">KKR (Kol 2-5)</div><div class="text-xl font-bold mt-1 text-pink-600" id="v_kkr">...</div></div>
@@ -248,6 +252,7 @@
                </div>
                <div id="bdg_v_kkr" class="mt-2 hidden"></div>
             </div>
+            
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-collection')">
                <div class="flex justify-between items-start">
                   <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Tunggakan</div><div class="text-xl font-bold mt-1 text-orange-600" id="v_tgk">...</div></div>
@@ -256,6 +261,8 @@
                <div id="bdg_v_tgk" class="mt-2 hidden"></div>
             </div>
          </div>
+         
+         <!-- Baris 2: 3 KPI Tambahan -->
          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-mutasi')">
                <div class="flex justify-between items-start">
@@ -264,6 +271,7 @@
                </div>
                <div id="bdg_v_noa" class="mt-2 hidden"></div>
             </div>
+            
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplprod')">
                <div class="flex justify-between items-start">
                   <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Produktif</div><div class="text-xl font-bold mt-1 text-teal-600" id="v_prod">...</div></div>
@@ -271,6 +279,7 @@
                </div>
                <div id="bdg_v_prod" class="mt-2 hidden"></div>
             </div>
+            
             <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
                <div class="flex justify-between items-start">
                   <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Konsumtif</div><div class="text-xl font-bold mt-1 text-indigo-600" id="v_cons">...</div></div>
@@ -279,22 +288,44 @@
                <div id="bdg_v_cons" class="mt-2 hidden"></div>
             </div>
          </div>
+         
+         <!-- Baris 3: Sebaran Sektor & Top NPL -->
          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="glass-card rounded-xl p-4 lg:col-span-1 h-chart-lg">
-               <div class="font-bold text-sm mb-2 text-gray-700 dark:text-white flex items-center gap-2"><i class="fas fa-chart-pie grad-icon grad-purple"></i> Sebaran Sektor</div>
-               <div class="chart-box"><canvas id="chartSec"></canvas></div>
+            
+            <!-- KARTU SEBARAN SEKTOR (INTERACTIVE LIST) -->
+            <div class="glass-card rounded-xl p-4 lg:col-span-1 flex flex-col h-chart-lg max-h-[500px]">
+               <div class="font-bold text-sm mb-4 text-gray-700 dark:text-white flex items-center gap-2">
+                  <i class="fas fa-chart-pie grad-icon grad-purple"></i> Sebaran Sektor
+               </div>
+               <!-- Wadah Scroll Sektor -->
+               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+                  <!-- Data kartu sektor akan disuntikkan oleh app.js di sini -->
+               </div>
             </div>
-            <div class="glass-card rounded-xl overflow-hidden lg:col-span-2">
-               <div class="p-4 border-b border-gray-100 dark:border-slate-700 font-bold text-gray-800 dark:text-white text-sm flex items-center gap-2"><i class="fas fa-list-ol grad-icon grad-red"></i> Top NPL (Global)</div>
-               <div class="overflow-x-auto">
+            
+            <!-- KARTU TOP NPL -->
+            <div class="glass-card rounded-xl overflow-hidden lg:col-span-2 flex flex-col h-chart-lg max-h-[500px]">
+               <div class="p-4 border-b border-gray-100 dark:border-slate-700 font-bold text-gray-800 dark:text-white text-sm flex items-center gap-2">
+                  <i class="fas fa-list-ol grad-icon grad-red"></i> Top NPL (Global)
+               </div>
+               <div class="overflow-y-auto custom-scrollbar flex-1">
                   <table class="w-full text-left text-sm whitespace-nowrap">
-                     <thead class="bg-gray-50 dark:bg-slate-700 text-gray-500">
-                        <tr><th class="p-3">Nama / Loan</th><th class="p-3">Unit</th><th class="p-3 text-center">Kol</th><th class="p-3 text-right">Plafond</th><th class="p-3 text-right">Baki</th></tr>
+                     <thead class="bg-gray-50 dark:bg-slate-700/50 text-gray-500 sticky top-0 z-10 backdrop-blur-sm">
+                        <tr>
+                           <th class="p-3">Nama / Loan</th>
+                           <th class="p-3">Unit</th>
+                           <th class="p-3 text-center">Kol</th>
+                           <th class="p-3 text-right">Plafond</th>
+                           <th class="p-3 text-right">Baki</th>
+                        </tr>
                      </thead>
-                     <tbody id="tblTop"></tbody>
+                     <tbody id="tblTop" class="divide-y divide-gray-100 dark:divide-slate-700/50">
+                        <!-- Data Tabel Top NPL -->
+                     </tbody>
                   </table>
                </div>
             </div>
+            
          </div>
       </div>
 
@@ -1383,7 +1414,7 @@
   <!-- ======================================================= -->
 
    <!-- App Javascript -->
-  <script src="app.js?v=67"></script>
+  <script src="app.js?v=68"></script>
   
  <!-- Service Worker Registration & Auto-Update Catcher -->
   <script>
