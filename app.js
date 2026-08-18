@@ -1313,75 +1313,6 @@ function formatNumber(angka) {
   function render4SPage(res) { renderGenericPage(res, '4S'); 
                              unlockMenu();}
 
-
-
-// --- 2. RENDER TABLE WITH CHECKLIST (FIX SIMULASI VISUAL) ---
-// --- UPDATE: RENDER TABLE (SUPPORT DETAIL KLIK NAMA) ---
-    function renderSimTableHTML(elementId, rows, type, isSimulation, suffix) {
-    let tbody = el(elementId); 
-    if (!tbody) return; 
-    tbody.innerHTML = '';
-    
-    if (rows.length === 0) { 
-        tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-slate-400 italic">Tidak ada data ditemukan</td></tr>'; 
-        return; 
-    }
-
-    rows.forEach((r, i) => {
-        let tr = document.createElement('tr'); 
-        tr.className = "group border-b border-slate-100 dark:border-slate-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all duration-200"; 
-        tr.id = `row_${type}_${suffix}_${i}`;
-        
-        // Premium Badge Style
-        const kolStyle = {
-            1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-            2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-            3: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-            4: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-            5: 'bg-slate-900 text-white dark:bg-black dark:text-slate-300 shadow-sm'
-        };
-        let colBadgeClass = kolStyle[r.kol] || 'bg-slate-100 text-slate-600';
-        
-        // Modern Simulation Checkbox
-        let checkHTML = '';
-        if (isSimulation) { 
-            tr.style.cursor = "pointer"; 
-            tr.onclick = function(e) { 
-                if(e.target.closest('.click-detail')) return; 
-                if(e.target.type !== 'checkbox') window.app.toggleSim(type, i, r.os, r.kol, suffix); 
-            }; 
-            checkHTML = `
-                <div class="relative flex items-center justify-center">
-                    <input type="checkbox" id="chk_${type}_${suffix}_${i}" 
-                           class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:border-blue-600 checked:bg-blue-600 transition-all" 
-                           onclick="window.app.toggleSim('${type}', ${i}, ${r.os}, ${r.kol}, '${suffix}')">
-                    <i class="fas fa-check absolute text-[10px] text-white opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
-                </div>`; 
-        } else { 
-            checkHTML = `<span class="text-[10px] font-bold text-slate-300 font-mono">${(i+1).toString().padStart(2, '0')}</span>`; 
-        }
-
-        tr.innerHTML = `
-            <td class="p-3 text-center">${checkHTML}</td>
-            <td class="p-3">
-                <div class="click-detail flex flex-col group/item" onclick="event.stopPropagation(); window.app.fetchDetail('${r.loan}')">
-                    <div class="truncate w-32 md:w-48 font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight text-xs">${r.nama}</div>
-                    <div class="text-[9px] font-black font-mono text-slate-400 mt-0.5">${r.loan} | PK: ${r.pk || '-'}</div>
-                </div>
-            </td>
-            <td class="p-3 hidden sm:table-cell"><span class="text-[10px] font-bold text-slate-500 uppercase">${r.br}</span></td>
-            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-md text-[9px] font-black shadow-sm ${colBadgeClass}">KOL ${r.kol}</span></td>
-            <td class="p-3 text-right font-mono text-[10px] text-slate-400 hidden lg:table-cell">${formatRupiah(r.plafond || 0)}</td>
-            <td class="p-3 text-right font-mono text-xs font-black text-slate-700 dark:text-slate-200">${formatRupiah(r.os)}</td>
-            <td class="p-3 text-right">
-                <div class="font-mono text-xs font-black text-red-600 dark:text-red-400">${formatRupiah(r.tgk || 0)}</div>
-                ${r.tgk > 0 ? `<div class="text-[8px] text-red-400 font-bold uppercase tracking-tighter mt-0.5">Arrears</div>` : ''}
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
-}
-
 // --- 4. RENDER SIM TABLE WRAPPER (UTK KOMPATIBILITAS) ---
 function renderSimTable(type) {
     // Fungsi ini dipanggil renderGenericPage, tapi logika rendering sudah kita pindah ke renderSimTableHTML
@@ -1389,28 +1320,25 @@ function renderSimTable(type) {
     updateSimStats(type);
 }
 
-
-
-   // =================================================================
-    // 1. RENDER GENERIC PAGE (PENGENDALI HALAMAN MENU)
+    // =================================================================
+    // 1. RENDER GENERIC PAGE (PENGENDALI HALAMAN MENU NPL)
     // =================================================================
     function renderGenericPage(res, type) { 
         if(el('loader')) el('loader').style.display='none';
-        
-        // --- 1. SAFE ASSIGNMENT (Mencegah Error Null saat Pindah Tab Cepat) ---
+
+        // --- 1. SAFE ASSIGNMENT ---
         app.state = app.state || {};
         app.state.data = app.state.data || {};
-        
+
         // A. Tentukan Variabel State
         let dataVar = type === 'KUR' ? 'kur' : (type === 'Kons' ? 'kons' : (type === 'Prod' ? 'prod' : 'allnpl'));
-        let allRows = res.npl_list || []; // Data dari Backend (Top Risk/KKR)
-        
+        let allRows = res.npl_list || []; 
+
         // B. Filter Data Sesuai Menu (Agar tidak tercampur)
         let filteredRows = [];
         if (type === 'ALL') {
             filteredRows = allRows;
         } else {
-            // Filter berdasarkan Tags yang dikirim Backend
             filteredRows = allRows.filter(r => r.tags && r.tags.includes(type));
         }
 
@@ -1418,23 +1346,16 @@ function renderSimTable(type) {
         s[dataVar] = res.curr;
         s[dataVar].rows = filteredRows; 
         s.data.npl_list = allRows;
-        s['sim'+type] = { heal:[], crash:[] }; // Reset simulasi saat ganti menu
-        
+        s['sim'+type] = { heal:[], crash:[] }; // Reset simulasi
+
         const c = res.curr || {}; 
         const d = res.diff || {};
 
         // D. Update Kartu Atas (Manual Mapping agar Akurat)
         if(type === 'KUR') { 
-            // Kartu 1: KUR Mikro (Data OS)
             updateCard('k_mikro', c.mikro_os, d.sub1, d.prev_sub1, false); 
-            
-            // Kartu 2: KUR Kecil (Data OS)
             updateCard('k_kecil', c.kecil_os, d.sub2, d.prev_sub2, false);
-            
-            // Kartu 3: Total NPL KUR
             updateCard('k_kur_npl', c.kur_npl, d.kur_npl, d.prev_kur_npl, true);
-            
-            // Kartu 4: Total KKR KUR
             updateCard('k_kur_kkr', c.kur_kkr, d.kur_kkr, d.prev_kur_kkr, true);
         } 
         else if(type === 'ALL') { 
@@ -1457,38 +1378,57 @@ function renderSimTable(type) {
         let num = 0, den = 1;
         if(type === 'ALL') { num = c.npl_os || 0; den = c.total_os || 1; }
         else if(type === 'Kons') { num = c.cons_npl || 0; den = c.cons_os || 1; }
-        else if(type === 'Prod') { num = c.prod_npl || 0; den = c.prod_os || 1; } // Perbaikan: Ganti '4S' menjadi 'Prod'
+        else if(type === 'Prod') { num = c.prod_npl || 0; den = c.prod_os || 1; } 
         else if(type === 'KUR') { num = c.kur_npl || 0; den = c.kur_os || 1; }
-        
+
         let r = den > 0 ? (num / den) * 100 : 0; 
-        safeTxt('k_npl_rat_' + type, r.toFixed(2) + "%");
+        
+        // UX Magic: Animasi Counter untuk Persentase
+        if (typeof animateValueDecimal === 'function') {
+            const ratioId = 'k_npl_rat_' + type;
+            const oldRatioEl = el(ratioId);
+            const oldRatioVal = oldRatioEl ? parseFloat(oldRatioEl.innerText) || 0 : 0;
+            animateValueDecimal(ratioId, oldRatioVal, r, 800);
+        } else {
+            safeTxt('k_npl_rat_' + type, r.toFixed(2) + "%");
+        }
 
         // F. Update Statistik Simulasi Awal
         if (typeof updateSimStats === 'function') updateSimStats(type); 
-        
-        // G. Render Chart Sektor
-        if(res.chart_sector && typeof renderChart === 'function') {
-            renderChart('chSec_'+type, 'doughnut', res.chart_sector.labels, res.chart_sector.data, 'Sektor NPL');
-        }
-        
-        // H. Render Tabel (Split NPL & KKR)
+
+        // G. Render Tabel (Split NPL & KKR)
+        // Kita batasi render maksimum 50 baris per tabel agar browser tidak ngelag
         let tableNpl = filteredRows.filter(r => r.kol >= 3);
         let tableKkr = filteredRows.filter(r => r.kol === 2);
-        
+
         if (typeof renderSimTableHTML === 'function') {
-            renderSimTableHTML('tbl'+type+'Npl', tableNpl.slice(0,50), type, true, 'NPL'); 
-            renderSimTableHTML('tbl'+type+'Kkr', tableKkr.slice(0,50), type, true, 'KKR'); 
+            // PENYESUAIAN ID PENTING! Sesuaikan dengan HTML (KONS, PROD, KUR, ALL)
+            let prefixId = type.toUpperCase();
+            if (type === 'Kons') prefixId = 'Kons'; // Case-sensitive di HTML Anda id="tblKonsNpl"
+            if (type === 'Prod') prefixId = 'Prod'; // id="tblProdNpl"
+            
+            // Panggil Render Tabel HTML
+            renderSimTableHTML('tbl' + prefixId + 'Npl', tableNpl.slice(0, 50), type, true, 'NPL'); 
+            renderSimTableHTML('tbl' + prefixId + 'Kkr', tableKkr.slice(0, 50), type, true, 'KKR'); 
+            
+            // Animasi Cascade Baris Tabel
+            requestAnimationFrame(() => {
+                const rows = document.querySelectorAll('#tbl' + prefixId + 'Npl tr, #tbl' + prefixId + 'Kkr tr');
+                rows.forEach((row, i) => {
+                    row.style.transitionDelay = `${i * 30}ms`;
+                    row.classList.remove('opacity-0', 'translate-x-4');
+                });
+            });
         }
 
-        // --- 2. BUKA KUNCI MENU (Debounce Navigasi) ---
+        // --- 2. BUKA KUNCI MENU ---
         if (typeof unlockMenu === 'function') unlockMenu();
     }
-    
+
 
     // =================================================================
-    // 2. TOGGLE SIMULATION (LOGIKA KLIK CHECKLIST)
+    // 2. TOGGLE SIMULATION (LOGIKA KLIK CHECKBOX MODERN)
     // =================================================================
-    // --- UPDATE: TOGGLE SIM (UNIQUE TARGETING) ---
     function toggleSim(type, idx, nominal, kol, suffix) {
         let simKey = 'sim' + type; 
         if (!s[simKey]) s[simKey] = { heal: [], crash: [] };
@@ -1496,8 +1436,8 @@ function renderSimTable(type) {
         if (!s[simKey].crash) s[simKey].crash = [];
 
         let state = s[simKey];
-        
-        // FIX: Cari elemen berdasarkan ID Unik (dengan suffix)
+
+        // Cari elemen berdasarkan ID Unik
         let rowEl = el(`row_${type}_${suffix}_${idx}`); 
         let chkEl = el(`chk_${type}_${suffix}_${idx}`);
 
@@ -1508,39 +1448,142 @@ function renderSimTable(type) {
         let pos = targetArray.indexOf(nominal);
 
         if (pos === -1) {
-            // BELUM ADA -> MASUKKAN KE LIST
+            // BELUM ADA -> MASUKKAN KE LIST (CHECK)
             targetArray.push(nominal);
-            
-            // VISUAL
+
+            // VISUAL EFFECT PLAYFUL
             if(rowEl) {
                 if (isNpl) {
                     // NPL Dilunasi -> Hijau & Coret
-                    rowEl.classList.add('bg-green-50', 'dark:bg-green-900/20');
-                    let namaEl = rowEl.querySelector('td:nth-child(2)');
-                    if(namaEl) namaEl.classList.add('line-through', 'text-green-600', 'opacity-50');
+                    rowEl.classList.add('bg-emerald-50/50', 'dark:bg-emerald-900/20');
+                    rowEl.classList.remove('hover:bg-blue-50/30', 'dark:hover:bg-blue-900/10');
+                    let namaEl = rowEl.querySelector('.debitur-name');
+                    if(namaEl) namaEl.classList.add('line-through', 'text-emerald-500', 'opacity-50');
+                    
+                    // UX Magic: Haptic Feedback pelan
+                    if(navigator.vibrate) navigator.vibrate(10);
                 } else {
                     // KKR Jatuh ke NPL -> Merah & Bold (Alert)
-                    rowEl.classList.add('bg-red-50', 'dark:bg-red-900/20');
-                    let namaEl = rowEl.querySelector('td:nth-child(2)');
-                    if(namaEl) namaEl.classList.add('text-red-600', 'font-bold');
+                    rowEl.classList.add('bg-red-50/50', 'dark:bg-red-900/20');
+                    rowEl.classList.remove('hover:bg-blue-50/30', 'dark:hover:bg-blue-900/10');
+                    let namaEl = rowEl.querySelector('.debitur-name');
+                    if(namaEl) namaEl.classList.add('text-red-500');
+                    
+                    // UX Magic: Haptic Feedback peringatan
+                    if(navigator.vibrate) navigator.vibrate([10, 50, 10]);
                 }
             }
             if(chkEl) chkEl.checked = true;
-            
+
         } else {
-            // SUDAH ADA -> BATALKAN
+            // SUDAH ADA -> BATALKAN (UNCHECK)
             targetArray.splice(pos, 1);
-            
+
             // VISUAL RESET
             if(rowEl) {
-                rowEl.classList.remove('bg-green-50', 'dark:bg-green-900/20', 'bg-red-50', 'dark:bg-red-900/20');
-                let namaEl = rowEl.querySelector('td:nth-child(2)');
-                if(namaEl) namaEl.classList.remove('line-through', 'text-green-600', 'opacity-50', 'text-red-600', 'font-bold');
+                rowEl.classList.remove('bg-emerald-50/50', 'dark:bg-emerald-900/20', 'bg-red-50/50', 'dark:bg-red-900/20');
+                rowEl.classList.add('hover:bg-blue-50/30', 'dark:hover:bg-blue-900/10');
+                let namaEl = rowEl.querySelector('.debitur-name');
+                if(namaEl) namaEl.classList.remove('line-through', 'text-emerald-500', 'opacity-50', 'text-red-500');
             }
             if(chkEl) chkEl.checked = false;
         }
 
         updateSimStats(type);
+    }
+
+    // =================================================================
+    // 3. RENDER TABEL HTML MODERN BENTO STYLE
+    // =================================================================
+    function renderSimTableHTML(elementId, rows, type, isSimulation, suffix) {
+        let tbody = el(elementId); 
+        if (!tbody) return; 
+        tbody.innerHTML = '';
+
+        const fmtIDR = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+
+        if (!rows || rows.length === 0) { 
+            tbody.innerHTML = `
+                <tr><td colspan="7" class="p-16 text-center animate-fade-in">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+                        <i class="fas fa-check-circle text-2xl text-emerald-400"></i>
+                    </div>
+                    <span class="text-xs font-black uppercase tracking-widest text-slate-400">Clear!</span>
+                    <p class="text-[10px] text-slate-400 mt-1">Tidak ada data di kategori ini.</p>
+                </td></tr>`; 
+            return; 
+        }
+
+        rows.forEach((r, i) => {
+            let tr = document.createElement('tr'); 
+            tr.className = "group border-b border-slate-100/50 dark:border-slate-800/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors duration-300 opacity-0 transform translate-x-4 cursor-pointer"; 
+            tr.id = `row_${type}_${suffix}_${i}`;
+
+            // Premium Badge Style
+            const kolStyle = {
+                1: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                2: 'bg-amber-100 text-amber-700 border-amber-200',
+                3: 'bg-orange-100 text-orange-700 border-orange-200',
+                4: 'bg-rose-100 text-rose-700 border-rose-200',
+                5: 'bg-red-600 text-white shadow-sm border-transparent'
+            };
+            let colBadgeClass = kolStyle[r.kol] || 'bg-slate-100 text-slate-600';
+
+            // Modern Simulation Checkbox (Gaya Kapsul)
+            let checkHTML = '';
+            if (isSimulation) { 
+                tr.onclick = function(e) { 
+                    if(e.target.closest('.click-detail')) return; 
+                    if(e.target.type !== 'checkbox') window.app.toggleSim(type, i, r.os, r.kol, suffix); 
+                }; 
+                checkHTML = `
+                    <div class="relative flex items-center justify-center">
+                        <input type="checkbox" id="chk_${type}_${suffix}_${i}" 
+                               class="peer w-6 h-6 cursor-pointer appearance-none rounded-xl border-2 border-slate-200 dark:border-slate-600 checked:border-blue-500 checked:bg-blue-500 transition-all shadow-sm hover:scale-110 active:scale-95" 
+                               onclick="window.app.toggleSim('${type}', ${i}, ${r.os}, ${r.kol}, '${suffix}')">
+                        <i class="fas fa-check absolute text-[12px] text-white opacity-0 peer-checked:opacity-100 pointer-events-none transition-opacity"></i>
+                    </div>`; 
+            } else { 
+                checkHTML = `<span class="text-[10px] font-black text-slate-400 font-mono">${(i+1).toString().padStart(2, '0')}</span>`; 
+            }
+
+            // Mencegah error jika teks memiliki petik
+            const safeNama = (r.nama || 'NASABAH').replace(/'/g, "\\'");
+
+            tr.innerHTML = `
+                <td class="p-3 text-center align-middle w-12">${checkHTML}</td>
+                <td class="p-4 align-middle">
+                    <div class="click-detail flex items-center gap-3 w-48 sm:w-64" onclick="event.stopPropagation(); window.app.fetchDetail('${r.loan}')">
+                        <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="debitur-name truncate font-black text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors uppercase tracking-tight text-sm">${safeNama}</span>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-[9px] font-black font-mono text-slate-400 bg-white dark:bg-slate-800 border border-slate-200/50 dark:border-slate-700 px-1.5 py-0.5 rounded shadow-sm">${r.loan}</span>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td class="p-4 hidden sm:table-cell text-center align-middle">
+                    <span class="text-[9px] font-bold text-slate-500 bg-slate-50 dark:bg-slate-800/50 px-2 py-1 rounded-lg border border-slate-100 dark:border-slate-700 shadow-inner uppercase">${r.br || '-'}</span>
+                </td>
+                <td class="p-4 text-center align-middle">
+                    <span class="inline-block px-3 py-1 rounded-full text-[10px] font-black shadow-sm border ${colBadgeClass}">KOL ${r.kol}</span>
+                </td>
+                <td class="p-4 text-right align-middle hidden lg:table-cell">
+                    <div class="text-[10px] font-bold text-slate-400 tracking-wider">${fmtIDR(r.plafond || 0)}</div>
+                </td>
+                <td class="p-4 text-right align-middle">
+                    <div class="font-mono font-black text-slate-800 dark:text-white text-sm group-hover:scale-105 transition-transform origin-right tracking-tight">${fmtIDR(r.os)}</div>
+                </td>
+                <td class="p-4 text-right align-middle">
+                    <div class="font-mono font-black text-red-500 dark:text-red-400 text-xs">${fmtIDR(r.tgk || 0)}</div>
+                    ${r.tgk > 0 ? `<div class="text-[8px] text-slate-400 font-bold uppercase tracking-widest mt-1"><i class="fas fa-hand-holding-usd text-red-400"></i> Tunggakan</div>` : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
     }
 
 
