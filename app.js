@@ -135,61 +135,98 @@ function renderMapPage(res) {
     var container = document.getElementById('view-map');
     var fmtIDR = function(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); };
 
-    // 1. Render Layout (Kodingan asli Anda dipertahankan karena sudah sangat bagus)
+    // 1. RENDER UI MODERN PLAYFUL (Floating Panel & Full Map)
     container.innerHTML = `
-    <div class="flex flex-col h-[calc(100vh-100px)] lg:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 animate-fade-in">
-        <div class="w-full lg:w-1/3 h-1/3 lg:h-full flex flex-col border-r border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl z-10 shadow-2xl overflow-hidden">
-            <div class="p-5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900">
-                <h3 class="font-black text-slate-800 dark:text-white flex items-center gap-2 uppercase tracking-tighter">
-                    <i class="fas fa-map-location-dot text-emerald-500 animate-bounce"></i> Sebaran NPL Wilayah
-                </h3>
-                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Geospatial Risk Analysis</p>
+    <!-- Layer Peta Latar Belakang -->
+    <div class="absolute inset-0 z-0 bg-slate-100 dark:bg-slate-900">
+        <div id="map_canvas" class="w-full h-full"></div>
+    </div>
+
+    <!-- Floating Glass Panel (Daftar Wilayah) -->
+    <div class="absolute top-4 left-4 right-4 md:right-auto z-[400] md:w-[380px] flex flex-col max-h-[50vh] md:max-h-[calc(100%-2rem)] pointer-events-none">
+        
+        <div class="glass-card rounded-[2rem] border border-white/50 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl bg-white/80 dark:bg-slate-900/80 pointer-events-auto transition-all duration-500">
+            
+            <!-- Header Panel (Bisa diklik di HP untuk melipat/collapse) -->
+            <div class="p-5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white flex justify-between items-center cursor-pointer shadow-md group" onclick="toggleMapList()">
+                <div class="flex items-center gap-3">
+                    <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md shadow-inner text-lg group-hover:scale-110 transition-transform"><i class="fas fa-map-marked-alt"></i></div>
+                    <div>
+                        <h3 class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Sebaran Wilayah</h3>
+                        <div class="text-[9px] text-emerald-100 mt-0.5 font-bold tracking-widest">Pilih Titik Kordinat</div>
+                    </div>
+                </div>
+                <div class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center md:hidden transition-transform duration-300" id="map-chevron">
+                    <i class="fas fa-chevron-up"></i>
+                </div>
             </div>
             
-            <div class="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar" id="map_region_list">
+            <!-- Daftar Kartu Wilayah -->
+            <div id="map_region_list" class="overflow-y-auto custom-scrollbar p-3 space-y-3 transition-all duration-500">
                 ${res.regions.map(function(reg, idx) {
                     var isHighRisk = reg.npl_pct > 5;
                     var riskTheme = isHighRisk 
-                        ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 shadow-red-500/10' 
-                        : (reg.npl_pct > 2 ? 'border-orange-400 bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400' : 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400');
+                        ? 'border-red-400 bg-gradient-to-r from-red-500/10 to-rose-500/5 hover:from-red-500/20 text-red-700 dark:text-red-400 shadow-[0_4px_15px_-3px_rgba(239,68,68,0.2)]' 
+                        : (reg.npl_pct > 2 ? 'border-amber-400 bg-gradient-to-r from-amber-500/10 to-orange-500/5 hover:from-amber-500/20 text-orange-700 dark:text-orange-400 shadow-[0_4px_15px_-3px_rgba(245,158,11,0.2)]' : 'border-emerald-400 bg-gradient-to-r from-emerald-500/10 to-teal-500/5 hover:from-emerald-500/20 text-emerald-700 dark:text-emerald-400 shadow-[0_4px_15px_-3px_rgba(16,185,129,0.2)]');
                     
+                    var badgeTheme = isHighRisk ? 'bg-red-500 text-white' : (reg.npl_pct > 2 ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white');
+
                     return `
-                    <div class="p-4 rounded-2xl border-l-4 shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer group transform translate-x-[-20px] opacity-0 region-card ${riskTheme}"
-                         style="transition-delay: ${idx * 100}ms"
+                    <div class="p-4 rounded-2xl border-l-[6px] border border-white/60 dark:border-slate-700/50 backdrop-blur-md transition-all duration-500 cursor-pointer group transform translate-x-[-20px] opacity-0 region-card ${riskTheme}"
+                         style="transition-delay: ${idx * 50}ms"
                          onclick="zoomToRegion('${reg.name}')">
                         <div class="flex justify-between items-center">
                             <div>
-                                <div class="font-black text-sm group-hover:tracking-wider transition-all">${reg.name}</div>
-                                <div class="text-[10px] opacity-70 font-bold">${reg.count} Debitur • ${fmtIDR(reg.os)}</div>
+                                <div class="font-black text-sm text-slate-800 dark:text-white group-hover:translate-x-1 transition-transform">${reg.name}</div>
+                                <div class="text-[10px] opacity-70 font-bold mt-1 text-slate-500"><i class="fas fa-users mr-1"></i> ${reg.count} Debitur</div>
+                                <div class="text-xs font-black font-mono mt-0.5 text-slate-700 dark:text-slate-300">${fmtIDR(reg.os)}</div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-xs font-black px-2 py-1 rounded-lg bg-white/50 dark:bg-black/20">${reg.npl_pct.toFixed(2)}%</div>
-                                <div class="text-[8px] font-bold uppercase opacity-50 mt-1">NPL Ratio</div>
+                            <div class="text-right flex flex-col items-end">
+                                <div class="text-xs font-black px-3 py-1 rounded-full shadow-inner ${badgeTheme}">${reg.npl_pct.toFixed(2)}%</div>
+                                <div class="text-[8px] font-bold uppercase tracking-widest mt-1 opacity-60 text-slate-600">Ratio</div>
                             </div>
                         </div>
                     </div>`;
                 }).join('')}
             </div>
         </div>
+    </div>
 
-        <div class="w-full lg:w-2/3 h-2/3 lg:h-full relative z-0">
-            <div id="map_canvas" class="w-full h-full"></div>
-            
-            <div id="map_loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/90 dark:bg-slate-900/90 z-20 backdrop-blur-md transition-opacity duration-500">
-                <div class="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin"></div>
-                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 mt-4">Calibrating Map...</span>
-            </div>
-        </div>
-    </div>`;
+    <!-- Map Loader Kaca -->
+    <div id="map_loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-slate-900/60 z-[500] backdrop-blur-xl transition-opacity duration-500 rounded-[2.5rem]">
+        <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin shadow-lg"></div>
+        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-800 dark:text-emerald-400 mt-5 bg-white/50 px-4 py-1 rounded-full shadow-sm">Memuat Peta...</span>
+    </div>
+    `;
 
-    // 2. Tunda sedikit agar animasi fade-in layout selesai sebelum memuat map
     setTimeout(function() { initLeafletMap(res.points); }, 300);
     unlockMenu();
 }
 
+// --- FUNGSI TOGGLE UNTUK MOBILE UX ---
+window.toggleMapList = function() {
+    // Fungsi ini hanya berefek jika layar sempit (Mobile)
+    if(window.innerWidth > 768) return; 
+    
+    var listContainer = document.getElementById('map_region_list');
+    var chevron = document.getElementById('map-chevron');
+    
+    if (listContainer.style.maxHeight === '0px') {
+        listContainer.style.maxHeight = '50vh';
+        listContainer.style.opacity = '1';
+        listContainer.style.padding = '12px';
+        chevron.style.transform = 'rotate(0deg)';
+    } else {
+        listContainer.style.maxHeight = '0px';
+        listContainer.style.opacity = '0';
+        listContainer.style.padding = '0 12px';
+        chevron.style.transform = 'rotate(180deg)';
+    }
+};
+
 // --- LOGIKA UTAMA LEAFLET JS ---
 function initLeafletMap(points) {
-    // Munculkan Sidebar dengan Stagger
+    // Animasi Kartu Masuk Bergilir
     document.querySelectorAll('.region-card').forEach(el => {
         el.classList.remove('opacity-0', 'translate-x-[-20px]');
     });
@@ -199,57 +236,49 @@ function initLeafletMap(points) {
     var centerPPU = [-1.3093, 116.7274]; 
     mapInstance = L.map('map_canvas', { zoomControl: false }).setView(centerPPU, 10);
 
-    // Style Peta: CartoDB Positron
+    // Style Peta Bersih (CartoDB Positron)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap'
     }).addTo(mapInstance);
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    // --- INISIALISASI MARKER CLUSTER ---
-    // Pastikan Anda sudah memasukkan script plugin MarkerCluster di index.html
     const markerClusterGroup = L.markerClusterGroup({
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        maxClusterRadius: 50 // Ubah angka ini (contoh: 30-80) untuk mengatur kepadatan pengelompokan
+        maxClusterRadius: 40 // Radius yang ideal untuk HP & PC
     });
 
-    // Pasang Marker ke dalam Cluster
     points.forEach(function(p) {
         var baseCoord = getCoordByRegion(p.area);
-        
-        // Tetap gunakan sedikit jittering (pengacakan titik) agar tidak 100% menumpuk saat Spiderfy
         var lat = baseCoord.lat + (Math.random() - 0.5) * 0.005;
         var lng = baseCoord.lng + (Math.random() - 0.5) * 0.005;
         
-        var targetRadius = p.os > 500000000 ? 10 : 6; // Dikecilkan sedikit agar rapi saat bergerombol
+        var targetRadius = p.os > 500000000 ? 10 : 7; 
 
+        // Warna marker playful
         var marker = L.circleMarker([lat, lng], {
-            color: '#fff', weight: 2, fillColor: '#EF4444',
-            fillOpacity: 0.9, radius: targetRadius
+            color: '#ffffff', weight: 2, fillColor: '#ef4444',
+            fillOpacity: 0.85, radius: targetRadius
         });
 
         var content = `
-            <div class="p-2 min-w-[180px] font-sans">
-                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">${p.area}</div>
-                <div class="font-black text-slate-800 text-sm leading-tight mb-2">${p.nama}</div>
-                <div class="flex justify-between items-center bg-red-50 p-2 rounded-lg border border-red-100">
-                    <span class="text-[9px] font-bold text-red-600 uppercase">Outstanding</span>
-                    <span class="font-black text-red-700 text-xs">Rp ${new Intl.NumberFormat('id-ID').format(p.os)}</span>
+            <div class="p-3 min-w-[200px] font-sans bg-white/50 backdrop-blur-md rounded-xl">
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1"><i class="fas fa-map-pin text-emerald-500 mr-1"></i> ${p.area}</div>
+                <div class="font-black text-slate-800 text-sm leading-tight mb-3">${p.nama}</div>
+                <div class="flex justify-between items-center bg-red-500/10 p-2.5 rounded-lg border border-red-500/20">
+                    <span class="text-[9px] font-bold text-red-600 uppercase tracking-wider">Outstanding</span>
+                    <span class="font-black font-mono text-red-700 text-xs">Rp ${new Intl.NumberFormat('id-ID').format(p.os)}</span>
                 </div>
             </div>`;
         
-        marker.bindPopup(content);
-        
-        // Masukkan marker ke Cluster, BUKAN langsung ke mapInstance
+        marker.bindPopup(content, { className: 'playful-popup' });
         markerClusterGroup.addLayer(marker); 
     });
 
-    // Tambahkan wadah cluster ke peta sekaligus
     mapInstance.addLayer(markerClusterGroup);
 
-    // Hilangkan loading screen perlahan
     var loader = document.getElementById('map_loader');
     if(loader) {
         loader.classList.add('opacity-0');
@@ -262,11 +291,12 @@ window.zoomToRegion = function(regionName) {
     if(!mapInstance) return;
     
     var coord = getCoordByRegion(regionName);
-    
-    // Zoom in (level 13) agak dekat saat menu region diklik
-    mapInstance.flyTo([coord.lat, coord.lng], 13, {
-        duration: 1.5 
-    });
+    mapInstance.flyTo([coord.lat, coord.lng], 13, { duration: 1.5 });
+
+    // UX Tambahan: Otomatis lipat menu di HP saat wilayah diklik agar peta terlihat
+    if(window.innerWidth <= 768) {
+        toggleMapList();
+    }
 };
 
 // --- FUNGSI PENCARIAN KOORDINAT PERBAIKAN ---
