@@ -7981,24 +7981,94 @@ function executeDeleteSheets() {
       document.getElementById('modal-sector-npl').innerText = fmtIDR(totalNPL);
       document.getElementById('modal-sector-pct-npl').innerText = `${pctNPL}% dari Total`;
       
-      // 6. Animasi Masuk
+      // 6. Animasi Masuk (Meluncur dari bawah)
       const modal = document.getElementById('modal-sector');
+      const backdrop = document.getElementById('modal-sector-backdrop');
+      const content = document.getElementById('modal-sector-content');
+      
       modal.classList.remove('hidden');
-      setTimeout(() => {
-          modal.classList.remove('opacity-0');
-          if(modal.children[1]) modal.children[1].classList.remove('scale-95'); 
-      }, 10);
-  }
+      modal.style.display = 'flex'; // Paksa jadi flexbox
+      
+      // Jeda 1 frame agar browser me-render display:flex terlebih dahulu
+      requestAnimationFrame(() => {
+          backdrop.classList.remove('opacity-0');
+          content.classList.remove('translate-y-full'); // Panel meluncur naik
+      });
+  } 
 
-  // --- FUNGSI MENUTUP MODAL ---
-  function closeSectorModal() {
+  window.app.closeSectorModal = function() {
       const modal = document.getElementById('modal-sector');
-      modal.classList.add('opacity-0');
-      modal.children[1].classList.add('scale-95'); // Efek Zoom Out
+      const backdrop = document.getElementById('modal-sector-backdrop');
+      const content = document.getElementById('modal-sector-content');
+      
+      // Animasi panel turun dan latar belakang memudar
+      backdrop.classList.add('opacity-0');
+      content.style.transform = ''; // Hapus sisa perhitungan swipe
+      content.classList.add('translate-y-full'); 
+      
+      // Sembunyikan elemen setelah animasi selesai (300ms)
       setTimeout(() => {
           modal.classList.add('hidden');
-      }, 300); // Tunggu animasi CSS selesai
+          modal.style.display = '';
+      }, 300);
   }
+
+ // --- FISIKA BOTTOM SHEET (SWIPE TO DISMISS) ---
+function initBottomSheetPhysics() {
+    const handle = document.getElementById('modal-sector-handle');
+    const content = document.getElementById('modal-sector-content');
+    
+    if(!handle || !content) return;
+
+    let startY = 0;
+    let currentY = 0;
+    let isDragging = false;
+
+    // Saat jempol mulai menyentuh Pill Handle
+    handle.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        isDragging = true;
+        
+        // Matikan transisi CSS agar pergerakan panel menempel dengan jari
+        content.style.transition = 'none'; 
+    }, { passive: true });
+
+    // Saat jempol menggeser layar
+    handle.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+        
+        // Hanya izinkan ditarik ke bawah (deltaY positif)
+        if (deltaY > 0) {
+            content.style.transform = `translateY(${deltaY}px)`;
+        }
+    }, { passive: false });
+
+    // Saat jempol dilepas
+    handle.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        // Nyalakan kembali transisi CSS agar gerakannya mulus
+        content.style.transition = 'transform 0.3s ease-out';
+        
+        const deltaY = currentY - startY;
+        
+        // Jika ditarik lebih dari 100 pixel ke bawah, tutup modalnya
+        if (deltaY > 100) {
+            window.app.closeSectorModal();
+        } else {
+            // Jika tarikan kurang kuat, panel membal kembali ke atas
+            content.style.transform = 'translateY(0)'; 
+        }
+    });
+}
+
+// Jalankan fisika ini setelah DOM selesai dimuat
+document.addEventListener('DOMContentLoaded', () => {
+    initBottomSheetPhysics();
+});
 
     
 
