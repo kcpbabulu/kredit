@@ -7739,17 +7739,14 @@ function executeDeleteSheets() {
   }
 
 
- // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FINAL FIX) ---
+ // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FULL KOL 1-5) ---
   function openSectorModal(sectorName) {
-      // 1. Ambil data mentah (Pastikan struktur ini benar)
-      const allData = (app.state.data && app.state.data.npl_list) ? app.state.data.npl_list : [];
+      // 1. Ambil data dari all_list (yang sudah memuat KOL 1-5)
+      const allData = (app.state.data && app.state.data.all_list) ? app.state.data.all_list : [];
       
-      // 2. Filter Cerdas (Hanya bandingkan 10 huruf pertama untuk menghindari masalah substring)
-      // Misal: "PERDAGANGAN BESAR" vs "PERDAGANGAN BESAR DA..."
       const searchTarget = sectorName.substring(0, 10).toLowerCase().trim();
       
       const filtered = allData.filter(r => {
-          // Cari spesifik di property .sektor
           if (r.sektor) {
               const rowSector = String(r.sektor).toLowerCase();
               return rowSector.includes(searchTarget);
@@ -7761,18 +7758,27 @@ function executeDeleteSheets() {
       const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
       
       let html = '';
-      let totalOS = 0;
       
-      // 3. Render Baris per Baris (Pastikan memanggil properti sesuai processDash)
+      // Variabel Penampung Kalkulasi
+      let totalOS = 0;
+      let totalKKR = 0;
+      let totalNPL = 0;
+      
+      // 3. Render Baris per Baris & Lakukan Perhitungan
       filtered.forEach((r, i) => {
           const bakiDebet = Number(r.os || 0);
-          totalOS += bakiDebet;
+          const kol = parseInt(r.kol) || 1;
           
-          const kol = r.kol || '-';
-          let kolColor = 'bg-slate-500'; 
-          if(kol == 5) kolColor = 'bg-red-500';
-          else if(kol == 4) kolColor = 'bg-pink-500';
-          else if(kol == 3) kolColor = 'bg-orange-500';
+          // --- KALKULASI TOTAL ---
+          totalOS += bakiDebet;
+          if(kol >= 2) totalKKR += bakiDebet;
+          if(kol >= 3) totalNPL += bakiDebet;
+          
+          // --- STYLING KOL WARNA-WARNI ---
+          let kolColor = 'bg-emerald-500 text-white'; // Default KOL 1 (Lancar)
+          if(kol == 5) kolColor = 'bg-red-500 text-white animate-pulse-slow';
+          else if(kol == 4) kolColor = 'bg-pink-500 text-white';
+          else if(kol == 3) kolColor = 'bg-orange-500 text-white';
           else if(kol == 2) kolColor = 'bg-yellow-500 text-black';
           
           const namaDebitur = r.nama || 'Tanpa Nama';
@@ -7789,10 +7795,10 @@ function executeDeleteSheets() {
               </td>
               <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${unitCabang}</td>
               <td class="p-4 text-center">
-                  <span class="px-2 py-1 text-[10px] font-black text-white rounded-md shadow-sm ${kolColor}">KOL ${kol}</span>
+                  <span class="px-2 py-1 text-[10px] font-black rounded-md shadow-sm ${kolColor}">KOL ${kol}</span>
               </td>
               <td class="p-4 text-right font-mono font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${fmtIDR(bakiDebet)}</td>
-              <td class="p-4 text-right font-mono font-black text-red-500">${fmtIDR(nilaiTunggakan)}</td>
+              <td class="p-4 text-right font-mono font-black ${nilaiTunggakan > 0 ? 'text-red-500' : 'text-slate-300'}">${fmtIDR(nilaiTunggakan)}</td>
           </tr>`;
       });
       
@@ -7805,28 +7811,28 @@ function executeDeleteSheets() {
       
       tbody.innerHTML = html;
       
-      // 4. Update Header & Footer
-      document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
-      document.getElementById('modal-sector-count').innerText = filtered.length;
-      document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
+      // 4. Kalkulasi Persentase
+      const pctKKR = totalOS > 0 ? ((totalKKR / totalOS) * 100).toFixed(2) : 0;
+      const pctNPL = totalOS > 0 ? ((totalNPL / totalOS) * 100).toFixed(2) : 0;
       
-      // 5. Animasi Masuk
+      // 5. Suntikkan Data ke Footer HTML
+      document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
+      document.getElementById('modal-sector-count').innerText = filtered.length; // Jumlah NOA
+      
+      document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
+      document.getElementById('modal-sector-kkr').innerText = fmtIDR(totalKKR);
+      document.getElementById('modal-sector-pct-kkr').innerText = `${pctKKR}% dari Total`;
+      
+      document.getElementById('modal-sector-npl').innerText = fmtIDR(totalNPL);
+      document.getElementById('modal-sector-pct-npl').innerText = `${pctNPL}% dari Total`;
+      
+      // 6. Animasi Masuk
       const modal = document.getElementById('modal-sector');
       modal.classList.remove('hidden');
       setTimeout(() => {
           modal.classList.remove('opacity-0');
           if(modal.children[1]) modal.children[1].classList.remove('scale-95'); 
       }, 10);
-  }
-
-  // --- FUNGSI MENUTUP MODAL ---
-  function closeSectorModal() {
-      const modal = document.getElementById('modal-sector');
-      modal.classList.add('opacity-0');
-      modal.children[1].classList.add('scale-95'); // Efek Zoom Out
-      setTimeout(() => {
-          modal.classList.add('hidden');
-      }, 300); // Tunggu animasi CSS selesai
   }
 
     
