@@ -7894,18 +7894,13 @@ function executeDeleteSheets() {
 
 // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FINAL & EXACT MATCH) ---
   function openSectorModal(sectorName) {
-      // 1. Ambil data dari all_list (yang sudah memuat KOL 1-5)
+      // 1. Ambil data dari all_list
       const allData = (app.state.data && app.state.data.all_list) ? app.state.data.all_list : [];
       
       // 2. Filter Cerdas (EXACT MATCH / SAMA PERSIS)
-      // Kita tidak lagi menggunakan substring, melainkan mencocokkan teks secara utuh
       const searchTarget = sectorName.toLowerCase().trim();
-      
       const filtered = allData.filter(r => {
-          if (r.sektor) {
-              const rowSector = String(r.sektor).toLowerCase().trim();
-              return rowSector === searchTarget;
-          }
+          if (r.sektor) return String(r.sektor).toLowerCase().trim() === searchTarget;
           return false;
       });
 
@@ -7913,24 +7908,19 @@ function executeDeleteSheets() {
       const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
       
       let html = '';
+      let totalOS = 0; let totalKKR = 0; let totalNPL = 0;
       
-      // Variabel Penampung Kalkulasi
-      let totalOS = 0;
-      let totalKKR = 0;
-      let totalNPL = 0;
-      
-      // 3. Render Baris per Baris & Lakukan Perhitungan
+      // 3. Render Baris per Baris
       filtered.forEach((r, i) => {
           const bakiDebet = Number(r.os || 0);
           const kol = parseInt(r.kol) || 1;
           
-          // --- KALKULASI TOTAL ---
           totalOS += bakiDebet;
           if(kol >= 2) totalKKR += bakiDebet;
           if(kol >= 3) totalNPL += bakiDebet;
           
-          // --- STYLING KOL WARNA-WARNI ---
-          let kolColor = 'bg-emerald-500 text-white'; // Default KOL 1 (Lancar)
+          // Styling Playful
+          let kolColor = 'bg-emerald-500 text-white'; 
           if(kol == 5) kolColor = 'bg-red-500 text-white animate-pulse-slow';
           else if(kol == 4) kolColor = 'bg-pink-500 text-white';
           else if(kol == 3) kolColor = 'bg-orange-500 text-white';
@@ -7942,10 +7932,10 @@ function executeDeleteSheets() {
           const nilaiTunggakan = Number(r.tgk || 0);
           
           html += `
-          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50">
+          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50" onclick="if(window.app && app.fetchDetail) app.fetchDetail('${r.loan}')">
               <td class="p-4 text-center font-bold text-slate-400 group-hover:text-blue-500 transition-colors">${i+1}</td>
               <td class="p-4">
-                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all transform group-hover:translate-x-1">${namaDebitur}</div>
+                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 transition-all transform group-hover:translate-x-1">${namaDebitur}</div>
                   <div class="text-[10px] font-bold opacity-50 uppercase tracking-widest mt-1"><i class="fas fa-fingerprint mr-1"></i> ${noRekening}</div>
               </td>
               <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${unitCabang}</td>
@@ -7959,8 +7949,8 @@ function executeDeleteSheets() {
       
       if(filtered.length === 0) {
           html = `<tr><td colspan="6" class="p-12 text-center flex flex-col items-center justify-center">
-                    <i class="fas fa-folder-open text-4xl text-slate-300 mb-3 hover:scale-110 transition-transform"></i>
-                    <span class="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Tidak ada detail rincian untuk ${sectorName}</span>
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-3 shadow-inner"><i class="fas fa-folder-open text-2xl text-slate-300"></i></div>
+                    <span class="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Tidak ada rincian untuk ${sectorName}</span>
                   </td></tr>`;
       }
       
@@ -7970,14 +7960,12 @@ function executeDeleteSheets() {
       const pctKKR = totalOS > 0 ? ((totalKKR / totalOS) * 100).toFixed(2) : 0;
       const pctNPL = totalOS > 0 ? ((totalNPL / totalOS) * 100).toFixed(2) : 0;
       
-      // 5. Suntikkan Data ke Footer HTML
+      // 5. Suntikkan Data
       document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
       document.getElementById('modal-sector-count').innerText = filtered.length; 
-      
       document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
       document.getElementById('modal-sector-kkr').innerText = fmtIDR(totalKKR);
       document.getElementById('modal-sector-pct-kkr').innerText = `${pctKKR}% dari Total`;
-      
       document.getElementById('modal-sector-npl').innerText = fmtIDR(totalNPL);
       document.getElementById('modal-sector-pct-npl').innerText = `${pctNPL}% dari Total`;
       
@@ -7987,255 +7975,249 @@ function executeDeleteSheets() {
       const content = document.getElementById('modal-sector-content');
       
       modal.classList.remove('hidden');
-      modal.style.display = 'flex'; // Paksa jadi flexbox
+      modal.style.display = 'flex'; 
       
-      // Jeda 1 frame agar browser me-render display:flex terlebih dahulu
+      // UX Magic: Haptic pop saat membuka di HP
+      if (navigator.vibrate) navigator.vibrate(10);
+      
       requestAnimationFrame(() => {
           backdrop.classList.remove('opacity-0');
-          content.classList.remove('translate-y-full'); // Panel meluncur naik
+          content.classList.remove('translate-y-full'); 
       });
   } 
 
-  window.app.closeSectorModal = function() {
+  // --- FUNGSI MENUTUP BOTTOM SHEET ---
+  function closeSectorModal() {
       const modal = document.getElementById('modal-sector');
       const backdrop = document.getElementById('modal-sector-backdrop');
       const content = document.getElementById('modal-sector-content');
       
-      // Animasi panel turun dan latar belakang memudar
+      if(!modal || modal.classList.contains('hidden')) return;
+
       backdrop.classList.add('opacity-0');
-      content.style.transform = ''; // Hapus sisa perhitungan swipe
+      content.style.transform = ''; 
       content.classList.add('translate-y-full'); 
       
-      // Sembunyikan elemen setelah animasi selesai (300ms)
       setTimeout(() => {
           modal.classList.add('hidden');
           modal.style.display = '';
       }, 300);
   }
 
- // --- FISIKA BOTTOM SHEET (SWIPE TO DISMISS) ---
-function initBottomSheetPhysics() {
-    const handle = document.getElementById('modal-sector-handle');
-    const content = document.getElementById('modal-sector-content');
-    
-    if(!handle || !content) return;
+  // --- FISIKA BOTTOM SHEET (SWIPE TO DISMISS & RUBBER BAND) ---
+  function initBottomSheetPhysics() {
+      const handle = document.getElementById('modal-sector-handle');
+      const content = document.getElementById('modal-sector-content');
+      
+      if(!handle || !content) return;
 
-    let startY = 0;
-    let currentY = 0;
-    let isDragging = false;
+      let startY = 0;
+      let currentY = 0;
+      let isDragging = false;
 
-    // Saat jempol mulai menyentuh Pill Handle
-    handle.addEventListener('touchstart', (e) => {
-        startY = e.touches[0].clientY;
-        isDragging = true;
-        
-        // Matikan transisi CSS agar pergerakan panel menempel dengan jari
-        content.style.transition = 'none'; 
-    }, { passive: true });
+      handle.addEventListener('touchstart', (e) => {
+          startY = e.touches[0].clientY;
+          isDragging = true;
+          content.style.transition = 'none'; 
+      }, { passive: true });
 
-    // Saat jempol menggeser layar
-    handle.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        currentY = e.touches[0].clientY;
-        const deltaY = currentY - startY;
-        
-        // Hanya izinkan ditarik ke bawah (deltaY positif)
-        if (deltaY > 0) {
-            content.style.transform = `translateY(${deltaY}px)`;
-        }
-    }, { passive: false });
+      handle.addEventListener('touchmove', (e) => {
+          if (!isDragging) return;
+          currentY = e.touches[0].clientY;
+          const deltaY = currentY - startY;
+          
+          if (deltaY > 0) {
+              // Ditarik ke bawah: Gerak normal
+              content.style.transform = `translateY(${deltaY}px)`;
+          } else {
+              // UX Magic (Rubber Band): Ditarik ke atas akan terasa berat/tertahan
+              content.style.transform = `translateY(${deltaY * 0.15}px)`;
+          }
+      }, { passive: false });
 
-    // Saat jempol dilepas
-    handle.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        
-        // Nyalakan kembali transisi CSS agar gerakannya mulus
-        content.style.transition = 'transform 0.3s ease-out';
-        
-        const deltaY = currentY - startY;
-        
-        // Jika ditarik lebih dari 100 pixel ke bawah, tutup modalnya
-        if (deltaY > 100) {
-            window.app.closeSectorModal();
-        } else {
-            // Jika tarikan kurang kuat, panel membal kembali ke atas
-            content.style.transform = 'translateY(0)'; 
-        }
-    });
-}
+      handle.addEventListener('touchend', (e) => {
+          if (!isDragging) return;
+          isDragging = false;
+          
+          content.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+          const deltaY = currentY - startY;
+          
+          // Threshold 100px untuk menutup
+          if (deltaY > 100) {
+              // UX Magic: Haptic bump saat tertutup oleh usapan
+              if (navigator.vibrate) navigator.vibrate(30); 
+              closeSectorModal();
+          } else {
+              // Membal kembali ke bentuk semula
+              content.style.transform = 'translateY(0)'; 
+          }
+      });
+  }
 
-// Jalankan fisika ini setelah DOM selesai dimuat
-document.addEventListener('DOMContentLoaded', () => {
-    initBottomSheetPhysics();
-});
+  // Jalankan fisika setelah DOM dimuat
+  document.addEventListener('DOMContentLoaded', () => {
+      initBottomSheetPhysics();
+  });
 
-    
+  // --- FUNGSI TEMA ---
+  function toggleTheme() { 
+      document.documentElement.classList.toggle('dark'); 
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); 
+  }
 
-
-
- 
-  function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light'); }
+  // =================================================================
   // --- PUBLIC API EXPORT ---
-  // --- PUBLIC API EXPORT ---
+  // =================================================================
   return {
-    state: s, 
+      state: s, 
 
-    // 1. Core Functions
-    init: init, 
-    refresh: refresh, 
-    
-    // 2. Event Handlers
-    onDateChange: function() { 
-        s.filter.d = document.getElementById('selDate').value; 
-        loadBranches(); 
-    },
+      // 1. Core Functions
+      init: init, 
+      refresh: refresh, 
+      
+      // 2. Event Handlers
+      onDateChange: function() { 
+          s.filter.d = document.getElementById('selDate').value; 
+          loadBranches(); 
+      },
 
-    toggleTheme: toggleTheme,
-    toggleNativeMenu: toggleNativeMenu,
-    toggleSpecificSheet: toggleSpecificSheet,
-    internalCloseAll: internalCloseAll,
-    toggleSidebar: toggleSidebar,
+      toggleTheme: toggleTheme,
+      toggleNativeMenu: toggleNativeMenu,
+      toggleSpecificSheet: toggleSpecificSheet,
+      internalCloseAll: internalCloseAll,
+      toggleSidebar: toggleSidebar,
 
-    // FIX 1: Fungsi penutupan total yang membersihkan overlay dan semua laci
-    closeAllSheets: function() {
-        // Tutup semua Bottom Sheets (Laci)
-        document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
-            sheet.classList.remove('open');
-        });
-        
-        // Tutup Menu Utama
-        const menu = document.getElementById('nativeMenuSheet');
-        if (menu) menu.classList.add('translate-y-full');
+      // FIX 1: Penutupan total overlay dan laci
+      closeAllSheets: function() {
+          document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
+              sheet.classList.remove('open');
+          });
+          const menu = document.getElementById('nativeMenuSheet');
+          if (menu) menu.classList.add('translate-y-full');
+          const overlay = document.getElementById('nativeOverlay');
+          if (overlay) overlay.classList.add('hidden');
+          const sideOverlay = document.getElementById('sidebarOverlay');
+          if (sideOverlay) sideOverlay.classList.add('hidden');
+      },
 
-        // Sembunyikan Overlay Gelap
-        const overlay = document.getElementById('nativeOverlay');
-        if (overlay) overlay.classList.add('hidden');
-        
-        const sideOverlay = document.getElementById('sidebarOverlay');
-        if (sideOverlay) sideOverlay.classList.add('hidden');
-    },
+      // FIX 2: Tutup laci SEBELUM pindah halaman
+      switchTab: function(id) {
+          this.closeAllSheets(); 
 
-    // FIX 2: Perbaikan fungsi switchTab (Tutup laci SEBELUM pindah halaman)
-    switchTab: function(id) {
-        this.closeAllSheets(); // Membersihkan menu yang menumpuk
+          if(id === 'npl-menu') { toggleSheet(); return; }
 
-        if(id === 'npl-menu') { toggleSheet(); return; }
+          document.querySelectorAll('.tab-view').forEach(e => e.classList.add('hidden')); 
+          const target = document.getElementById(id);
+          if(target) target.classList.remove('hidden');
 
-        document.querySelectorAll('.tab-view').forEach(e => e.classList.add('hidden')); 
-        const target = document.getElementById(id);
-        if(target) target.classList.remove('hidden');
+          this.refresh(id);
+      },
 
-        this.refresh(id);
-    },
+      // FIX 3: Upload Modal dengan delay (Anti-Tumpuk & Z-Index Safety)
+      openUploadModal: function() {
+          this.closeAllSheets(); 
+          setTimeout(() => {
+              const modal = document.getElementById('modalUpload');
+              if(modal) {
+                  modal.classList.remove('hidden');
+                  const upDate = document.getElementById('upDate');
+                  if(upDate) upDate.value = "";
+              }
+          }, 300);
+      },
 
-    // FIX 3: Fungsi pembuka Upload Modal dengan delay (Anti-Tumpuk & Z-Index Safety)
-    openUploadModal: function() {
-        this.closeAllSheets(); // Bersihkan laci utilitas dulu
-        
-        // Jeda agar laci turun sempurna, baru modal muncul di atas
-        setTimeout(() => {
-            const modal = document.getElementById('modalUpload');
-            if(modal) {
-                modal.classList.remove('hidden');
-                // Reset input tanggal
-                const upDate = document.getElementById('upDate');
-                if(upDate) upDate.value = "";
-            }
-        }, 300);
-    },
-
-
-
-    // 3. Data Operations
-    togSimSpecific: togSimSpecific, 
-    sortKredit: sortKredit, 
-    fetchDetail: fetchDetail, 
-    detectDateFromFile: detectDateFromFile,
-    doUpload: doUpload,
-    renderSheetManager: renderSheetManager,
-    updateDeleteCount: updateDeleteCount,
-    executeDeleteSheets: executeDeleteSheets,
-    
-    // 4. Simulation & Tools
-    updateStress: updateStress, 
-    initStressTest: initStressTest, 
-    toggleSim: toggleSim,
-    
-    // 5. WhatsApp Helpers
-    getWA: getWA,      
-    copyWA: copyWA,    
-    sendWA: sendWA,    
-    copyAndOpenWA: copyAndOpenWA, 
-    actionWA : actionWA,
-    
-    // 6. Report & Print
-    renderReportPage: renderReportPage, 
-    printPDF: printPDF, 
-    downloadPDF: downloadPDF, 
-    renderReportPreview: renderReportPreview, 
-    refreshReport: refreshReport, 
-    
-    // 7. Render Pages (View)
-    renderDashboard: renderDashboard,
-    renderMaturityPage: renderMaturityPage, 
-    renderWriteOffPage: renderWriteOffPage, 
-    renderFreshDropPage: renderFreshDropPage,
-    renderMapPage: renderMapPage,
-    renderJourneyPage: renderJourneyPage,
-    showJourneyDetail: showJourneyDetail,
-    openMitigationForm: openMitigationForm,
-    closeMitigasiModal: closeMitigasiModal,
-    submitMitigasi: submitMitigasi,
-    exportJourneyResume: exportJourneyResume,
-    generateResumeFinal: generateResumeFinal,
-    addDasarText: addDasarText,
-    toggleDasarCheck: toggleDasarCheck,
-    addNewDasarItem: addNewDasarItem,
-    removeDasarItem: removeDasarItem,
-    updateStatusKomitmen: updateStatusKomitmen,
-    setTemplateSolusi: setTemplateSolusi,
-    searchDebtorJourney: searchDebtorJourney,
-    toggleJourneyView: toggleJourneyView,
-    changeCalendarMonth: changeCalendarMonth,
-    showCalendarDetail: showCalendarDetail,
-    openDetailFromCalendar: openDetailFromCalendar,
-    printDailyReport: printDailyReport,
-    saveDailyPDF: saveDailyPDF,
-    openReportModal: openReportModal,
-    generatePeriodicReport: generatePeriodicReport,
-    savePeriodicPDF: savePeriodicPDF,
-    printResumeCustom: printResumeCustom,
-    formatRupiahInput: formatRupiahInput,
-    editLog: editLog, 
-    deleteLog: deleteLog,
-    loadArchiveData: loadArchiveData,
-    filterArchive: filterArchive,
-    exportArchiveData: exportArchiveData,
-    printSingleLabel: printSingleLabel,
-    openDetailFromArchive: openDetailFromArchive,
-    filterNewFiles: filterNewFiles,
-    selectAllForPrint: selectAllForPrint,
-    toggleSelect: toggleSelect,
-    printSelectedLabels: printSelectedLabels,
-    changeStatus: changeStatus,
-    changePage: changePage,
-    calcSim: calcSim,
-    resetSimSliders: resetSimSliders,
-    openSectorModal: openSectorModal,
-    closeSectorModal: closeSectorModal,
-    togglePageSelection: togglePageSelection,
-    closeModal: function(id) {
-        const modal = document.getElementById(id);
-        if (modal) modal.classList.add('hidden');
-        const overlay = document.getElementById('nativeOverlay');
-        if (overlay) overlay.classList.add('hidden');
-    }
+      // 3. Data Operations
+      togSimSpecific: togSimSpecific, 
+      sortKredit: sortKredit, 
+      fetchDetail: fetchDetail, 
+      detectDateFromFile: detectDateFromFile,
+      doUpload: doUpload,
+      renderSheetManager: renderSheetManager,
+      updateDeleteCount: updateDeleteCount,
+      executeDeleteSheets: executeDeleteSheets,
+      
+      // 4. Simulation & Tools
+      updateStress: updateStress, 
+      initStressTest: initStressTest, 
+      toggleSim: toggleSim,
+      
+      // 5. WhatsApp Helpers
+      getWA: getWA,      
+      copyWA: copyWA,    
+      sendWA: sendWA,    
+      copyAndOpenWA: copyAndOpenWA, 
+      actionWA : actionWA,
+      
+      // 6. Report & Print
+      renderReportPage: renderReportPage, 
+      printPDF: printPDF, 
+      downloadPDF: downloadPDF, 
+      renderReportPreview: renderReportPreview, 
+      refreshReport: refreshReport, 
+      
+      // 7. Render Pages (View)
+      renderDashboard: renderDashboard,
+      renderMaturityPage: renderMaturityPage, 
+      renderWriteOffPage: renderWriteOffPage, 
+      renderFreshDropPage: renderFreshDropPage,
+      renderMapPage: renderMapPage,
+      renderJourneyPage: renderJourneyPage,
+      showJourneyDetail: showJourneyDetail,
+      openMitigationForm: openMitigationForm,
+      closeMitigasiModal: closeMitigasiModal,
+      submitMitigasi: submitMitigasi,
+      exportJourneyResume: exportJourneyResume,
+      generateResumeFinal: generateResumeFinal,
+      addDasarText: addDasarText,
+      toggleDasarCheck: toggleDasarCheck,
+      addNewDasarItem: addNewDasarItem,
+      removeDasarItem: removeDasarItem,
+      updateStatusKomitmen: updateStatusKomitmen,
+      setTemplateSolusi: setTemplateSolusi,
+      searchDebtorJourney: searchDebtorJourney,
+      toggleJourneyView: toggleJourneyView,
+      changeCalendarMonth: changeCalendarMonth,
+      showCalendarDetail: showCalendarDetail,
+      openDetailFromCalendar: openDetailFromCalendar,
+      printDailyReport: printDailyReport,
+      saveDailyPDF: saveDailyPDF,
+      openReportModal: openReportModal,
+      generatePeriodicReport: generatePeriodicReport,
+      savePeriodicPDF: savePeriodicPDF,
+      printResumeCustom: printResumeCustom,
+      formatRupiahInput: formatRupiahInput,
+      editLog: editLog, 
+      deleteLog: deleteLog,
+      loadArchiveData: loadArchiveData,
+      filterArchive: filterArchive,
+      exportArchiveData: exportArchiveData,
+      printSingleLabel: printSingleLabel,
+      openDetailFromArchive: openDetailFromArchive,
+      filterNewFiles: filterNewFiles,
+      selectAllForPrint: selectAllForPrint,
+      toggleSelect: toggleSelect,
+      printSelectedLabels: printSelectedLabels,
+      changeStatus: changeStatus,
+      changePage: changePage,
+      calcSim: calcSim,
+      resetSimSliders: resetSimSliders,
+      
+      // Binding Modal Functions
+      openSectorModal: openSectorModal,
+      closeSectorModal: closeSectorModal,
+      
+      togglePageSelection: togglePageSelection,
+      closeModal: function(id) {
+          const modal = document.getElementById(id);
+          if (modal) modal.classList.add('hidden');
+          const overlay = document.getElementById('nativeOverlay');
+          if (overlay) overlay.classList.add('hidden');
+      }
   };   
 
 })(); // Tutup IIFE
 
-// Init Listener
+// Init Listener Terluar
 document.addEventListener("DOMContentLoaded", function() { 
     if(window.app && window.app.init) window.app.init(); 
 });
