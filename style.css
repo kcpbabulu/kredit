@@ -1,9 +1,4 @@
-/* ==========================================================================
-   D A K O P E N - STYLESHEET (V60 MODERN PLAYFUL)
-   Progressive Web App - Enterprise Grade UX
-========================================================================== */
-
-/* --- 1. BASE, FONTS & SCROLLBAR --- */
+/* --- 1. BASE & SCROLLBAR --- */
 body { 
     touch-action: pan-y;
     -webkit-tap-highlight-color: transparent; 
@@ -11,16 +6,11 @@ body {
     color: #1e293b;
     transition: background-color 0.4s ease, color 0.3s ease;
     overflow: hidden;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    overscroll-behavior-y: none; /* Mencegah efek narik karet (pull-to-refresh) yang merusak UX PWA di HP */
 }
-
 .dark body { 
     background: linear-gradient(135deg, #0f172a 0%, #020617 100%); 
     color: #f1f5f9; 
 }
-
-/* Custom Scrollbar Premium untuk PC */
 @media (pointer: fine) {
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -29,182 +19,181 @@ body {
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 }
 
-/* Hide scrollbar completely untuk area spesifik (seperti menu horizontal) */
-.custom-scrollbar-hide::-webkit-scrollbar { display: none; }
-.custom-scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-/* --- 2. BUTTONS & MICRO-INTERACTIONS --- */
-button, .nav-btn, .mobile-menu-card, .glass-card {
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none; /* Menghilangkan bayangan tap default di iOS */
-}
-
-button {
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, box-shadow 0.3s ease !important;
-}
-
-button:active {
-    transform: scale(0.92) !important;
-}
-
-/* Input & Select Fields Playful */
-input[type="text"], input[type="date"], select, textarea {
-    border-radius: 1.2rem !important;
-    border: 2px solid #e2e8f0 !important;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-}
-
-input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus {
-    border-color: #0ea5e9 !important;
-    box-shadow: 0 4px 15px rgba(14, 165, 233, 0.15) !important;
-    transform: translateY(-2px);
-    outline: none !important;
-}
-
-.dark input[type="text"], .dark input[type="date"], .dark select, .dark textarea {
-    border-color: #334155 !important;
-    background-color: #1e293b !important;
-    color: #f8fafc !important;
-}
-
-.dark input[type="text"]:focus, .dark input[type="date"]:focus, .dark select:focus, .dark textarea:focus {
-    border-color: #38bdf8 !important;
-    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15) !important;
-}
-
-
-/* --- 3. NAVIGATION (SIDEBAR PC) --- */
-#sidebar { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+/* --- 2. NAVIGATION (SIDEBAR & BOTTOM NAV) --- */
+#sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
 .nav-btn {
     position: relative; overflow: hidden; display: flex; align-items: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #475569;
 }
 .dark .nav-btn { color: #cbd5e1; }
 .nav-btn::before {
-    content: ''; position: absolute; left: 0; height: 0; width: 4px; border-radius: 0 4px 4px 0;
-    background: #0ea5e9; transition: height 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    content: ''; position: absolute; left: 0; height: 0; width: 4px;
+    background: #0284c7; transition: height 0.3s ease;
 }
-.nav-btn:hover::before, .nav-btn.active::before { height: 60%; }
+.nav-btn:hover::before, .nav-btn.active::before { height: 70%; }
 .nav-btn i { min-width: 24px; text-align: center; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .nav-btn:hover i { transform: scale(1.2); }
 
-/* --- 4. BOTTOM NAVIGATION (MOBILE) --- */
-#mobile-bottom-nav {
-    /* Safe Area Inset menjaga agar menu tidak tertutup garis home di iPhone X ke atas */
-    padding-bottom: env(safe-area-inset-bottom);
-}
-.mobile-nav-btn {
-    -webkit-tap-highlight-color: transparent;
-}
-.nav-indicator {
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-    transform-origin: top center;
-}
+.nav-item.active i { color: #0284c7; transform: scale(1.1); transition: all 0.3s ease; }
+.nav-item.active span { color: #0284c7; font-weight: 800; }
 
-/* --- 5. BOTTOM SHEETS & OVERLAYS --- */
+/* --- 3. BOTTOM SHEETS & OVERLAYS --- */
 .custom-bottom-sheet {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(255, 255, 255, 0.95); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 2.5rem 2.5rem 0 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.8);
-    z-index: 1000; transform: translateY(100%);
+    background: white; border-radius: 2.5rem 2.5rem 0 0;
+    z-index: 90; transform: translateY(100%);
     transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
-    box-shadow: 0 -20px 50px rgba(0,0,0,0.15);
+    box-shadow: 0 -20px 40px rgba(0,0,0,0.1);
     padding-bottom: env(safe-area-inset-bottom);
-    will-change: transform; 
+    will-change: transform; /* Tambahkan ini */
 }
-.dark .custom-bottom-sheet { 
-    background: rgba(15, 23, 42, 0.95); 
-    border-top: 1px solid rgba(255,255,255,0.1); 
-    box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
-}
+.dark .custom-bottom-sheet { background: #1e293b; border-top: 1px solid rgba(255,255,255,0.1); }
 .custom-bottom-sheet.open { transform: translateY(0); }
 
-.sheet-header { width: 4rem; height: 0.4rem; background: #cbd5e1; border-radius: 1rem; margin: 1.2rem auto; cursor: pointer; }
-.dark .sheet-header { background: #475569; }
+.sheet-header { width: 3rem; height: 0.3rem; background: #e2e8f0; border-radius: 1rem; margin: 1rem auto; }
+.dark .sheet-header { background: #334155; }
 
 #nativeOverlay, #sidebarOverlay {
-    position: fixed; inset: 0; z-index: 900;
-    background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px); transition: opacity 0.4s ease;
+    position: fixed; inset: 0; z-index: 70;
+    background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px); transition: all 0.3s ease;
 }
 
-/* --- 6. PLAYFUL GLASSMORPHISM & CARDS --- */
-.glass-card { 
+/* --- 4. PLAYFUL GLASSMORPHISM & CARDS --- */
+  .glass-card { 
     background: rgba(255, 255, 255, 0.65); 
     backdrop-filter: blur(16px); 
     -webkit-backdrop-filter: blur(16px);
     border: 2px solid rgba(255, 255, 255, 0.8); 
-    /* Default Radius 2.5rem (Bento Style) jika tidak di-override oleh tailwind class */
-    border-radius: 2.5rem; 
-    box-shadow: 0 10px 30px -10px rgba(14, 165, 233, 0.15); 
+    border-radius: 24px; /* Sudut lebih membulat (Playful) */
+    box-shadow: 0 10px 30px -10px rgba(14, 165, 233, 0.15); /* Colored Soft Glow */
+    /* Rumus Bouncy Transition */
     transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease;
     will-change: transform, box-shadow;
-}
-
-.dark .glass-card { 
-    background: rgba(30, 41, 59, 0.6); 
-    border: 1px solid rgba(255, 255, 255, 0.1); 
-    box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.15), 
-                inset 0 1px 0 rgba(255, 255, 255, 0.05); 
-}
+  }
+ .dark .glass-card { 
+    background: rgba(30, 41, 59, 0.7); 
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Border sedikit diterangkan */
+    box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.15), /* Glow biru redup */
+                inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Cahaya pantulan dari atas */
+ }
   
-.glass-card:hover { 
+  .glass-card:hover { 
     transform: translateY(-6px) scale(1.01); 
     box-shadow: 0 20px 40px -10px rgba(14, 165, 233, 0.25); 
     border-color: rgba(255, 255, 255, 1);
-}
+  }
 
-.dark .glass-card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 40px -10px rgba(2, 132, 199, 0.3);
-}
-
-.mobile-menu-card {
+  .mobile-menu-card {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 1.5rem 1rem; border-radius: 24px; font-size: 11px; font-weight: 800;
+    padding: 1.5rem 1rem; border-radius: 20px; font-size: 11px; font-weight: 800;
     gap: 0.75rem; text-align: center; 
     box-shadow: 0 10px 20px -5px rgba(0,0,0,0.05); 
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
-    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .mobile-menu-card:active { transform: scale(0.9); opacity: 0.9; }
+
+  /* Ikon di dalam kartu agar ikut membal */
+  .glass-card i { transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .glass-card:hover i { transform: scale(1.2) rotate(5deg); }
+
+  /* --- 5. MAPS & CHARTS --- */
+  #mapContainer { height: 100%; width: 100%; z-index: 1; border-radius: 24px; border: 4px solid white; box-shadow: 0 15px 35px -5px rgba(0,0,0,0.1); }
+  .dark #mapContainer { border-color: #1e293b; }
+  .dark .leaflet-tile-container { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); }
+  .leaflet-popup-content-wrapper { border-radius: 16px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 15px 30px -5px rgba(0,0,0,0.15) !important;}
+  .dark .leaflet-popup-content-wrapper { background: rgba(30, 41, 59, 0.95); color: white; border-color: rgba(255,255,255,0.1); }
+
+  /* --- 6. BUTTONS & MICRO-INTERACTIONS --- */
+  button, .nav-btn, .mobile-menu-card, .glass-card {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* Menghilangkan bayangan tap default di iOS */
+    }
+
+  button {
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, box-shadow 0.3s ease !important;
+  }
+  button:active {
+      transform: scale(0.92) !important;
+  }
+  
+  /* Input & Select Fields Playful */
+  input[type="text"], input[type="date"], select {
+      border-radius: 16px !important;
+      border: 2px solid #e2e8f0 !important;
+      transition: all 0.3s ease !important;
+  }
+  input[type="text"]:focus, input[type="date"]:focus, select:focus {
+      border-color: #0ea5e9 !important;
+      box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1) !important;
+      transform: translateY(-2px);
+  }
+  .dark input[type="text"], .dark input[type="date"], .dark select {
+      border-color: #334155 !important;
+      background-color: #1e293b !important;
+  }
+  .dark input[type="text"]:focus, .dark input[type="date"]:focus, .dark select:focus {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1) !important;
+  }
+
+  /* Animasi Delay Helper */
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
+
+/* --- 7. FORM ELEMENTS & UPLOAD --- */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
+  background: white; border: 3px solid #0284c7; cursor: pointer; box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
-.mobile-menu-card:active { transform: scale(0.9); opacity: 0.9; }
-.mobile-menu-card:hover { box-shadow: 0 15px 30px -5px rgba(0,0,0,0.1); transform: translateY(-4px); }
+#uploadCircle { filter: drop-shadow(0 0 8px rgba(14, 165, 233, 0.6)); transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+#uploadPct { text-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
 
+/* --- 8. UTILITIES --- */
+@media (max-width: 768px) { .bottom-nav { box-shadow: 0 -4px 15px rgba(0,0,0,0.08); } }
+@media print { .no-print { display: none !important; } body { background: white !important; } main { margin-left: 0 !important; } }
 
-/* --- 7. MAPS (LEAFLET JS CUSTOMIZATION) --- */
-#mapContainer { height: 100%; width: 100%; z-index: 1; border-radius: 2.3rem; }
-.dark .leaflet-tile-container { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); transition: filter 0.5s ease; }
-.leaflet-popup-content-wrapper { 
-    border-radius: 1.5rem !important; 
-    background: rgba(255,255,255,0.95) !important; 
-    backdrop-filter: blur(10px) !important; 
-    border: 1px solid rgba(0,0,0,0.05) !important; 
-    box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2) !important;
-}
-.dark .leaflet-popup-content-wrapper { 
-    background: rgba(30, 41, 59, 0.95) !important; 
-    color: white !important; 
-    border-color: rgba(255,255,255,0.1) !important; 
-}
-.leaflet-popup-tip { background: rgba(255,255,255,0.95) !important; }
-.dark .leaflet-popup-tip { background: rgba(30, 41, 59, 0.95) !important; }
+/* Standar Ukuran A4 */
+.pdf-container { width: 210mm; padding: 15mm; background: white; font-family: 'Plus Jakarta Sans', sans-serif; }
+.pdf-header { border-bottom: 3px solid #0f172a; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+.pdf-title { color: #0f172a; font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: -1px; }
+.pdf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 25px; }
+.pdf-stat-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; }
+.pdf-stat-label { font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+.pdf-stat-value { font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 4px; }
+.pdf-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 15px; }
+.pdf-table th { background: #1e293b !important; color: #ffffff !important; padding: 10px; text-align: left; text-transform: uppercase; }
+.pdf-table td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+.pdf-table tr:nth-child(even) { background: #fcfcfc; }
+.pdf-badge { padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 9px; }
+.bg-npl-red { background: #fee2e2; color: #b91c1c; }
+.bg-kkr-orange { background: #ffedd5; color: #c2410c; }
 
-/* Custom animasi marker map */
-.playful-popup { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.mut-btn { color: #94a3b8; border: none; outline: none; }
+.mut-btn.active-mut { color: #1e293b; }
+.dark .mut-btn.active-mut { color: #f8fafc; }
+.custom-scrollbar-hide::-webkit-scrollbar { display: none; }
+.custom-scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+header, select, button { transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
 
+/* --- SKELETON LOADING ANIMATION --- */
+.skeleton { background: #e2e8f0; background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); border-radius: 5px; background-size: 200% 100%; animation: 1.5s shine linear infinite; }
+.dark .skeleton { background: #1e293b; background: linear-gradient(110deg, #1e293b 8%, #334155 18%, #1e293b 33%); }
+@keyframes shine { to { background-position-x: -200%; } }
 
-/* --- 8. GRADIENT ICONS (MODERN PLAYFUL) --- */
+/* --- GLASSMORPHISM MODERN --- */
+.glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07); }
+.dark .glass-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
+
+/* --- 9. GRADIENT ICONS (MODERN PLAYFUL) --- */
 .grad-icon {
     display: inline-block;
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent; /* Fallback */
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Tema Gradasi Spesifik */
@@ -215,97 +204,13 @@ input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus
 .grad-red { background-image: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); }       /* Alert Red */
 .grad-gold { background-image: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }      /* Premium Gold */
 
-/* Efek Glow pada Icon saat Parent di-hover */
-.glass-card:hover .grad-icon, .mobile-menu-card:hover .grad-icon {
-    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+/* Tambahan: Efek Glow pada Icon saat di-hover (Opsional tapi keren) */
+.glass-card:hover .grad-icon {
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
     transform: scale(1.15) rotate(5deg);
 }
 
-
-/* --- 9. INTERACTIVE SIMULATION SLIDER --- */
-.sim-slider {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    outline: none;
-    transition: background 0.3s ease;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-}
-.sim-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #fff;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    border: 5px solid #0ea5e9;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s ease;
-}
-.sim-slider::-webkit-slider-thumb:active {
-    transform: scale(1.3);
-    border-color: #10b981;
-}
-
-/* Upload Circle Animation */
-#uploadCircle { filter: drop-shadow(0 0 12px rgba(14, 165, 233, 0.8)); transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-#uploadPct { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
-
-
-/* --- 10. ANIMASI CORE --- */
-/* Animasi Delay Helper */
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
-
-/* Animasi Fade In (Untuk Transisi Tab) */
-.animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-/* Animasi Slide Up (Untuk elemen yang muncul dari bawah) */
-.animate-slide-up { animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-@keyframes slideUp {
-    0% { opacity: 0; transform: translateY(40px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* --- SKELETON LOADING ANIMATION --- */
-.skeleton { 
-    background: #e2e8f0; 
-    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); 
-    border-radius: 8px; 
-    background-size: 200% 100%; 
-    animation: 1.5s shine linear infinite; 
-}
-.dark .skeleton { 
-    background: #1e293b; 
-    background: linear-gradient(110deg, #1e293b 8%, #334155 18%, #1e293b 33%); 
-}
-@keyframes shine { to { background-position-x: -200%; } }
-
-
-/* --- 11. TAB & BUTTON UTILITIES --- */
-.mut-btn { color: #94a3b8; border: none; outline: none; }
-.mut-btn.active-mut { color: #1e293b; }
-.dark .mut-btn.active-mut { color: #f8fafc; }
-
-
-/* --- 12. PRINT MEDIA QUERIES (A4 SETTINGS) --- */
-@media print { 
-    .no-print { display: none !important; } 
-    body { background: white !important; color: black !important; } 
-    .dark body { background: white !important; color: black !important; } /* Force white print even in dark mode */
-    main { margin-left: 0 !important; overflow: visible !important; } 
-    #sidebar, #mobile-bottom-nav, #nativeOverlay { display: none !important; }
-}
-
-
-/* --- 13. ACCESSIBILITY (REDUCED MOTION) --- */
+/* --- 10. ACCESSIBILITY (REDUCED MOTION) --- */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
@@ -313,4 +218,31 @@ input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* --- 11. INTERACTIVE SIMULATION SLIDER --- */
+.sim-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+.sim-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    border: 4px solid #0ea5e9;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s;
+}
+.sim-slider::-webkit-slider-thumb:active {
+    transform: scale(1.3);
+    border-color: #10b981;
 }
