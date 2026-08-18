@@ -702,48 +702,71 @@ function unlockMenu() {
 // Pastikan ada penampung global untuk menyimpan instance chart
 if (!s.charts) s.charts = {}; 
 
-// --- CARI FUNGSI INI DI app.js ANDA ---
+// --- FUNGSI RENDER CHART UMUM (MENDUKUNG HORIZONTAL BAR) ---
 function renderChart(canvasId, type, labels, data, title) {
     const ctx = document.getElementById(canvasId);
     if (!ctx) return;
     if (charts[canvasId]) { charts[canvasId].destroy(); }
+
+    // Jika tipenya bar, kita ubah orientasinya jadi mendatar (horizontal)
+    const isHorizontal = type === 'bar';
 
     charts[canvasId] = new Chart(ctx, {
         type: type,
         data: {
             labels: labels,
             datasets: [{
+                label: title,
                 data: data,
-                // (Konfigurasi warna bawaan Anda tetap di sini) ...
-                borderWidth: 2,
-                hoverOffset: 10 // Bikin membal saat disentuh mouse
+                // Gunakan gradien warna elegan agar tidak butuh belasan warna berbeda
+                backgroundColor: isHorizontal 
+                    ? 'rgba(59, 130, 246, 0.8)' // Biru solid elegan untuk bar chart
+                    : ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'], 
+                borderWidth: 0,
+                borderRadius: isHorizontal ? 4 : 0, // Ujung batang melengkung
+                hoverBackgroundColor: 'rgba(29, 78, 216, 1)' // Warna saat di-hover
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            indexAxis: isHorizontal ? 'y' : 'x', // 'y' mengubah Bar menjadi Horizontal
             
-            // ========================================================
-            // TAMBAHKAN BLOK 'onClick' INI UNTUK INTERAKSI POPUP:
-            // ========================================================
+            // --- FITUR KLIK UNTUK MEMUNCULKAN POPUP SEKTOR ---
             onClick: function(event, activeElements) {
                 if (activeElements.length > 0) {
-                    // Dapatkan indeks potongan pie yang diklik
                     const dataIndex = activeElements[0].index;
-                    // Ambil nama labelnya (Misal: "Perdagangan")
                     const clickedSector = labels[dataIndex];
-                    
-                    // Panggil animasi Modal
                     if (typeof app.openSectorModal === 'function') {
                         app.openSectorModal(clickedSector);
                     }
                 }
             },
-            // ========================================================
-
+            
             plugins: {
-                legend: { position: 'right' }
-            }
+                legend: { 
+                    display: !isHorizontal, // Sembunyikan legenda jika Bar Chart
+                    position: 'right' 
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let val = context.raw;
+                            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+                        }
+                    }
+                }
+            },
+            scales: isHorizontal ? {
+                x: { display: false }, // Sembunyikan angka rupiah di bawah agar bersih
+                y: { 
+                    grid: { display: false }, // Hilangkan garis-garis latar
+                    ticks: {
+                        font: { size: 10, weight: 'bold' },
+                        color: '#64748b'
+                    }
+                }
+            } : {} // Biarkan default jika bukan horizontal bar
         }
     });
 }
@@ -1119,7 +1142,7 @@ window.setScenario = function(type) {
     if(res.chart_sector) {
         // Gunakan delay kecil agar chart muncul setelah kartu selesai berhitung
         setTimeout(() => {
-            renderChart('chartSec', 'doughnut', res.chart_sector.labels, res.chart_sector.data, 'Sektor');
+            renderChart('chartSec', 'bar', res.chart_sector.labels, res.chart_sector.data, 'Sektor');
         }, 300);
     }
       unlockMenu();
