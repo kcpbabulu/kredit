@@ -7739,20 +7739,22 @@ function executeDeleteSheets() {
   }
 
 
- // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (REVISI) ---
+ // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FINAL FIX) ---
   function openSectorModal(sectorName) {
-      // 1. Ambil memori data mentah yang di-load dari res.npl_list di renderDashboard
-      // Karena renderDashboard menyimpan response penuh di app.state.data = res
+      // 1. Ambil data mentah (Pastikan struktur ini benar)
       const allData = (app.state.data && app.state.data.npl_list) ? app.state.data.npl_list : [];
       
-      // 2. Filter data secara pintar (Toleransi Huruf Besar Kecil & Spasi)
-      const cleanSectorName = sectorName.toLowerCase().trim();
+      // 2. Filter Cerdas (Hanya bandingkan 10 huruf pertama untuk menghindari masalah substring)
+      // Misal: "PERDAGANGAN BESAR" vs "PERDAGANGAN BESAR DA..."
+      const searchTarget = sectorName.substring(0, 10).toLowerCase().trim();
       
       const filtered = allData.filter(r => {
-          // Jadikan 1 baris debitur menjadi Teks Utuh, lalu cari kata sektornya
-          // Ini cara ampuh karena kita tidak tahu persis kolom apa yang menyimpan 'sektor' dari Backend
-          const rowText = JSON.stringify(r).toLowerCase();
-          return rowText.includes(cleanSectorName);
+          // Cari spesifik di property .sektor
+          if (r.sektor) {
+              const rowSector = String(r.sektor).toLowerCase();
+              return rowSector.includes(searchTarget);
+          }
+          return false;
       });
 
       const tbody = document.getElementById('tbl-modal-sector');
@@ -7761,25 +7763,22 @@ function executeDeleteSheets() {
       let html = '';
       let totalOS = 0;
       
-      // 3. Render Baris per Baris
+      // 3. Render Baris per Baris (Pastikan memanggil properti sesuai processDash)
       filtered.forEach((r, i) => {
-          // Ambil nilai Baki Debet. Cek properti 'os' (huruf kecil) atau 'OS' (huruf besar)
-          const bakiDebet = Number(r.os || r.OS || r.baki || 0);
+          const bakiDebet = Number(r.os || 0);
           totalOS += bakiDebet;
           
-          // Penentuan Warna KOL
-          const kol = r.kol || r.KOL || '-';
-          let kolColor = 'bg-slate-500'; // Default
+          const kol = r.kol || '-';
+          let kolColor = 'bg-slate-500'; 
           if(kol == 5) kolColor = 'bg-red-500';
           else if(kol == 4) kolColor = 'bg-pink-500';
           else if(kol == 3) kolColor = 'bg-orange-500';
           else if(kol == 2) kolColor = 'bg-yellow-500 text-black';
           
-          // Ambil Identitas (Bisa dari properti 'nama', 'NAMA', 'debitur', dll)
-          const namaDebitur = r.nama || r.NAMA || r.nama_debitur || 'Tanpa Nama';
-          const noRekening = r.rekening || r.REKENING || r.id || '-';
-          const unitCabang = r.unit || r.UNIT || r.cabang || '-';
-          const nilaiTunggakan = Number(r.tunggakan || r.TUNGGAKAN || r.tgk || 0);
+          const namaDebitur = r.nama || 'Tanpa Nama';
+          const noRekening = r.loan || r.pk || '-';
+          const unitCabang = r.br || '-';
+          const nilaiTunggakan = Number(r.tgk || 0);
           
           html += `
           <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50">
@@ -7801,7 +7800,6 @@ function executeDeleteSheets() {
           html = `<tr><td colspan="6" class="p-12 text-center flex flex-col items-center justify-center">
                     <i class="fas fa-folder-open text-4xl text-slate-300 mb-3 hover:scale-110 transition-transform"></i>
                     <span class="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Tidak ada detail rincian untuk ${sectorName}</span>
-                    <span class="text-[9px] text-slate-300 mt-1">Pastikan penulisan sektor di data mentah cocok.</span>
                   </td></tr>`;
       }
       
@@ -7812,7 +7810,7 @@ function executeDeleteSheets() {
       document.getElementById('modal-sector-count').innerText = filtered.length;
       document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
       
-      // 5. Animasi Masuk (Bouncy Zoom In)
+      // 5. Animasi Masuk
       const modal = document.getElementById('modal-sector');
       modal.classList.remove('hidden');
       setTimeout(() => {
