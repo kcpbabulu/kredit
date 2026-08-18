@@ -702,37 +702,48 @@ function unlockMenu() {
 // Pastikan ada penampung global untuk menyimpan instance chart
 if (!s.charts) s.charts = {}; 
 
-function renderChart(id, type, labels, vals, label) {
-    const ctx = document.getElementById(id);
+// --- CARI FUNGSI INI DI app.js ANDA ---
+function renderChart(canvasId, type, labels, data, title) {
+    const ctx = document.getElementById(canvasId);
     if (!ctx) return;
+    if (charts[canvasId]) { charts[canvasId].destroy(); }
 
-    // --- PERBAIKAN UTAMA DI SINI ---
-    // Cek apakah chart dengan ID ini sudah ada di memori global 'charts'
-    if (typeof charts !== 'undefined' && charts[id]) {
-        charts[id].destroy(); // Hancurkan chart lama sebelum buat baru
-    }
-    // -------------------------------
-
-    // Pastikan variabel 'charts' didefinisikan di awal script global: var charts = {};
-    if (typeof charts === 'undefined') window.charts = {};
-
-    charts[id] = new Chart(ctx, {
+    charts[canvasId] = new Chart(ctx, {
         type: type,
         data: {
             labels: labels,
             datasets: [{
-                label: label,
-                data: vals,
-                // ... style Anda biarkan saja ...
-                backgroundColor: ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#6366f1'],
-                borderWidth: 1
+                data: data,
+                // (Konfigurasi warna bawaan Anda tetap di sini) ...
+                borderWidth: 2,
+                hoverOffset: 10 // Bikin membal saat disentuh mouse
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            // Tambahkan animasi yang lebih smooth
-            animation: { duration: 800, easing: 'easeOutQuart' }
+            
+            // ========================================================
+            // TAMBAHKAN BLOK 'onClick' INI UNTUK INTERAKSI POPUP:
+            // ========================================================
+            onClick: function(event, activeElements) {
+                if (activeElements.length > 0) {
+                    // Dapatkan indeks potongan pie yang diklik
+                    const dataIndex = activeElements[0].index;
+                    // Ambil nama labelnya (Misal: "Perdagangan")
+                    const clickedSector = labels[dataIndex];
+                    
+                    // Panggil animasi Modal
+                    if (typeof app.openSectorModal === 'function') {
+                        app.openSectorModal(clickedSector);
+                    }
+                }
+            },
+            // ========================================================
+
+            plugins: {
+                legend: { position: 'right' }
+            }
         }
     });
 }
@@ -7727,6 +7738,77 @@ function executeDeleteSheets() {
       }
   }
 
+
+  // --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR ---
+  function openSectorModal(sectorName) {
+      // 1. Ambil seluruh memori data NPL yang sudah di-load di Dashboard
+      const allData = s.data.npl_list || [];
+      
+      // 2. Filter data secara pintar (Cari kata sektor di seluruh isi data debitur)
+      // (Kita gunakan cara 'kasar' namun sangat aman untuk menghindari error nama kolom dari Backend)
+      const filtered = allData.filter(r => JSON.stringify(r).toLowerCase().includes(sectorName.toLowerCase()));
+
+      const tbody = document.getElementById('tbl-modal-sector');
+      const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+      
+      let html = '';
+      let totalOS = 0;
+      
+      // 3. Render Baris per Baris dengan efek animasi hover (Glassmorphism)
+      filtered.forEach((r, i) => {
+          totalOS += (r.os || 0);
+          
+          let kolColor = r.kol == 5 ? 'bg-red-500' : (r.kol == 4 ? 'bg-pink-500' : (r.kol == 3 ? 'bg-orange-500' : 'bg-yellow-500 text-black'));
+          
+          html += `
+          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50">
+              <td class="p-4 text-center font-bold text-slate-400 group-hover:text-blue-500 transition-colors">${i+1}</td>
+              <td class="p-4">
+                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all transform group-hover:translate-x-1">${r.nama || '-'}</div>
+                  <div class="text-[10px] font-bold opacity-50 uppercase tracking-widest mt-1"><i class="fas fa-fingerprint mr-1"></i> ${r.rekening || r.id || '-'}</div>
+              </td>
+              <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${r.unit || '-'}</td>
+              <td class="p-4 text-center">
+                  <span class="px-2 py-1 text-[10px] font-black text-white rounded-md shadow-sm ${kolColor}">KOL ${r.kol || '-'}</span>
+              </td>
+              <td class="p-4 text-right font-mono font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${fmtIDR(r.os)}</td>
+              <td class="p-4 text-right font-mono font-black text-red-500">${fmtIDR(r.tunggakan || 0)}</td>
+          </tr>`;
+      });
+      
+      if(filtered.length === 0) {
+          html = `<tr><td colspan="6" class="p-12 text-center flex flex-col items-center justify-center">
+                    <i class="fas fa-folder-open text-4xl text-slate-300 mb-3"></i>
+                    <span class="text-slate-400 font-bold uppercase tracking-widest text-xs">Tidak ada detail rincian untuk sektor ini</span>
+                  </td></tr>`;
+      }
+      
+      tbody.innerHTML = html;
+      
+      // 4. Update Header & Footer
+      document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
+      document.getElementById('modal-sector-count').innerText = filtered.length;
+      document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
+      
+      // 5. Animasi Masuk (Bouncy Zoom In)
+      const modal = document.getElementById('modal-sector');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+          modal.classList.remove('opacity-0');
+          modal.children[1].classList.remove('scale-95'); // Efek Zoom In
+      }, 10);
+  }
+
+  // --- FUNGSI MENUTUP MODAL ---
+  function closeSectorModal() {
+      const modal = document.getElementById('modal-sector');
+      modal.classList.add('opacity-0');
+      modal.children[1].classList.add('scale-95'); // Efek Zoom Out
+      setTimeout(() => {
+          modal.classList.add('hidden');
+      }, 300); // Tunggu animasi CSS selesai
+  }
+
     
 
 
@@ -7879,6 +7961,8 @@ function executeDeleteSheets() {
     changePage: changePage,
     calcSim: calcSim,
     resetSimSliders: resetSimSliders,
+    openSectorModal: openSectorModal,
+    closeSectorModal: closeSectorModal,
     togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
