@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=68">
+  <link rel="stylesheet" href="style.css?v=69">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1232,90 +1232,112 @@
 
   <!-- === SELURUH MODAL BAWAAN === -->
 
-  <!-- Modal Detail -->
-  <div id="modalDetail" class="fixed inset-0 z-[60] hidden bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden border border-slate-200 dark:border-slate-700">
-        <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center shrink-0 bg-slate-50 dark:bg-slate-800/50">
-            <h3 class="font-black text-lg dark:text-white flex items-center gap-2"><i class="fas fa-id-card grad-icon grad-blue"></i> Detail Debitur</h3>
-            <button onclick="app.closeModal('modalDetail')" class="w-8 h-8 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition shadow-sm border border-slate-100"><i class="fas fa-times"></i></button>
+ <!-- Modal Detail -->
+<div id="modalDetail" class="fixed inset-0 z-[60] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden border border-white/30 dark:border-slate-700/50">
+        <!-- Header -->
+        <div class="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
+            <h3 class="font-bold text-base sm:text-lg dark:text-white flex items-center gap-2">
+                <i class="fas fa-id-card grad-icon grad-blue text-lg"></i> Detail Debitur
+            </h3>
+            <button onclick="app.closeModal('modalDetail')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition shadow-sm border border-slate-100 dark:border-slate-600 text-sm">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
-        <div id="detailContent" class="p-5 overflow-y-auto custom-scrollbar"></div>
+        <!-- Content -->
+        <div id="detailContent" class="p-4 overflow-y-auto custom-scrollbar text-sm"></div>
     </div>
-  </div>
-  
-  <!-- Modal Upload -->
-  <div id="modalUpload" class="fixed inset-0 z-[60] hidden bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm modal-container transition-opacity duration-300">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 w-full max-w-sm shadow-2xl modal-content border border-white/20 transform scale-100 transition-transform duration-300">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="w-14 h-14 bg-white text-blue-600 rounded-2xl flex items-center justify-center shadow-lg border border-slate-100 dark:border-slate-800">
-                <i class="fas fa-cloud-upload-alt text-3xl grad-icon grad-gold"></i>
+</div>
+
+<!-- Modal Upload -->
+<div id="modalUpload" class="fixed inset-0 z-[60] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm modal-container transition-opacity duration-300">
+    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl p-4 sm:p-5 w-full max-w-sm shadow-2xl modal-content border border-white/30 dark:border-slate-700/50 transform scale-100 transition-transform duration-300 max-h-[95vh] overflow-y-auto custom-scrollbar">
+        
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-4 sm:mb-5">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white dark:bg-slate-800 text-blue-600 rounded-xl flex items-center justify-center shadow-md border border-slate-100 dark:border-slate-700 shrink-0">
+                <i class="fas fa-cloud-upload-alt text-xl sm:text-2xl grad-icon grad-gold"></i>
             </div>
             <div>
-                <h3 class="font-black text-xl text-slate-800 dark:text-white tracking-tight">Upload Data</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Excel / CSV Supported</p>
+                <h3 class="font-bold text-base sm:text-lg text-slate-800 dark:text-white tracking-tight leading-none">Upload Data</h3>
+                <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Excel / CSV Supported</p>
             </div>
         </div>
-        <div class="space-y-5">
+
+        <!-- Form Section -->
+        <div class="space-y-3 sm:space-y-4">
+            <!-- File Input -->
             <div class="relative group">
-                <label class="text-[10px] font-black uppercase text-slate-400 ml-1 mb-1.5 flex justify-between">
-                    <span>File Excel/CSV</span>
-                    <span id="fileStatus" class="text-blue-500 hidden"><i class="fas fa-spinner fa-spin mr-1"></i>Menganalisa...</span>
+                <label class="text-[9px] sm:text-[10px] font-bold uppercase text-slate-400 ml-1 mb-1 flex justify-between">
+                    <span>File Data</span>
+                    <span id="fileStatus" class="text-blue-500 hidden"><i class="fas fa-spinner fa-spin mr-1"></i>Analisa...</span>
                 </label>
-                <div class="relative overflow-hidden rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-blue-400 transition-colors bg-slate-50 dark:bg-slate-900/50">
+                <div class="relative overflow-hidden rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-blue-400 transition-colors bg-slate-50/50 dark:bg-slate-900/30">
                     <input type="file" id="upFileRaw" onchange="app.detectDateFromFile(this)" accept=".xlsx, .xls, .csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-                    <div class="p-4 flex items-center gap-3">
-                        <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm"><i class="fas fa-file-excel grad-icon grad-emerald text-xl"></i></div>
+                    <div class="p-2 sm:p-3 flex items-center gap-2 sm:gap-3">
+                        <div class="w-8 h-8 sm:w-9 sm:h-9 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-sm shrink-0">
+                            <i class="fas fa-file-excel grad-icon grad-emerald text-base"></i>
+                        </div>
                         <div class="flex-1 min-w-0">
-                            <p id="fileNameDisplay" class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Pilih file...</p>
-                            <p class="text-[9px] text-slate-400 font-medium">Maksimal 10MB</p>
+                            <p id="fileNameDisplay" class="text-[11px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Pilih file...</p>
+                            <p class="text-[8px] sm:text-[9px] text-slate-400 font-medium">Maks. 10MB</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Date Input -->
             <div>
-                <label class="text-[10px] font-black uppercase text-slate-400 ml-1 mb-1.5 block">Tanggal Data <span class="text-emerald-500 font-bold hidden" id="autoLabel">(Auto-Detected ✨)</span></label>
+                <label class="text-[9px] sm:text-[10px] font-bold uppercase text-slate-400 ml-1 mb-1 block">
+                    Tanggal Data <span class="text-emerald-500 hidden ml-1" id="autoLabel">(Auto ✨)</span>
+                </label>
                 <div class="relative">
-                    <input type="date" id="upDate" class="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 rounded-xl p-3 pl-10 focus:border-blue-500 outline-none transition-all font-bold text-slate-600 dark:text-slate-200 text-sm">
-                    <i class="fas fa-calendar-alt absolute left-3.5 top-3.5 text-slate-400"></i>
+                    <input type="date" id="upDate" class="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-600 rounded-xl p-2 sm:p-2.5 pl-8 sm:pl-9 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all font-semibold text-slate-700 dark:text-slate-200 text-xs sm:text-sm">
+                    <i class="fas fa-calendar-alt absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs sm:text-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="mt-8 space-y-2">
-            <button onclick="app.doUpload(this)" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white py-3.5 rounded-xl font-black shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex justify-center items-center gap-2">PROSES UPLOAD <i class="fas fa-arrow-right text-xs"></i></button>
-            <button onclick="app.closeModal('modalUpload')" class="w-full py-3 text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors bg-slate-100 hover:bg-slate-200 rounded-xl">Batal</button>
+
+        <!-- Action Buttons -->
+        <div class="mt-5 space-y-2">
+            <button onclick="app.doUpload(this)" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex justify-center items-center gap-2">
+                PROSES UPLOAD <i class="fas fa-arrow-right text-[10px]"></i>
+            </button>
+            <button onclick="app.closeModal('modalUpload')" class="w-full py-2 text-[11px] sm:text-xs font-semibold text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl">
+                Batal
+            </button>
         </div>
 
-     <!-- ========================================================== -->
-        <!-- SISIPKAN FITUR MANAJEMEN DATABASE (HAPUS SHEET) DI SINI!   -->
         <!-- ========================================================== -->
-        <div class="mt-8 border-t-2 border-dashed border-slate-200 dark:border-slate-700 pt-6">
-            <div class="flex justify-between items-end mb-4">
+        <!-- MANAJEMEN DATABASE -->
+        <!-- ========================================================== -->
+        <div class="mt-4 sm:mt-5 border-t border-dashed border-slate-200 dark:border-slate-700 pt-4 sm:pt-5">
+            <div class="flex justify-between items-start sm:items-end mb-2 sm:mb-3">
                 <div>
-                    <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-2">
-                        <i class="fas fa-trash-alt grad-icon grad-red text-lg"></i> Bersihkan Database
+                    <h3 class="text-[11px] sm:text-xs font-bold text-slate-800 dark:text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fas fa-trash-alt grad-icon grad-red text-sm"></i> Bersihkan Database
                     </h3>
-                    <p class="text-[10px] text-slate-500 font-bold mt-1">Hapus sheet data lama untuk hemat memori.</p>
+                    <p class="text-[9px] text-slate-500 font-medium mt-0.5">Hapus data lama hemat memori.</p>
                 </div>
-                <button onclick="app.renderSheetManager()" class="text-[10px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg font-bold transition-colors">
+                <button onclick="app.renderSheetManager()" class="text-[9px] sm:text-[10px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-lg font-bold transition-colors shrink-0">
                     <i class="fas fa-sync-alt mr-1"></i> Refresh
                 </button>
             </div>
 
             <!-- Container Daftar Sheet -->
-            <div id="sheetManagerList" class="max-h-40 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50 dark:bg-slate-900/50 p-2 custom-scrollbar">
-                <div class="p-4 text-center text-xs font-bold text-slate-400">Klik "Refresh" untuk memuat data.</div>
+            <div id="sheetManagerList" class="max-h-24 sm:max-h-32 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg divide-y divide-slate-100 dark:divide-slate-700/50 bg-slate-50/50 dark:bg-slate-900/30 p-1.5 custom-scrollbar text-xs">
+                <div class="p-3 text-center text-[10px] sm:text-xs font-medium text-slate-400">Klik "Refresh" untuk memuat data.</div>
             </div>
 
             <!-- Tombol Eksekusi -->
-            <button onclick="app.executeDeleteSheets()" class="mt-4 w-full bg-red-50 border border-red-200 hover:bg-red-600 hover:text-white text-red-600 py-3 rounded-xl text-xs font-black transition-all shadow-sm hidden active:scale-95" id="btnDeleteSheets">
-                HAPUS PERMANEN (<span id="countDelete">0</span>) SHEET TERPILIH
+            <button onclick="app.executeDeleteSheets()" class="mt-2.5 sm:mt-3 w-full bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50 hover:bg-red-600 hover:text-white text-red-600 dark:text-red-400 py-2 rounded-xl text-[10px] sm:text-xs font-bold transition-all shadow-sm hidden active:scale-95" id="btnDeleteSheets">
+                HAPUS PERMANEN (<span id="countDelete">0</span>)
             </button>
         </div>
         <!-- ========================================================== -->
 
-      
     </div>
-  </div>
+</div>
 
   <!-- Modal WA -->
   <div id="modalWA" class="fixed inset-0 z-[70] hidden bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
@@ -1542,7 +1564,7 @@
   <!-- ======================================================= -->
 
    <!-- App Javascript -->
-  <script src="app.js?v=68"></script>
+  <script src="app.js?v=69"></script>
   
  <!-- Service Worker Registration & Auto-Update Catcher -->
   <script>
