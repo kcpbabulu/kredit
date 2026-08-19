@@ -1232,22 +1232,80 @@
 
   <!-- === SELURUH MODAL BAWAAN === -->
 
- <!-- Modal Detail -->
-<div id="modalDetail" class="fixed inset-0 z-[60] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[90vh] overflow-hidden border border-white/30 dark:border-slate-700/50">
-        <!-- Header -->
+ <!-- Modal Detail (Sesuai Foto) -->
+  <div id="modalDetail" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+    <!-- Tambahan mb-20 md:mb-0 dan max-h-[75vh] sangat penting untuk HP -->
+    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-sm shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-20 md:mb-0 border border-white/30 dark:border-slate-700/50 transform transition-all">
+        
         <div class="p-3 sm:p-4 border-b border-slate-100 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
-            <h3 class="font-bold text-base sm:text-lg dark:text-white flex items-center gap-2">
-                <i class="fas fa-id-card grad-icon grad-blue text-lg"></i> Detail Debitur
+            <h3 class="font-bold text-base dark:text-white flex items-center gap-2">
+                <i class="fas fa-id-card text-blue-500"></i> Detail Debitur
             </h3>
-            <button onclick="app.closeModal('modalDetail')" class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition shadow-sm border border-slate-100 dark:border-slate-600 text-sm">
-                <i class="fas fa-times"></i>
-            </button>
+            <button onclick="app.closeModal('modalDetail')" class="w-7 h-7 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition shadow-sm border border-slate-100 dark:border-slate-600 text-xs"><i class="fas fa-times"></i></button>
         </div>
-        <!-- Content -->
-        <div id="detailContent" class="p-4 overflow-y-auto custom-scrollbar text-sm"></div>
+        
+        <!-- Tambahan pb-6 memastikan tombol WA di dalam tidak mentok ke batas bawah -->
+        <div id="detailContent" class="p-3 sm:p-4 overflow-y-auto custom-scrollbar text-xs pb-6"></div>
     </div>
-</div>
+  </div>
+
+  <!-- Modal Sektor (Compact & Modern) -->
+  <div id="modal-sector" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-3 sm:p-4 opacity-0 transition-opacity duration-300">
+      <!-- Backdrop Blur -->
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer" onclick="app.closeSectorModal()"></div>
+      
+      <!-- Konten Modal (mb-20 md:mb-0 mencegah tertutup bottom nav) -->
+      <div class="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-4xl max-h-[75vh] md:max-h-[85vh] mb-20 md:mb-0 flex flex-col transform scale-95 transition-transform duration-300 border border-white/20 dark:border-slate-700 overflow-hidden">
+          
+          <!-- Header -->
+          <div class="p-3.5 border-b border-slate-200/50 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-600">
+              <h3 class="font-black text-white text-sm flex items-center gap-2">
+                  <i class="fas fa-chart-pie text-blue-200"></i> 
+                  Sektor: <span id="modal-sector-title" class="text-blue-100 bg-black/20 px-2 py-0.5 rounded-md text-xs font-mono">...</span>
+              </h3>
+              <button onclick="app.closeSectorModal()" class="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-red-500 text-white transition-colors text-xs shadow-sm">
+                  <i class="fas fa-times"></i>
+              </button>
+          </div>
+          
+          <!-- Body (Tabel Compact) -->
+          <div class="flex-1 overflow-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-900/50">
+              <table class="w-full text-xs text-left">
+                  <thead class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md sticky top-0 z-10 text-[9px] uppercase font-black text-slate-500 shadow-sm border-b border-slate-200 dark:border-slate-700">
+                      <tr>
+                          <th class="p-2.5 text-center w-8">No</th>
+                          <th class="p-2.5">Identitas</th>
+                          <th class="p-2.5 hidden sm:table-cell">Unit</th>
+                          <th class="p-2.5 text-center">KOL</th>
+                          <th class="p-2.5 text-right">Baki Debet</th>
+                          <th class="p-2.5 text-right">Tunggakan</th>
+                      </tr>
+                  </thead>
+                  <tbody id="tbl-modal-sector" class="divide-y divide-slate-100 dark:divide-slate-800/50">
+                      <!-- Data JS -->
+                  </tbody>
+              </table>
+          </div>
+          
+          <!-- Footer (Summary Compact Bento) -->
+          <div class="p-2.5 sm:p-3 border-t border-slate-200/50 dark:border-slate-800 bg-white/90 dark:bg-slate-900 grid grid-cols-3 gap-2 shrink-0">
+              <div class="bg-blue-50 dark:bg-blue-900/30 p-1.5 sm:p-2 rounded-lg border border-blue-100 dark:border-blue-800/50 flex flex-col items-center justify-center text-center shadow-sm">
+                  <span class="text-[8px] sm:text-[9px] font-black text-blue-500 uppercase tracking-widest leading-none">TOTAL (<span id="modal-sector-count">0</span>)</span>
+                  <span id="modal-sector-os" class="font-mono font-black text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs mt-1">Rp 0</span>
+              </div>
+              <div class="bg-amber-50 dark:bg-amber-900/30 p-1.5 sm:p-2 rounded-lg border border-amber-100 dark:border-amber-800/50 flex flex-col items-center justify-center text-center shadow-sm">
+                  <span class="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-widest leading-none">KKR (2-5)</span>
+                  <span id="modal-sector-kkr" class="font-mono font-black text-amber-700 dark:text-amber-500 text-[10px] sm:text-xs mt-1">Rp 0</span>
+                  <span id="modal-sector-pct-kkr" class="bg-amber-200/50 text-amber-800 px-1.5 py-0.5 rounded text-[7px] font-bold mt-0.5">0%</span>
+              </div>
+              <div class="bg-red-50 dark:bg-red-900/30 p-1.5 sm:p-2 rounded-lg border border-red-100 dark:border-red-800/50 flex flex-col items-center justify-center text-center shadow-sm">
+                  <span class="text-[8px] sm:text-[9px] font-black text-red-500 uppercase tracking-widest leading-none">NPL (3-5)</span>
+                  <span id="modal-sector-npl" class="font-mono font-black text-red-600 dark:text-red-400 text-[10px] sm:text-xs mt-1">Rp 0</span>
+                  <span id="modal-sector-pct-npl" class="bg-red-200/50 text-red-800 px-1.5 py-0.5 rounded text-[7px] font-bold mt-0.5">0%</span>
+              </div>
+          </div>
+      </div>
+  </div>
 
 <!-- Modal Upload -->
 <div id="modalUpload" class="fixed inset-0 z-[60] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm modal-container transition-opacity duration-300">
@@ -1498,69 +1556,7 @@
     </div>
   </div>
 
-  <!-- ========================================== -->
-<!-- MODAL DETAIL SEKTOR NPL (INTERAKTIF) -->
-<!-- ========================================== -->
-<div id="modal-sector" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
-    <!-- Backdrop Blur (Klik untuk menutup) -->
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer" onclick="app.closeSectorModal()"></div>
-    
-    <!-- Konten Modal (Glassmorphism & Bouncy) -->
-    <div class="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-3xl shadow-[0_0_40px_rgba(0,0,0,0.3)] w-full max-w-5xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300 border border-white/20 dark:border-slate-700 overflow-hidden">
-        
-        <!-- Header -->
-        <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-700">
-            <h3 class="font-black text-white text-lg flex items-center gap-3">
-                <i class="fas fa-chart-pie text-blue-200 animate-pulse"></i> 
-                Rincian Sektor: <span id="modal-sector-title" class="text-blue-100 font-mono tracking-wider bg-black/20 px-3 py-1 rounded-lg">...</span>
-            </h3>
-            <button onclick="app.closeSectorModal()" class="text-white hover:text-red-300 transition-all transform hover:scale-110 hover:rotate-90 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        
-        <!-- Body (Tabel Interaktif) -->
-        <div class="flex-1 overflow-auto custom-scrollbar p-0 bg-slate-50/50 dark:bg-slate-900/50">
-            <table class="w-full text-sm text-left">
-                <thead class="bg-white dark:bg-slate-800 sticky top-0 z-10 text-[9px] uppercase font-black text-slate-400 border-b border-slate-200 dark:border-slate-700 shadow-sm">
-                    <tr>
-                        <th class="p-4 text-center">No</th>
-                        <th class="p-4">Identitas Debitur</th>
-                        <th class="p-4 hidden sm:table-cell">Unit Cabang</th>
-                        <th class="p-4 text-center">KOL</th>
-                        <th class="p-4 text-right">Baki Debet</th>
-                        <th class="p-4 text-right">Tunggakan</th>
-                    </tr>
-                </thead>
-                <tbody id="tbl-modal-sector" class="divide-y divide-slate-100 dark:divide-slate-800">
-                    <!-- Data akan disuntikkan secara dinamis di sini -->
-                </tbody>
-            </table>
-        </div>
-        
-        <!-- Footer (Summary) -->
-        <!-- Footer (Summary) -->
-        <div class="p-3 sm:p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 grid grid-cols-3 gap-2 text-[9px] sm:text-xs font-bold text-slate-500">
-            <!-- Kotak 1: Total Semua KOL -->
-            <div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-xl text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800/50 flex flex-col justify-center items-center text-center shadow-inner">
-                <span class="uppercase tracking-wider">TOTAL (<span id="modal-sector-count">0</span> NOA)</span>
-                <span id="modal-sector-os" class="font-black text-[11px] sm:text-base mt-1">Rp 0</span>
-            </div>
-            <!-- Kotak 2: KKR (KOL 2-5) -->
-            <div class="bg-yellow-50 dark:bg-yellow-900/30 p-2 rounded-xl text-yellow-700 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-800/50 flex flex-col justify-center items-center text-center shadow-inner">
-                <span class="uppercase tracking-wider">KKR (KOL 2-5)</span>
-                <span id="modal-sector-kkr" class="font-black text-[11px] sm:text-base mt-1 text-yellow-600">Rp 0</span>
-                <span id="modal-sector-pct-kkr" class="bg-yellow-200 dark:bg-yellow-800/80 text-yellow-800 dark:text-yellow-100 px-2 py-0.5 rounded-full text-[8px] mt-1 shadow-sm">0%</span>
-            </div>
-            <!-- Kotak 3: NPL (KOL 3-5) -->
-            <div class="bg-red-50 dark:bg-red-900/30 p-2 rounded-xl text-red-600 dark:text-red-400 border border-red-100 dark:border-red-800/50 flex flex-col justify-center items-center text-center shadow-inner">
-                <span class="uppercase tracking-wider">NPL (KOL 3-5)</span>
-                <span id="modal-sector-npl" class="font-black text-[11px] sm:text-base mt-1 text-red-500">Rp 0</span>
-                <span id="modal-sector-pct-npl" class="bg-red-200 dark:bg-red-800/80 text-red-800 dark:text-red-100 px-2 py-0.5 rounded-full text-[8px] mt-1 shadow-sm">0%</span>
-            </div>
-        </div>
-    </div>
-</div>
+  
   <!-- ======================================================= -->
 
    <!-- App Javascript -->
