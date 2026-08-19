@@ -3467,66 +3467,82 @@ window.filterCreditTable = function(keyword) {
   }
 
   function showDetailModal(r) {
-    if(el('loader')) el('loader').style.display = 'none'; 
-    if(!r) { alert("Data Detail tidak ditemukan."); return; } 
-    el('modalDetail').classList.remove('hidden');
-    
-    // Helper row untuk tabel
-    const row = (l, v, m, b) => `<div class="flex justify-between py-2 border-b dark:border-slate-700"><span class="text-sm text-gray-500">${l}</span><span class="text-sm ${m?'font-mono':''} ${b?'font-bold text-gray-800 dark:text-white':'text-gray-600 dark:text-gray-300'}">${v}</span></div>`;
-    
-    // Logika Strategi Remedial
-    let remedial = ""; 
-    if(r.kol === 1) remedial = "✅ Maintain: Lakukan courtesy call per 3 bulan. Tawarkan Top Up jika lancar > 1 tahun."; 
-    else if(r.kol === 2) remedial = "⚠️ Restrukturisasi: Analisa arus kas. Pertimbangkan perpanjangan tenor untuk menurunkan angsuran."; 
-    else remedial = "🚨 Eksekusi: Kirim SP 1-3. Siapkan berkas lelang agunan atau hapus buku jika tidak ada harapan.";
-    
-    // PERBAIKAN 2: Menghitung Tenor (karena getDebtorDetailFull mengembalikan string tanggal, bukan tenor)
-    let tenor = 0;
-    if(r.mulai && r.selesai) {
-        let pDate = (d) => { let p=d.split('/'); return new Date(p[2], p[1]-1, p[0]); }; // Parser dd/mm/yyyy
-        let t1 = pDate(r.mulai);
-        let t2 = pDate(r.selesai);
-        if(!isNaN(t1) && !isNaN(t2)) tenor = Math.round((t2 - t1) / (1000 * 60 * 60 * 24 * 30.44));
-    }
+      if(el('loader')) el('loader').style.display = 'none'; 
+      if(!r) { alert("Data Detail tidak ditemukan."); return; } 
+      el('modalDetail').classList.remove('hidden');
 
-    // PERBAIKAN 3: Tombol Chat mengirim 11 PARAMETER LENGKAP (PK, Tgl PK, Tenor, Plafond, Rek)
-    let btnText = (r.hp && r.hp.length > 5) ? "Chat Penagihan WA" : "Salin Script (No HP Kosong)"; 
-    let btnColor = (r.hp && r.hp.length > 5) ? "bg-green-600 hover:bg-green-700" : "bg-gray-600 hover:bg-gray-700"; 
-    
-    // Perhatikan urutan parameter harus sama persis dengan fungsi sendWA yang baru
-    let waBtn = `<button onclick="app.sendWA('${r.hp}','${r.nama}','${r.total_tgk}',${r.kol},'${r.loan}','${r.tgl_bayar}','${r.pk}','${r.mulai}',${tenor},${r.plafond},'${r.rek}')" class="w-full mt-4 ${btnColor} text-white py-2 rounded-lg font-bold shadow flex items-center justify-center gap-2"><i class="fab fa-whatsapp text-lg"></i> ${btnText}</button>`;
-    
-    // Render HTML
-    el('detailContent').innerHTML = `
-        <div class="bg-brand-50 dark:bg-slate-700 p-4 rounded-xl mb-4">
-            <h3 class="text-lg font-bold text-brand-700 dark:text-brand-300">${r.nama}</h3>
-            <div class="text-xs text-brand-600/70 mt-1">${r.loan}</div>
-            <div class="mt-2 text-xs"><span class="font-bold">${r.type}</span> | <span class="bg-white dark:bg-slate-800 px-2 rounded shadow-sm">${r.gol}</span></div>
-        </div>
-        <div class="space-y-1">
-            ${row('Nasabah ID', r.nasabah)} 
-            ${row('No PK', r.pk)} 
-            ${row('Plafond', fmt(r.plafond), true)} 
-            ${row('Baki Debet', fmt(r.os), true, true)} 
-            ${row('Bunga %', r.bunga)} 
-            ${row('Jangka Waktu', `${r.mulai} - ${r.selesai} (${tenor} bln)`)} 
-            ${row('Sektor Ekonomi', r.sektor)}
-        </div>
-        <div class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900 rounded-xl p-3 mt-4">
-            <div class="text-xs font-bold text-red-500 uppercase mb-2">Tunggakan (Kolektibilitas ${r.kol})</div>
-            <div class="flex justify-between text-sm mb-1"><span>Pokok</span><span class="font-mono">${fmt(r.tgk_pokok)}</span></div>
-            <div class="flex justify-between text-sm mb-1"><span>Bunga</span><span class="font-mono">${fmt(r.tgk_bunga)}</span></div>
-            <div class="flex justify-between text-sm font-bold text-red-700 border-t border-red-200 pt-2 mt-2"><span>Total</span><span class="font-mono">${fmt(r.total_tgk)}</span></div>
-        </div>
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 rounded-xl p-3 mt-4">
-            <div class="text-xs font-bold text-blue-600 uppercase mb-1">🤖 Remedial Strategy</div>
-            <div class="text-xs text-blue-800 dark:text-blue-200 leading-relaxed">${remedial}</div>
-        </div>
-        <div class="mt-4 text-xs text-gray-400 flex items-center">
-            <i class="fas fa-map-marker-alt mr-2"></i> ${r.alamat} 
-            <a href="javascript:void(0)" onclick="window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('${r.alamat}'))" class="ml-auto text-blue-500 font-bold hover:underline text-xs">Lihat Peta</a>
-        </div>
-        ${waBtn}`;
+      // Helper row yang lebih compact (text-xs)
+      const row = (l, v, m, b) => `<div class="flex justify-between py-1.5 border-b border-dashed border-slate-100 dark:border-slate-700/50"><span class="text-xs text-slate-500">${l}</span><span class="text-xs ${m?'font-mono':''} ${b?'font-black text-slate-800 dark:text-white':'font-bold text-slate-600 dark:text-slate-300'} text-right">${v}</span></div>`;
+
+      // Logika Strategi Remedial
+      let remedial = ""; 
+      if(r.kol === 1) remedial = "✅ Maintain: Lakukan courtesy call per 3 bulan. Tawarkan Top Up jika lancar > 1 tahun."; 
+      else if(r.kol === 2) remedial = "⚠️ Restrukturisasi: Analisa arus kas. Pertimbangkan perpanjangan tenor untuk menurunkan angsuran."; 
+      else remedial = "🚨 Eksekusi: Kirim SP 1-3. Siapkan berkas lelang agunan atau hapus buku jika tidak ada harapan.";
+
+      let tenor = 0;
+      if(r.mulai && r.selesai) {
+          let pDate = (d) => { let p=d.split('/'); return new Date(p[2], p[1]-1, p[0]); }; 
+          let t1 = pDate(r.mulai); let t2 = pDate(r.selesai);
+          if(!isNaN(t1) && !isNaN(t2)) tenor = Math.round((t2 - t1) / (1000 * 60 * 60 * 24 * 30.44));
+      }
+
+      let btnText = (r.hp && r.hp.length > 5) ? "Chat Penagihan WA" : "Salin Script (HP Kosong)"; 
+      let btnColor = (r.hp && r.hp.length > 5) ? "bg-green-600 hover:bg-green-700 shadow-green-500/30" : "bg-slate-600 hover:bg-slate-700 shadow-slate-500/30"; 
+
+      let waBtn = `<button onclick="app.sendWA('${r.hp}','${r.nama}','${r.total_tgk}',${r.kol},'${r.loan}','${r.tgl_bayar}','${r.pk}','${r.mulai}',${tenor},${r.plafond},'${r.rek}')" class="w-full mt-4 ${btnColor} text-white py-3 rounded-xl text-xs font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"><i class="fab fa-whatsapp text-base"></i> ${btnText}</button>`;
+
+      el('detailContent').innerHTML = `
+          <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl mb-4 border border-blue-100 dark:border-blue-800/50">
+              <h3 class="text-sm font-black text-blue-800 dark:text-blue-300 leading-tight">${r.nama}</h3>
+              <div class="text-[10px] font-mono text-blue-600/70 dark:text-blue-400 mt-0.5">${r.loan}</div>
+              <div class="mt-1.5 flex items-center gap-1">
+                  <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.type}</span>
+                  <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.gol}</span>
+              </div>
+          </div>
+          
+          <div class="space-y-0.5 px-1">
+              ${row('Nasabah ID', r.nasabah)} 
+              ${row('No PK', r.pk)} 
+              ${row('Plafond', fmt(r.plafond), true)} 
+              ${row('Baki Debet', fmt(r.os), true, true)} 
+              ${row('Bunga %', r.bunga)} 
+              ${row('Jangka Waktu', `${r.mulai} - ${r.selesai} <span class="text-[9px] text-slate-400">(${tenor} bln)</span>`)} 
+              ${row('Sektor', (r.sektor || 'UMUM').substring(0, 25) + '...')}
+          </div>
+          
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-xl p-3 mt-4">
+              <div class="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1.5">Tunggakan (KOL ${r.kol})</div>
+              <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-500">Pokok</span>
+                  <span class="font-mono font-bold text-slate-700 dark:text-slate-300">${fmt(r.tgk_pokok)}</span>
+              </div>
+              <div class="flex justify-between text-xs mb-1">
+                  <span class="text-slate-500">Bunga</span>
+                  <span class="font-mono font-bold text-slate-700 dark:text-slate-300">${fmt(r.tgk_bunga)}</span>
+              </div>
+              <div class="flex justify-between text-xs font-black text-red-600 dark:text-red-400 border-t border-red-200 dark:border-red-800/50 pt-1.5 mt-1.5">
+                  <span>Total</span>
+                  <span class="font-mono">${fmt(r.total_tgk)}</span>
+              </div>
+          </div>
+          
+          <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl p-3 mt-4">
+              <div class="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-1">🤖 Remedial Strategy</div>
+              <div class="text-[10px] text-amber-800 dark:text-amber-200 font-medium leading-relaxed">${remedial}</div>
+          </div>
+          
+          <div class="mt-4 flex items-center justify-between bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700">
+              <div class="flex items-center gap-2 text-[10px] text-slate-500 flex-1 truncate pr-2">
+                  <i class="fas fa-map-marker-alt text-rose-500 text-sm"></i> 
+                  <span class="truncate font-medium">${r.alamat}</span>
+              </div>
+              <button onclick="window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('${r.alamat}'))" class="text-blue-500 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 px-3 py-1.5 rounded-lg font-bold text-[10px] shrink-0 transition-colors">
+                  Peta
+              </button>
+          </div>
+          ${waBtn}`;
   }
 
   function getWA() { if(el('loader')) el('loader').style.display='flex'; google.script.run.withSuccessHandler(txt => { if(el('loader')) el('loader').style.display='none'; el('waText').value = txt; el('modalWA').classList.remove('hidden'); }).getWAReport(s.filter.b, s.filter.d, s.filter.c); }
