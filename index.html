@@ -332,15 +332,30 @@
                <div id="bdg_v_cons" class="hidden"></div>
             </div>
 
-            <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
-               <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-5xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
-               <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1 pr-1">
-                     <div class="text-[8px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
-                     <div class="text-[11px] md:text-xs font-black text-slate-800 dark:text-white truncate" id="v_branch_top">Memuat Data...</div>
+            <!-- KARTU KOMPARASI UNIT (FEATURED / HIGHLIGHTED) -->
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] ring-2 ring-purple-400/40 dark:ring-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] group transition-all duration-300 bg-gradient-to-br from-purple-50/80 to-white dark:from-purple-900/20 dark:to-slate-800/80 cursor-pointer relative overflow-hidden hover:-translate-y-1" onclick="if(app && app.openBranchModal) app.openBranchModal()">
+               
+               <!-- Efek Label "NEW" Berdenyut -->
+               <div class="absolute top-0 right-0 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[7px] md:text-[8px] font-black px-2.5 py-0.5 rounded-bl-xl shadow-md flex items-center gap-1.5 z-20">
+                   <span class="relative flex h-1.5 w-1.5">
+                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                     <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                   </span>
+                   NEW ✨
+               </div>
+
+               <!-- Watermark Ikon Latar Belakang -->
+               <div class="absolute -right-2 -bottom-2 opacity-[0.04] text-6xl group-hover:scale-125 transition-transform duration-500"><i class="fas fa-network-wired text-purple-600"></i></div>
+               
+               <!-- Konten Utama -->
+               <div class="flex justify-between items-center z-10 relative pt-1 md:pt-0">
+                  <div class="min-w-0 flex-1 pr-2">
+                     <div class="text-[8px] md:text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
+                     <div class="text-[11px] md:text-xs font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_branch_top">Memuat Data...</div>
                   </div>
-                  <div class="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
-                     <i class="fas fa-chart-bar text-[10px]"></i>
+                  <!-- Ikon Eksklusif Solid Gradient -->
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform shadow-lg shadow-purple-500/40">
+                     <i class="fas fa-chart-bar text-sm"></i>
                   </div>
                </div>
             </div>
