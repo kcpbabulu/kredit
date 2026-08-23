@@ -8430,6 +8430,62 @@ function exportBranchPDF() {
   function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light'); }
   // --- PUBLIC API EXPORT ---
   // --- PUBLIC API EXPORT ---
+
+
+
+ // =================================================================
+// FUNGSI RENDER TABEL GLOBAL (MEMPERBAIKI ERROR renderTableRaw)
+// =================================================================
+window.renderTableRaw = function(tableId, rows) {
+    const body = document.getElementById(tableId); 
+    if(!body) return;
+    
+    const fmtIDR = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+
+    if(!rows || rows.length === 0) { 
+        body.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-[10px] font-black uppercase tracking-widest text-slate-400 bg-slate-50/50 dark:bg-slate-900/50 rounded-b-xl"><i class="fas fa-ghost text-xl mb-2 block"></i> Data Bersih / Kosong</td></tr>`; 
+        return;
+    }
+
+    body.innerHTML = rows.map((r, idx) => { 
+        let k = parseInt(r.kol) || 1;
+        
+        // Konfigurasi Warna Badge Kolektibilitas
+        let bgKol = k >= 3 ? 'bg-red-100 dark:bg-red-900/40 text-red-600 border-red-200' : (k == 2 ? 'bg-orange-100 dark:bg-orange-900/40 text-orange-600 border-orange-200' : 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 border-emerald-200');
+        
+        // Membersihkan nama dari tanda kutip agar tidak merusak fungsi klik
+        let safeNama = String(r.nama || '-').replace(/'/g, "\\'");
+
+        return `
+        <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/80 transition-colors group cursor-pointer animate-fade-in border-b border-slate-100/50 dark:border-slate-800/50" style="animation-delay: ${Math.min(idx * 20, 400)}ms" onclick="if(window.app && window.app.fetchDetail) window.app.fetchDetail('${r.loan}')">
+            
+            <td class="p-2.5 md:p-3 align-middle">
+                <div class="font-black text-[10px] md:text-xs text-slate-800 dark:text-white group-hover:text-blue-600 transition-colors truncate w-32 md:w-auto uppercase">${safeNama}</div>
+                <div class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-0.5 font-mono flex items-center gap-1"><i class="fas fa-fingerprint opacity-50 text-blue-400"></i>${r.loan}</div>
+            </td>
+            
+            <td class="p-2.5 md:p-3 text-center align-middle hidden sm:table-cell">
+                <span class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-slate-200/50 dark:border-slate-700 shadow-sm">${r.br || '-'}</span>
+            </td>
+            
+            <td class="p-2.5 md:p-3 text-center align-middle">
+                <span class="inline-flex items-center justify-center min-w-[30px] px-1.5 py-0.5 rounded shadow-sm text-[9px] font-black border ${bgKol}">
+                    KOL ${k}
+                </span>
+            </td>
+            
+            <td class="p-2.5 md:p-3 text-right align-middle hidden lg:table-cell">
+                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 font-mono tracking-tighter">${fmtIDR(r.plafond)}</div>
+            </td>
+            
+            <td class="p-2.5 md:p-3 text-right align-middle">
+                <div class="font-mono font-black text-slate-800 dark:text-white text-[11px] md:text-xs group-hover:scale-105 group-hover:text-blue-600 transition-all origin-right tracking-tighter">${fmtIDR(r.os)}</div>
+            </td>
+            
+        </tr>`; 
+    }).join('');
+};
+    
   return {
     state: s, 
 
