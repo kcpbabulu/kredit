@@ -239,53 +239,125 @@
 
     <div class="flex-1 overflow-y-auto p-0 space-y-0 mobile-scroll">
       
-     <!-- 1. DASHBOARD -->
-      <div id="view-dash" class="tab-view fade-in p-4 md:p-6 space-y-6">
+    <main class="flex-1 flex flex-col md:ml-0 h-full relative w-full overflow-hidden bg-transparent">
+    
+   <!-- HEADER ATAS MELAYANG (COMPACT & MODERN) -->
+   <div class="px-3 py-2 md:px-6 md:pt-4 shrink-0 z-40">
+     <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl border border-white/50 dark:border-slate-700 rounded-[1.5rem] flex flex-col xl:flex-row items-center justify-between px-4 md:px-5 py-2.5 shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition-all duration-300">
+        
+        <!-- Kiri: Judul & Sync -->
+        <div class="w-full xl:w-auto flex items-center justify-between md:justify-start mb-3 xl:mb-0 gap-4">
+          <div class="flex items-center gap-3">
+              <button onclick="app.toggleSidebar()" class="md:hidden p-2 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 transition-active shadow-sm border border-slate-100 dark:border-slate-600">
+                <i class="fas fa-bars-staggered text-base"></i>
+              </button>
+              <div class="flex flex-col">
+                <h1 class="font-black text-lg md:text-xl tracking-tight text-slate-800 dark:text-white uppercase italic flex items-center gap-1.5">
+                  <i class="fas fa-shield-halved text-blue-600"></i> <span>Dashboard <span class="text-blue-600">Kredit</span></span>
+                </h1>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></span>
+                  <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    Sync: <span id="headerDate" class="text-slate-600 dark:text-slate-300 font-black">...</span>
+                  </span>
+                </div>
+              </div>
+          </div>
+          <!-- Tombol Tema Mobile Pindah Kesini -->
+          <button onclick="app.toggleTheme()" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95">
+             <i class="fas fa-moon"></i>
+          </button>
+        </div>
+
+        <!-- Kanan: Filter Kapsul & Tools PC -->
+        <div class="w-full xl:w-auto flex items-center justify-between xl:justify-end gap-3 no-print overflow-x-auto custom-scrollbar-hide pb-1 xl:pb-0">
+          <div class="flex items-center p-1 bg-white/60 dark:bg-slate-900/60 rounded-full border border-white/60 dark:border-slate-700 shadow-inner flex-shrink-0">
+            <div class="flex items-center pl-2.5 text-blue-500"><i class="fas fa-building-columns text-[10px]"></i></div>
+            <select id="selBranch" onchange="app.refresh()" class="bg-transparent border-none text-[11px] font-black py-1.5 pr-5 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[100px] cursor-pointer appearance-none outline-none"></select>
+            <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+            
+            <div class="flex items-center pl-2 text-orange-500"><i class="fas fa-calendar-day text-[10px]"></i></div>
+            <select id="selDate" onchange="app.onDateChange()" class="bg-transparent border-none text-[11px] font-black py-1.5 pr-5 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[90px] cursor-pointer appearance-none outline-none"></select>
+            <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+            
+            <select id="selComp" onchange="app.refresh()" class="bg-transparent border-none text-[11px] font-black py-1.5 pr-5 pl-2 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[90px] cursor-pointer appearance-none outline-none"></select>
+          </div>
+
+          <div class="hidden md:flex items-center gap-2 shrink-0">
+            <button onclick="app.toggleTheme()" class="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95 group">
+              <i id="themeIcon" class="fas fa-moon group-hover:rotate-12 transition-transform"></i>
+            </button>
+            <button onclick="window.print()" class="w-9 h-9 rounded-full bg-blue-600 text-white hover:shadow-md hover:shadow-blue-500/40 transition-all flex items-center justify-center active:scale-95 group">
+              <i class="fas fa-print group-hover:scale-110 transition-transform text-xs"></i>
+            </button>
+          </div>
+        </div>
+     </header>
+   </div>
+
+    <!-- AREA KONTEN (TABS) DENGAN PADDING COMPACT -->
+    <!-- Tambahan pb-24 md:pb-6 agar konten bawah tidak tertutup Bottom Nav HP -->
+    <div class="flex-1 overflow-y-auto p-0 pb-24 md:pb-6 space-y-0 mobile-scroll custom-scrollbar">
+      
+      <!-- 1. DASHBOARD -->
+      <div id="view-dash" class="tab-view fade-in p-3 md:p-6 space-y-4 md:space-y-6 bg-transparent">
          
-         <!-- Baris 1: 4 KPI Utama -->
-         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-kredit')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Outstanding</div><div class="text-xl font-bold mt-1 text-gray-800 dark:text-white" id="v_os">...</div></div>
-                  <div class="p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors"><i class="fas fa-wallet text-3xl grad-icon grad-blue"></i></div>
+         <!-- Baris 1: 4 KPI Utama (Compact Bento) -->
+         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-blue-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-blue-900/10 cursor-pointer" onclick="app.switchTab('view-kredit')">
+               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-wallet text-7xl text-blue-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[9px] md:text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Outstanding</div>
+                     <div class="text-lg md:text-xl font-black text-slate-800 dark:text-white truncate" id="v_os">...</div>
+                  </div>
+                  <div id="bdg_v_os" class="mt-2 hidden"></div>
                </div>
-               <div id="bdg_v_os" class="mt-2 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplall')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">NPL Ratio</div><div class="text-xl font-bold mt-1 text-red-600" id="v_npl">...</div></div>
-                  <div class="p-2 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors"><i class="fas fa-exclamation-triangle text-3xl grad-icon grad-red"></i></div>
+            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-red-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-slate-800 dark:to-red-900/10 cursor-pointer" onclick="app.switchTab('view-nplall')">
+               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-exclamation-triangle text-7xl text-red-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[9px] md:text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">NPL Ratio</div>
+                     <div class="text-lg md:text-xl font-black text-red-600 truncate" id="v_npl">...</div>
+                  </div>
+                  <div id="bdg_rat_npl" class="mt-2"></div>
                </div>
-               <div id="bdg_rat_npl" class="mt-2"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-freshdrop')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">KKR (Kol 2-5)</div><div class="text-xl font-bold mt-1 text-pink-600" id="v_kkr">...</div></div>
-                  <div class="p-2 bg-pink-50 rounded-lg group-hover:bg-pink-100 transition-colors"><i class="fas fa-radiation text-3xl grad-icon grad-purple"></i></div>
+            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-pink-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-pink-50/30 dark:from-slate-800 dark:to-pink-900/10 cursor-pointer" onclick="app.switchTab('view-freshdrop')">
+               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-radiation text-7xl text-pink-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[9px] md:text-[10px] font-black text-pink-600 uppercase tracking-widest mb-1">KKR (Kol 2-5)</div>
+                     <div class="text-lg md:text-xl font-black text-pink-600 truncate" id="v_kkr">...</div>
+                  </div>
+                  <div id="bdg_v_kkr" class="mt-2 hidden"></div>
                </div>
-               <div id="bdg_v_kkr" class="mt-2 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-collection')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Tunggakan</div><div class="text-xl font-bold mt-1 text-orange-600" id="v_tgk">...</div></div>
-                  <div class="p-2 bg-orange-50 rounded-lg group-hover:bg-orange-100 transition-colors"><i class="fas fa-clock text-3xl grad-icon grad-orange"></i></div>
+            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-orange-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-orange-50/30 dark:from-slate-800 dark:to-orange-900/10 cursor-pointer" onclick="app.switchTab('view-collection')">
+               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-clock text-7xl text-orange-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between">
+                  <div>
+                     <div class="text-[9px] md:text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Total Tunggakan</div>
+                     <div class="text-lg md:text-xl font-black text-orange-600 truncate" id="v_tgk">...</div>
+                  </div>
+                  <div id="bdg_v_tgk" class="mt-2 hidden"></div>
                </div>
-               <div id="bdg_v_tgk" class="mt-2 hidden"></div>
             </div>
          </div>
          
-         <!-- Baris 2: 4 KPI Tambahan (Mini Bento) -->
+         <!-- Baris 2: 4 KPI Tambahan (Mini Bento Box) -->
          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-mutasi')">
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1">
+                  <div class="min-w-0 flex-1 pr-2">
                      <div class="text-[8px] md:text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest truncate">Debitur (NOA)</div>
-                     <div class="text-sm md:text-lg font-black text-slate-800 dark:text-white truncate" id="v_noa">...</div>
+                     <div class="text-sm md:text-lg font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_noa">...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-inner">
                      <i class="fas fa-users text-sm md:text-base"></i>
                   </div>
                </div>
@@ -294,11 +366,11 @@
             
             <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-teal-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplprod')">
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1">
+                  <div class="min-w-0 flex-1 pr-2">
                      <div class="text-[8px] md:text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest truncate">Produktif</div>
-                     <div class="text-sm md:text-lg font-black text-teal-600 truncate" id="v_prod">...</div>
+                     <div class="text-sm md:text-lg font-black text-teal-600 truncate mt-0.5" id="v_prod">...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform">
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform shadow-inner">
                      <i class="fas fa-industry text-sm md:text-base"></i>
                   </div>
                </div>
@@ -307,66 +379,78 @@
             
             <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-indigo-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1">
+                  <div class="min-w-0 flex-1 pr-2">
                      <div class="text-[8px] md:text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest truncate">Konsumtif</div>
-                     <div class="text-sm md:text-lg font-black text-indigo-600 truncate" id="v_cons">...</div>
+                     <div class="text-sm md:text-lg font-black text-indigo-600 truncate mt-0.5" id="v_cons">...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
                      <i class="fas fa-home text-sm md:text-base"></i>
                   </div>
                </div>
                <div id="bdg_v_cons" class="mt-1 hidden"></div>
             </div>
 
-            <!-- KARTU DASHBOARD (TIMPA KARTU KOMPARASI UNIT LAMA ANDA) -->
-<div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
-   <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-6xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
-   <div class="flex justify-between items-center z-10 relative">
-      <div class="min-w-0 flex-1">
-         <div class="text-[8px] md:text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
-         <div class="text-xs md:text-sm font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_branch_top">Memuat Data...</div>
-      </div>
-      <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
-         <i class="fas fa-chart-bar text-sm md:text-base"></i>
-      </div>
-   </div>
-   <div class="mt-1.5 flex justify-between items-center text-[8px] md:text-[9px] font-bold text-slate-500 z-10 relative">
-       <span class="truncate bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">Ketuk lihat Matrix OS & NPL</span>
-       <i class="fas fa-chevron-right text-purple-400 animate-pulse"></i>
-   </div>
-</div>
-           
+            <!-- KARTU KOMPARASI UNIT (Kodingan Asli Anda) -->
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
+               <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-6xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
+               <div class="flex justify-between items-center z-10 relative">
+                  <div class="min-w-0 flex-1 pr-2">
+                     <div class="text-[8px] md:text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
+                     <div class="text-sm md:text-lg font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_branch_top">Memuat Data...</div>
+                  </div>
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
+                     <i class="fas fa-chart-bar text-sm md:text-base"></i>
+                  </div>
+               </div>
+               <div class="mt-1 flex justify-between items-center text-[8px] md:text-[9px] font-bold text-slate-500 z-10 relative">
+                   <span class="truncate">Klik lihat matriks cabang</span>
+                   <i class="fas fa-chevron-right text-purple-400 animate-pulse"></i>
+               </div>
+            </div>
+         </div>
+         
          <!-- Baris 3: Sebaran Sektor & Top NPL -->
-         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+         <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             
             <!-- KARTU SEBARAN SEKTOR (INTERACTIVE LIST) -->
-            <div class="glass-card rounded-xl p-4 lg:col-span-1 flex flex-col h-chart-lg max-h-[500px]">
-               <div class="font-bold text-sm mb-4 text-gray-700 dark:text-white flex items-center gap-2">
-                  <i class="fas fa-chart-pie grad-icon grad-purple"></i> Sebaran Sektor
+            <div class="glass-card rounded-[1.5rem] overflow-hidden flex flex-col lg:col-span-1 h-[400px] md:h-[480px] shadow-md border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60">
+               <div class="p-3.5 border-b border-white/40 dark:border-slate-800 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 flex items-center gap-2.5 shrink-0">
+                  <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/50 text-violet-600 flex items-center justify-center shadow-inner text-sm"><i class="fas fa-chart-pie"></i></div>
+                  <div>
+                      <div class="font-black text-xs uppercase tracking-widest text-slate-800 dark:text-white">Sebaran Sektor</div>
+                      <div class="text-[9px] font-bold text-slate-500 mt-0.5">Distribusi Portofolio PPU</div>
+                  </div>
                </div>
                <!-- Wadah Scroll Sektor -->
-               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar pr-2 space-y-3">
+               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar p-2.5 space-y-2">
                   <!-- Data kartu sektor akan disuntikkan oleh app.js di sini -->
                </div>
             </div>
             
             <!-- KARTU TOP NPL -->
-            <div class="glass-card rounded-xl overflow-hidden lg:col-span-2 flex flex-col h-chart-lg max-h-[500px]">
-               <div class="p-4 border-b border-gray-100 dark:border-slate-700 font-bold text-gray-800 dark:text-white text-sm flex items-center gap-2">
-                  <i class="fas fa-list-ol grad-icon grad-red"></i> Top NPL (Global)
+            <div class="glass-card rounded-[1.5rem] overflow-hidden flex flex-col lg:col-span-2 h-[400px] md:h-[480px] shadow-md border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60">
+               <div class="p-3.5 border-b border-white/40 dark:border-slate-800 bg-gradient-to-r from-red-500/10 to-rose-500/10 flex justify-between items-center shrink-0">
+                  <div class="flex items-center gap-2.5">
+                      <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 flex items-center justify-center shadow-inner text-sm"><i class="fas fa-list-ol"></i></div>
+                      <div>
+                          <div class="font-black text-xs uppercase tracking-widest text-slate-800 dark:text-white">Top NPL Global</div>
+                          <div class="text-[9px] font-bold text-slate-500 mt-0.5">Debitur Risiko Tinggi</div>
+                      </div>
+                  </div>
+                  <span class="bg-red-100 dark:bg-red-900/40 text-red-600 px-2 py-0.5 rounded text-[9px] font-black uppercase shadow-sm border border-red-200 dark:border-red-800/50">Kritis</span>
                </div>
-               <div class="overflow-y-auto custom-scrollbar flex-1">
-                  <table class="w-full text-left text-sm whitespace-nowrap">
-                     <thead class="bg-gray-50 dark:bg-slate-700/50 text-gray-500 sticky top-0 z-10 backdrop-blur-sm">
-                        <tr>
-                           <th class="p-3">Nama / Loan</th>
-                           <th class="p-3">Unit</th>
+               <div class="overflow-y-auto custom-scrollbar flex-1 px-1">
+                  <table class="w-full text-left text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
+                     <thead class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-500 sticky top-0 z-10 rounded-lg shadow-sm">
+                        <tr class="text-[9px] uppercase font-black tracking-widest">
+                           <th class="p-3 rounded-l-lg">Nama / Loan</th>
+                           <th class="p-3 hidden sm:table-cell text-center">Unit</th>
                            <th class="p-3 text-center">Kol</th>
-                           <th class="p-3 text-right">Plafond</th>
-                           <th class="p-3 text-right">Baki</th>
+                           <th class="p-3 text-right hidden lg:table-cell">Plafond</th>
+                           <th class="p-3 text-right rounded-r-lg">Baki Debet</th>
                         </tr>
                      </thead>
-                     <tbody id="tblTop" class="divide-y divide-gray-100 dark:divide-slate-700/50">
+                     <tbody id="tblTop" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50">
                         <!-- Data Tabel Top NPL -->
                      </tbody>
                   </table>
@@ -375,6 +459,8 @@
             
          </div>
       </div>
+    </div>
+
 
       <!-- 2. JATUH TEMPO -->
       <div id="view-maturity" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
