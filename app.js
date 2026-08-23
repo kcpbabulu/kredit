@@ -8588,6 +8588,9 @@ function exportBranchPDF() {
     closeBranchModal: closeBranchModal,
     exportBranchWA: exportBranchWA,        
     exportBranchPDF: exportBranchPDF,
+    handleSearchEnter: window.handleSearchEnter,
+    resetSearchCredit: window.resetSearchCredit,
+    sortKredit: window.sortKredit,
     togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
