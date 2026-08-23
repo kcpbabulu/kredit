@@ -7997,11 +7997,18 @@ function executeDeleteSheets() {
   }
 
 // --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE COMPACT) ---
+// --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE COMPACT & SAFE VISIBILITY) ---
 function openBranchModal() {
-    // 1. Cek Data State
-    const stats = app.state.branch_perf;
+    // 1. Ambil data dengan aman dari memori aplikasi
+    let stats = null;
+    if (typeof s !== 'undefined' && s.branch_perf) {
+        stats = s.branch_perf;
+    } else if (typeof app !== 'undefined' && app.state && app.state.branch_perf) {
+        stats = app.state.branch_perf;
+    }
+
     if(!stats || Object.keys(stats).length === 0) {
-        alert("Data komparasi unit belum tersedia. Cek sinkronisasi data.");
+        alert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data selesai.");
         return;
     }
 
@@ -8011,86 +8018,100 @@ function openBranchModal() {
     let html = '';
     const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
-    const sortedBranches = Object.keys(stats).sort((a,b) => stats[b].os - stats[a].os);
-    let globalOs = 0; Object.values(stats).forEach(v => globalOs += v.os);
+    // Urutkan dari Eksposur paling besar
+    const sortedBranches = Object.keys(stats).sort((a,b) => (stats[b].os || 0) - (stats[a].os || 0));
+    
+    let globalOs = 0;
+    Object.values(stats).forEach(v => globalOs += (v.os || 0));
 
-    // 2. Loop Data per Cabang
+    // 2. Render Kartu
     sortedBranches.forEach((br, i) => {
         const d = stats[br];
         const pNpl = d.os > 0 ? (d.npl / d.os * 100).toFixed(2) : 0;
         const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
         const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
 
-        let diffOs = d.os - (d.prev_os || 0);
-        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(1) : 0;
+        // Perhitungan Growth
+        let diffOs = (d.os || 0) - (d.prev_os || 0);
+        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(2) : ((d.os || 0) > 0 ? 100 : 0);
+        
         let growthColor = diffOs >= 0 ? 'text-emerald-700 bg-emerald-100 border-emerald-200' : 'text-rose-700 bg-rose-100 border-rose-200';
-        let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white animate-pulse-slow shadow-sm' : (pNpl > 0 ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700');
+        let growthIcon = diffOs >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        let sign = diffOs >= 0 ? '+' : '';
 
+        // Hiasan Peringkat Risiko
+        let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white shadow-sm border-transparent animate-pulse' : (pNpl > 0 ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
+
+        // [KUNCI PERBAIKAN]: Kelas 'opacity-0' DIHAPUS agar kartu PASTI MUNCUL tanpa risiko nyangkut transparan. Kita pakai 'animate-pop-in' murni.
         html += `
-        <div class="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-3 md:p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/50 hover:shadow-md transition-all opacity-0 transform translate-y-4 animate-fade-in" style="animation-delay: ${i * 40}ms; animation-fill-mode: forwards;">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-purple-300 transition-all animate-pop-in" style="animation-delay: ${i * 30}ms;">
             
-            <div class="flex justify-between items-start mb-2.5 border-b border-dashed border-slate-200 dark:border-slate-700 pb-2.5">
-                <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-200 dark:border-purple-800/50 shrink-0">
-                        <i class="fas fa-building text-xs md:text-sm"></i>
+            <!-- ROW 1: Header Cabang & Growth -->
+            <div class="flex justify-between items-start mb-3 border-b border-dashed border-slate-200 dark:border-slate-700 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-200 dark:border-purple-800/50 shrink-0">
+                        <i class="fas fa-building text-sm"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="font-black text-xs md:text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
-                        <div class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-0.5 flex flex-wrap items-center gap-1">
-                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm"><i class="fas fa-users text-blue-400"></i> ${d.noa} NOA</span>
-                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm">Porsi: ${pPort}%</span>
+                        <div class="font-black text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
+                        <div class="text-[9px] font-bold text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-slate-100 dark:bg-slate-900/50 px-2 py-0.5 rounded shadow-sm"><i class="fas fa-users text-blue-400"></i> ${d.noa || 0} NOA</span>
+                            <span class="bg-slate-100 dark:bg-slate-900/50 px-2 py-0.5 rounded shadow-sm">Porsi: ${pPort}%</span>
                         </div>
                     </div>
                 </div>
-                <div class="text-right shrink-0">
-                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-xs md:text-sm">${fmtIDR(d.os)}</div>
-                    <div class="inline-flex items-center gap-1 mt-0.5 text-[8px] md:text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm border ${growthColor}">
-                        ${diffOs >= 0 ? '▲ +' : '▼ -'}${fmtIDR(Math.abs(diffOs))} (${pctGrowth}%)
+                <div class="text-right shrink-0 ml-2">
+                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-sm">${fmtIDR(d.os)}</div>
+                    <div class="inline-flex items-center gap-1 mt-1 text-[8px] font-black px-2 py-1 rounded shadow-sm border ${growthColor}">
+                        <i class="fas ${growthIcon}"></i> ${sign}${fmtIDR(Math.abs(diffOs))} (${sign}${pctGrowth}%)
                     </div>
                 </div>
             </div>
 
-            <div class="flex gap-2 mb-2.5">
-                <div class="flex-1 bg-emerald-50/50 dark:bg-emerald-900/10 p-2 rounded-lg border border-emerald-100/50 dark:border-emerald-800/50 flex justify-between items-center">
+            <!-- ROW 2: Mutasi (Cair & Lunas) -->
+            <div class="flex gap-2 mb-3">
+                <div class="flex-1 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded-xl border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
                     <div class="flex items-center gap-1.5">
                         <i class="fas fa-plus-circle text-emerald-500 text-[10px]"></i>
-                        <span class="text-[8px] md:text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase">Cair</span>
+                        <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase">Cair</span>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[9px] md:text-[10px]">+${fmtIDR(d.cair_os || 0)}</div>
-                        <div class="text-[7px] font-bold text-emerald-600">${d.cair_noa || 0} Rek</div>
+                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[11px]">+${fmtIDR(d.cair_os || 0)}</div>
+                        <div class="text-[8px] font-bold text-emerald-600 mt-0.5">${d.cair_noa || 0} Rek</div>
                     </div>
                 </div>
-                <div class="flex-1 bg-rose-50/50 dark:bg-rose-900/10 p-2 rounded-lg border border-rose-100/50 dark:border-rose-800/50 flex justify-between items-center">
+                <div class="flex-1 bg-rose-50 dark:bg-rose-900/10 p-2 rounded-xl border border-rose-100 dark:border-rose-800/50 flex justify-between items-center">
                     <div class="flex items-center gap-1.5">
                         <i class="fas fa-check-double text-rose-500 text-[10px]"></i>
-                        <span class="text-[8px] md:text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase">Lunas</span>
+                        <span class="text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase">Lunas</span>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[9px] md:text-[10px]">-${fmtIDR(d.lunas_os || 0)}</div>
-                        <div class="text-[7px] font-bold text-rose-600">${d.lunas_noa || 0} Rek</div>
+                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[11px]">-${fmtIDR(d.lunas_os || 0)}</div>
+                        <div class="text-[8px] font-bold text-rose-600 mt-0.5">${d.lunas_noa || 0} Rek</div>
                     </div>
                 </div>
             </div>
 
-            <div class="flex gap-1.5 md:gap-2">
-                <div class="flex-1 bg-slate-50 dark:bg-slate-900/30 p-1.5 md:p-2 rounded-lg border border-slate-100 dark:border-slate-700 shadow-inner flex flex-col justify-center">
-                    <div class="flex justify-between items-center text-[8px] md:text-[9px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
-                    <div class="flex justify-between items-center text-[8px] md:text-[9px] font-bold mt-0.5"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
-                    <div class="flex justify-between items-center text-[8px] md:text-[9px] font-bold mt-0.5"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
+            <!-- ROW 3: Risk & Sektor Detail -->
+            <div class="flex gap-2">
+                <div class="flex-1 bg-slate-50 dark:bg-slate-900/30 p-2 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner flex flex-col justify-center">
+                    <div class="flex justify-between items-center text-[9px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
+                    <div class="flex justify-between items-center text-[9px] font-bold mt-1"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
+                    <div class="flex justify-between items-center text-[9px] font-bold mt-1"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
                 </div>
-                <div class="w-20 md:w-24 bg-orange-50/30 dark:bg-orange-900/10 p-1.5 md:p-2 rounded-lg border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
-                    <span class="text-[7px] md:text-[8px] font-black text-orange-500 uppercase tracking-widest mb-0.5">KKR (2-5)</span>
-                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[9px] md:text-[10px]">${fmtIDR(d.kkr)}</span>
-                    <span class="text-[7px] md:text-[8px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 px-1 py-0.5 rounded mt-0.5">${pKkr}%</span>
+                <div class="w-20 sm:w-24 bg-orange-50/50 dark:bg-orange-900/10 p-2 rounded-xl border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                    <span class="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-1">KKR (2-5)</span>
+                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[10px]">${fmtIDR(d.kkr)}</span>
+                    <span class="text-[8px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 border border-orange-200 dark:border-orange-700 px-1.5 py-0.5 rounded mt-1 shadow-sm">${pKkr}%</span>
                 </div>
-                <div class="w-20 md:w-24 bg-red-50/30 dark:bg-red-900/10 p-1.5 md:p-2 rounded-lg border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
-                    <span class="text-[7px] md:text-[8px] font-black text-red-500 uppercase tracking-widest mb-0.5">NPL (3-5)</span>
-                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[9px] md:text-[10px]">${fmtIDR(d.npl)}</span>
-                    <span class="text-[7px] md:text-[8px] font-bold border px-1 py-0.5 rounded mt-0.5 ${badgeNPL}">${pNpl}%</span>
+                <div class="w-20 sm:w-24 bg-red-50/50 dark:bg-red-900/10 p-2 rounded-xl border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                    <span class="text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">NPL (3-5)</span>
+                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[10px]">${fmtIDR(d.npl)}</span>
+                    <span class="text-[8px] font-bold border px-1.5 py-0.5 rounded mt-1 ${badgeNPL}">${pNpl}%</span>
                 </div>
             </div>
-        </div>`;
+        </div>
+        `;
     });
 
     container.innerHTML = html;
@@ -8100,15 +8121,17 @@ function openBranchModal() {
     const backdrop = document.getElementById('modal-branch-backdrop');
     const content = document.getElementById('modal-branch-content');
 
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex'; 
+    if(modal) {
+        modal.classList.remove('hidden');
+        modal.style.display = 'flex'; 
 
-    if (navigator.vibrate) navigator.vibrate(10);
+        if (navigator.vibrate) navigator.vibrate(10);
 
-    requestAnimationFrame(() => {
-        backdrop.classList.remove('opacity-0');
-        content.classList.remove('translate-y-full'); 
-    });
+        requestAnimationFrame(() => {
+            if(backdrop) backdrop.classList.remove('opacity-0');
+            if(content) content.classList.remove('translate-y-full'); 
+        });
+    }
 }
 
 function closeBranchModal() {
