@@ -8263,24 +8263,32 @@ function initBottomSheetPhysics() {
     internalCloseAll: internalCloseAll,
     toggleSidebar: toggleSidebar,
 
-    // FIX 1: Fungsi penutupan total yang membersihkan overlay dan semua laci
-    closeAllSheets: function() {
-        // Tutup semua Bottom Sheets (Laci)
-        document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
-            sheet.classList.remove('open');
-        });
-        
-        // Tutup Menu Utama
-        const menu = document.getElementById('nativeMenuSheet');
-        if (menu) menu.classList.add('translate-y-full');
+    // FIX 1: Penutupan total overlay, laci, dan SIDEBAR KIRI HP
+      closeAllSheets: function() {
+          // 1. Tutup semua laci bawah (Bottom Sheets)
+          document.querySelectorAll('.custom-bottom-sheet').forEach(sheet => {
+              sheet.classList.remove('open');
+          });
+          
+          // 2. Tutup Master Menu
+          const menu = document.getElementById('nativeMenuSheet');
+          if (menu) menu.classList.add('translate-y-full');
+          
+          // 3. Sembunyikan Overlay Gelap
+          const overlay = document.getElementById('nativeOverlay');
+          if (overlay) overlay.classList.add('hidden');
+          
+          const sideOverlay = document.getElementById('sidebarOverlay');
+          if (sideOverlay) sideOverlay.classList.add('hidden');
 
-        // Sembunyikan Overlay Gelap
-        const overlay = document.getElementById('nativeOverlay');
-        if (overlay) overlay.classList.add('hidden');
-        
-        const sideOverlay = document.getElementById('sidebarOverlay');
-        if (sideOverlay) sideOverlay.classList.add('hidden');
-    },
+          // --- KUNCI PERBAIKAN: TUTUP SIDEBAR KIRI DI HP ---
+          // Ini akan menggeser sidebar kembali ke kiri (-translate-x-full) 
+          // setiap kali sebuah menu diklik, namun tetap aman di tampilan PC.
+          const sidebar = document.getElementById('sidebar');
+          if (sidebar) {
+              sidebar.classList.add('-translate-x-full');
+          }
+      },
 
     // FIX 2: Perbaikan fungsi switchTab (Tutup laci SEBELUM pindah halaman)
     switchTab: function(id) {
