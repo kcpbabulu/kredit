@@ -277,30 +277,63 @@
             </div>
          </div>
          
-         <!-- Baris 2: 3 KPI Tambahan -->
-         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-mutasi')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Debitur (NOA)</div><div class="text-xl font-bold mt-1 text-gray-800 dark:text-white" id="v_noa">...</div></div>
-                  <div class="p-2 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors"><i class="fas fa-users text-3xl grad-icon grad-emerald"></i></div>
+         <!-- Baris 2: 4 KPI Tambahan (Mini Bento) -->
+         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-mutasi')">
+               <div class="flex justify-between items-center z-10 relative">
+                  <div class="min-w-0 flex-1">
+                     <div class="text-[8px] md:text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest truncate">Debitur (NOA)</div>
+                     <div class="text-sm md:text-lg font-black text-slate-800 dark:text-white truncate" id="v_noa">...</div>
+                  </div>
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                     <i class="fas fa-users text-sm md:text-base"></i>
+                  </div>
                </div>
-               <div id="bdg_v_noa" class="mt-2 hidden"></div>
+               <div id="bdg_v_noa" class="mt-1 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplprod')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Produktif</div><div class="text-xl font-bold mt-1 text-teal-600" id="v_prod">...</div></div>
-                  <div class="p-2 bg-teal-50 rounded-lg group-hover:bg-teal-100 transition-colors"><i class="fas fa-industry text-3xl grad-icon grad-gold"></i></div>
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-teal-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplprod')">
+               <div class="flex justify-between items-center z-10 relative">
+                  <div class="min-w-0 flex-1">
+                     <div class="text-[8px] md:text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest truncate">Produktif</div>
+                     <div class="text-sm md:text-lg font-black text-teal-600 truncate" id="v_prod">...</div>
+                  </div>
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform">
+                     <i class="fas fa-industry text-sm md:text-base"></i>
+                  </div>
                </div>
-               <div id="bdg_v_prod" class="mt-2 hidden"></div>
+               <div id="bdg_v_prod" class="mt-1 hidden"></div>
             </div>
             
-            <div class="glass-card p-4 rounded-xl relative overflow-hidden group cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
-               <div class="flex justify-between items-start">
-                  <div><div class="text-xs font-bold text-gray-400 uppercase tracking-wider">Konsumtif</div><div class="text-xl font-bold mt-1 text-indigo-600" id="v_cons">...</div></div>
-                  <div class="p-2 bg-indigo-50 rounded-lg group-hover:bg-indigo-100 transition-colors"><i class="fas fa-home text-3xl grad-icon grad-blue"></i></div>
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-indigo-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
+               <div class="flex justify-between items-center z-10 relative">
+                  <div class="min-w-0 flex-1">
+                     <div class="text-[8px] md:text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest truncate">Konsumtif</div>
+                     <div class="text-sm md:text-lg font-black text-indigo-600 truncate" id="v_cons">...</div>
+                  </div>
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                     <i class="fas fa-home text-sm md:text-base"></i>
+                  </div>
                </div>
-               <div id="bdg_v_cons" class="mt-2 hidden"></div>
+               <div id="bdg_v_cons" class="mt-1 hidden"></div>
+            </div>
+
+            <!-- KARTU BARU: KOMPARASI UNIT KERJA -->
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
+               <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-6xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
+               <div class="flex justify-between items-center z-10 relative">
+                  <div class="min-w-0 flex-1">
+                     <div class="text-[8px] md:text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
+                     <div class="text-xs md:text-sm font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_branch_top">Analisa...</div>
+                  </div>
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
+                     <i class="fas fa-chart-bar text-sm md:text-base"></i>
+                  </div>
+               </div>
+               <div class="mt-1.5 flex justify-between items-center text-[8px] md:text-[9px] font-bold text-slate-500 z-10 relative">
+                   <span class="truncate">Klik detail OS & NPL</span>
+                   <i class="fas fa-chevron-right text-purple-400 animate-pulse"></i>
+               </div>
             </div>
          </div>
          
@@ -1548,6 +1581,57 @@
           <i class="fas fa-cloud-upload text-lg grad-icon grad-gold"></i> UPLOAD DATA BARU
       </button>
     </div>
+  </div>
+
+  <!-- OVERLAY BOTTOM SHEET MODAL (KOMPARASI CABANG) -->
+  <div id="modal-branch" class="fixed inset-0 z-[1000] hidden flex-col justify-end">
+      <!-- Backdrop Gelap -->
+      <div id="modal-branch-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300" onclick="if(app && app.closeBranchModal) app.closeBranchModal()"></div>
+      
+      <!-- Panel Bottom Sheet -->
+      <div id="modal-branch-content" class="relative w-full max-w-4xl mx-auto bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-t-[2.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.2)] flex flex-col h-[85vh] transform translate-y-full transition-transform duration-[400ms] ease-[cubic-bezier(0.32,0.72,0,1)] z-10 border-t border-white/50 dark:border-slate-800">
+          
+          <!-- Handle Garis Tarik -->
+          <div id="modal-branch-handle" class="w-full flex justify-center py-4 cursor-grab active:cursor-grabbing touch-none">
+              <div class="w-14 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+          </div>
+
+          <!-- Header -->
+          <div class="px-5 md:px-6 pb-4 border-b border-slate-100 dark:border-slate-800/50 flex justify-between items-center relative z-10">
+              <div class="flex items-center gap-3 md:gap-4">
+                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-lg md:text-xl shadow-lg shadow-purple-500/30">
+                      <i class="fas fa-network-wired"></i>
+                  </div>
+                  <div>
+                      <h3 class="text-xs md:text-sm font-black text-slate-800 dark:text-white uppercase tracking-widest">Kinerja Unit Kerja</h3>
+                      <div class="text-[9px] md:text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest">Analisa OS, NPL & KKR Per Cabang</div>
+                  </div>
+              </div>
+              <button onclick="if(app && app.closeBranchModal) app.closeBranchModal()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-rose-100 text-slate-500 hover:text-rose-500 transition-colors shadow-sm active:scale-90 border border-slate-200 dark:border-slate-700">
+                  <i class="fas fa-times text-xs md:text-sm"></i>
+              </button>
+          </div>
+
+          <!-- Body Tabel Scrollable -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar px-2 sm:px-4 relative z-0 pb-safe">
+              <table class="w-full text-sm text-left border-separate border-spacing-y-2 mt-2">
+                  <thead class="sticky top-0 z-10">
+                      <tr class="bg-slate-100/90 dark:bg-slate-800/90 backdrop-blur-xl text-[8px] md:text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
+                          <th class="p-3 md:p-4 rounded-l-2xl">Unit Kerja</th>
+                          <th class="p-3 md:p-4 text-right">Outstanding</th>
+                          <th class="p-3 md:p-4 text-right hidden sm:table-cell text-teal-600">Produktif</th>
+                          <th class="p-3 md:p-4 text-right hidden sm:table-cell text-indigo-600">Konsumtif</th>
+                          <th class="p-3 md:p-4 text-right hidden lg:table-cell text-emerald-600">KUR</th>
+                          <th class="p-3 md:p-4 text-right text-orange-600">KKR (2-5)</th>
+                          <th class="p-3 md:p-4 text-right rounded-r-2xl text-red-600">NPL (3-5)</th>
+                      </tr>
+                  </thead>
+                  <tbody id="tbl-modal-branch">
+                      <!-- Disuntik lewat JS -->
+                  </tbody>
+              </table>
+          </div>
+      </div>
   </div>
 
   
