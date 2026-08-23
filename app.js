@@ -1117,6 +1117,21 @@ window.setScenario = function(type) {
     updateCard('v_prod', k.prod_os, d?.prod_os, d?.prev_prod, false);
     updateCard('v_cons', k.cons_os, d?.cons_os, d?.prev_cons, false);
 
+    if(res.branch_perf) {
+      app.state.branch_perf = res.branch_perf; // Rekam data dari server ke memori HP
+      
+      // Temukan Top Cabang dengan OS terbesar
+      let topBr = Object.keys(res.branch_perf).sort((x, y) => res.branch_perf[y].os - res.branch_perf[x].os)[0];
+      if (topBr) {
+          let elTop = document.getElementById('v_branch_top');
+          if (elTop) {
+              // Menyingkat teks "Kantor Cabang" agar muat di kartu kecil HP
+              let shortName = topBr.replace('KANTOR CABANG PENAJAM', 'KC PENAJAM').replace('CAPEM', 'KCP').substring(0,20);
+              elTop.innerText = "Top: " + shortName;
+          }
+      }
+  }
+
 
     // --- FITUR BARU: KALKULASI DATA CABANG (COMPARISON) ---
     let allList = res.all_list || (app.state.data ? app.state.data.all_list : []);
@@ -8054,101 +8069,142 @@ function executeDeleteSheets() {
       }, 300); // Tunggu animasi CSS selesai
   }
 
- // --- FUNGSI MODAL KOMPARASI CABANG ---
-  function openBranchModal() {
-      const stats = app.state.branchStats;
-      if(!stats || Object.keys(stats).length === 0) {
-          alert("Data komparasi unit belum tersedia.");
-          return;
-      }
+ // --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE) ---
+function openBranchModal() {
+    const stats = app.state.branch_perf;
+    if(!stats || Object.keys(stats).length === 0) {
+        alert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data berhasil.");
+        return;
+    }
 
-      const tbody = document.getElementById('tbl-modal-branch');
-      let html = '';
-      const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+    const container = document.getElementById('list-modal-branch');
+    let html = '';
+    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
-      // Urutkan dari Eksposur paling besar
-      const sortedBranches = Object.keys(stats).sort((a,b) => stats[b].os - stats[a].os);
-      
-      // Hitung Global OS untuk Porsi Persentase
-      let globalOs = 0;
-      Object.values(stats).forEach(v => globalOs += v.os);
+    // Urutkan dari Eksposur paling besar
+    const sortedBranches = Object.keys(stats).sort((a,b) => stats[b].os - stats[a].os);
+    
+    let globalOs = 0;
+    Object.values(stats).forEach(v => globalOs += v.os);
 
-      sortedBranches.forEach(br => {
-          const d = stats[br];
-          const pNpl = d.os > 0 ? (d.npl / d.os * 100).toFixed(1) : 0;
-          const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(1) : 0;
-          const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
+    sortedBranches.forEach((br, i) => {
+        const d = stats[br];
+        const pNpl = d.os > 0 ? (d.npl / d.os * 100).toFixed(2) : 0;
+        const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
+        const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
 
-          // Hiasan Peringkat
-          let badgeNPL = pNpl > 5 ? 'bg-red-100 text-red-700 border-red-200 animate-pulse-slow' : 'bg-slate-100 text-slate-500 border-slate-200';
+        // Perhitungan Growth
+        let diffOs = d.os - (d.prev_os || 0);
+        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(1) : 0;
+        let growthColor = diffOs >= 0 ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800' : 'text-rose-600 bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800';
+        let growthIcon = diffOs >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+        let sign = diffOs >= 0 ? '+' : '';
 
-          html += `
-          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800/80 transition-colors group cursor-pointer border-b border-slate-100/50">
-              <td class="p-3 align-top rounded-l-2xl">
-                  <div class="font-black text-slate-800 dark:text-white text-xs uppercase tracking-tight">${br}</div>
-                  <div class="text-[9px] font-bold text-slate-400 mt-1 flex items-center gap-1.5"><i class="fas fa-users text-blue-400"></i> ${d.noa} Rek (${pPort}%)</div>
-              </td>
-              <td class="p-3 text-right align-top">
-                  <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-[11px] md:text-sm">${fmtIDR(d.os)}</div>
-              </td>
-              <td class="p-3 text-right align-top hidden sm:table-cell">
-                  <div class="font-mono font-bold text-teal-600 dark:text-teal-400 text-[10px] md:text-xs">${fmtIDR(d.prod)}</div>
-              </td>
-              <td class="p-3 text-right align-top hidden sm:table-cell">
-                  <div class="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[10px] md:text-xs">${fmtIDR(d.kons)}</div>
-              </td>
-              <td class="p-3 text-right align-top hidden lg:table-cell">
-                  <div class="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-[10px] md:text-xs">${fmtIDR(d.kur)}</div>
-              </td>
-              <td class="p-3 text-right align-top">
-                  <div class="font-mono font-black text-orange-600 dark:text-orange-400 text-[11px] md:text-sm">${fmtIDR(d.kkr)}</div>
-                  <div class="text-[9px] font-bold text-orange-700 bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded border border-orange-200 inline-block mt-1">${pKkr}%</div>
-              </td>
-              <td class="p-3 text-right align-top rounded-r-2xl">
-                  <div class="font-mono font-black text-red-600 dark:text-red-400 text-[11px] md:text-sm">${fmtIDR(d.npl)}</div>
-                  <div class="text-[9px] font-bold px-1.5 py-0.5 rounded inline-block mt-1 border ${badgeNPL}">${pNpl}%</div>
-              </td>
-          </tr>
-          `;
-      });
+        // Hiasan Peringkat Risiko
+        let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white animate-pulse-slow border-transparent shadow-sm' : (pNpl > 0 ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
 
-      tbody.innerHTML = html;
+        html += `
+        <!-- BENTO CARD CABANG -->
+        <div class="glass-card bg-white/90 dark:bg-slate-800/90 rounded-[1.5rem] p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/50 hover:shadow-md hover:border-purple-300 transition-all opacity-0 transform translate-y-4 animate-fade-in" style="animation-delay: ${i * 50}ms; animation-fill-mode: forwards;">
+            
+            <!-- ROW 1: Header Cabang & Growth -->
+            <div class="flex justify-between items-start mb-3 border-b border-dashed border-slate-200 dark:border-slate-700 pb-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-100 dark:border-purple-800/50">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div>
+                        <div class="font-black text-xs sm:text-sm text-slate-800 dark:text-white uppercase tracking-tight line-clamp-1">${br}</div>
+                        <div class="text-[9px] font-bold text-slate-500 mt-0.5 flex items-center gap-1.5">
+                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm border border-slate-200/50 dark:border-slate-700"><i class="fas fa-users text-blue-400"></i> ${d.noa} NOA</span>
+                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm border border-slate-200/50 dark:border-slate-700">Porsi: ${pPort}%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right shrink-0 ml-2">
+                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-sm">${fmtIDR(d.os)}</div>
+                    <div class="inline-flex items-center gap-1 mt-1 text-[8px] font-black px-2 py-0.5 rounded border shadow-sm ${growthColor}">
+                        <i class="fas ${growthIcon}"></i> ${sign}${fmtIDR(Math.abs(diffOs))} (${sign}${pctGrowth}%)
+                    </div>
+                </div>
+            </div>
 
-      // Animate Entry
-      const modal = document.getElementById('modal-branch');
-      const backdrop = document.getElementById('modal-branch-backdrop');
-      const content = document.getElementById('modal-branch-content');
+            <!-- ROW 2: Mutasi (Cair & Lunas) -->
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="bg-emerald-50/50 dark:bg-emerald-900/10 p-2.5 rounded-xl border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
+                    <div>
+                        <div class="text-[8px] font-black text-emerald-600 uppercase tracking-widest"><i class="fas fa-plus-circle"></i> Pencairan</div>
+                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[10px] mt-0.5">+${fmtIDR(d.cair_os)}</div>
+                    </div>
+                    <div class="text-[9px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-800/50 border border-emerald-200 dark:border-emerald-700 px-1.5 py-0.5 rounded shadow-sm">${d.cair_noa} Rek</div>
+                </div>
+                <div class="bg-rose-50/50 dark:bg-rose-900/10 p-2.5 rounded-xl border border-rose-100 dark:border-rose-800/50 flex justify-between items-center">
+                    <div>
+                        <div class="text-[8px] font-black text-rose-600 uppercase tracking-widest"><i class="fas fa-check-double"></i> Pelunasan</div>
+                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[10px] mt-0.5">-${fmtIDR(d.lunas_os)}</div>
+                    </div>
+                    <div class="text-[9px] font-bold text-rose-600 bg-rose-100 dark:bg-rose-800/50 border border-rose-200 dark:border-rose-700 px-1.5 py-0.5 rounded shadow-sm">${d.lunas_noa} Rek</div>
+                </div>
+            </div>
 
-      modal.classList.remove('hidden');
-      modal.style.display = 'flex'; 
+            <!-- ROW 3: Risk & Sektor Detail -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="col-span-1 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 flex flex-col justify-center shadow-inner">
+                    <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5 border-b border-slate-200 dark:border-slate-700 pb-1">Detail Baki Debet</span>
+                    <div class="flex justify-between items-center text-[9px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-700 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
+                    <div class="flex justify-between items-center text-[9px] font-bold mt-0.5"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-700 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
+                    <div class="flex justify-between items-center text-[9px] font-bold mt-0.5"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-700 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
+                </div>
+                <div class="bg-orange-50/30 dark:bg-orange-900/10 p-2 rounded-lg border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center">
+                    <span class="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-0.5">Total KKR (2-5)</span>
+                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[10px] sm:text-xs">${fmtIDR(d.kkr)}</span>
+                    <span class="text-[8px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 border border-orange-200 dark:border-orange-700 px-1.5 py-0.5 rounded mt-1 shadow-sm">${pKkr}%</span>
+                </div>
+                <div class="bg-red-50/30 dark:bg-red-900/10 p-2 rounded-lg border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center">
+                    <span class="text-[8px] font-black text-red-500 uppercase tracking-widest mb-0.5">Total NPL (3-5)</span>
+                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[10px] sm:text-xs">${fmtIDR(d.npl)}</span>
+                    <span class="text-[8px] font-bold border px-1.5 py-0.5 rounded mt-1 ${badgeNPL}">${pNpl}%</span>
+                </div>
+            </div>
+        </div>
+        `;
+    });
 
-      if (navigator.vibrate) navigator.vibrate(10);
+    container.innerHTML = html;
 
-      requestAnimationFrame(() => {
-          backdrop.classList.remove('opacity-0');
-          content.classList.remove('translate-y-full'); 
-      });
-  }
+    // Animate Entry
+    const modal = document.getElementById('modal-branch');
+    const backdrop = document.getElementById('modal-branch-backdrop');
+    const content = document.getElementById('modal-branch-content');
 
-  function closeBranchModal() {
-      const modal = document.getElementById('modal-branch');
-      const backdrop = document.getElementById('modal-branch-backdrop');
-      const content = document.getElementById('modal-branch-content');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex'; 
 
-      if(!modal || modal.classList.contains('hidden')) return;
+    if (navigator.vibrate) navigator.vibrate(10);
 
-      backdrop.classList.add('opacity-0');
-      content.style.transform = ''; 
-      content.classList.add('translate-y-full'); 
-      
-      setTimeout(() => {
-          modal.classList.add('hidden');
-          modal.style.display = '';
-      }, 300);
-  }
+    requestAnimationFrame(() => {
+        backdrop.classList.remove('opacity-0');
+        content.classList.remove('translate-y-full'); 
+    });
+}
 
-  // --- REVISI FISIKA BOTTOM SHEET AGAR BISA DIGUNAKAN BERULANG ---
-  // Ganti fungsi initBottomSheetPhysics lama Anda dengan versi canggih ini
+function closeBranchModal() {
+    const modal = document.getElementById('modal-branch');
+    const backdrop = document.getElementById('modal-branch-backdrop');
+    const content = document.getElementById('modal-branch-content');
+
+    if(!modal || modal.classList.contains('hidden')) return;
+
+    backdrop.classList.add('opacity-0');
+    content.style.transform = ''; 
+    content.classList.add('translate-y-full'); 
+    
+    setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.style.display = '';
+    }, 300);
+}
+
   function attachPhysicsToModal(handleId, contentId, closeFunc) {
       const handle = document.getElementById(handleId);
       const content = document.getElementById(contentId);
