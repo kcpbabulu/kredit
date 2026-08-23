@@ -1093,142 +1093,69 @@ window.setScenario = function(type) {
     s.data = res; 
     if(el('loader')) el('loader').style.display='none';
     
-    const k = res.kpi; 
-    const d = res.diff;
+    const k = res.kpi; const d = res.diff;
 
-    // --- A. ANIMASI STAGGERED ENTRY UNTUK KARTU ---
-    // Memberikan efek kartu muncul satu per satu dari bawah
-    const cards = document.querySelectorAll('.glass-card');
-    cards.forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
+    // A. Animasi Kartu Utama
+    document.querySelectorAll('.glass-card').forEach((card, index) => {
+        card.style.opacity = '0'; card.style.transform = 'translateY(20px)';
         card.style.transition = `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
-        
-        requestAnimationFrame(() => {
-            card.style.opacity = '1';
-            card.style.transform = 'translateY(0)';
-        });
+        requestAnimationFrame(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; });
     });
 
-    // --- B. UPDATE KARTU UTAMA (DENGAN COUNTER) ---
+    // B. Update KPI Angka
     updateCard('v_os', k.total_os, d?.os, d?.prev_os, false);
     updateCard('v_tgk', k.tunggakan, d?.tunggakan, d?.prev_tgk, true); 
     updateCard('v_noa', k.noa, d?.noa, d?.prev_noa, false);
     updateCard('v_prod', k.prod_os, d?.prod_os, d?.prev_prod, false);
     updateCard('v_cons', k.cons_os, d?.cons_os, d?.prev_cons, false);
 
+    // C. Perekaman Data Cabang (PENTING UNTUK MODAL)
     if(res.branch_perf) {
-      app.state.branch_perf = res.branch_perf; // Rekam data dari server ke memori HP
-      
-      // Temukan Top Cabang dengan OS terbesar
-      let topBr = Object.keys(res.branch_perf).sort((x, y) => res.branch_perf[y].os - res.branch_perf[x].os)[0];
-      if (topBr) {
-          let elTop = document.getElementById('v_branch_top');
-          if (elTop) {
-              // Menyingkat teks "Kantor Cabang" agar muat di kartu kecil HP
-              let shortName = topBr.replace('KANTOR CABANG PENAJAM', 'KC PENAJAM').replace('CAPEM', 'KCP').substring(0,20);
-              elTop.innerText = "Top: " + shortName;
-          }
-      }
-  }
-
-
-    // --- FITUR BARU: KALKULASI DATA CABANG (COMPARISON) ---
-    let allList = res.all_list || (app.state.data ? app.state.data.all_list : []);
-    let brStats = {};
-    
-    if(allList && allList.length > 0) {
-        allList.forEach(r => {
-            let brName = r.br || 'LAINNYA';
-            if(!brStats[brName]) brStats[brName] = { os:0, npl:0, kkr:0, prod:0, kons:0, kur:0, noa:0 };
-            
-            let b = brStats[brName];
-            let kol = parseInt(r.kol) || 1;
-            
-            b.os += r.os;
-            b.noa += 1;
-            if(kol >= 2) b.kkr += r.os;
-            if(kol >= 3) b.npl += r.os;
-            
-            let tags = r.tags || [];
-            if(tags.includes('Prod')) b.prod += r.os;
-            if(tags.includes('Kons')) b.kons += r.os;
-            if(tags.includes('KUR')) b.kur += r.os;
-        });
+        app.state.branch_perf = res.branch_perf; // Simpan ke state
         
-        // Temukan Top Cabang dengan OS terbesar
-        let topBr = Object.keys(brStats).sort((x, y) => brStats[y].os - brStats[x].os)[0];
+        let topBr = Object.keys(res.branch_perf).sort((x, y) => res.branch_perf[y].os - res.branch_perf[x].os)[0];
         if (topBr) {
             let elTop = document.getElementById('v_branch_top');
-            if (elTop) {
-                // Singkat teks agar muat di kartu kecil
-                let shortName = topBr.replace('KANTOR CABANG PENAJAM', 'KC PENAJAM').replace('CAPEM', 'KCP').substring(0,18);
-                elTop.innerText = "Top: " + shortName;
-            }
+            if (elTop) elTop.innerText = "Top: " + topBr.replace('KANTOR CABANG PENAJAM', 'KC PPU').replace('CAPEM', 'KCP').substring(0,20);
         }
-        // Simpan ke state agar bisa dibaca saat Modal dibuka
-        app.state.branchStats = brStats;
     }
 
-    // --- C. KARTU NPL DENGAN DESIMAL & GLOW RISK ---
+    // D. NPL Glow Effect
     if(el('v_npl')) {
         let nplNow = (k.total_os > 0 ? (k.npl_os / k.total_os) * 100 : 0);
         let oldNpl = clean(el('v_npl').innerText) || 0;
         
-        animateValueDecimal('v_npl', oldNpl, nplNow, 800);
+        if (typeof animateValueDecimal === 'function') animateValueDecimal('v_npl', oldNpl, nplNow, 800);
+        else el('v_npl').innerText = nplNow.toFixed(2) + '%';
         
-        // Tambahkan efek "Glow" jika NPL > 5%
         const nplCard = el('v_npl').closest('.glass-card');
-        if(nplNow > 5) {
-            nplCard.classList.add('ring-2', 'ring-red-500', 'animate-pulse-slow');
-        } else {
-            nplCard.classList.remove('ring-2', 'ring-red-500', 'animate-pulse-slow');
-        }
+        if(nplNow > 5) nplCard.classList.add('ring-2', 'ring-red-500', 'animate-pulse-slow');
+        else nplCard.classList.remove('ring-2', 'ring-red-500', 'animate-pulse-slow');
 
         if(d && el('bdg_rat_npl')) {
             let nplPrev = d.prev_os > 0 ? (d.prev_npl / d.prev_os) * 100 : 0;
             let df = nplNow - nplPrev;
             let colorClass = df <= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
-            
-            el('bdg_rat_npl').innerHTML = `
-                <span class="ml-2 text-[10px] font-black px-2 py-0.5 rounded-full ${colorClass} shadow-sm border border-black/5">
-                    ${df > 0 ? '▲' : '▼'} ${Math.abs(df).toFixed(2)}%
-                </span>`;
+            el('bdg_rat_npl').innerHTML = `<span class="ml-2 text-[10px] font-black px-2 py-0.5 rounded-full ${colorClass} shadow-sm border border-black/5">${df > 0 ? '▲' : '▼'} ${Math.abs(df).toFixed(2)}%</span>`;
         }
     }
 
-    // --- D. KARTU KKR DENGAN ANIMASI RUPIAH ---
+    // E. KKR Rupiah Info
     if (el('v_kkr')) {
         let oldKkr = clean(el('v_kkr').innerText) || 0;
         animateValue('v_kkr', oldKkr, k.kkr_os, 800, true);
         
         if (d && el('bdg_v_kkr')) {
-            let diff = d.kkr; 
-            let pct = d.kkr_pct;
-            let colorClass = diff > 0 ? "text-rose-600 bg-rose-50" : "text-emerald-600 bg-emerald-50";
-            let icon = diff > 0 ? "▲" : "▼";
-            
-            el('bdg_v_kkr').innerHTML = `
-                <div class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-black ${colorClass} border border-black/5 animate-fade-in">
-                    ${icon} ${formatRupiah(Math.abs(diff))} (${Math.abs(pct||0).toFixed(1)}%)
-                </div>`;
+            let colorClass = d.kkr > 0 ? "text-rose-600 bg-rose-50" : "text-emerald-600 bg-emerald-50";
+            el('bdg_v_kkr').innerHTML = `<div class="inline-flex items-center px-2 py-1 rounded-lg text-[10px] font-black ${colorClass} border border-black/5 animate-fade-in">${d.kkr > 0 ? "▲" : "▼"} ${formatRupiah(Math.abs(d.kkr))}</div>`;
             el('bdg_v_kkr').classList.remove('hidden');
         }
     }
 
-    // --- E. TABEL & CHART DENGAN REVEAL ANIMATION ---
-    const tableContainer = el('tblTop').closest('.glass-card');
-    tableContainer.classList.add('reveal-active');
-    
+    // F. Render Chart Sektor & Tabel
     renderTableRaw('tblTop', res.top_npl ? res.top_npl.slice(0,10) : []);
-    
-    if(res.chart_sector) {
-        // Gunakan delay kecil agar chart muncul setelah kartu selesai berhitung
-        setTimeout(() => {
-            renderSectorList(res.chart_sector.labels, res.chart_sector.data);
-        }, 100);
-    }
-      unlockMenu();
+    if(res.chart_sector) setTimeout(() => { renderSectorList(res.chart_sector.labels, res.chart_sector.data); }, 100);
+    if(typeof unlockMenu === 'function') unlockMenu();
 }
 
 // --- FUNGSI RENDER INTERACTIVE SECTOR LIST ---
@@ -8071,9 +7998,10 @@ function executeDeleteSheets() {
 
 // --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE COMPACT) ---
 function openBranchModal() {
+    // 1. Cek Data State
     const stats = app.state.branch_perf;
     if(!stats || Object.keys(stats).length === 0) {
-        alert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data berhasil.");
+        alert("Data komparasi unit belum tersedia. Cek sinkronisasi data.");
         return;
     }
 
@@ -8083,104 +8011,91 @@ function openBranchModal() {
     let html = '';
     const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
-    // Urutkan dari Eksposur paling besar
     const sortedBranches = Object.keys(stats).sort((a,b) => stats[b].os - stats[a].os);
-    
-    let globalOs = 0;
-    Object.values(stats).forEach(v => globalOs += v.os);
+    let globalOs = 0; Object.values(stats).forEach(v => globalOs += v.os);
 
+    // 2. Loop Data per Cabang
     sortedBranches.forEach((br, i) => {
         const d = stats[br];
         const pNpl = d.os > 0 ? (d.npl / d.os * 100).toFixed(2) : 0;
         const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
         const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
 
-        // Perhitungan Growth (Pertumbuhan)
         let diffOs = d.os - (d.prev_os || 0);
-        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(2) : (d.os > 0 ? 100 : 0);
-        
+        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(1) : 0;
         let growthColor = diffOs >= 0 ? 'text-emerald-700 bg-emerald-100 border-emerald-200' : 'text-rose-700 bg-rose-100 border-rose-200';
-        let growthIcon = diffOs >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-        let sign = diffOs >= 0 ? '+' : '';
-
-        // Hiasan Peringkat Risiko NPL
-        let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white animate-pulse-slow border-transparent shadow-sm' : (pNpl > 0 ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
+        let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white animate-pulse-slow shadow-sm' : (pNpl > 0 ? 'bg-orange-100 text-orange-700' : 'bg-emerald-100 text-emerald-700');
 
         html += `
-        <!-- BENTO CARD CABANG (COMPACT) -->
-        <div class="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/50 hover:shadow-md hover:border-purple-300 transition-all opacity-0 transform translate-y-4 animate-fade-in" style="animation-delay: ${i * 40}ms; animation-fill-mode: forwards;">
+        <div class="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-3 md:p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/50 hover:shadow-md transition-all opacity-0 transform translate-y-4 animate-fade-in" style="animation-delay: ${i * 40}ms; animation-fill-mode: forwards;">
             
-            <!-- ROW 1: Header Cabang & Growth -->
-            <div class="flex justify-between items-start mb-2 border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-200 dark:border-purple-800/50 shrink-0">
-                        <i class="fas fa-building text-xs"></i>
+            <div class="flex justify-between items-start mb-2.5 border-b border-dashed border-slate-200 dark:border-slate-700 pb-2.5">
+                <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-200 dark:border-purple-800/50 shrink-0">
+                        <i class="fas fa-building text-xs md:text-sm"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="font-black text-xs sm:text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
-                        <div class="text-[8px] font-bold text-slate-500 mt-0.5 flex items-center gap-1 flex-wrap">
-                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm border border-slate-200/50 dark:border-slate-700"><i class="fas fa-users text-blue-400"></i> ${d.noa} NOA</span>
-                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm border border-slate-200/50 dark:border-slate-700">Porsi: ${pPort}%</span>
+                        <div class="font-black text-xs md:text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
+                        <div class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-0.5 flex flex-wrap items-center gap-1">
+                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm"><i class="fas fa-users text-blue-400"></i> ${d.noa} NOA</span>
+                            <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm">Porsi: ${pPort}%</span>
                         </div>
                     </div>
                 </div>
-                <div class="text-right shrink-0 ml-1">
-                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm">${fmtIDR(d.os)}</div>
-                    <div class="inline-flex items-center gap-1 mt-0.5 text-[7px] sm:text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm border ${growthColor}">
-                        <i class="fas ${growthIcon}"></i> ${sign}${fmtIDR(Math.abs(diffOs))} (${sign}${pctGrowth}%)
+                <div class="text-right shrink-0">
+                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-xs md:text-sm">${fmtIDR(d.os)}</div>
+                    <div class="inline-flex items-center gap-1 mt-0.5 text-[8px] md:text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm border ${growthColor}">
+                        ${diffOs >= 0 ? '▲ +' : '▼ -'}${fmtIDR(Math.abs(diffOs))} (${pctGrowth}%)
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 2: Mutasi (Cair & Lunas) Compact -->
-            <div class="flex gap-2 mb-2">
-                <div class="flex-1 bg-emerald-50/50 dark:bg-emerald-900/10 p-1.5 rounded-lg border border-emerald-100/50 dark:border-emerald-800/50 flex justify-between items-center">
+            <div class="flex gap-2 mb-2.5">
+                <div class="flex-1 bg-emerald-50/50 dark:bg-emerald-900/10 p-2 rounded-lg border border-emerald-100/50 dark:border-emerald-800/50 flex justify-between items-center">
                     <div class="flex items-center gap-1.5">
-                        <i class="fas fa-plus-circle text-emerald-500 text-[9px]"></i>
-                        <span class="text-[8px] font-black text-emerald-700 dark:text-emerald-400 uppercase">Cair</span>
+                        <i class="fas fa-plus-circle text-emerald-500 text-[10px]"></i>
+                        <span class="text-[8px] md:text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase">Cair</span>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[9px] sm:text-[10px]">+${fmtIDR(d.cair_os || 0)}</div>
+                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[9px] md:text-[10px]">+${fmtIDR(d.cair_os || 0)}</div>
                         <div class="text-[7px] font-bold text-emerald-600">${d.cair_noa || 0} Rek</div>
                     </div>
                 </div>
-                <div class="flex-1 bg-rose-50/50 dark:bg-rose-900/10 p-1.5 rounded-lg border border-rose-100/50 dark:border-rose-800/50 flex justify-between items-center">
+                <div class="flex-1 bg-rose-50/50 dark:bg-rose-900/10 p-2 rounded-lg border border-rose-100/50 dark:border-rose-800/50 flex justify-between items-center">
                     <div class="flex items-center gap-1.5">
-                        <i class="fas fa-check-double text-rose-500 text-[9px]"></i>
-                        <span class="text-[8px] font-black text-rose-700 dark:text-rose-400 uppercase">Lunas</span>
+                        <i class="fas fa-check-double text-rose-500 text-[10px]"></i>
+                        <span class="text-[8px] md:text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase">Lunas</span>
                     </div>
                     <div class="text-right">
-                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[9px] sm:text-[10px]">-${fmtIDR(d.lunas_os || 0)}</div>
+                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[9px] md:text-[10px]">-${fmtIDR(d.lunas_os || 0)}</div>
                         <div class="text-[7px] font-bold text-rose-600">${d.lunas_noa || 0} Rek</div>
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 3: Risk & Sektor Detail -->
-            <div class="flex gap-1.5">
-                <div class="flex-1 bg-slate-50 dark:bg-slate-900/30 p-1.5 rounded-lg border border-slate-100 dark:border-slate-700 shadow-inner flex flex-col justify-center">
-                    <div class="flex justify-between items-center text-[8px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
-                    <div class="flex justify-between items-center text-[8px] font-bold mt-0.5"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
-                    <div class="flex justify-between items-center text-[8px] font-bold mt-0.5"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
+            <div class="flex gap-1.5 md:gap-2">
+                <div class="flex-1 bg-slate-50 dark:bg-slate-900/30 p-1.5 md:p-2 rounded-lg border border-slate-100 dark:border-slate-700 shadow-inner flex flex-col justify-center">
+                    <div class="flex justify-between items-center text-[8px] md:text-[9px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
+                    <div class="flex justify-between items-center text-[8px] md:text-[9px] font-bold mt-0.5"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
+                    <div class="flex justify-between items-center text-[8px] md:text-[9px] font-bold mt-0.5"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
                 </div>
-                <div class="w-16 sm:w-20 bg-orange-50/30 dark:bg-orange-900/10 p-1.5 rounded-lg border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
-                    <span class="text-[7px] font-black text-orange-500 uppercase tracking-widest mb-0.5">KKR (2-5)</span>
-                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[8px] sm:text-[9px]">${fmtIDR(d.kkr)}</span>
-                    <span class="text-[7px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 border border-orange-200 dark:border-orange-700 px-1 py-0.5 rounded mt-0.5 shadow-sm">${pKkr}%</span>
+                <div class="w-20 md:w-24 bg-orange-50/30 dark:bg-orange-900/10 p-1.5 md:p-2 rounded-lg border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                    <span class="text-[7px] md:text-[8px] font-black text-orange-500 uppercase tracking-widest mb-0.5">KKR (2-5)</span>
+                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[9px] md:text-[10px]">${fmtIDR(d.kkr)}</span>
+                    <span class="text-[7px] md:text-[8px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 px-1 py-0.5 rounded mt-0.5">${pKkr}%</span>
                 </div>
-                <div class="w-16 sm:w-20 bg-red-50/30 dark:bg-red-900/10 p-1.5 rounded-lg border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
-                    <span class="text-[7px] font-black text-red-500 uppercase tracking-widest mb-0.5">NPL (3-5)</span>
-                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[8px] sm:text-[9px]">${fmtIDR(d.npl)}</span>
-                    <span class="text-[7px] font-bold border px-1 py-0.5 rounded mt-0.5 ${badgeNPL}">${pNpl}%</span>
+                <div class="w-20 md:w-24 bg-red-50/30 dark:bg-red-900/10 p-1.5 md:p-2 rounded-lg border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                    <span class="text-[7px] md:text-[8px] font-black text-red-500 uppercase tracking-widest mb-0.5">NPL (3-5)</span>
+                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[9px] md:text-[10px]">${fmtIDR(d.npl)}</span>
+                    <span class="text-[7px] md:text-[8px] font-bold border px-1 py-0.5 rounded mt-0.5 ${badgeNPL}">${pNpl}%</span>
                 </div>
             </div>
-        </div>
-        `;
+        </div>`;
     });
 
     container.innerHTML = html;
 
-    // Animate Entry
+    // 3. Animate Modal Entry
     const modal = document.getElementById('modal-branch');
     const backdrop = document.getElementById('modal-branch-backdrop');
     const content = document.getElementById('modal-branch-content');
