@@ -817,6 +817,7 @@ window.initStressTest = function(res) {
     s.baseBuckets = JSON.parse(JSON.stringify(res.buckets)); 
     
     renderStressUI();
+    unlockMenu();
 };
 
 // 2. RENDER TAMPILAN UTAMA
