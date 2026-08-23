@@ -1117,6 +1117,44 @@ window.setScenario = function(type) {
     updateCard('v_prod', k.prod_os, d?.prod_os, d?.prev_prod, false);
     updateCard('v_cons', k.cons_os, d?.cons_os, d?.prev_cons, false);
 
+
+    // --- FITUR BARU: KALKULASI DATA CABANG (COMPARISON) ---
+    let allList = res.all_list || (app.state.data ? app.state.data.all_list : []);
+    let brStats = {};
+    
+    if(allList && allList.length > 0) {
+        allList.forEach(r => {
+            let brName = r.br || 'LAINNYA';
+            if(!brStats[brName]) brStats[brName] = { os:0, npl:0, kkr:0, prod:0, kons:0, kur:0, noa:0 };
+            
+            let b = brStats[brName];
+            let kol = parseInt(r.kol) || 1;
+            
+            b.os += r.os;
+            b.noa += 1;
+            if(kol >= 2) b.kkr += r.os;
+            if(kol >= 3) b.npl += r.os;
+            
+            let tags = r.tags || [];
+            if(tags.includes('Prod')) b.prod += r.os;
+            if(tags.includes('Kons')) b.kons += r.os;
+            if(tags.includes('KUR')) b.kur += r.os;
+        });
+        
+        // Temukan Top Cabang dengan OS terbesar
+        let topBr = Object.keys(brStats).sort((x, y) => brStats[y].os - brStats[x].os)[0];
+        if (topBr) {
+            let elTop = document.getElementById('v_branch_top');
+            if (elTop) {
+                // Singkat teks agar muat di kartu kecil
+                let shortName = topBr.replace('KANTOR CABANG PENAJAM', 'KC PENAJAM').replace('CAPEM', 'KCP').substring(0,18);
+                elTop.innerText = "Top: " + shortName;
+            }
+        }
+        // Simpan ke state agar bisa dibaca saat Modal dibuka
+        app.state.branchStats = brStats;
+    }
+
     // --- C. KARTU NPL DENGAN DESIMAL & GLOW RISK ---
     if(el('v_npl')) {
         let nplNow = (k.total_os > 0 ? (k.npl_os / k.total_os) * 100 : 0);
@@ -8016,6 +8054,144 @@ function executeDeleteSheets() {
       }, 300); // Tunggu animasi CSS selesai
   }
 
+ // --- FUNGSI MODAL KOMPARASI CABANG ---
+  function openBranchModal() {
+      const stats = app.state.branchStats;
+      if(!stats || Object.keys(stats).length === 0) {
+          alert("Data komparasi unit belum tersedia.");
+          return;
+      }
+
+      const tbody = document.getElementById('tbl-modal-branch');
+      let html = '';
+      const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+
+      // Urutkan dari Eksposur paling besar
+      const sortedBranches = Object.keys(stats).sort((a,b) => stats[b].os - stats[a].os);
+      
+      // Hitung Global OS untuk Porsi Persentase
+      let globalOs = 0;
+      Object.values(stats).forEach(v => globalOs += v.os);
+
+      sortedBranches.forEach(br => {
+          const d = stats[br];
+          const pNpl = d.os > 0 ? (d.npl / d.os * 100).toFixed(1) : 0;
+          const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(1) : 0;
+          const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
+
+          // Hiasan Peringkat
+          let badgeNPL = pNpl > 5 ? 'bg-red-100 text-red-700 border-red-200 animate-pulse-slow' : 'bg-slate-100 text-slate-500 border-slate-200';
+
+          html += `
+          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800/80 transition-colors group cursor-pointer border-b border-slate-100/50">
+              <td class="p-3 align-top rounded-l-2xl">
+                  <div class="font-black text-slate-800 dark:text-white text-xs uppercase tracking-tight">${br}</div>
+                  <div class="text-[9px] font-bold text-slate-400 mt-1 flex items-center gap-1.5"><i class="fas fa-users text-blue-400"></i> ${d.noa} Rek (${pPort}%)</div>
+              </td>
+              <td class="p-3 text-right align-top">
+                  <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-[11px] md:text-sm">${fmtIDR(d.os)}</div>
+              </td>
+              <td class="p-3 text-right align-top hidden sm:table-cell">
+                  <div class="font-mono font-bold text-teal-600 dark:text-teal-400 text-[10px] md:text-xs">${fmtIDR(d.prod)}</div>
+              </td>
+              <td class="p-3 text-right align-top hidden sm:table-cell">
+                  <div class="font-mono font-bold text-indigo-600 dark:text-indigo-400 text-[10px] md:text-xs">${fmtIDR(d.kons)}</div>
+              </td>
+              <td class="p-3 text-right align-top hidden lg:table-cell">
+                  <div class="font-mono font-bold text-emerald-600 dark:text-emerald-400 text-[10px] md:text-xs">${fmtIDR(d.kur)}</div>
+              </td>
+              <td class="p-3 text-right align-top">
+                  <div class="font-mono font-black text-orange-600 dark:text-orange-400 text-[11px] md:text-sm">${fmtIDR(d.kkr)}</div>
+                  <div class="text-[9px] font-bold text-orange-700 bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded border border-orange-200 inline-block mt-1">${pKkr}%</div>
+              </td>
+              <td class="p-3 text-right align-top rounded-r-2xl">
+                  <div class="font-mono font-black text-red-600 dark:text-red-400 text-[11px] md:text-sm">${fmtIDR(d.npl)}</div>
+                  <div class="text-[9px] font-bold px-1.5 py-0.5 rounded inline-block mt-1 border ${badgeNPL}">${pNpl}%</div>
+              </td>
+          </tr>
+          `;
+      });
+
+      tbody.innerHTML = html;
+
+      // Animate Entry
+      const modal = document.getElementById('modal-branch');
+      const backdrop = document.getElementById('modal-branch-backdrop');
+      const content = document.getElementById('modal-branch-content');
+
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex'; 
+
+      if (navigator.vibrate) navigator.vibrate(10);
+
+      requestAnimationFrame(() => {
+          backdrop.classList.remove('opacity-0');
+          content.classList.remove('translate-y-full'); 
+      });
+  }
+
+  function closeBranchModal() {
+      const modal = document.getElementById('modal-branch');
+      const backdrop = document.getElementById('modal-branch-backdrop');
+      const content = document.getElementById('modal-branch-content');
+
+      if(!modal || modal.classList.contains('hidden')) return;
+
+      backdrop.classList.add('opacity-0');
+      content.style.transform = ''; 
+      content.classList.add('translate-y-full'); 
+      
+      setTimeout(() => {
+          modal.classList.add('hidden');
+          modal.style.display = '';
+      }, 300);
+  }
+
+  // --- REVISI FISIKA BOTTOM SHEET AGAR BISA DIGUNAKAN BERULANG ---
+  // Ganti fungsi initBottomSheetPhysics lama Anda dengan versi canggih ini
+  function attachPhysicsToModal(handleId, contentId, closeFunc) {
+      const handle = document.getElementById(handleId);
+      const content = document.getElementById(contentId);
+      if(!handle || !content) return;
+
+      let startY = 0; let currentY = 0; let isDragging = false;
+
+      handle.addEventListener('touchstart', (e) => {
+          startY = e.touches[0].clientY;
+          isDragging = true;
+          content.style.transition = 'none'; 
+      }, { passive: true });
+
+      handle.addEventListener('touchmove', (e) => {
+          if (!isDragging) return;
+          currentY = e.touches[0].clientY;
+          const deltaY = currentY - startY;
+          
+          if (deltaY > 0) content.style.transform = `translateY(${deltaY}px)`;
+          else content.style.transform = `translateY(${deltaY * 0.15}px)`; // Rubber Band effect
+      }, { passive: false });
+
+      handle.addEventListener('touchend', (e) => {
+          if (!isDragging) return;
+          isDragging = false;
+          
+          content.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+          const deltaY = currentY - startY;
+          
+          if (deltaY > 100) {
+              if (navigator.vibrate) navigator.vibrate(30); 
+              closeFunc();
+          } else {
+              content.style.transform = 'translateY(0)'; 
+          }
+      });
+  }
+
+  function initBottomSheetPhysics() {
+      attachPhysicsToModal('modal-sector-handle', 'modal-sector-content', closeSectorModal);
+      attachPhysicsToModal('modal-branch-handle', 'modal-branch-content', closeBranchModal);
+  }
+
     
 
 
@@ -8170,6 +8346,8 @@ function executeDeleteSheets() {
     resetSimSliders: resetSimSliders,
     openSectorModal: openSectorModal,
     closeSectorModal: closeSectorModal,
+    openBranchModal: openBranchModal,
+    closeBranchModal: closeBranchModal,
     togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
