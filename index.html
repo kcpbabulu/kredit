@@ -332,15 +332,30 @@
                <div id="bdg_v_cons" class="hidden"></div>
             </div>
 
-            <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
-               <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-5xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
-               <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1 pr-1">
-                     <div class="text-[8px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
-                     <div class="text-[11px] md:text-xs font-black text-slate-800 dark:text-white truncate" id="v_branch_top">Memuat Data...</div>
+            <!-- KARTU KOMPARASI UNIT (FEATURED / HIGHLIGHTED) -->
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] ring-2 ring-purple-400/40 dark:ring-purple-500/30 shadow-[0_0_20px_rgba(168,85,247,0.2)] hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] group transition-all duration-300 bg-gradient-to-br from-purple-50/80 to-white dark:from-purple-900/20 dark:to-slate-800/80 cursor-pointer relative overflow-hidden hover:-translate-y-1" onclick="if(app && app.openBranchModal) app.openBranchModal()">
+               
+               <!-- Efek Label "NEW" Berdenyut -->
+               <div class="absolute top-0 right-0 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-[7px] md:text-[8px] font-black px-2.5 py-0.5 rounded-bl-xl shadow-md flex items-center gap-1.5 z-20">
+                   <span class="relative flex h-1.5 w-1.5">
+                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                     <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                   </span>
+                   NEW ✨
+               </div>
+
+               <!-- Watermark Ikon Latar Belakang -->
+               <div class="absolute -right-2 -bottom-2 opacity-[0.04] text-6xl group-hover:scale-125 transition-transform duration-500"><i class="fas fa-network-wired text-purple-600"></i></div>
+               
+               <!-- Konten Utama -->
+               <div class="flex justify-between items-center z-10 relative pt-1 md:pt-0">
+                  <div class="min-w-0 flex-1 pr-2">
+                     <div class="text-[8px] md:text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
+                     <div class="text-[11px] md:text-xs font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_branch_top">Memuat Data...</div>
                   </div>
-                  <div class="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
-                     <i class="fas fa-chart-bar text-[10px]"></i>
+                  <!-- Ikon Eksklusif Solid Gradient -->
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform shadow-lg shadow-purple-500/40">
+                     <i class="fas fa-chart-bar text-sm"></i>
                   </div>
                </div>
             </div>
@@ -1393,48 +1408,50 @@
     </div>
 </main>
 
-  <!-- === SELURUH MODAL BAWAAN === -->
+  <!-- ======================================================= -->
+  <!-- KUMPULAN MODAL (COMPACT, BENTO STYLE & SAFE AREA)       -->
+  <!-- ======================================================= -->
 
- <!-- Modal Detail -->
-  <div id="modalDetail" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300">
-    <!-- FIX: mb-24 untuk HP, max-h-[75vh] agar tidak mentok bawah -->
-    <div class="bg-white dark:bg-slate-800 rounded-[1.5rem] w-full max-w-md shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-24 md:mb-0 overflow-hidden border border-slate-200 dark:border-slate-700 transform transition-all">
+  <!-- 1. Modal Detail Debitur -->
+  <div id="modalDetail" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-24 md:mb-0 overflow-hidden border border-white/30 dark:border-slate-700/50 transform transition-all animate-pop-in">
         <!-- Header -->
-        <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center shrink-0 bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-md">
-            <h3 class="font-black text-base md:text-lg dark:text-white flex items-center gap-2">
-                <i class="fas fa-id-card text-blue-500"></i> Detail Debitur
+        <div class="p-3.5 sm:p-4 border-b border-slate-200/60 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
+            <h3 class="font-black text-sm sm:text-base dark:text-white flex items-center gap-2">
+                <i class="fas fa-id-card text-blue-500 text-lg"></i> Detail Debitur
             </h3>
-            <button onclick="app.closeModal('modalDetail')" class="w-7 h-7 md:w-8 md:h-8 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition shadow-sm border border-slate-200 dark:border-slate-600 active:scale-90">
+            <button onclick="app.closeModal('modalDetail')" class="w-8 h-8 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition shadow-sm border border-slate-200 dark:border-slate-600 active:scale-90 shrink-0">
                 <i class="fas fa-times text-xs"></i>
             </button>
         </div>
-        <!-- Body: Tambahan pb-6 agar bisa discroll mentok -->
-        <div id="detailContent" class="p-4 overflow-y-auto custom-scrollbar pb-6 text-sm"></div>
+        <!-- Body -->
+        <div id="detailContent" class="p-4 overflow-y-auto custom-scrollbar pb-6 text-xs sm:text-sm"></div>
     </div>
   </div>
   
-  <!-- Modal Upload -->
-  <div id="modalUpload" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-4 backdrop-blur-sm modal-container transition-opacity duration-300">
-    <!-- FIX: Padding diperkecil (p-5), margin-bottom (mb-24) untuk HP -->
-    <div class="bg-white dark:bg-slate-800 rounded-[1.5rem] p-5 md:p-6 w-full max-w-sm shadow-2xl modal-content border border-slate-200 dark:border-slate-700 transform scale-100 transition-transform duration-300 max-h-[80vh] md:max-h-[90vh] mb-24 md:mb-0 overflow-y-auto custom-scrollbar">
+  <!-- 2. Modal Upload Data -->
+  <div id="modalUpload" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[1.5rem] p-5 md:p-6 w-full max-w-sm shadow-2xl border border-white/30 dark:border-slate-700/50 transform transition-transform duration-300 max-h-[80vh] md:max-h-[90vh] mb-24 md:mb-0 overflow-y-auto custom-scrollbar animate-pop-in">
         
-        <div class="flex items-center gap-3 md:gap-4 mb-5">
-            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center shadow-inner border border-blue-100 dark:bg-blue-900/30 dark:border-blue-800">
+        <!-- Header Upload -->
+        <div class="flex items-center gap-3.5 mb-5">
+            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
                 <i class="fas fa-cloud-upload-alt text-2xl"></i>
             </div>
             <div>
-                <h3 class="font-black text-lg md:text-xl text-slate-800 dark:text-white tracking-tight leading-none">Upload Data</h3>
+                <h3 class="font-black text-lg text-slate-800 dark:text-white tracking-tight leading-none">Upload Data</h3>
                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-1">Excel / CSV Ready</p>
             </div>
         </div>
 
+        <!-- Form Upload -->
         <div class="space-y-4">
             <div class="relative group">
-                <label class="text-[9px] font-black uppercase text-slate-400 ml-1 mb-1 flex justify-between">
+                <label class="text-[9px] font-black uppercase text-slate-400 ml-1 mb-1.5 flex justify-between">
                     <span>File Master Data</span>
                     <span id="fileStatus" class="text-blue-500 hidden"><i class="fas fa-spinner fa-spin mr-1"></i>Analisa...</span>
                 </label>
-                <div class="relative overflow-hidden rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-blue-400 transition-colors bg-slate-50 dark:bg-slate-900/50">
+                <div class="relative overflow-hidden rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-blue-400 transition-colors bg-slate-50/80 dark:bg-slate-900/50">
                     <input type="file" id="upFileRaw" onchange="app.detectDateFromFile(this)" accept=".xlsx, .xls, .csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
                     <div class="p-3 flex items-center gap-3">
                         <div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-sm shrink-0"><i class="fas fa-file-excel text-emerald-500 text-lg"></i></div>
@@ -1446,309 +1463,88 @@
                 </div>
             </div>
             <div>
-                <label class="text-[9px] font-black uppercase text-slate-400 ml-1 mb-1 block">Cut-Off Data <span class="text-emerald-500 hidden ml-1" id="autoLabel">(Auto ✨)</span></label>
+                <label class="text-[9px] font-black uppercase text-slate-400 ml-1 mb-1.5 block">Cut-Off Data <span class="text-emerald-500 hidden ml-1" id="autoLabel">(Auto ✨)</span></label>
                 <div class="relative">
-                    <input type="date" id="upDate" class="w-full bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 rounded-xl p-2.5 pl-9 focus:border-blue-500 outline-none transition-all font-bold text-slate-600 dark:text-slate-200 text-xs sm:text-sm shadow-sm cursor-pointer">
-                    <i class="fas fa-calendar-alt absolute left-3 top-3 text-slate-400"></i>
+                    <input type="date" id="upDate" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 pl-10 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm shadow-sm cursor-pointer">
+                    <i class="fas fa-calendar-alt absolute left-3.5 top-3.5 text-slate-400"></i>
                 </div>
             </div>
         </div>
 
-        <div class="mt-6 space-y-2">
+        <div class="mt-6 space-y-2.5">
             <button onclick="app.doUpload(this)" class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white py-3 rounded-xl text-xs font-black tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex justify-center items-center gap-2">PROSES UPLOAD <i class="fas fa-arrow-right text-[10px]"></i></button>
-            <button onclick="app.closeModal('modalUpload')" class="w-full py-2.5 text-[10px] font-bold text-slate-500 hover:text-slate-700 transition-colors bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:bg-slate-200 rounded-xl active:scale-95">BATAL</button>
+            <button onclick="app.closeModal('modalUpload')" class="w-full py-2.5 text-[10px] font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:bg-slate-200 rounded-xl active:scale-95 transition-colors">BATAL</button>
         </div>
 
-        <!-- Manajemen Database (Compact) -->
-        <div class="mt-6 border-t border-dashed border-slate-200 dark:border-slate-700 pt-4">
+        <!-- Manajemen DB -->
+        <div class="mt-6 border-t border-dashed border-slate-200 dark:border-slate-700 pt-5">
             <div class="flex justify-between items-end mb-3">
                 <div>
                     <h3 class="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-trash-alt text-red-500 text-xs"></i> Bersihkan DB</h3>
                 </div>
-                <button onclick="app.renderSheetManager()" class="text-[9px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-md font-bold transition-colors active:scale-95">
+                <button onclick="app.renderSheetManager()" class="text-[9px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-lg font-bold transition-colors active:scale-95 flex items-center gap-1">
                     <i class="fas fa-sync-alt"></i> Load
                 </button>
             </div>
-            <div id="sheetManagerList" class="max-h-24 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-lg divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50/50 dark:bg-slate-900/50 p-1.5 custom-scrollbar">
-                <div class="p-2 text-center text-[9px] font-bold text-slate-400">Klik "Load" memuat DB.</div>
+            <div id="sheetManagerList" class="max-h-24 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50/80 dark:bg-slate-900/50 p-1.5 custom-scrollbar">
+                <div class="p-3 text-center text-[9px] font-bold text-slate-400">Klik "Load" memuat DB.</div>
             </div>
-            <button onclick="app.executeDeleteSheets()" class="mt-2 w-full bg-red-50 border border-red-200 text-red-600 py-2 rounded-lg text-[9px] font-black transition-all hidden active:scale-95 uppercase tracking-widest" id="btnDeleteSheets">
+            <button onclick="app.executeDeleteSheets()" class="mt-2.5 w-full bg-red-50 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-[9px] font-black transition-all hidden active:scale-95 uppercase tracking-widest shadow-sm" id="btnDeleteSheets">
                 HAPUS PERMANEN (<span id="countDelete">0</span>)
             </button>
         </div>
     </div>
   </div>
 
-  <!-- Modal Sektor (Compact & Modern) -->
-  <div id="modal-sector" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-3 sm:p-4 opacity-0 transition-opacity duration-300">
-      <!-- Backdrop Blur -->
-      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer" onclick="app.closeSectorModal()"></div>
+  <!-- 3. Modal Komparasi Cabang (Bottom Sheet Floating) -->
+  <div id="modal-branch" class="fixed inset-0 z-[1000] hidden flex-col justify-end md:p-6 transition-opacity duration-300">
+      <div id="modal-branch-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 cursor-pointer" onclick="if(app && app.closeBranchModal) app.closeBranchModal()"></div>
       
-      <!-- Konten Modal (mb-20 md:mb-0 mencegah tertutup bottom nav) -->
-      <div class="relative bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-4xl max-h-[75vh] md:max-h-[85vh] mb-20 md:mb-0 flex flex-col transform scale-95 transition-transform duration-300 border border-white/20 dark:border-slate-700 overflow-hidden">
+      <!-- FIX: mb-24 agar mengambang di atas navigasi HP -->
+      <div id="modal-branch-content" class="relative w-full max-w-4xl mx-auto bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-t-[2rem] md:rounded-[2rem] shadow-[0_-10px_50px_rgba(0,0,0,0.3)] flex flex-col max-h-[80vh] md:max-h-[85vh] mb-24 md:mb-0 transform translate-y-full transition-transform duration-[400ms] ease-[cubic-bezier(0.32,0.72,0,1)] z-10 border border-white/50 dark:border-slate-700/50 overflow-hidden">
           
-          <!-- Header -->
-          <div class="p-3.5 border-b border-slate-200/50 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-blue-600 to-indigo-600">
-              <h3 class="font-black text-white text-sm flex items-center gap-2">
-                  <i class="fas fa-chart-pie text-blue-200"></i> 
-                  Sektor: <span id="modal-sector-title" class="text-blue-100 bg-black/20 px-2 py-0.5 rounded-md text-xs font-mono">...</span>
-              </h3>
-              <button onclick="app.closeSectorModal()" class="w-7 h-7 flex items-center justify-center rounded-full bg-white/10 hover:bg-red-500 text-white transition-colors text-xs shadow-sm">
-                  <i class="fas fa-times"></i>
-              </button>
+          <!-- Handle Garis Tarik -->
+          <div id="modal-branch-handle" class="w-full flex justify-center py-2.5 md:py-3 cursor-grab active:cursor-grabbing touch-none shrink-0 bg-white/40 dark:bg-slate-800/40">
+              <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
           </div>
-          
-          <!-- Body (Tabel Compact) -->
-          <div class="flex-1 overflow-auto custom-scrollbar bg-slate-50/50 dark:bg-slate-900/50">
-              <table class="w-full text-xs text-left">
-                  <thead class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md sticky top-0 z-10 text-[9px] uppercase font-black text-slate-500 shadow-sm border-b border-slate-200 dark:border-slate-700">
-                      <tr>
-                          <th class="p-2.5 text-center w-8">No</th>
-                          <th class="p-2.5">Identitas</th>
-                          <th class="p-2.5 hidden sm:table-cell">Unit</th>
-                          <th class="p-2.5 text-center">KOL</th>
-                          <th class="p-2.5 text-right">Baki Debet</th>
-                          <th class="p-2.5 text-right">Tunggakan</th>
-                      </tr>
-                  </thead>
-                  <tbody id="tbl-modal-sector" class="divide-y divide-slate-100 dark:divide-slate-800/50">
-                      <!-- Data JS -->
-                  </tbody>
-              </table>
-          </div>
-          
-          <!-- Footer (Summary Compact Bento) -->
-          <div class="p-2.5 sm:p-3 border-t border-slate-200/50 dark:border-slate-800 bg-white/90 dark:bg-slate-900 grid grid-cols-3 gap-2 shrink-0">
-              <div class="bg-blue-50 dark:bg-blue-900/30 p-1.5 sm:p-2 rounded-lg border border-blue-100 dark:border-blue-800/50 flex flex-col items-center justify-center text-center shadow-sm">
-                  <span class="text-[8px] sm:text-[9px] font-black text-blue-500 uppercase tracking-widest leading-none">TOTAL (<span id="modal-sector-count">0</span>)</span>
-                  <span id="modal-sector-os" class="font-mono font-black text-blue-700 dark:text-blue-400 text-[10px] sm:text-xs mt-1">Rp 0</span>
-              </div>
-              <div class="bg-amber-50 dark:bg-amber-900/30 p-1.5 sm:p-2 rounded-lg border border-amber-100 dark:border-amber-800/50 flex flex-col items-center justify-center text-center shadow-sm">
-                  <span class="text-[8px] sm:text-[9px] font-black text-amber-600 uppercase tracking-widest leading-none">KKR (2-5)</span>
-                  <span id="modal-sector-kkr" class="font-mono font-black text-amber-700 dark:text-amber-500 text-[10px] sm:text-xs mt-1">Rp 0</span>
-                  <span id="modal-sector-pct-kkr" class="bg-amber-200/50 text-amber-800 px-1.5 py-0.5 rounded text-[7px] font-bold mt-0.5">0%</span>
-              </div>
-              <div class="bg-red-50 dark:bg-red-900/30 p-1.5 sm:p-2 rounded-lg border border-red-100 dark:border-red-800/50 flex flex-col items-center justify-center text-center shadow-sm">
-                  <span class="text-[8px] sm:text-[9px] font-black text-red-500 uppercase tracking-widest leading-none">NPL (3-5)</span>
-                  <span id="modal-sector-npl" class="font-mono font-black text-red-600 dark:text-red-400 text-[10px] sm:text-xs mt-1">Rp 0</span>
-                  <span id="modal-sector-pct-npl" class="bg-red-200/50 text-red-800 px-1.5 py-0.5 rounded text-[7px] font-bold mt-0.5">0%</span>
-              </div>
-          </div>
-      </div>
-  </div>
 
-
-
-  <!-- Modal WA -->
-  <div id="modalWA" class="fixed inset-0 z-[70] hidden bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-    <div class="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl">
-        <h3 class="font-black mb-4 dark:text-white flex items-center gap-2"><i class="fab fa-whatsapp text-2xl grad-icon grad-emerald"></i> Laporan Harian</h3>
-        <textarea id="waText" class="w-full h-64 border border-slate-200 rounded-xl p-3 text-xs font-mono dark:bg-slate-700 mb-4 focus:ring-2 focus:ring-emerald-500 outline-none" readonly></textarea>
-        <div class="flex gap-2">
-            <button onclick="app.closeModal('modalWA')" class="flex-1 bg-slate-100 text-slate-600 py-3 rounded-xl font-bold hover:bg-slate-200 transition active:scale-95">Tutup</button>
-            <button onclick="app.copyWA()" class="flex-1 bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition active:scale-95">Copy Text</button>
-        </div>
-    </div>
-  </div>
-
-  <!-- Modal Mitigasi (Update Log Journey) -->
-  <div id="modal-mitigasi" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onclick="app.closeMitigasiModal()"></div>
-    <div class="relative bg-white dark:bg-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-pop-in border border-slate-200 dark:border-slate-700">
-      <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-        <div>
-          <h3 class="font-black text-lg text-slate-800 dark:text-white uppercase tracking-tighter flex items-center gap-2"><i class="fas fa-edit text-2xl grad-icon grad-emerald"></i> Input Penanganan</h3>
-          <p id="mitigasi-target-name" class="text-[10px] font-bold text-emerald-600 uppercase mt-1 tracking-widest"></p>
-        </div>
-        <button onclick="app.closeMitigasiModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm border border-slate-100 text-slate-400 hover:bg-red-50 hover:text-red-500 transition active:scale-90"><i class="fas fa-times"></i></button>
-      </div>
-      <form id="formMitigasi" class="p-6 space-y-4" onsubmit="event.preventDefault(); app.submitMitigasi(event);">
-          <input type="hidden" id="mitigasi-log-id" value="">
-          <input type="hidden" id="mitigasi-loan-id">
-          <input type="hidden" id="mitigasi-nama">
-          <input type="hidden" id="mitigasi-kol">
-          <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Tanggal Penanganan</label>
-              <div class="relative">
-                  <input type="date" id="mitigasi-tgl-manual" class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 outline-none focus:border-emerald-500 transition shadow-sm">
-                  <i class="fas fa-calendar-alt absolute left-3.5 top-3.5 text-slate-400"></i>
-              </div>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Media</label>
-                <select id="mitigasi-media" class="w-full py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 px-3 outline-none focus:border-emerald-500 shadow-sm">
-                    <option value="Kunjungan">Kunjungan</option>
-                    <option value="Telepon">Telepon</option>
-                    <option value="WA/Email">WA/Email</option>
-                    <option value="Surat Peringatan">SP</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Aksi</label>
-                <select id="mitigasi-aksi" class="w-full py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-700 px-3 outline-none focus:border-emerald-500 shadow-sm">
-                    <option value="Penagihan Rutin">Penagihan Rutin</option>
-                    <option value="Monitoring Bayar">Monitoring</option>
-                    <option value="Eskalasi KOL">Eskalasi KOL</option>
-                </select>
-              </div>
-          </div>
-          <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Catatan Hasil</label>
-              <textarea id="mitigasi-catatan" rows="3" placeholder="Contoh: Debitur berjanji bayar..." class="w-full px-4 py-3 rounded-xl bg-white border border-slate-200 text-sm text-slate-700 outline-none focus:border-emerald-500 resize-none shadow-sm"></textarea>
-          </div>
-          <div>
-              <label class="block text-[10px] font-black text-slate-400 uppercase mb-1">Nama Petugas</label>
-              <input type="text" id="mitigasi-petugas" class="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 uppercase outline-none focus:border-emerald-500 shadow-sm" placeholder="KETIK NAMA..." required>
-          </div>
-          <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl relative overflow-hidden mt-4 shadow-sm">
-              <div class="grid grid-cols-2 gap-4 relative z-10">
-                  <div>
-                    <label class="block text-[10px] font-black text-emerald-700 uppercase mb-1">Nominal Janji</label>
-                    <input type="text" id="mitigasi-nominal" onkeyup="app.formatRupiahInput(this)" placeholder="0" class="w-full px-3 py-2 rounded-xl bg-white border border-emerald-200 text-sm font-bold text-emerald-700 outline-none focus:border-emerald-500 shadow-sm">
+          <!-- Header dengan Tombol WA & PDF -->
+          <div class="px-4 md:px-6 pb-3 md:pb-4 border-b border-slate-200/60 dark:border-slate-800/60 flex flex-col md:flex-row justify-between items-start md:items-center relative z-10 shrink-0 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md gap-3 md:gap-0">
+              <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-lg md:text-xl shadow-lg shadow-purple-500/30 shrink-0">
+                      <i class="fas fa-network-wired"></i>
                   </div>
-                  <div>
-                    <label class="block text-[10px] font-black text-emerald-700 uppercase mb-1">Tgl Janji Bayar</label>
-                    <input type="date" id="mitigasi-tgl-komitmen" class="w-full px-3 py-2 rounded-xl bg-white border border-emerald-200 text-sm font-bold text-emerald-700 outline-none focus:border-emerald-500 shadow-sm">
+                  <div class="min-w-0">
+                      <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white uppercase tracking-tight truncate">Kinerja Unit Kerja</h3>
+                      <div class="text-[9px] md:text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest truncate">Growth, Mutasi & Risiko Cabang</div>
                   </div>
               </div>
+              
+              <!-- ACTION BUTTONS -->
+              <div class="flex items-center justify-end gap-2 w-full md:w-auto">
+                  <button onclick="if(app) app.exportBranchWA()" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-3 md:px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-md shadow-emerald-500/30 transition-all active:scale-95 border border-emerald-400/50">
+                      <i class="fab fa-whatsapp text-sm"></i> Bagikan
+                  </button>
+                  <button onclick="if(app) app.exportBranchPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 md:px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-md shadow-blue-500/30 transition-all active:scale-95 border border-blue-400/50">
+                      <i class="fas fa-file-pdf text-sm"></i> Unduh
+                  </button>
+                  <button onclick="if(app && app.closeBranchModal) app.closeBranchModal()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 hover:bg-rose-100 text-slate-500 hover:text-rose-500 transition-colors shadow-sm active:scale-90 border border-slate-200 dark:border-slate-700 shrink-0 ml-1">
+                      <i class="fas fa-times text-sm"></i>
+                  </button>
+              </div>
           </div>
-          <button type="submit" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-emerald-600/30 transition active:scale-95">SIMPAN PENANGANAN</button>
-      </form>
-    </div>
+
+          <!-- Area Scroll Kartu Bento -->
+          <div class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-5 relative z-0 pb-6 flex flex-col gap-3" id="list-modal-branch">
+              <!-- Data Bento Cards akan disuntikkan secara dinamis -->
+          </div>
+      </div>
   </div>
 
-  <!-- Native Menu Sheet (Mobile) -->
-  <div id="nativeMenuSheet" class="fixed inset-x-0 bottom-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-t-[2.5rem] shadow-[0_-20px_40px_rgba(0,0,0,0.1)] z-[80] transform translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[85vh] border-t border-slate-100">
-    <div class="p-4 flex justify-center shrink-0 cursor-pointer" onclick="app.toggleNativeMenu()">
-      <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
-    </div>
-    <div class="p-6 grid grid-cols-4 gap-y-6 gap-x-4 text-center overflow-y-auto custom-scrollbar">
-        <div onclick="app.switchTab('view-nplall')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-globe text-2xl grad-icon grad-red"></i></div><span class="text-[10px] font-bold text-slate-600">Total NPL</span></div>
-        <div onclick="app.switchTab('view-collection')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fab fa-whatsapp text-2xl grad-icon grad-emerald"></i></div><span class="text-[10px] font-bold text-slate-600">Collection</span></div>
-        <div onclick="app.switchTab('view-journey')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-route text-2xl grad-icon grad-blue"></i></div><span class="text-[10px] font-bold text-slate-600">Journey</span></div>
-        <div onclick="app.switchTab('view-archive')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-archive text-2xl grad-icon grad-purple"></i></div><span class="text-[10px] font-bold text-slate-600">Arsip</span></div>
-        
-        <div onclick="app.switchTab('view-watchlist')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-eye text-2xl grad-icon grad-orange"></i></div><span class="text-[10px] font-bold text-slate-600">Watchlist</span></div>
-        <div onclick="app.switchTab('view-freshdrop')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-arrow-down-wide-short text-2xl grad-icon grad-red"></i></div><span class="text-[10px] font-bold text-slate-600">Fresh Drop</span></div>
-        <div onclick="app.switchTab('view-maturity')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-hourglass-half text-2xl grad-icon grad-blue"></i></div><span class="text-[10px] font-bold text-slate-600">Jatuh Tempo</span></div>
-        <div onclick="app.switchTab('view-writeoff')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-skull-crossbones text-2xl grad-icon grad-purple"></i></div><span class="text-[10px] font-bold text-slate-600">Hapus Buku</span></div>
-        
-        <div onclick="app.switchTab('view-report')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-print text-2xl grad-icon grad-blue"></i></div><span class="text-[10px] font-bold text-slate-600">Cetak Lapor</span></div>
-        <div onclick="app.switchTab('view-map')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-map-marked-alt text-2xl grad-icon grad-emerald"></i></div><span class="text-[10px] font-bold text-slate-600">Peta PPU</span></div>
-        <div onclick="app.switchTab('view-risk')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-chess-board text-2xl grad-icon grad-purple"></i></div><span class="text-[10px] font-bold text-slate-600">Risk Matrix</span></div>
-        <div onclick="app.openUploadModal()" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-14 h-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-cloud-upload-alt text-2xl grad-icon grad-gold"></i></div><span class="text-[10px] font-bold text-slate-600">Upload DB</span></div>
-    </div>
-  </div>
-  <div id="nativeOverlay" onclick="app.toggleNativeMenu()" class="fixed inset-0 bg-black/50 z-[70] hidden backdrop-blur-sm transition-opacity"></div>
-
-  <!-- ======================================================= -->
-  <!-- LACI MENU BAWAH (MOBILE BOTTOM SHEETS) - MODERN PLAYFUL -->
-  <!-- ======================================================= -->
-
-  <!-- 1. Laci Menu Kredit -->
-  <div id="sheet-kredit" class="custom-bottom-sheet">
-    <div class="sheet-header" onclick="app.closeAllSheets()"></div>
-    <div class="p-6 grid grid-cols-2 gap-4">
-      <div onclick="app.switchTab('view-nplall')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-red-300">
-          <i class="fas fa-globe text-4xl grad-icon grad-red mb-1"></i> NPL Total
-      </div>
-      <div onclick="app.switchTab('view-nplkur')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-purple-300">
-          <i class="fas fa-seedling text-4xl grad-icon grad-purple mb-1"></i> NPL KUR
-      </div>
-      <div onclick="app.switchTab('view-nplkonsumtif')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-blue-300">
-          <i class="fas fa-shopping-bag text-4xl grad-icon grad-blue mb-1"></i> Konsumtif
-      </div>
-      <div onclick="app.switchTab('view-nplprod')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-orange-300">
-          <i class="fas fa-industry text-4xl grad-icon grad-orange mb-1"></i> Produktif
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. Laci Menu Operasional -->
-  <div id="sheet-ops" class="custom-bottom-sheet">
-    <div class="sheet-header" onclick="app.closeAllSheets()"></div>
-    <div class="p-6 grid grid-cols-2 gap-4">
-      <div onclick="app.switchTab('view-collection')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-emerald-300">
-          <i class="fab fa-whatsapp text-4xl grad-icon grad-emerald mb-1"></i> Collection
-      </div>
-      <div onclick="app.switchTab('view-watchlist')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-red-300">
-          <i class="fas fa-eye text-4xl grad-icon grad-red mb-1"></i> Watchlist
-      </div>
-      <div onclick="app.switchTab('view-freshdrop')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-orange-300">
-          <i class="fas fa-arrow-down-wide-short text-4xl grad-icon grad-orange mb-1"></i> Fresh Drop
-      </div>
-      <div onclick="app.switchTab('view-maturity')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-blue-300">
-          <i class="fas fa-hourglass-half text-4xl grad-icon grad-blue mb-1"></i> Jatuh Tempo
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. Laci Menu Utilitas -->
-  <div id="sheet-util" class="custom-bottom-sheet">
-    <div class="sheet-header" onclick="app.closeAllSheets()"></div>
-    <div class="p-6 space-y-4">
-      <button onclick="app.switchTab('view-report')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white font-black flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-lg shadow-blue-500/30">
-          <i class="fas fa-print text-lg"></i> CETAK LAPORAN PDF
-      </button>
-      
-      <button onclick="app.openUploadModal()" class="w-full py-4 rounded-2xl bg-white border border-slate-200 text-slate-800 font-black flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-sm">
-          <i class="fas fa-cloud-upload text-lg grad-icon grad-gold"></i> UPLOAD DATA BARU
-      </button>
-    </div>
-  </div>
-
-  <!-- OVERLAY BOTTOM SHEET MODAL (KOMPARASI CABANG) -->
-<div id="modal-branch" class="fixed inset-0 z-[1000] hidden flex-col justify-end md:p-6 transition-opacity duration-300">
-    <div id="modal-branch-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 cursor-pointer" onclick="if(app && app.closeBranchModal) app.closeBranchModal()"></div>
-    
-    <div id="modal-branch-content" class="relative w-full max-w-4xl mx-auto bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-t-[2rem] md:rounded-[2rem] shadow-[0_-10px_50px_rgba(0,0,0,0.3)] flex flex-col max-h-[80vh] md:max-h-[85vh] mb-24 md:mb-0 transform translate-y-full transition-transform duration-[400ms] ease-[cubic-bezier(0.32,0.72,0,1)] z-10 border border-white/50 dark:border-slate-700/50 overflow-hidden">
-        
-        <!-- Handle Garis Tarik -->
-        <div id="modal-branch-handle" class="w-full flex justify-center py-2.5 md:py-3 cursor-grab active:cursor-grabbing touch-none shrink-0 bg-white/40 dark:bg-slate-800/40">
-            <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
-        </div>
-
-        <!-- Header dengan Tombol WA & PDF -->
-        <div class="px-4 md:px-6 pb-3 md:pb-4 border-b border-slate-200/60 dark:border-slate-800/60 flex flex-col md:flex-row justify-between items-start md:items-center relative z-10 shrink-0 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md gap-3 md:gap-0">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-lg md:text-xl shadow-lg shadow-purple-500/30 shrink-0">
-                    <i class="fas fa-network-wired"></i>
-                </div>
-                <div class="min-w-0">
-                    <h3 class="text-sm md:text-base font-black text-slate-800 dark:text-white uppercase tracking-tight truncate">Kinerja Unit Kerja</h3>
-                    <div class="text-[9px] md:text-[10px] font-bold text-slate-400 mt-0.5 uppercase tracking-widest truncate">Growth, Mutasi & Risiko</div>
-                </div>
-            </div>
-            
-            <!-- ACTION BUTTONS -->
-            <div class="flex items-center justify-end gap-2 w-full md:w-auto">
-                <button onclick="if(app) app.exportBranchWA()" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-3 md:px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-md shadow-emerald-500/30 transition-all active:scale-95">
-                    <i class="fab fa-whatsapp text-sm"></i> Bagikan
-                </button>
-                <button onclick="if(app) app.exportBranchPDF()" class="flex-1 md:flex-none flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 md:px-4 py-2 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest shadow-md shadow-blue-500/30 transition-all active:scale-95">
-                    <i class="fas fa-file-pdf text-sm"></i> Unduh PDF
-                </button>
-                <button onclick="if(app && app.closeBranchModal) app.closeBranchModal()" class="w-9 h-9 flex items-center justify-center rounded-xl bg-white dark:bg-slate-800 hover:bg-rose-100 text-slate-500 hover:text-rose-500 transition-colors shadow-sm active:scale-90 border border-slate-200 dark:border-slate-700 shrink-0 ml-1">
-                    <i class="fas fa-times text-sm"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Area Scroll Kartu Bento -->
-        <div class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-5 relative z-0 pb-6 flex flex-col gap-3" id="list-modal-branch">
-            <!-- Data Bento Cards akan disuntikkan secara dinamis -->
-        </div>
-        
-    </div>
-</div>
+  <!-- App Javascript -->
+  <script src="app.js?v=71"></script>
   
-  <!-- ======================================================= -->
-
-   <!-- App Javascript -->
-  <script src="app.js?v=70"></script>
-  
- <!-- Service Worker Registration & Auto-Update Catcher -->
+  <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -1760,8 +1556,27 @@
             const newWorker = reg.installing;
             newWorker.addEventListener('statechange', () => {
               if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                // Kodingan baru terdeteksi! Tampilkan efek loading, bersihkan cache, dan reload otomatis
-                document.body.insertAdjacentHTML('beforeend', '<div style="position:fixed;inset:0;background:rgba(255,255,255,0.9);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(10px);"><i class="fas fa-rocket fa-bounce" style="font-size:3rem;color:#0284c7;margin-bottom:1rem;"></i><h2 style="font-family:sans-serif;font-weight:900;color:#0f172a;">Menginstal Pembaruan Sistem...</h2><p style="font-family:sans-serif;font-size:12px;color:#64748b;">Aplikasi akan dimuat ulang secara otomatis.</p></div>');
+                
+                // Overlay Update Estetik (Glassmorphism + Animasi)
+                const updateHTML = `
+                <div style="position:fixed; inset:0; background:rgba(15,23,42,0.8); z-index:9999; display:flex; flex-direction:column; items-center; justify-content:center; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); transition:all 0.3s ease;">
+                    <div style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:40px; border-radius:30px; text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.3); max-width:90%; margin:auto; animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                        <div style="width:80px; height:80px; background:linear-gradient(135deg, #3b82f6, #06b6d4); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px auto; box-shadow:0 10px 20px rgba(59,130,246,0.4);">
+                            <i class="fas fa-rocket fa-bounce" style="font-size:35px; color:#ffffff;"></i>
+                        </div>
+                        <h2 style="font-family:'Plus Jakarta Sans', sans-serif; font-weight:900; color:#ffffff; font-size:18px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Sistem Diperbarui</h2>
+                        <p style="font-family:'Plus Jakarta Sans', sans-serif; font-size:12px; color:#cbd5e1; font-weight:500;">Menyegarkan aplikasi dalam hitungan detik...</p>
+                        <div style="margin-top:20px; width:40px; height:4px; background:rgba(255,255,255,0.2); border-radius:4px; margin-left:auto; margin-right:auto; overflow:hidden;">
+                            <div style="width:50%; height:100%; background:#38bdf8; border-radius:4px; animation: loadingBar 1s infinite linear;"></div>
+                        </div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes loadingBar { 0% { transform:translateX(-100%); } 100% { transform:translateX(200%); } }
+                </style>
+                `;
+
+                document.body.insertAdjacentHTML('beforeend', updateHTML);
                 
                 setTimeout(() => {
                    window.location.reload(true); // Memaksa Hard Reload
