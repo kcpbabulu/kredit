@@ -3109,7 +3109,12 @@ function renderKreditPage() {
 // =================================================================
 window.handleSearchEnter = function(e) {
     if (e.key === 'Enter') {
-        e.preventDefault();
+        // [KUNCI FIX]: Cek dulu apakah preventDefault itu fungsi asli (saat ketik keyboard)
+        // atau sekadar trigger manual dari klik tombol (objek palsu)
+        if (typeof e.preventDefault === 'function') {
+            e.preventDefault();
+        }
+        
         if (isSearching) return; 
 
         var inputEl = document.getElementById('searchCreditInput');
