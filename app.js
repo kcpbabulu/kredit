@@ -8069,7 +8069,7 @@ function executeDeleteSheets() {
       }, 300); // Tunggu animasi CSS selesai
   }
 
- // --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE) ---
+// --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE COMPACT) ---
 function openBranchModal() {
     const stats = app.state.branch_perf;
     if(!stats || Object.keys(stats).length === 0) {
@@ -8078,6 +8078,8 @@ function openBranchModal() {
     }
 
     const container = document.getElementById('list-modal-branch');
+    if (!container) return;
+    
     let html = '';
     const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
@@ -8093,77 +8095,83 @@ function openBranchModal() {
         const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
         const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
 
-        // Perhitungan Growth
+        // Perhitungan Growth (Pertumbuhan)
         let diffOs = d.os - (d.prev_os || 0);
-        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(1) : 0;
-        let growthColor = diffOs >= 0 ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800' : 'text-rose-600 bg-rose-50 dark:bg-rose-900/30 border-rose-200 dark:border-rose-800';
-        let growthIcon = diffOs >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(2) : (d.os > 0 ? 100 : 0);
+        
+        let growthColor = diffOs >= 0 ? 'text-emerald-700 bg-emerald-100 border-emerald-200' : 'text-rose-700 bg-rose-100 border-rose-200';
+        let growthIcon = diffOs >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
         let sign = diffOs >= 0 ? '+' : '';
 
-        // Hiasan Peringkat Risiko
+        // Hiasan Peringkat Risiko NPL
         let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white animate-pulse-slow border-transparent shadow-sm' : (pNpl > 0 ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
 
         html += `
-        <!-- BENTO CARD CABANG -->
-        <div class="glass-card bg-white/90 dark:bg-slate-800/90 rounded-[1.5rem] p-4 shadow-sm border border-slate-200/60 dark:border-slate-700/50 hover:shadow-md hover:border-purple-300 transition-all opacity-0 transform translate-y-4 animate-fade-in" style="animation-delay: ${i * 50}ms; animation-fill-mode: forwards;">
+        <!-- BENTO CARD CABANG (COMPACT) -->
+        <div class="bg-white/90 dark:bg-slate-800/90 rounded-2xl p-3 shadow-sm border border-slate-200/60 dark:border-slate-700/50 hover:shadow-md hover:border-purple-300 transition-all opacity-0 transform translate-y-4 animate-fade-in" style="animation-delay: ${i * 40}ms; animation-fill-mode: forwards;">
             
             <!-- ROW 1: Header Cabang & Growth -->
-            <div class="flex justify-between items-start mb-3 border-b border-dashed border-slate-200 dark:border-slate-700 pb-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-100 dark:border-purple-800/50">
-                        <i class="fas fa-building"></i>
+            <div class="flex justify-between items-start mb-2 border-b border-dashed border-slate-200 dark:border-slate-700 pb-2">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-200 dark:border-purple-800/50 shrink-0">
+                        <i class="fas fa-building text-xs"></i>
                     </div>
-                    <div>
-                        <div class="font-black text-xs sm:text-sm text-slate-800 dark:text-white uppercase tracking-tight line-clamp-1">${br}</div>
-                        <div class="text-[9px] font-bold text-slate-500 mt-0.5 flex items-center gap-1.5">
+                    <div class="min-w-0">
+                        <div class="font-black text-xs sm:text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
+                        <div class="text-[8px] font-bold text-slate-500 mt-0.5 flex items-center gap-1 flex-wrap">
                             <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm border border-slate-200/50 dark:border-slate-700"><i class="fas fa-users text-blue-400"></i> ${d.noa} NOA</span>
                             <span class="bg-slate-100 dark:bg-slate-900/50 px-1.5 py-0.5 rounded shadow-sm border border-slate-200/50 dark:border-slate-700">Porsi: ${pPort}%</span>
                         </div>
                     </div>
                 </div>
-                <div class="text-right shrink-0 ml-2">
-                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-sm">${fmtIDR(d.os)}</div>
-                    <div class="inline-flex items-center gap-1 mt-1 text-[8px] font-black px-2 py-0.5 rounded border shadow-sm ${growthColor}">
+                <div class="text-right shrink-0 ml-1">
+                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm">${fmtIDR(d.os)}</div>
+                    <div class="inline-flex items-center gap-1 mt-0.5 text-[7px] sm:text-[8px] font-black px-1.5 py-0.5 rounded shadow-sm border ${growthColor}">
                         <i class="fas ${growthIcon}"></i> ${sign}${fmtIDR(Math.abs(diffOs))} (${sign}${pctGrowth}%)
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 2: Mutasi (Cair & Lunas) -->
-            <div class="grid grid-cols-2 gap-3 mb-3">
-                <div class="bg-emerald-50/50 dark:bg-emerald-900/10 p-2.5 rounded-xl border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
-                    <div>
-                        <div class="text-[8px] font-black text-emerald-600 uppercase tracking-widest"><i class="fas fa-plus-circle"></i> Pencairan</div>
-                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[10px] mt-0.5">+${fmtIDR(d.cair_os)}</div>
+            <!-- ROW 2: Mutasi (Cair & Lunas) Compact -->
+            <div class="flex gap-2 mb-2">
+                <div class="flex-1 bg-emerald-50/50 dark:bg-emerald-900/10 p-1.5 rounded-lg border border-emerald-100/50 dark:border-emerald-800/50 flex justify-between items-center">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fas fa-plus-circle text-emerald-500 text-[9px]"></i>
+                        <span class="text-[8px] font-black text-emerald-700 dark:text-emerald-400 uppercase">Cair</span>
                     </div>
-                    <div class="text-[9px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-800/50 border border-emerald-200 dark:border-emerald-700 px-1.5 py-0.5 rounded shadow-sm">${d.cair_noa} Rek</div>
+                    <div class="text-right">
+                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[9px] sm:text-[10px]">+${fmtIDR(d.cair_os || 0)}</div>
+                        <div class="text-[7px] font-bold text-emerald-600">${d.cair_noa || 0} Rek</div>
+                    </div>
                 </div>
-                <div class="bg-rose-50/50 dark:bg-rose-900/10 p-2.5 rounded-xl border border-rose-100 dark:border-rose-800/50 flex justify-between items-center">
-                    <div>
-                        <div class="text-[8px] font-black text-rose-600 uppercase tracking-widest"><i class="fas fa-check-double"></i> Pelunasan</div>
-                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[10px] mt-0.5">-${fmtIDR(d.lunas_os)}</div>
+                <div class="flex-1 bg-rose-50/50 dark:bg-rose-900/10 p-1.5 rounded-lg border border-rose-100/50 dark:border-rose-800/50 flex justify-between items-center">
+                    <div class="flex items-center gap-1.5">
+                        <i class="fas fa-check-double text-rose-500 text-[9px]"></i>
+                        <span class="text-[8px] font-black text-rose-700 dark:text-rose-400 uppercase">Lunas</span>
                     </div>
-                    <div class="text-[9px] font-bold text-rose-600 bg-rose-100 dark:bg-rose-800/50 border border-rose-200 dark:border-rose-700 px-1.5 py-0.5 rounded shadow-sm">${d.lunas_noa} Rek</div>
+                    <div class="text-right">
+                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[9px] sm:text-[10px]">-${fmtIDR(d.lunas_os || 0)}</div>
+                        <div class="text-[7px] font-bold text-rose-600">${d.lunas_noa || 0} Rek</div>
+                    </div>
                 </div>
             </div>
 
             <!-- ROW 3: Risk & Sektor Detail -->
-            <div class="grid grid-cols-3 gap-2">
-                <div class="col-span-1 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg border border-slate-100 dark:border-slate-700 flex flex-col justify-center shadow-inner">
-                    <span class="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1.5 border-b border-slate-200 dark:border-slate-700 pb-1">Detail Baki Debet</span>
-                    <div class="flex justify-between items-center text-[9px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-700 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
-                    <div class="flex justify-between items-center text-[9px] font-bold mt-0.5"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-700 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
-                    <div class="flex justify-between items-center text-[9px] font-bold mt-0.5"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-700 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
+            <div class="flex gap-1.5">
+                <div class="flex-1 bg-slate-50 dark:bg-slate-900/30 p-1.5 rounded-lg border border-slate-100 dark:border-slate-700 shadow-inner flex flex-col justify-center">
+                    <div class="flex justify-between items-center text-[8px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
+                    <div class="flex justify-between items-center text-[8px] font-bold mt-0.5"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
+                    <div class="flex justify-between items-center text-[8px] font-bold mt-0.5"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
                 </div>
-                <div class="bg-orange-50/30 dark:bg-orange-900/10 p-2 rounded-lg border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center">
-                    <span class="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-0.5">Total KKR (2-5)</span>
-                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[10px] sm:text-xs">${fmtIDR(d.kkr)}</span>
-                    <span class="text-[8px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 border border-orange-200 dark:border-orange-700 px-1.5 py-0.5 rounded mt-1 shadow-sm">${pKkr}%</span>
+                <div class="w-16 sm:w-20 bg-orange-50/30 dark:bg-orange-900/10 p-1.5 rounded-lg border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                    <span class="text-[7px] font-black text-orange-500 uppercase tracking-widest mb-0.5">KKR (2-5)</span>
+                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[8px] sm:text-[9px]">${fmtIDR(d.kkr)}</span>
+                    <span class="text-[7px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 border border-orange-200 dark:border-orange-700 px-1 py-0.5 rounded mt-0.5 shadow-sm">${pKkr}%</span>
                 </div>
-                <div class="bg-red-50/30 dark:bg-red-900/10 p-2 rounded-lg border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center">
-                    <span class="text-[8px] font-black text-red-500 uppercase tracking-widest mb-0.5">Total NPL (3-5)</span>
-                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[10px] sm:text-xs">${fmtIDR(d.npl)}</span>
-                    <span class="text-[8px] font-bold border px-1.5 py-0.5 rounded mt-1 ${badgeNPL}">${pNpl}%</span>
+                <div class="w-16 sm:w-20 bg-red-50/30 dark:bg-red-900/10 p-1.5 rounded-lg border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
+                    <span class="text-[7px] font-black text-red-500 uppercase tracking-widest mb-0.5">NPL (3-5)</span>
+                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[8px] sm:text-[9px]">${fmtIDR(d.npl)}</span>
+                    <span class="text-[7px] font-bold border px-1 py-0.5 rounded mt-0.5 ${badgeNPL}">${pNpl}%</span>
                 </div>
             </div>
         </div>
@@ -8205,48 +8213,54 @@ function closeBranchModal() {
     }, 300);
 }
 
-  function attachPhysicsToModal(handleId, contentId, closeFunc) {
-      const handle = document.getElementById(handleId);
-      const content = document.getElementById(contentId);
-      if(!handle || !content) return;
+// --- FISIKA BOTTOM SHEET (SWIPE TO DISMISS & RUBBER BAND) ---
+// Note: Kode ini menyatukan logika drag agar bisa dipakai banyak modal
+function attachPhysicsToModal(handleId, contentId, closeFunc) {
+    const handle = document.getElementById(handleId);
+    const content = document.getElementById(contentId);
+    if(!handle || !content) return;
 
-      let startY = 0; let currentY = 0; let isDragging = false;
+    let startY = 0; let currentY = 0; let isDragging = false;
 
-      handle.addEventListener('touchstart', (e) => {
-          startY = e.touches[0].clientY;
-          isDragging = true;
-          content.style.transition = 'none'; 
-      }, { passive: true });
+    handle.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
+        isDragging = true;
+        content.style.transition = 'none'; 
+    }, { passive: true });
 
-      handle.addEventListener('touchmove', (e) => {
-          if (!isDragging) return;
-          currentY = e.touches[0].clientY;
-          const deltaY = currentY - startY;
-          
-          if (deltaY > 0) content.style.transform = `translateY(${deltaY}px)`;
-          else content.style.transform = `translateY(${deltaY * 0.15}px)`; // Rubber Band effect
-      }, { passive: false });
+    handle.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const deltaY = currentY - startY;
+        
+        if (deltaY > 0) {
+            content.style.transform = `translateY(${deltaY}px)`;
+        } else {
+            // UX Magic: Rubber Band effect jika ditarik ke atas (terasa mentok)
+            content.style.transform = `translateY(${deltaY * 0.15}px)`; 
+        }
+    }, { passive: false });
 
-      handle.addEventListener('touchend', (e) => {
-          if (!isDragging) return;
-          isDragging = false;
-          
-          content.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-          const deltaY = currentY - startY;
-          
-          if (deltaY > 100) {
-              if (navigator.vibrate) navigator.vibrate(30); 
-              closeFunc();
-          } else {
-              content.style.transform = 'translateY(0)'; 
-          }
-      });
-  }
+    handle.addEventListener('touchend', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+        
+        content.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        const deltaY = currentY - startY;
+        
+        if (deltaY > 100) {
+            if (navigator.vibrate) navigator.vibrate(30); 
+            closeFunc(); // Tutup modal jika ditarik cukup jauh ke bawah
+        } else {
+            content.style.transform = 'translateY(0)'; // Membal ke posisi semula
+        }
+    });
+}
 
-  function initBottomSheetPhysics() {
-      attachPhysicsToModal('modal-sector-handle', 'modal-sector-content', closeSectorModal);
-      attachPhysicsToModal('modal-branch-handle', 'modal-branch-content', closeBranchModal);
-  }
+function initBottomSheetPhysics() {
+    attachPhysicsToModal('modal-sector-handle', 'modal-sector-content', closeSectorModal);
+    attachPhysicsToModal('modal-branch-handle', 'modal-branch-content', closeBranchModal);
+}
 
     
 
