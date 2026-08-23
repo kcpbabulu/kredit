@@ -705,6 +705,7 @@ function refresh(viewId) {
     // Arsip Kredit
     else if(id === 'view-archive') {
         loadArchiveData();
+        unlockMenu();
     }
 
     // Fallback: Jika view tidak dikenali
