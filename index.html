@@ -1181,93 +1181,82 @@
           </div>
       </div>
 
-      <!-- 14. KREDIT (DATA MASTER) -->
-      <div id="view-kredit" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+     <!-- 14. KREDIT (DATA MASTER) -->
+      <div id="view-kredit" class="tab-view hidden fade-in space-y-3 md:space-y-4 p-3 md:p-5 bg-transparent">
           
-          <!-- Header Title -->
-          <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/80 dark:border-slate-700 p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex items-center gap-3">
-              <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-md transform -rotate-3 shrink-0">
-                  <i class="fas fa-database text-lg md:text-xl"></i>
+          <!-- Header & Search -->
+          <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex flex-col xl:flex-row justify-between items-center gap-3 md:gap-4">
+              <div class="flex items-center gap-3 w-full xl:w-auto">
+                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/30 shrink-0">
+                      <i class="fas fa-database text-lg md:text-xl"></i>
+                  </div>
+                  <div>
+                      <h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white uppercase tracking-tighter leading-none">Data Master Kredit</h2>
+                      <div class="flex items-center gap-1.5 mt-1">
+                          <span class="px-1.5 py-0.5 rounded text-[7px] md:text-[8px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">Live</span>
+                          <span class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest" id="creditInfoStatus">Sinkronisasi...</span>
+                      </div>
+                  </div>
               </div>
-              <div>
-                  <h3 class="font-black text-lg md:text-xl text-slate-800 dark:text-white tracking-tight leading-none">Data Master Kredit</h3>
-                  <p class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Database Portofolio PPU</p>
+              <div class="flex gap-2 w-full xl:w-auto">
+                  <div class="relative flex-1 xl:w-64">
+                      <input id="searchCreditInput" type="text" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik Nama / No. PK..." class="w-full pl-8 pr-3 py-2 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] md:text-xs font-bold outline-none focus:border-blue-500 transition-all shadow-inner">
+                      <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] md:text-xs"></i>
+                  </div>
+                  <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 shrink-0">Cari</button>
+                  <button id="btnResetSearch" onclick="app.resetSearchCredit()" class="hidden bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 px-3 py-2 rounded-full text-[10px] md:text-xs transition-all active:scale-95 shrink-0"><i class="fas fa-times"></i></button>
               </div>
           </div>
 
-          <!-- KPI Cards -->
-          <div class="grid grid-cols-2 gap-3 md:gap-4">
-              <div class="glass-card p-3 md:p-5 rounded-[1.2rem] border-b-[3px] border-blue-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80">
-                  <div class="flex justify-between items-center z-10 relative">
-                      <div class="min-w-0 flex-1 pr-2">
-                          <div class="text-[8px] md:text-[9px] font-black text-blue-500 uppercase tracking-widest truncate mb-0.5">Total Outstanding</div>
-                          <div class="text-base md:text-2xl font-black text-slate-800 dark:text-white truncate" id="kr_os">...</div>
+          <!-- KPI & Charts Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4">
+              <!-- KPI Kiri -->
+              <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 md:gap-4">
+                  <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-4 border-blue-500 shadow-sm hover:shadow-md transition-all relative overflow-hidden bg-white/80 dark:bg-slate-800/80 flex-1 flex flex-col justify-center">
+                      <div class="absolute -right-3 -bottom-3 opacity-5"><i class="fas fa-coins text-7xl text-blue-500"></i></div>
+                      <div class="relative z-10">
+                          <div class="text-[8px] md:text-[9px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-blue-100 dark:border-blue-800/50">Total Outstanding</div>
+                          <div class="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter" id="kr_os">...</div>
+                          <div class="text-[8px] font-bold text-slate-400 mt-1">Baki Debet Global PPU</div>
                       </div>
-                      <div class="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <i class="fas fa-coins text-sm md:text-xl"></i>
+                  </div>
+                  <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-4 border-emerald-500 shadow-sm hover:shadow-md transition-all relative overflow-hidden bg-white/80 dark:bg-slate-800/80 flex-1 flex flex-col justify-center">
+                      <div class="absolute -right-3 -bottom-3 opacity-5"><i class="fas fa-users text-7xl text-emerald-500"></i></div>
+                      <div class="relative z-10">
+                          <div class="text-[8px] md:text-[9px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-emerald-100 dark:border-emerald-800/50">Total Debitur</div>
+                          <div class="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter" id="kr_noa">...</div>
+                          <div class="text-[8px] font-bold text-slate-400 mt-1">Rekening Aktif (NOA)</div>
                       </div>
                   </div>
               </div>
-              <div class="glass-card p-3 md:p-5 rounded-[1.2rem] border-b-[3px] border-emerald-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80">
-                  <div class="flex justify-between items-center z-10 relative">
-                      <div class="min-w-0 flex-1 pr-2">
-                          <div class="text-[8px] md:text-[9px] font-black text-emerald-500 uppercase tracking-widest truncate mb-0.5">Total Debitur</div>
-                          <div class="text-base md:text-2xl font-black text-slate-800 dark:text-white truncate" id="kr_noa">...</div>
+
+              <!-- Charts Kanan -->
+              <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[220px] md:h-[280px] shadow-sm">
+                      <div class="text-[8px] md:text-[9px] font-black mb-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 uppercase tracking-widest shrink-0">
+                          <div class="w-6 h-6 rounded bg-purple-100 text-purple-600 flex items-center justify-center text-xs"><i class="fas fa-chart-pie"></i></div> Komposisi Kredit
                       </div>
-                      <div class="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                          <i class="fas fa-user-friends text-sm md:text-xl"></i>
+                      <div class="flex-1 relative w-full h-full"><canvas id="chKr1"></canvas></div>
+                  </div>
+                  <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[220px] md:h-[280px] shadow-sm">
+                      <div class="text-[8px] md:text-[9px] font-black mb-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 uppercase tracking-widest shrink-0">
+                          <div class="w-6 h-6 rounded bg-orange-100 text-orange-600 flex items-center justify-center text-xs"><i class="fas fa-chart-bar"></i></div> Sektor Ekonomi
                       </div>
+                      <div class="flex-1 relative w-full h-full"><canvas id="chKr2"></canvas></div>
                   </div>
               </div>
           </div>
 
-          <!-- Charts -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-              <div class="glass-card p-3 md:p-4 rounded-[1.2rem] bg-white/80 flex flex-col h-[280px] md:h-[350px] border border-white/60 shadow-sm">
-                  <div class="text-[9px] md:text-[10px] font-black mb-2 flex items-center gap-1.5 text-slate-600 uppercase tracking-widest">
-                      <i class="fas fa-chart-pie text-purple-500"></i> Komposisi Kredit
-                  </div>
-                  <div class="flex-1 relative w-full"><canvas id="chKr1"></canvas></div>
-              </div>
-              <div class="glass-card p-3 md:p-4 rounded-[1.2rem] bg-white/80 flex flex-col h-[280px] md:h-[350px] border border-white/60 shadow-sm">
-                  <div class="text-[9px] md:text-[10px] font-black mb-2 flex items-center gap-1.5 text-slate-600 uppercase tracking-widest">
-                      <i class="fas fa-chart-doughnut text-orange-500"></i> Sebaran Sektor
-                  </div>
-                  <div class="flex-1 relative w-full"><canvas id="chKr2"></canvas></div>
-              </div>
-          </div>
-
-          <!-- Table Daftar Debitur -->
-          <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[450px] md:h-[600px] border border-white/60 shadow-sm bg-white/60 pb-1">
-             <div class="p-3 md:p-4 border-b border-white/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white/40 shrink-0">
-                 <div class="flex flex-col">
-                     <span class="font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-700 flex items-center gap-1.5">
-                        <div class="w-6 h-6 rounded bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px]"><i class="fas fa-users"></i></div> 
-                        Daftar Debitur
-                     </span>
-                     <span class="text-[8px] md:text-[9px] text-slate-500 font-bold mt-1" id="creditInfoStatus">...</span>
-                 </div>
-                 
-                 <!-- Fitur Pencarian Database Master -->
-                 <div class="flex gap-1.5 md:gap-2 w-full sm:w-auto">
-                     <div class="relative flex-1 sm:w-48">
-                         <input id="searchCreditInput" type="text" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik Nama / PK..." class="w-full pl-8 pr-3 py-2 rounded-lg bg-white border border-slate-200 text-[10px] font-bold outline-none focus:border-blue-500 transition shadow-sm">
-                         <i class="fas fa-search absolute left-2.5 top-2.5 text-slate-400 text-[10px]"></i>
-                     </div>
-                     <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition shadow-sm active:scale-95 shrink-0"><i class="fas fa-search hidden md:inline-block mr-1"></i> CARI</button>
-                     <button id="btnResetSearch" onclick="app.resetSearchCredit()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-600 px-3 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition shadow-sm active:scale-95 shrink-0"><i class="fas fa-times"></i></button>
-                 </div>
-             </div>
-             
-             <!-- Wadah Scroll Tabel -->
-             <div class="overflow-auto flex-1 custom-scrollbar px-1">
-                 <table class="w-full text-left text-[11px] md:text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
-                     <thead class="bg-white/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
-                         <tr class="text-[8px] md:text-[9px] font-black uppercase tracking-widest">
-                             <th class="p-2.5 md:p-3 rounded-l-md cursor-pointer hover:text-blue-600 transition" onclick="app.sortKredit('nama')">Nama / Loan <i class="fas fa-sort text-slate-300 ml-1"></i></th>
-                             <th class="p-2.5 md:p-3 text-center hidden sm:table-cell">Unit</th>
-                             <th class="p-2.5 md:p-3 text-center">Kol</th>
-                             <th class="p-2.5 md:p-3 text-right hidden lg:table-cell">Plafond</th>
+          <!-- Table Debitur -->
+          <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[400px] md:h-[500px] shadow-sm bg-white/80 dark:bg-slate-900/80 pb-1">
+             <div class="overflow-auto flex-1 custom-scrollbar px-1 pt-1">
+                 <table class="w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1">
+                     <thead class="bg-slate-50/90 dark:bg-slate-800/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
+                         <tr class="text-[7px] md:text-[8px] font-black uppercase tracking-widest">
+                             <th class="p-2.5 md:p-3 rounded-l-md cursor-pointer hover:text-blue-600 transition" onclick="app.sortKredit('nama')">Identitas Debitur <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+                             <th class="p-2.5 md:p-3 text-center">No. Perjanjian</th>
+                             <th class="p-2.5 md:p-3 text-center">Status</th>
+                             <th class="p-2.5 md:p-3 text-right hidden sm:table-cell">Plafond Limit</th>
                              <th class="p-2.5 md:p-3 text-right rounded-r-md cursor-pointer hover:text-blue-600 transition" onclick="app.sortKredit('os')">Baki Debet <i class="fas fa-sort text-slate-300 ml-1"></i></th>
                          </tr>
                      </thead>
@@ -1278,6 +1267,7 @@
              </div>
           </div>
       </div>
+      
       <!-- 15. RISK MATRIX (COMPACT) -->
       <div id="view-risk" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
           <div class="bg-white/80 backdrop-blur-xl border border-white/80 p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex items-center gap-3 relative overflow-hidden">
