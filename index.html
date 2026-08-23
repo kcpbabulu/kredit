@@ -181,221 +181,209 @@
   </script>
 
   <!-- MAIN CONTENT AREA -->
-  <main class="flex-1 flex flex-col md:ml-0 h-full relative w-full overflow-hidden bg-transparent transition-all duration-300">
+<main class="flex-1 flex flex-col md:ml-0 h-full relative w-full overflow-hidden bg-transparent transition-all duration-300">
     
    <!-- HEADER ATAS MELAYANG (COMPACT & MODERN) -->
-   <div class="px-3 py-2 md:px-6 md:pt-4 shrink-0 z-40">
-     <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl border border-white/50 dark:border-slate-700 rounded-[1.5rem] flex flex-col xl:flex-row items-center justify-between px-4 md:px-5 py-2.5 shadow-[0_8px_25px_rgba(0,0,0,0.04)] transition-all duration-300">
+   <div class="px-3 py-2 md:px-5 md:pt-4 shrink-0 z-40">
+     <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 rounded-[1.5rem] flex flex-col xl:flex-row items-center justify-between px-4 py-2 shadow-sm transition-all duration-300">
         
         <!-- Kiri: Judul & Sync -->
-        <div class="w-full xl:w-auto flex items-center justify-between md:justify-start mb-3 xl:mb-0 gap-4">
+        <div class="w-full xl:w-auto flex items-center justify-between md:justify-start mb-2.5 xl:mb-0 gap-3">
           <div class="flex items-center gap-3">
-              <button onclick="app.toggleSidebar()" class="md:hidden p-2 rounded-xl bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-200 transition-active shadow-sm border border-slate-100 dark:border-slate-600">
-                <i class="fas fa-bars-staggered text-base"></i>
+              <button onclick="app.toggleSidebar()" class="md:hidden p-1.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 transition-active shadow-sm border border-slate-200/50 dark:border-slate-600">
+                <i class="fas fa-bars-staggered text-sm"></i>
               </button>
               <div class="flex flex-col">
-                <h1 class="font-black text-lg md:text-xl tracking-tight text-slate-800 dark:text-white uppercase italic flex items-center gap-1.5">
+                <h1 class="font-black text-base md:text-lg tracking-tight text-slate-800 dark:text-white uppercase italic flex items-center gap-1.5">
                   <i class="fas fa-shield-halved text-blue-600"></i> <span>Dashboard <span class="text-blue-600">Kredit</span></span>
                 </h1>
-                <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse"></span>
-                  <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                    Sync: <span id="headerDate" class="text-slate-600 dark:text-slate-300 font-black">...</span>
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)] animate-pulse"></span>
+                  <span class="text-[8px] md:text-[9px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    Data: <span id="headerDate" class="text-slate-600 dark:text-slate-300 font-black">...</span>
                   </span>
                 </div>
               </div>
           </div>
-          <!-- Tombol Tema Mobile Pindah Kesini -->
+          <!-- Tombol Tema Mobile -->
           <button onclick="app.toggleTheme()" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95">
-             <i class="fas fa-moon"></i>
+             <i class="fas fa-moon text-[10px]"></i>
           </button>
         </div>
 
         <!-- Kanan: Filter Kapsul & Tools PC -->
-        <div class="w-full xl:w-auto flex items-center justify-between xl:justify-end gap-3 no-print overflow-x-auto custom-scrollbar-hide pb-1 xl:pb-0">
-          <div class="flex items-center p-1 bg-white/60 dark:bg-slate-900/60 rounded-full border border-white/60 dark:border-slate-700 shadow-inner flex-shrink-0">
-            <div class="flex items-center pl-2.5 text-blue-500"><i class="fas fa-building-columns text-[10px]"></i></div>
-            <select id="selBranch" onchange="app.refresh()" class="bg-transparent border-none text-[11px] font-black py-1.5 pr-5 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[100px] cursor-pointer appearance-none outline-none"></select>
-            <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+        <div class="w-full xl:w-auto flex items-center justify-between xl:justify-end gap-2.5 no-print overflow-x-auto custom-scrollbar-hide pb-1 xl:pb-0">
+          <div class="flex items-center p-1 bg-white/60 dark:bg-slate-900/60 rounded-full border border-white/60 dark:border-slate-700 shadow-inner shrink-0">
+            <div class="flex items-center pl-2 text-blue-500"><i class="fas fa-building-columns text-[9px]"></i></div>
+            <select id="selBranch" onchange="app.refresh()" class="bg-transparent border-none text-[10px] font-black py-1 pr-4 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[90px] outline-none cursor-pointer appearance-none"></select>
+            <div class="w-[1px] h-3 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
             
-            <div class="flex items-center pl-2 text-orange-500"><i class="fas fa-calendar-day text-[10px]"></i></div>
-            <select id="selDate" onchange="app.onDateChange()" class="bg-transparent border-none text-[11px] font-black py-1.5 pr-5 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[90px] cursor-pointer appearance-none outline-none"></select>
-            <div class="w-px h-4 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
+            <div class="flex items-center pl-1.5 text-orange-500"><i class="fas fa-calendar-day text-[9px]"></i></div>
+            <select id="selDate" onchange="app.onDateChange()" class="bg-transparent border-none text-[10px] font-black py-1 pr-4 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[80px] outline-none cursor-pointer appearance-none"></select>
+            <div class="w-[1px] h-3 bg-slate-200 dark:bg-slate-700 mx-0.5"></div>
             
-            <select id="selComp" onchange="app.refresh()" class="bg-transparent border-none text-[11px] font-black py-1.5 pr-5 pl-2 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[90px] cursor-pointer appearance-none outline-none"></select>
+            <select id="selComp" onchange="app.refresh()" class="bg-transparent border-none text-[10px] font-black py-1 pl-1.5 pr-4 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[80px] outline-none cursor-pointer appearance-none"></select>
           </div>
 
           <div class="hidden md:flex items-center gap-2 shrink-0">
-            <button onclick="app.toggleTheme()" class="w-9 h-9 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95 group">
-              <i id="themeIcon" class="fas fa-moon group-hover:rotate-12 transition-transform"></i>
+            <button onclick="app.toggleTheme()" class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95 group">
+              <i id="themeIcon" class="fas fa-moon text-xs group-hover:rotate-12 transition-transform"></i>
             </button>
-            <button onclick="window.print()" class="w-9 h-9 rounded-full bg-blue-600 text-white hover:shadow-md hover:shadow-blue-500/40 transition-all flex items-center justify-center active:scale-95 group">
-              <i class="fas fa-print group-hover:scale-110 transition-transform text-xs"></i>
+            <button onclick="window.print()" class="w-8 h-8 rounded-full bg-blue-600 text-white hover:shadow-md hover:shadow-blue-500/40 transition-all flex items-center justify-center active:scale-95 group">
+              <i class="fas fa-print text-xs group-hover:scale-110 transition-transform"></i>
             </button>
           </div>
         </div>
      </header>
    </div>
 
-    <!-- AREA KONTEN (TABS) DENGAN PADDING COMPACT -->
+    <!-- AREA KONTEN (TABS) -->
+    <!-- pb-24: Safe Area agar di HP konten terbawah tidak tertutup bottom nav -->
     <div class="flex-1 overflow-y-auto p-0 pb-24 md:pb-6 space-y-0 mobile-scroll custom-scrollbar">
       
       <!-- 1. DASHBOARD UTAMA -->
-      <div id="view-dash" class="tab-view fade-in p-3 md:p-6 space-y-3 md:space-y-5 bg-transparent">
+      <div id="view-dash" class="tab-view fade-in p-3 md:p-5 space-y-3 md:space-y-4 bg-transparent">
          
-         <!-- Baris 1: 4 KPI Utama (Compact Bento Box) -->
-         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-            <!-- Card OS -->
-            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-blue-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-blue-900/10 cursor-pointer" onclick="app.switchTab('view-kredit')">
-               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-wallet text-7xl text-blue-500"></i></div>
-               <div class="relative z-10 flex flex-col h-full justify-between">
+         <!-- Baris 1: 4 KPI Utama (Mini Bento) -->
+         <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border-b-[3px] border-blue-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-blue-900/10 cursor-pointer" onclick="app.switchTab('view-kredit')">
+               <div class="absolute -right-2 -bottom-2 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-wallet text-6xl text-blue-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between gap-1">
                   <div>
-                     <div class="text-[9px] md:text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Outstanding</div>
-                     <div class="text-lg md:text-xl font-black text-slate-800 dark:text-white truncate" id="v_os">...</div>
+                     <div class="text-[8px] md:text-[9px] font-black text-blue-600 uppercase tracking-widest">Outstanding</div>
+                     <div class="text-base md:text-xl font-black text-slate-800 dark:text-white truncate" id="v_os">...</div>
                   </div>
-                  <div id="bdg_v_os" class="mt-2 hidden"></div>
+                  <div id="bdg_v_os" class="hidden"></div>
                </div>
             </div>
             
-            <!-- Card NPL -->
-            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-red-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-slate-800 dark:to-red-900/10 cursor-pointer" onclick="app.switchTab('view-nplall')">
-               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-exclamation-triangle text-7xl text-red-500"></i></div>
-               <div class="relative z-10 flex flex-col h-full justify-between">
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border-b-[3px] border-red-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-red-50/30 dark:from-slate-800 dark:to-red-900/10 cursor-pointer" onclick="app.switchTab('view-nplall')">
+               <div class="absolute -right-2 -bottom-2 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-exclamation-triangle text-6xl text-red-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between gap-1">
                   <div>
-                     <div class="text-[9px] md:text-[10px] font-black text-red-600 uppercase tracking-widest mb-1">NPL Ratio</div>
-                     <div class="text-lg md:text-xl font-black text-red-600 truncate" id="v_npl">...</div>
+                     <div class="text-[8px] md:text-[9px] font-black text-red-600 uppercase tracking-widest">NPL Ratio</div>
+                     <div class="text-base md:text-xl font-black text-red-600 truncate" id="v_npl">...</div>
                   </div>
-                  <div id="bdg_rat_npl" class="mt-2"></div>
+                  <div id="bdg_rat_npl"></div>
                </div>
             </div>
             
-            <!-- Card KKR -->
-            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-pink-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-pink-50/30 dark:from-slate-800 dark:to-pink-900/10 cursor-pointer" onclick="app.switchTab('view-freshdrop')">
-               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-radiation text-7xl text-pink-500"></i></div>
-               <div class="relative z-10 flex flex-col h-full justify-between">
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border-b-[3px] border-pink-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-pink-50/30 dark:from-slate-800 dark:to-pink-900/10 cursor-pointer" onclick="app.switchTab('view-freshdrop')">
+               <div class="absolute -right-2 -bottom-2 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-radiation text-6xl text-pink-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between gap-1">
                   <div>
-                     <div class="text-[9px] md:text-[10px] font-black text-pink-600 uppercase tracking-widest mb-1">KKR (Kol 2-5)</div>
-                     <div class="text-lg md:text-xl font-black text-pink-600 truncate" id="v_kkr">...</div>
+                     <div class="text-[8px] md:text-[9px] font-black text-pink-600 uppercase tracking-widest">KKR (2-5)</div>
+                     <div class="text-base md:text-xl font-black text-pink-600 truncate" id="v_kkr">...</div>
                   </div>
-                  <div id="bdg_v_kkr" class="mt-2 hidden"></div>
+                  <div id="bdg_v_kkr" class="hidden"></div>
                </div>
             </div>
             
-            <!-- Card Tunggakan -->
-            <div class="glass-card p-4 rounded-[1.5rem] border-b-[3px] border-orange-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-orange-50/30 dark:from-slate-800 dark:to-orange-900/10 cursor-pointer" onclick="app.switchTab('view-collection')">
-               <div class="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-clock text-7xl text-orange-500"></i></div>
-               <div class="relative z-10 flex flex-col h-full justify-between">
+            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border-b-[3px] border-orange-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-orange-50/30 dark:from-slate-800 dark:to-orange-900/10 cursor-pointer" onclick="app.switchTab('view-collection')">
+               <div class="absolute -right-2 -bottom-2 opacity-5 group-hover:scale-110 transition-transform"><i class="fas fa-clock text-6xl text-orange-500"></i></div>
+               <div class="relative z-10 flex flex-col h-full justify-between gap-1">
                   <div>
-                     <div class="text-[9px] md:text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Total Tunggakan</div>
-                     <div class="text-lg md:text-xl font-black text-orange-600 truncate" id="v_tgk">...</div>
+                     <div class="text-[8px] md:text-[9px] font-black text-orange-600 uppercase tracking-widest">Tunggakan</div>
+                     <div class="text-base md:text-xl font-black text-orange-600 truncate" id="v_tgk">...</div>
                   </div>
-                  <div id="bdg_v_tgk" class="mt-2 hidden"></div>
+                  <div id="bdg_v_tgk" class="hidden"></div>
                </div>
             </div>
          </div>
          
          <!-- Baris 2: 4 KPI Tambahan -->
-         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
-            <!-- NOA -->
-            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-mutasi')">
+         <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+            <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-mutasi')">
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1 pr-2">
-                     <div class="text-[8px] md:text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest truncate">Debitur (NOA)</div>
-                     <div class="text-sm md:text-lg font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_noa">...</div>
+                  <div class="min-w-0 flex-1 pr-1">
+                     <div class="text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest truncate">Debitur (NOA)</div>
+                     <div class="text-sm md:text-base font-black text-slate-800 dark:text-white truncate" id="v_noa">...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform shadow-inner">
-                     <i class="fas fa-users text-sm md:text-base"></i>
+                  <div class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                     <i class="fas fa-users text-[10px]"></i>
                   </div>
                </div>
-               <div id="bdg_v_noa" class="mt-1 hidden"></div>
+               <div id="bdg_v_noa" class="hidden"></div>
             </div>
             
-            <!-- Produktif -->
-            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-teal-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplprod')">
+            <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-teal-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplprod')">
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1 pr-2">
-                     <div class="text-[8px] md:text-[9px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest truncate">Produktif</div>
-                     <div class="text-sm md:text-lg font-black text-teal-600 truncate mt-0.5" id="v_prod">...</div>
+                  <div class="min-w-0 flex-1 pr-1">
+                     <div class="text-[8px] font-black text-teal-600 dark:text-teal-400 uppercase tracking-widest truncate">Produktif</div>
+                     <div class="text-sm md:text-base font-black text-teal-600 truncate" id="v_prod">...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-teal-50 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform shadow-inner">
-                     <i class="fas fa-industry text-sm md:text-base"></i>
+                  <div class="w-7 h-7 rounded-lg bg-teal-50 dark:bg-teal-900/30 text-teal-500 flex items-center justify-center shrink-0 group-hover:-rotate-12 transition-transform">
+                     <i class="fas fa-industry text-[10px]"></i>
                   </div>
                </div>
-               <div id="bdg_v_prod" class="mt-1 hidden"></div>
+               <div id="bdg_v_prod" class="hidden"></div>
             </div>
             
-            <!-- Konsumtif -->
-            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-indigo-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
+            <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-indigo-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-nplkonsumtif')">
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1 pr-2">
-                     <div class="text-[8px] md:text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest truncate">Konsumtif</div>
-                     <div class="text-sm md:text-lg font-black text-indigo-600 truncate mt-0.5" id="v_cons">...</div>
+                  <div class="min-w-0 flex-1 pr-1">
+                     <div class="text-[8px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest truncate">Konsumtif</div>
+                     <div class="text-sm md:text-base font-black text-indigo-600 truncate" id="v_cons">...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform shadow-inner">
-                     <i class="fas fa-home text-sm md:text-base"></i>
+                  <div class="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 flex items-center justify-center shrink-0 group-hover:rotate-12 transition-transform">
+                     <i class="fas fa-home text-[10px]"></i>
                   </div>
                </div>
-               <div id="bdg_v_cons" class="mt-1 hidden"></div>
+               <div id="bdg_v_cons" class="hidden"></div>
             </div>
 
-            <!-- Komparasi Unit -->
-            <div class="glass-card p-3 md:p-4 rounded-[1.2rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
-               <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-6xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
+            <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-purple-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer relative overflow-hidden" onclick="if(app && app.openBranchModal) app.openBranchModal()">
+               <div class="absolute -right-2 -bottom-2 opacity-[0.03] text-5xl group-hover:scale-110 transition-transform"><i class="fas fa-network-wired text-purple-600"></i></div>
                <div class="flex justify-between items-center z-10 relative">
-                  <div class="min-w-0 flex-1 pr-2">
-                     <div class="text-[8px] md:text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
-                     <div class="text-xs md:text-sm font-black text-slate-800 dark:text-white truncate mt-0.5" id="v_branch_top">Memuat Data...</div>
+                  <div class="min-w-0 flex-1 pr-1">
+                     <div class="text-[8px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest truncate">Komparasi Unit</div>
+                     <div class="text-[11px] md:text-xs font-black text-slate-800 dark:text-white truncate" id="v_branch_top">Memuat Data...</div>
                   </div>
-                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
-                     <i class="fas fa-chart-bar text-sm md:text-base"></i>
+                  <div class="w-7 h-7 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center shrink-0 group-hover:-rotate-6 transition-transform shadow-inner">
+                     <i class="fas fa-chart-bar text-[10px]"></i>
                   </div>
-               </div>
-               <div class="mt-1.5 flex justify-between items-center text-[8px] md:text-[9px] font-bold text-slate-500 z-10 relative">
-                   <span class="truncate">Klik lihat matriks unit</span>
-                   <i class="fas fa-chevron-right text-purple-400 animate-pulse"></i>
                </div>
             </div>
          </div>
          
          <!-- Baris 3: Sebaran Sektor & Top NPL -->
-         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-5">
+         <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
             
-            <!-- KARTU SEBARAN SEKTOR (INTERACTIVE LIST) -->
-            <div class="glass-card rounded-[1.5rem] overflow-hidden flex flex-col lg:col-span-1 h-[400px] md:h-[480px] shadow-sm border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60">
-               <div class="p-3 border-b border-white/40 dark:border-slate-800 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 flex items-center gap-2.5 shrink-0">
-                  <div class="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-900/50 text-violet-600 flex items-center justify-center shadow-inner text-sm"><i class="fas fa-chart-pie"></i></div>
+            <!-- KARTU SEBARAN SEKTOR -->
+            <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col lg:col-span-1 h-[350px] md:h-[450px] shadow-sm border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60">
+               <div class="p-3 border-b border-white/40 dark:border-slate-800 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10 flex items-center gap-2 shrink-0">
+                  <div class="w-7 h-7 rounded-md bg-violet-100 dark:bg-violet-900/50 text-violet-600 flex items-center justify-center shadow-inner text-xs"><i class="fas fa-chart-pie"></i></div>
                   <div>
-                      <div class="font-black text-xs uppercase tracking-widest text-slate-800 dark:text-white">Sebaran Sektor</div>
-                      <div class="text-[9px] font-bold text-slate-500 mt-0.5">Distribusi Portofolio PPU</div>
+                      <div class="font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-800 dark:text-white leading-none">Sebaran Sektor</div>
+                      <div class="text-[8px] font-bold text-slate-500 mt-0.5">Distribusi Portofolio</div>
                   </div>
                </div>
-               <!-- Wadah Scroll Sektor -->
-               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar p-2.5 space-y-2">
-                  <!-- Data kartu sektor akan disuntikkan oleh app.js di sini -->
+               <div id="list-sektor-container" class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1.5">
+                  <!-- Data JS -->
                </div>
             </div>
             
             <!-- KARTU TOP NPL -->
-            <div class="glass-card rounded-[1.5rem] overflow-hidden flex flex-col lg:col-span-2 h-[400px] md:h-[480px] shadow-sm border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60">
+            <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col lg:col-span-2 h-[350px] md:h-[450px] shadow-sm border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60">
                <div class="p-3 border-b border-white/40 dark:border-slate-800 bg-gradient-to-r from-red-500/10 to-rose-500/10 flex justify-between items-center shrink-0">
-                  <div class="flex items-center gap-2.5">
-                      <div class="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/50 text-red-600 flex items-center justify-center shadow-inner text-sm"><i class="fas fa-list-ol"></i></div>
+                  <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-md bg-red-100 dark:bg-red-900/50 text-red-600 flex items-center justify-center shadow-inner text-xs"><i class="fas fa-list-ol"></i></div>
                       <div>
-                          <div class="font-black text-xs uppercase tracking-widest text-slate-800 dark:text-white">Top NPL Global</div>
-                          <div class="text-[9px] font-bold text-slate-500 mt-0.5">Debitur Risiko Tinggi</div>
+                          <div class="font-black text-[10px] md:text-xs uppercase tracking-widest text-slate-800 dark:text-white leading-none">Top NPL Global</div>
+                          <div class="text-[8px] font-bold text-slate-500 mt-0.5">Debitur Risiko Tinggi</div>
                       </div>
                   </div>
-                  <span class="bg-red-100 dark:bg-red-900/40 text-red-600 px-2 py-0.5 rounded text-[9px] font-black uppercase shadow-sm border border-red-200 dark:border-red-800/50">Kritis</span>
+                  <span class="bg-red-100 dark:bg-red-900/40 text-red-600 px-2 py-0.5 rounded text-[8px] font-black uppercase shadow-sm border border-red-200 dark:border-red-800/50">Kritis</span>
                </div>
                <div class="overflow-y-auto custom-scrollbar flex-1 px-1">
-                  <table class="w-full text-left text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
-                     <thead class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-500 sticky top-0 z-10 rounded-lg shadow-sm">
-                        <tr class="text-[9px] uppercase font-black tracking-widest">
-                           <th class="p-3 rounded-l-lg">Nama / Loan</th>
-                           <th class="p-3 hidden sm:table-cell text-center">Unit</th>
-                           <th class="p-3 text-center">Kol</th>
-                           <th class="p-3 text-right hidden lg:table-cell">Plafond</th>
-                           <th class="p-3 text-right rounded-r-lg">Baki Debet</th>
+                  <table class="w-full text-left text-[11px] md:text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
+                     <thead class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-slate-500 sticky top-0 z-10 rounded-md shadow-sm">
+                        <tr class="text-[8px] uppercase font-black tracking-widest">
+                           <th class="p-2 md:p-3 rounded-l-md">Nama / Loan</th>
+                           <th class="p-2 md:p-3 hidden sm:table-cell text-center">Unit</th>
+                           <th class="p-2 md:p-3 text-center">Kol</th>
+                           <th class="p-2 md:p-3 text-right hidden lg:table-cell">Plafond</th>
+                           <th class="p-2 md:p-3 text-right rounded-r-md">Baki Debet</th>
                         </tr>
                      </thead>
                      <tbody id="tblTop" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50">
@@ -404,913 +392,629 @@
                   </table>
                </div>
             </div>
-            
          </div>
       </div>
-    </div>
-  
-
 
       <!-- 2. JATUH TEMPO -->
-      <div id="view-maturity" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-        <div class="bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+      <div id="view-maturity" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+        <div class="bg-gradient-to-r from-cyan-600 to-blue-600 rounded-[1.2rem] md:rounded-[1.5rem] p-4 md:p-5 text-white shadow-md relative overflow-hidden border border-white/10">
           <div class="absolute right-0 top-0 h-full w-1/2 bg-white/10 skew-x-12 transform origin-bottom-left"></div>
-          <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-4">
+          <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-              <h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-hourglass-end text-3xl opacity-80"></i> Analisa Jatuh Tempo</h2>
-              <p class="text-cyan-100 text-sm mt-1 mb-3">Monitoring debitur mendekati akhir tenor</p>
-              <div class="flex gap-4 text-xs font-mono bg-black/20 p-2 rounded inline-block">
-                  <div>NOA: <span id="mat_total_noa" class="font-bold text-yellow-300">0</span></div>
+              <h2 class="text-lg md:text-xl font-black tracking-tight flex items-center gap-2"><i class="fas fa-hourglass-end text-2xl opacity-80"></i> Jatuh Tempo</h2>
+              <div class="flex gap-2 text-[9px] md:text-[10px] font-mono bg-black/20 p-1.5 rounded-lg border border-white/10 backdrop-blur-md inline-block mt-2">
+                  <div>NOA: <span id="mat_total_noa" class="font-bold text-yellow-300 text-xs md:text-sm">0</span></div>
                   <div class="w-px bg-white/30"></div>
-                  <div>OS: <span id="mat_total_os" class="font-bold text-yellow-300">Rp 0</span></div>
+                  <div>OS: <span id="mat_total_os" class="font-bold text-yellow-300 text-xs md:text-sm">Rp 0</span></div>
               </div>
             </div>
-            <div class="inline-flex items-center bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20">
-                <label for="selMatRange" class="text-cyan-50 text-xs font-medium ml-2 mr-2"><i class="fas fa-filter mr-1"></i> Filter:</label>
-                <select id="selMatRange" onchange="app.refreshReport()" class="bg-white text-slate-700 text-xs font-bold rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-cyan-300 cursor-pointer shadow-sm">
-                    <option value="1">1 Bulan ke depan</option>
-                    <option value="2" selected>2 Bulan ke depan</option>
-                    <option value="3">3 Bulan ke depan</option>
-                    <option value="6">6 Bulan ke depan</option>
+            <div class="inline-flex items-center bg-white/10 backdrop-blur-md rounded-lg p-1 border border-white/20 w-full sm:w-auto">
+                <label for="selMatRange" class="text-cyan-50 text-[9px] font-black uppercase tracking-widest px-2"><i class="fas fa-filter"></i></label>
+                <select id="selMatRange" onchange="app.refreshReport()" class="bg-white text-slate-700 text-[10px] font-bold rounded-md px-2 py-1.5 flex-1 focus:ring-0 cursor-pointer shadow-sm outline-none appearance-none">
+                    <option value="1">1 Bln Depan</option>
+                    <option value="2" selected>2 Bln Depan</option>
+                    <option value="3">3 Bln Depan</option>
+                    <option value="6">6 Bln Depan</option>
                 </select>
             </div>
           </div>
         </div>
-        <div id="maturity_list_container" class="glass-card rounded-xl min-h-[300px]">
-            <div class="p-10 text-center text-gray-400">
-                <i class="fas fa-circle-notch fa-spin text-3xl mb-3 grad-icon grad-blue"></i><br>Memuat data...
-            </div>
+        <div id="maturity_list_container" class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] min-h-[300px] border border-white/60 dark:border-slate-700/50 shadow-sm overflow-hidden flex flex-col p-1.5">
+            <!-- Data JS -->
         </div>
       </div>
 
       <!-- 3. MAP -->
-      <div id="view-map" class="tab-view hidden fade-in relative w-full h-[calc(100vh-80px)] min-h-[600px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white/60 dark:border-slate-800">
-         <div class="absolute top-4 left-4 z-[400] w-11/12 md:w-96 pointer-events-none">
-             <div class="glass-card p-4 pointer-events-auto">
-                 <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2"><i class="fas fa-map-marked-alt text-2xl grad-icon grad-emerald"></i> Sebaran NPL PPU</h3>
-                 <div class="text-[10px] text-gray-500 mt-1">Titik Desa/Kelurahan berdasarkan Alamat.</div>
+      <div id="view-map" class="tab-view hidden fade-in relative w-[calc(100%-1.5rem)] md:w-[calc(100%-3rem)] h-[calc(100vh-160px)] md:h-[calc(100vh-120px)] min-h-[500px] rounded-[1.5rem] md:rounded-[2rem] overflow-hidden shadow-md border-[3px] border-white/60 dark:border-slate-800 m-3 md:m-6">
+         <div class="absolute top-3 left-3 z-[400] w-[calc(100%-1.5rem)] md:w-[320px] pointer-events-none">
+             <div class="glass-card rounded-2xl p-3 pointer-events-auto border border-white/50 shadow-md backdrop-blur-xl">
+                 <h3 class="font-black text-[11px] md:text-xs uppercase tracking-widest text-slate-800 dark:text-white flex items-center gap-2">
+                    <div class="w-7 h-7 bg-emerald-100 text-emerald-600 flex items-center justify-center rounded-lg shadow-inner"><i class="fas fa-map-marked-alt text-xs"></i></div> 
+                    Sebaran PPU
+                 </h3>
              </div>
          </div>
-         <div class="absolute inset-0 z-0"><div id="mapContainer" class="w-full h-full"></div></div>
-         <div class="absolute top-4 right-4 bottom-20 md:bottom-4 z-[400] w-16 md:w-72 flex flex-col items-end pointer-events-none">
-             <div class="glass-card overflow-hidden flex flex-col max-h-full pointer-events-auto transition-all duration-300 group hover:w-72 w-16 md:w-72">
-                 <div class="p-3 bg-emerald-50 dark:bg-emerald-900/30 font-bold text-xs text-emerald-800 flex justify-between items-center cursor-pointer" onclick="this.parentElement.classList.toggle('w-72')">
-                    <span class="hidden md:inline group-hover:inline">Top Wilayah</span><i class="fas fa-list grad-icon grad-emerald"></i>
+         <div class="absolute inset-0 z-0 bg-slate-100 dark:bg-slate-900"><div id="mapContainer" class="w-full h-full"></div></div>
+         <div class="absolute right-3 bottom-16 md:bottom-3 z-[400] w-12 md:w-72 flex flex-col items-end pointer-events-none">
+             <div class="glass-card overflow-hidden flex flex-col max-h-[40vh] md:max-h-[50vh] pointer-events-auto transition-all duration-300 group hover:w-[calc(100vw-1.5rem)] md:hover:w-72 w-12 md:w-72 rounded-2xl md:rounded-[1.5rem] border border-white/50 shadow-md backdrop-blur-xl bg-white/80 dark:bg-slate-900/80">
+                 <div class="p-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 font-black text-[8px] md:text-[9px] uppercase tracking-widest text-white flex justify-center md:justify-between items-center cursor-pointer shadow-sm" onclick="this.parentElement.classList.toggle('w-[calc(100vw-1.5rem)]'); this.parentElement.classList.toggle('md:w-72')">
+                    <span class="hidden md:inline group-hover:inline ml-1">Top Wilayah</span>
+                    <div class="w-7 h-7 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm"><i class="fas fa-list text-xs"></i></div>
                  </div>
-                 <div class="overflow-y-auto flex-1 hidden md:block group-hover:block bg-white/50 dark:bg-slate-800/50">
-                     <table class="w-full text-xs"><thead class="bg-gray-50/80 dark:bg-slate-700/80 sticky top-0"><tr><th class="p-2 text-left">Desa</th><th class="p-2 text-right">NPL</th></tr></thead><tbody id="tblCityStats"></tbody></table>
+                 <div class="overflow-y-auto flex-1 hidden md:block group-hover:block custom-scrollbar p-1">
+                     <table class="w-full text-[10px] md:text-xs text-left"><thead class="sticky top-0 bg-white/90 dark:bg-slate-800/90 backdrop-blur-md z-10"><tr class="text-[7px] md:text-[8px] text-slate-400 uppercase tracking-widest"><th class="p-2 rounded-l-md">Desa</th><th class="p-2 text-right rounded-r-md">Exposure NPL</th></tr></thead><tbody id="tblCityStats" class="divide-y divide-slate-100 dark:divide-slate-700/50"></tbody></table>
                  </div>
              </div>
          </div>
       </div>
 
       <!-- 4. COLLECTION -->
-      <div id="view-collection" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-500 p-4 rounded-lg mb-4 flex items-center gap-4">
-             <i class="fab fa-whatsapp text-4xl grad-icon grad-emerald"></i>
-             <div>
-                 <h3 class="font-bold text-green-700 dark:text-green-400">Collection Center</h3>
-                 <div class="text-xs text-green-600/80">Daftar Penagihan Prioritas. Gunakan tombol Chat untuk WA.</div>
+      <div id="view-collection" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-4 md:p-6 rounded-[1.2rem] md:rounded-[1.5rem] flex items-center gap-3 shadow-md relative overflow-hidden text-white border border-white/10">
+             <div class="absolute -right-6 -bottom-6 opacity-20"><i class="fab fa-whatsapp text-7xl"></i></div>
+             <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shrink-0 shadow-inner border border-white/30 relative z-10">
+                <i class="fab fa-whatsapp text-2xl text-white"></i>
+             </div>
+             <div class="relative z-10">
+                 <h3 class="font-black text-lg md:text-xl tracking-tighter leading-none">Collection Center</h3>
+                 <div class="text-[9px] text-emerald-100 mt-1 font-medium">Daftar Prioritas WA.</div>
              </div>
           </div>
-          <div class="glass-card rounded-xl overflow-hidden flex flex-col h-[600px]">
-             <div class="overflow-auto flex-1"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-50 dark:bg-slate-700 sticky top-0"><tr><th class="p-3 text-center"><i class="fas fa-check"></i></th><th class="p-3">Debitur</th><th class="p-3 text-center">Unit</th><th class="p-3 text-center">Kol</th><th class="p-3 text-right">Tunggakan</th><th class="p-3 text-center">Action</th></tr></thead><tbody id="tblCollection"></tbody></table></div>
-          </div>
-      </div>
-
-      <!-- 5. WATCHLIST -->
-      <div id="view-watchlist" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-lg flex justify-between items-center">
-             <div class="flex items-center gap-4">
-                 <i class="fas fa-eye text-4xl grad-icon grad-red"></i>
-                 <div><h3 class="font-bold text-red-700 dark:text-red-400">Top Watchlist</h3><div class="text-xs text-red-600/80">Kol 1-2 Menunggak. Potensi NPL!</div></div>
-             </div>
-             <div class="text-right"><div class="text-2xl font-bold text-red-700 dark:text-white" id="wl_count">...</div><div class="text-xs font-mono text-gray-500" id="wl_os">...</div></div>
-          </div>
-          <div class="glass-card rounded-xl overflow-hidden flex flex-col h-[600px]">
-             <div class="overflow-auto flex-1"><table class="w-full text-left text-sm whitespace-nowrap"><thead class="bg-gray-50 dark:bg-slate-700 sticky top-0"><tr><th class="p-3">Nama / Loan</th><th class="p-3">Unit</th><th class="p-3 text-center">Kol</th><th class="p-3 text-right">Tunggakan</th><th class="p-3 text-right">Baki</th></tr></thead><tbody id="tblWatchlist"></tbody></table></div>
-          </div>
-      </div>
-
-      <!-- 6. NPL ALL -->
-      <div id="view-nplall" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-slate-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Baki Debet</div>
-                          <div class="text-2xl font-black text-slate-700 dark:text-white" id="k_all_tot">...</div>
-                      </div>
-                      <i class="fas fa-vault text-4xl grad-icon grad-blue group-hover:scale-110 transition-transform"></i>
-                  </div>
-                  <div id="bdg_k_all_tot" class="mt-3"></div>
-              </div>
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-red-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">Total NPL Global</div>
-                          <div class="text-2xl font-black text-red-600" id="k_all_npl">...</div>
-                      </div>
-                      <i class="fas fa-radiation text-4xl grad-icon grad-red group-hover:scale-110 transition-transform"></i>
-                  </div>
-                  <div id="bdg_k_all_npl" class="mt-3"></div>
-              </div>
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-pink-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-1">Total KKR Global</div>
-                          <div class="text-2xl font-black text-pink-600" id="k_all_kkr">...</div>
-                      </div>
-                      <i class="fas fa-eye text-4xl grad-icon grad-purple group-hover:scale-110 transition-transform"></i>
-                  </div>
-                  <div id="bdg_k_all_kkr" class="mt-3"></div>
-              </div>
-          </div>
-          <div class="bg-gradient-to-r from-slate-700 to-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-2xl border border-white/10">
-              <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-              <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
-                  <div>
-                      <div class="text-slate-300 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Simulasi Ratio NPL Total</div>
-                      <div class="text-5xl font-black font-mono tracking-tighter drop-shadow-md" id="k_npl_rat_ALL">...</div>
-                      <div id="ks_res_ALL" class="text-xs mt-2 font-bold px-4 py-1.5 bg-white/10 backdrop-blur-sm rounded-full inline-block border border-white/20 shadow-inner">...</div>
-                  </div>
-                  <div class="flex gap-4">
-                      <div class="bg-white/5 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] hover:bg-white/10 transition-colors">
-                          <div class="text-[8px] font-bold uppercase text-green-300 mb-1 tracking-wider">🎯 Target Setoran</div>
-                          <div id="ks_heal_ALL" class="font-mono font-black text-sm">Rp 0</div>
-                      </div>
-                      <div class="bg-white/5 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] hover:bg-white/10 transition-colors">
-                          <div class="text-[8px] font-bold uppercase text-red-300 mb-1 tracking-wider">⚠️ Risiko Jatuh Baru</div>
-                          <div id="ks_crash_ALL" class="font-mono font-black text-sm">Rp 0</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- === SLIDER SIMULASI OS (NPL ALL) === -->
-              <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
-                  <div class="flex justify-between items-end mb-4">
-                      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-black/20 px-3 py-1 rounded-full"><i class="fas fa-sliders-h mr-1 text-blue-400"></i> Simulasi Baki Debet</div>
-                      <div class="flex flex-col items-end">
-                          <div class="text-sm font-black text-white font-mono bg-black/40 px-4 py-1.5 rounded-xl border border-white/10 shadow-inner" id="sim_os_ALL">Geser Slider 👉</div>
-                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider text-right w-full" id="sim_diff_ALL"></div>
-                      </div>
-                  </div>
-                  <input type="range" id="slide_os_ALL" min="-50" max="100" value="0" class="sim-slider w-full h-2 bg-slate-600 rounded-lg appearance-none cursor-pointer" oninput="app.calcSim('ALL')">
-                  <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase mt-3">
-                      <span class="bg-red-500/20 text-red-300 px-2 py-1 rounded-lg"><i class="fas fa-arrow-down"></i> Pelunasan -50%</span>
-                      <span id="sim_pct_ALL" class="text-white bg-white/10 px-4 py-1 rounded-full border border-white/10 shadow-inner font-black text-xs">0%</span>
-                      <span class="bg-green-500/20 text-green-300 px-2 py-1 rounded-lg">Ekspansi +100% <i class="fas fa-arrow-up"></i></span>
-                  </div>
-              </div>
-          </div>
-
-          <!-- LIST DEBITUR (MODERN PLAYFUL BENTO STYLE) -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <!-- KARTU NPL -->
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[520px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(239,68,68,0.25)] relative group transition-shadow hover:shadow-[0_20px_50px_-15px_rgba(239,68,68,0.4)] bg-white/50 dark:bg-slate-900/50">
-                  <div class="absolute -top-16 -right-16 w-40 h-40 bg-red-500/20 rounded-full blur-3xl group-hover:bg-red-500/30 transition-all duration-700"></div>
-                  
-                  <div class="p-5 bg-gradient-to-r from-red-500 to-rose-600 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-skull-crossbones"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Priority Distress</div>
-                              <div class="text-[9px] font-bold text-red-100 uppercase tracking-widest mt-0.5">Daftar NPL Global</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-red-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider animate-bounce-slow">Kritis</span>
-                  </div>
-                  
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th>
-                                  <th class="p-4">Identitas</th>
-                                  <th class="p-4 hidden sm:table-cell">Unit</th>
-                                  <th class="p-4 text-center">Kol</th>
-                                  <th class="p-4 text-right hidden lg:table-cell">Plafond</th>
-                                  <th class="p-4 text-right">Baki</th>
-                                  <th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblALLNpl" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-
-              <!-- KARTU KKR -->
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[520px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(245,158,11,0.25)] relative group transition-shadow hover:shadow-[0_20px_50px_-15px_rgba(245,158,11,0.4)] bg-white/50 dark:bg-slate-900/50">
-                  <div class="absolute -top-16 -right-16 w-40 h-40 bg-amber-500/20 rounded-full blur-3xl group-hover:bg-amber-500/30 transition-all duration-700"></div>
-                  
-                  <div class="p-5 bg-gradient-to-r from-amber-400 to-orange-500 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-search-location"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Watchlist EWS</div>
-                              <div class="text-[9px] font-bold text-orange-100 uppercase tracking-widest mt-0.5">Daftar KKR Global</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-orange-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Pantau</span>
-                  </div>
-                  
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th>
-                                  <th class="p-4">Identitas</th>
-                                  <th class="p-4 hidden sm:table-cell">Unit</th>
-                                  <th class="p-4 text-center">Kol</th>
-                                  <th class="p-4 text-right hidden lg:table-cell">Plafond</th>
-                                  <th class="p-4 text-right">Baki</th>
-                                  <th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblALLKkr" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <!-- 7. NPL KUR -->
-      <div id="view-nplkur" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="glass-card p-5 rounded-[2rem] border-b-4 border-purple-500 group hover:-translate-y-1 transition-transform">
-                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">KUR Mikro OS <i class="fas fa-seedling grad-icon grad-purple text-xl group-hover:rotate-12 transition-transform"></i></div>
-                  <div class="text-xl font-black text-purple-600 mt-2" id="k_mikro">...</div>
-              </div>
-              <div class="glass-card p-5 rounded-[2rem] border-b-4 border-blue-500 group hover:-translate-y-1 transition-transform">
-                  <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">KUR Kecil OS <i class="fas fa-tree grad-icon grad-blue text-xl group-hover:rotate-12 transition-transform"></i></div>
-                  <div class="text-xl font-black text-blue-600 mt-2" id="k_kecil">...</div>
-              </div>
-              <div class="glass-card p-5 rounded-[2rem] border-b-4 border-red-500 group hover:-translate-y-1 transition-transform">
-                  <div class="text-[9px] font-black text-red-500 uppercase tracking-widest flex items-center justify-between">Total NPL KUR <i class="fas fa-radiation grad-icon grad-red text-xl group-hover:scale-110 transition-transform"></i></div>
-                  <div class="text-xl font-black text-red-700 mt-2" id="k_kur_npl">...</div>
-              </div>
-              <div class="glass-card p-5 rounded-[2rem] border-b-4 border-pink-500 group hover:-translate-y-1 transition-transform">
-                  <div class="text-[9px] font-black text-pink-500 uppercase tracking-widest flex items-center justify-between">Total KKR KUR <i class="fas fa-eye grad-icon grad-purple text-xl group-hover:scale-110 transition-transform"></i></div>
-                  <div class="text-xl font-black text-pink-700 mt-2" id="k_kur_kkr">...</div>
-              </div>
-          </div>
-          <div class="bg-gradient-to-br from-purple-700 to-indigo-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden border border-white/10">
-              <div class="absolute -bottom-10 -left-10 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl"></div>
-              <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
-                  <div class="text-center lg:text-left">
-                      <div class="text-purple-200 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Simulasi Ratio NPL KUR</div>
-                      <div class="text-5xl font-black font-mono tracking-tighter drop-shadow-lg" id="k_npl_rat_KUR">...</div>
-                  </div>
-                  <div class="flex gap-4">
-                      <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] shadow-inner">
-                          <div class="text-[8px] font-bold uppercase text-green-300 mb-1 tracking-wider">Estimasi Setoran</div>
-                          <div id="ks_heal_KUR" class="font-mono font-black text-sm drop-shadow">Rp 0</div>
-                      </div>
-                      <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] shadow-inner">
-                          <div class="text-[8px] font-bold uppercase text-red-300 mb-1 tracking-wider">Estimasi Jatuh</div>
-                          <div id="ks_crash_KUR" class="font-mono font-black text-sm drop-shadow">Rp 0</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <!-- === SLIDER SIMULASI OS (NPL KUR) === -->
-              <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
-                  <div class="flex justify-between items-end mb-4">
-                      <div class="text-[10px] font-bold text-purple-200 uppercase tracking-widest bg-black/20 px-3 py-1 rounded-full"><i class="fas fa-sliders-h mr-1 text-purple-300"></i> Simulasi Baki Debet</div>
-                      <div class="flex flex-col items-end">
-                          <div class="text-sm font-black text-white font-mono bg-black/30 px-4 py-1.5 rounded-xl border border-white/10 shadow-inner" id="sim_os_KUR">Geser Slider 👉</div>
-                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider text-right w-full" id="sim_diff_KUR"></div>
-                      </div>
-                  </div>
-                  <input type="range" id="slide_os_KUR" min="-50" max="100" value="0" class="sim-slider w-full h-2 bg-purple-900/50 rounded-lg appearance-none cursor-pointer" oninput="app.calcSim('KUR')">
-                  <div class="flex justify-between text-[10px] font-bold text-purple-300 uppercase mt-3">
-                      <span class="bg-red-500/20 text-red-300 px-2 py-1 rounded-lg"><i class="fas fa-arrow-down"></i> Pelunasan -50%</span>
-                      <span id="sim_pct_KUR" class="text-white bg-white/10 px-4 py-1 rounded-full border border-white/10 shadow-inner font-black text-xs">0%</span>
-                      <span class="bg-green-500/20 text-green-300 px-2 py-1 rounded-lg">Ekspansi +100% <i class="fas fa-arrow-up"></i></span>
-                  </div>
-              </div>
-          </div>
-
-          <!-- LIST DEBITUR KUR -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[500px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(225,29,72,0.25)] relative group bg-white/50 dark:bg-slate-900/50">
-                  <div class="p-5 bg-gradient-to-r from-rose-500 to-red-600 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-virus"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Debitur NPL KUR</div>
-                              <div class="text-[9px] font-bold text-red-100 uppercase tracking-widest mt-0.5">Segmen Subsidies</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-red-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Action</span>
-                  </div>
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th><th class="p-4">Identitas</th><th class="p-4 hidden sm:table-cell">Unit</th><th class="p-4 text-center">Kol</th><th class="p-4 text-right hidden lg:table-cell">Plafond</th><th class="p-4 text-right">Baki</th><th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblKURNpl" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-              
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[500px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(219,39,119,0.25)] relative group bg-white/50 dark:bg-slate-900/50">
-                  <div class="p-5 bg-gradient-to-r from-pink-500 to-rose-400 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-eye"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Debitur KKR KUR</div>
-                              <div class="text-[9px] font-bold text-pink-100 uppercase tracking-widest mt-0.5">Segmen Subsidies</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-pink-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Monitor</span>
-                  </div>
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th><th class="p-4">Identitas</th><th class="p-4 hidden sm:table-cell">Unit</th><th class="p-4 text-center">Kol</th><th class="p-4 text-right hidden lg:table-cell">Plafond</th><th class="p-4 text-right">Baki</th><th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblKURKkr" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <!-- 8. NPL KONSUMTIF -->
-      <div id="view-nplkonsumtif" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-indigo-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start"><div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Portfolio Konsumtif</div><div class="text-2xl font-black text-slate-700 dark:text-white" id="k_kons_tot">...</div></div><i class="fas fa-house-user text-4xl grad-icon grad-blue group-hover:scale-110 transition-transform"></i></div>
-              </div>
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-red-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start"><div><div class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">NPL Konsumtif</div><div class="text-2xl font-black text-red-600" id="k_kons_npl">...</div></div><i class="fas fa-exclamation-triangle text-4xl grad-icon grad-red group-hover:scale-110 transition-transform"></i></div>
-              </div>
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-pink-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start"><div><div class="text-[10px] font-black text-pink-500 uppercase tracking-widest mb-1">KKR Konsumtif</div><div class="text-2xl font-black text-pink-600" id="k_kons_kkr">...</div></div><i class="fas fa-eye text-4xl grad-icon grad-purple group-hover:scale-110 transition-transform"></i></div>
-              </div>
-          </div>
-          <div class="bg-gradient-to-br from-indigo-600 to-blue-800 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden border border-white/10">
-              <div class="absolute top-1/2 left-1/2 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
-              <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
-                  <div class="text-center lg:text-left">
-                      <div class="text-indigo-200 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Ratio NPL Konsumtif</div>
-                      <div class="text-5xl font-black font-mono tracking-tighter drop-shadow-md" id="k_npl_rat_Kons">...</div>
-                  </div>
-                  <div class="flex gap-4">
-                      <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] shadow-inner">
-                          <div class="text-[8px] font-bold uppercase text-green-200 mb-1 tracking-wider">Setoran</div>
-                          <div id="ks_heal_Kons" class="font-mono font-black text-sm drop-shadow">Rp 0</div>
-                      </div>
-                      <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] shadow-inner">
-                          <div class="text-[8px] font-bold uppercase text-red-200 mb-1 tracking-wider">Jatuh Baru</div>
-                          <div id="ks_crash_Kons" class="font-mono font-black text-sm drop-shadow">Rp 0</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
-                  <div class="flex justify-between items-end mb-4">
-                      <div class="text-[10px] font-bold text-indigo-200 uppercase tracking-widest bg-black/20 px-3 py-1 rounded-full"><i class="fas fa-sliders-h mr-1 text-indigo-300"></i> Simulasi Baki Debet</div>
-                      <div class="flex flex-col items-end">
-                          <div class="text-sm font-black text-white font-mono bg-black/30 px-4 py-1.5 rounded-xl border border-white/10 shadow-inner" id="sim_os_KONS">Geser Slider 👉</div>
-                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider text-right w-full" id="sim_diff_KONS"></div>
-                      </div>
-                  </div>
-                  <input type="range" id="slide_os_KONS" min="-50" max="100" value="0" class="sim-slider w-full h-2 bg-indigo-900/50 rounded-lg appearance-none cursor-pointer" oninput="app.calcSim('KONS')">
-                  <div class="flex justify-between text-[10px] font-bold text-indigo-300 uppercase mt-3">
-                      <span class="bg-red-500/20 text-red-300 px-2 py-1 rounded-lg"><i class="fas fa-arrow-down"></i> Pelunasan -50%</span>
-                      <span id="sim_pct_KONS" class="text-white bg-white/10 px-4 py-1 rounded-full border border-white/10 shadow-inner font-black text-xs">0%</span>
-                      <span class="bg-green-500/20 text-green-300 px-2 py-1 rounded-lg">Ekspansi +100% <i class="fas fa-arrow-up"></i></span>
-                  </div>
-              </div>
-          </div>
-
-          <!-- LIST DEBITUR KONSUMTIF -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[500px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(225,29,72,0.25)] relative group bg-white/50 dark:bg-slate-900/50">
-                  <div class="p-5 bg-gradient-to-r from-red-500 to-rose-600 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-shopping-bag"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">NPL Konsumtif List</div>
-                              <div class="text-[9px] font-bold text-red-100 uppercase tracking-widest mt-0.5">Pegawai & Pensiunan</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-red-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Kritis</span>
-                  </div>
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th><th class="p-4">Identitas</th><th class="p-4 hidden sm:table-cell">Unit</th><th class="p-4 text-center">Kol</th><th class="p-4 text-right hidden lg:table-cell">Plafond</th><th class="p-4 text-right">Baki</th><th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblKonsNpl" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-              
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[500px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(217,70,239,0.25)] relative group bg-white/50 dark:bg-slate-900/50">
-                  <div class="p-5 bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-user-clock"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">KKR Konsumtif List</div>
-                              <div class="text-[9px] font-bold text-pink-100 uppercase tracking-widest mt-0.5">Pegawai & Pensiunan</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-fuchsia-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Pantau</span>
-                  </div>
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th><th class="p-4">Identitas</th><th class="p-4 hidden sm:table-cell">Unit</th><th class="p-4 text-center">Kol</th><th class="p-4 text-right hidden lg:table-cell">Plafond</th><th class="p-4 text-right">Baki</th><th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblKonsKkr" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <!-- 9. NPL PRODUKTIF -->
-      <div id="view-nplprod" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-emerald-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start"><div><div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Eksposur Produktif</div><div class="text-2xl font-black text-slate-700 dark:text-white" id="k_prod_tot">...</div></div><i class="fas fa-industry text-4xl grad-icon grad-gold group-hover:scale-110 transition-transform"></i></div>
-              </div>
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-red-600 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start"><div><div class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">NPL Produktif</div><div class="text-2xl font-black text-red-600" id="k_prod_npl">...</div></div><i class="fas fa-exclamation-triangle text-4xl grad-icon grad-red group-hover:scale-110 transition-transform"></i></div>
-              </div>
-              <div class="glass-card p-6 rounded-[2rem] border-l-8 border-orange-500 group hover:-translate-y-1 transition-transform">
-                  <div class="flex justify-between items-start"><div><div class="text-[10px] font-black text-orange-500 uppercase tracking-widest mb-1">KKR Produktif</div><div class="text-2xl font-black text-orange-600" id="k_prod_kkr">...</div></div><i class="fas fa-eye text-4xl grad-icon grad-orange group-hover:scale-110 transition-transform"></i></div>
-              </div>
-          </div>
-          <div class="bg-gradient-to-br from-emerald-600 to-teal-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden border border-white/10">
-              <div class="absolute bottom-0 right-0 w-80 h-80 bg-emerald-400/20 rounded-full blur-3xl translate-x-1/4 translate-y-1/4"></div>
-              <div class="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-8">
-                  <div>
-                      <div class="text-emerald-100 text-[10px] font-black uppercase tracking-[0.3em] mb-1">Simulasi Ratio NPL Produktif</div>
-                      <div class="text-5xl font-black font-mono tracking-tighter drop-shadow-md" id="k_npl_rat_Prod">...</div>
-                  </div>
-                  <div class="flex gap-4">
-                      <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] shadow-inner">
-                          <div class="text-[8px] font-bold uppercase text-green-300 mb-1 tracking-wider">Setoran</div>
-                          <div id="ks_heal_Prod" class="font-mono font-black text-sm drop-shadow">Rp 0</div>
-                      </div>
-                      <div class="bg-white/10 backdrop-blur-md p-4 rounded-3xl border border-white/10 text-center min-w-[140px] shadow-inner">
-                          <div class="text-[8px] font-bold uppercase text-red-300 mb-1 tracking-wider">Jatuh Baru</div>
-                          <div id="ks_crash_Prod" class="font-mono font-black text-sm drop-shadow">Rp 0</div>
-                      </div>
-                  </div>
-              </div>
-              
-              <div class="relative z-10 mt-8 pt-6 border-t border-white/10 w-full animate-fade-in">
-                  <div class="flex justify-between items-end mb-4">
-                      <div class="text-[10px] font-bold text-emerald-100 uppercase tracking-widest bg-black/20 px-3 py-1 rounded-full"><i class="fas fa-sliders-h mr-1 text-emerald-200"></i> Simulasi Baki Debet</div>
-                      <div class="flex flex-col items-end">
-                          <div class="text-sm font-black text-white font-mono bg-black/30 px-4 py-1.5 rounded-xl border border-white/10 shadow-inner" id="sim_os_PROD">Geser Slider 👉</div>
-                          <div class="text-[9px] font-bold mt-1 h-3 tracking-wider text-right w-full" id="sim_diff_PROD"></div>
-                      </div>
-                  </div>
-                  <input type="range" id="slide_os_PROD" min="-50" max="100" value="0" class="sim-slider w-full h-2 bg-emerald-900/50 rounded-lg appearance-none cursor-pointer" oninput="app.calcSim('PROD')">
-                  <div class="flex justify-between text-[10px] font-bold text-emerald-200 uppercase mt-3">
-                      <span class="bg-red-500/20 text-red-300 px-2 py-1 rounded-lg"><i class="fas fa-arrow-down"></i> Pelunasan -50%</span>
-                      <span id="sim_pct_PROD" class="text-white bg-white/10 px-4 py-1 rounded-full border border-white/10 shadow-inner font-black text-xs">0%</span>
-                      <span class="bg-green-500/20 text-green-300 px-2 py-1 rounded-lg">Ekspansi +100% <i class="fas fa-arrow-up"></i></span>
-                  </div>
-              </div>
-          </div>
-
-          <!-- LIST DEBITUR PRODUKTIF -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[500px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(225,29,72,0.25)] relative group bg-white/50 dark:bg-slate-900/50">
-                  <div class="p-5 bg-gradient-to-r from-red-600 to-rose-700 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-cogs"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">NPL Produktif List</div>
-                              <div class="text-[9px] font-bold text-red-100 uppercase tracking-widest mt-0.5">Segmen Usaha</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-red-700 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Kritis</span>
-                  </div>
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th><th class="p-4">Identitas</th><th class="p-4 hidden sm:table-cell">Unit</th><th class="p-4 text-center">Kol</th><th class="p-4 text-right hidden lg:table-cell">Plafond</th><th class="p-4 text-right">Baki</th><th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblProdNpl" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-              
-              <div class="glass-card rounded-[2.5rem] overflow-hidden flex flex-col h-[500px] border-4 border-white/40 dark:border-slate-700/50 shadow-[0_15px_40px_-15px_rgba(249,115,22,0.25)] relative group bg-white/50 dark:bg-slate-900/50">
-                  <div class="p-5 bg-gradient-to-r from-orange-500 to-amber-500 text-white relative z-10 shadow-md flex justify-between items-center">
-                      <div class="flex items-center gap-3">
-                          <div class="bg-white/20 p-2 rounded-2xl backdrop-blur-md shadow-inner text-xl"><i class="fas fa-chart-line"></i></div>
-                          <div>
-                              <div class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">KKR Produktif List</div>
-                              <div class="text-[9px] font-bold text-orange-100 uppercase tracking-widest mt-0.5">Segmen Usaha</div>
-                          </div>
-                      </div>
-                      <span class="bg-white text-orange-600 px-3 py-1 rounded-full text-[10px] font-black shadow-inner uppercase tracking-wider">Pantau</span>
-                  </div>
-                  <div class="flex-1 overflow-auto custom-scrollbar p-3 relative z-10">
-                      <table class="w-full text-sm text-left">
-                          <thead class="sticky top-0 z-10">
-                              <tr class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl text-[9px] uppercase font-black text-slate-500 shadow-sm rounded-xl overflow-hidden">
-                                  <th class="p-4 text-center rounded-l-xl w-10">#</th><th class="p-4">Identitas</th><th class="p-4 hidden sm:table-cell">Unit</th><th class="p-4 text-center">Kol</th><th class="p-4 text-right hidden lg:table-cell">Plafond</th><th class="p-4 text-right">Baki</th><th class="p-4 text-right rounded-r-xl">Tgk</th>
-                              </tr>
-                          </thead>
-                          <tbody id="tblProdKkr" class="divide-y divide-slate-100/50 dark:divide-slate-800/50 before:block before:h-2"></tbody>
-                      </table>
-                  </div>
-              </div>
-          </div>
-      </div>
-
-      <!-- 10. FRESH DROP -->
-      <div id="view-freshdrop" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="flex items-center gap-3 text-slate-700 dark:text-slate-200">
-              <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center shadow-sm border border-slate-100">
-                  <i class="fas fa-arrow-down-wide-short text-2xl grad-icon grad-orange"></i>
-              </div>
-              <div>
-                  <h3 class="font-bold text-lg leading-none">Fresh Drop / Downgrade</h3>
-                  <p class="text-xs text-slate-400 mt-1">Debitur yang mengalami penurunan kualitas bulan ini.</p>
-              </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="glass-card rounded-xl p-5 flex items-center justify-between relative overflow-hidden group">
-                   <div class="relative z-10">
-                       <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Rekening Drop</div>
-                       <div class="mt-1 flex items-baseline gap-2">
-                          <span class="text-3xl font-extrabold text-slate-800 dark:text-white" id="fresh_total_noa">0</span>
-                          <span class="text-[10px] font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded-full border border-red-200">WASPADA</span>
-                       </div>
-                   </div>
-                   <div class="relative z-10">
-                       <i class="fas fa-user-injured text-4xl grad-icon grad-red"></i>
-                   </div>
-              </div>
-              <div class="glass-card rounded-xl p-5 flex items-center justify-between relative overflow-hidden group">
-                   <div class="relative z-10">
-                       <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Baki Debet (Impact)</div>
-                       <div class="mt-1">
-                          <span class="text-2xl font-extrabold text-slate-800 dark:text-white font-mono" id="fresh_total_os">Rp 0</span>
-                       </div>
-                   </div>
-                   <div class="relative z-10">
-                       <i class="fas fa-money-bill-trend-up text-4xl transform rotate-180 grad-icon grad-orange"></i>
-                   </div>
-              </div>
-          </div>
-          <div id="fresh_list_container" class="glass-card rounded-xl min-h-[300px]">
-              <div class="p-10 text-center text-gray-400">
-                  <i class="fas fa-circle-notch fa-spin text-3xl mb-3 grad-icon grad-orange"></i><br>Memuat data...
-              </div>
-          </div>
-      </div>
-
-      <!-- 11. WRITE OFF -->
-      <div id="view-writeoff" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="bg-slate-800 text-white border-l-4 border-slate-400 p-6 rounded-xl mb-4 relative overflow-hidden shadow-lg">
-              <div class="absolute right-0 top-0 h-full w-1/3 bg-white/5 skew-x-12 transform origin-bottom-left"></div>
-              <div class="relative z-10 flex justify-between items-center">
-                  <div>
-                      <h3 class="font-bold text-xl flex items-center gap-3"><i class="fas fa-skull-crossbones text-3xl grad-icon grad-red opacity-80"></i> Debitur Hapus Buku (WO)</h3>
-                      <div class="text-xs text-slate-300 mt-1 max-w-lg">Daftar debitur <i>Off-Balance Sheet</i> (Ekstrakomptabel). Fokus pada <b>Recovery</b> aset yang telah dihapusbukukan.</div>
-                  </div>
-                  <div class="text-right">
-                      <div class="text-3xl font-bold font-mono" id="wo_total_os">...</div>
-                      <div class="text-xs text-slate-400 mt-1"><span id="wo_count" class="font-bold text-white">...</span> Debitur</div>
-                  </div>
-              </div>
-          </div>
-          <div class="glass-card rounded-xl overflow-hidden flex flex-col min-h-[500px]">
-              <div class="p-4 border-b dark:border-slate-700 flex justify-between items-center">
-                  <span class="font-bold text-sm text-slate-700 dark:text-slate-200">Prioritas Recovery (Top Outstanding)</span>
-                  <span class="text-[10px] px-2 py-1 bg-slate-200 dark:bg-slate-700 rounded text-slate-600 dark:text-slate-300 font-mono">Status: E (Ekstrakom)</span>
-              </div>
-              <div class="overflow-auto flex-1">
-                  <table class="w-full text-left text-sm whitespace-nowrap">
-                      <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 sticky top-0">
-                          <tr><th class="p-3">Debitur / Loan ID</th><th class="p-3 text-center">Unit</th><th class="p-3 text-center">Tgl WO</th><th class="p-3 text-right">Saldo Tagihan</th><th class="p-3 text-center">Action</th></tr>
-                      </thead>
-                      <tbody id="tblWriteOff"></tbody>
-                  </table>
-              </div>
-          </div>
-      </div>
-
-      <!-- 12. REPORT PREVIEW -->
-      <div id="view-report" class="tab-view hidden fade-in h-full flex flex-col relative bg-transparent overflow-hidden">
-          <div class="absolute top-4 left-0 w-full z-30 pointer-events-none flex justify-center">
-              <div class="glass-card px-6 py-2 pointer-events-auto flex items-center gap-4 border-2 border-blue-200">
-                  <div class="text-xs font-bold text-slate-500 uppercase tracking-wider flex flex-col items-start">
-                      <span>Preview Mode</span>
-                      <span class="text-[9px] text-slate-400 font-normal">A4 Portrait</span>
-                  </div>
-                  <div class="h-8 w-px bg-slate-300 dark:bg-slate-600"></div>
-                  <button onclick="app.downloadPDF()" class="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white text-xs font-bold py-2 px-4 rounded-full shadow-lg transition active:scale-95">
-                      <i class="fas fa-file-pdf"></i> SIMPAN PDF
-                  </button>
-              </div>
-          </div>
-          <div class="flex-1 overflow-y-auto overflow-x-hidden p-8 pt-20 flex justify-center custom-scrollbar">
-              <div id="rpt_content_area" class="bg-white text-slate-800 shadow-2xl w-full max-w-[210mm] min-h-[297mm] p-[10mm] relative transition-all duration-500 ease-out origin-top rounded-md">
-                  <div id="rpt_placeholder" class="flex flex-col items-center justify-center h-full text-slate-300 py-40">
-                      <i class="fas fa-print text-6xl mb-4 grad-icon grad-blue opacity-30"></i>
-                      <p class="text-sm font-bold tracking-widest uppercase">Siapkan Laporan...</p>
-                  </div>
-                  <div id="rpt_content_body"></div>
-              </div>
-          </div>
-      </div>
-
-      <!-- 13. TOP OBLIGOR -->
-      <div id="view-top" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="glass-card p-6 rounded-2xl border-l-4 border-yellow-500 mb-4 flex items-center gap-4">
-             <i class="fas fa-crown text-5xl grad-icon grad-gold"></i>
-             <div>
-                 <h3 class="font-bold text-lg dark:text-white">Top 20 Obligor (Concentration Risk)</h3>
-                 <div class="text-xs text-slate-500 mt-1">Daftar debitur dengan eksposur kredit terbesar secara gabungan. Perhatian khusus diperlukan.</div>
-             </div>
-          </div>
-          <div class="glass-card rounded-xl overflow-hidden">
-             <table class="w-full text-left text-sm">
-                <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400"><tr><th class="p-3 text-center">#</th><th class="p-3">Debitur</th><th class="p-3 text-center">Unit</th><th class="p-3 text-center">Kol</th><th class="p-3 text-right">Total Exposure</th></tr></thead>
-                <tbody id="tblTopObligor"></tbody>
-             </table>
-          </div>
-      </div>
-
-      <!-- 14. KREDIT (DATA MASTER) -->
-      <div id="view-kredit" class="tab-view hidden fade-in w-full bg-transparent">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="glass-card p-4 rounded-xl flex justify-between items-center group"><div><div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Total Outstanding</div><div class="text-2xl font-black text-brand-600" id="kr_os">...</div></div><i class="fas fa-coins text-4xl grad-icon grad-blue group-hover:scale-110 transition-transform"></i></div>
-              <div class="glass-card p-4 rounded-xl flex justify-between items-center group"><div><div class="text-xs text-gray-400 uppercase tracking-widest font-bold">Total Debitur</div><div class="text-2xl font-black text-emerald-600" id="kr_noa">...</div></div><i class="fas fa-user-friends text-4xl grad-icon grad-emerald group-hover:scale-110 transition-transform"></i></div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="glass-card p-4"><div class="text-xs font-bold mb-2 flex items-center gap-2"><i class="fas fa-chart-pie grad-icon grad-purple"></i> Komposisi Jenis Kredit</div><div class="chart-box-sm"><canvas id="chKr1"></canvas></div></div>
-              <div class="glass-card p-4"><div class="text-xs font-bold mb-2 flex items-center gap-2"><i class="fas fa-chart-doughnut grad-icon grad-orange"></i> Sebaran Sektor Ekonomi</div><div class="chart-box-sm"><canvas id="chKr2"></canvas></div></div>
-          </div>
-          <div class="glass-card rounded-xl overflow-hidden flex flex-col h-[500px]">
-             <div class="p-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
-                 <span class="font-bold text-sm">Daftar Debitur</span>
-                 <div class="flex gap-2">
-                     <input id="searchCreditInput" type="text" onkeydown="app.handleSearchEnter(event)" placeholder="Cari Nama / PK..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm dark:bg-slate-700 outline-none focus:border-blue-500">
-                     <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-brand-600 hover:bg-brand-700 transition text-white px-4 py-1.5 rounded-lg text-sm shadow-sm active:scale-95"><i class="fas fa-search"></i></button>
-                     <button id="btnResetSearch" onclick="app.resetSearchCredit()" class="hidden bg-slate-200 hover:bg-slate-300 transition text-slate-600 px-3 py-1.5 rounded-lg text-sm active:scale-95"><i class="fas fa-times"></i></button>
-                 </div>
-             </div>
-             <div class="overflow-auto flex-1">
-                 <table class="w-full text-left text-sm whitespace-nowrap">
-                     <thead class="bg-slate-50 dark:bg-slate-800/50 sticky top-0 z-10"><tr><th class="p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="app.sortKredit('nama')">Nama / Loan <i class="fas fa-sort text-slate-400"></i></th><th class="p-3">Unit</th><th class="p-3 text-center">Kol</th><th class="p-3 text-right">Plafond</th><th class="p-3 text-right cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="app.sortKredit('os')">Baki <i class="fas fa-sort text-slate-400"></i></th></tr></thead>
-                     <tbody id="creditTableBody"></tbody>
+          <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[450px] md:h-[600px] border border-white/60 dark:border-slate-700 shadow-sm bg-white/60 dark:bg-slate-900/60 pb-1">
+             <div class="overflow-auto flex-1 custom-scrollbar px-1">
+                 <table class="w-full text-left text-[11px] md:text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
+                     <thead class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl text-slate-500 sticky top-0 z-20 shadow-sm rounded-md">
+                         <tr>
+                             <th class="p-2.5 text-center rounded-l-md w-8 text-[8px] font-black uppercase"><i class="fas fa-check"></i></th>
+                             <th class="p-2.5 text-[8px] font-black uppercase tracking-widest">Debitur</th>
+                             <th class="p-2.5 text-center text-[8px] font-black uppercase tracking-widest hidden sm:table-cell">Unit</th>
+                             <th class="p-2.5 text-center text-[8px] font-black uppercase tracking-widest">Kol</th>
+                             <th class="p-2.5 text-right text-[8px] font-black uppercase tracking-widest">Tgk (Rp)</th>
+                             <th class="p-2.5 text-center text-[8px] font-black uppercase tracking-widest rounded-r-md">Tindakan</th>
+                         </tr>
+                     </thead>
+                     <tbody id="tblCollection" class="before:block before:h-1"></tbody>
                  </table>
              </div>
           </div>
       </div>
 
-      <!-- 15. RISK MATRIX -->
-      <div id="view-risk" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="glass-card p-6 rounded-2xl border-l-4 border-purple-500 mb-4 flex items-center gap-4">
-             <i class="fas fa-chess-board text-5xl grad-icon grad-purple"></i>
-             <div>
-                 <h3 class="font-bold text-lg dark:text-white">Portfolio Risk Matrix</h3>
-                 <div class="text-xs text-slate-500 mt-1">Analisa Sebaran Baki Debet vs Sisa Tenor. <span class="text-red-500 font-bold">Merah = NPL</span>, <span class="text-emerald-500 font-bold">Hijau = Lancar</span>.</div>
+      <!-- 5. WATCHLIST -->
+      <div id="view-watchlist" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="bg-gradient-to-r from-red-600 to-rose-600 p-4 md:p-6 rounded-[1.2rem] md:rounded-[1.5rem] flex flex-col sm:flex-row justify-between items-start sm:items-center shadow-md relative overflow-hidden border border-white/10 text-white gap-3">
+             <div class="absolute left-0 bottom-0 opacity-10"><i class="fas fa-eye text-7xl transform -translate-x-1/4 translate-y-1/4"></i></div>
+             <div class="flex items-center gap-3 relative z-10 w-full sm:w-auto">
+                 <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shrink-0 shadow-inner border border-white/30">
+                    <i class="fas fa-eye text-2xl"></i>
+                 </div>
+                 <div>
+                     <h3 class="font-black text-lg md:text-xl tracking-tighter leading-none">Top Watchlist</h3>
+                     <div class="text-[8px] text-red-100 mt-1 font-bold bg-red-900/40 px-2 py-0.5 inline-block rounded border border-red-800/50">KOL 1-2 Menunggak</div>
+                 </div>
+             </div>
+             <div class="text-right w-full sm:w-auto relative z-10 bg-white/10 p-2 rounded-xl backdrop-blur-md border border-white/20 flex flex-row sm:flex-col justify-between sm:justify-center items-center sm:items-end">
+                 <div>
+                    <div class="text-[8px] font-black uppercase tracking-widest text-red-200 mb-0.5">Eksposur</div>
+                    <div class="text-lg md:text-2xl font-black font-mono tracking-tighter leading-none" id="wl_os">...</div>
+                 </div>
+                 <div class="text-[8px] font-bold bg-white text-red-600 px-2 py-0.5 rounded shadow-sm sm:mt-1"><span id="wl_count">...</span> Deb</div>
              </div>
           </div>
-          <div class="glass-card p-4 rounded-xl h-[500px]"><canvas id="riskChart"></canvas></div>
-      </div>
-
-      <!-- 16. VINTAGE -->
-      <div id="view-vintage" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="glass-card p-6 rounded-2xl border-l-4 border-blue-500 mb-4 flex items-center gap-4">
-             <i class="fas fa-history text-5xl grad-icon grad-blue"></i>
-             <div>
-                 <h3 class="font-bold text-lg dark:text-white">Vintage Analysis</h3>
-                 <div class="text-xs text-slate-500 mt-1">Analisa kualitas kredit berdasarkan Tahun Booking. Batang Biru = Volume Kredit, Garis Merah = Rasio NPL.</div>
+          <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[450px] md:h-[600px] border border-white/60 dark:border-slate-700 shadow-sm bg-white/60 dark:bg-slate-900/60 pb-1">
+             <div class="overflow-auto flex-1 custom-scrollbar px-1">
+                 <table class="w-full text-left text-[11px] md:text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
+                     <thead class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl text-slate-500 sticky top-0 z-20 shadow-sm rounded-md">
+                         <tr>
+                             <th class="p-2.5 text-[8px] font-black uppercase tracking-widest rounded-l-md">Loan / Nama</th>
+                             <th class="p-2.5 text-[8px] font-black uppercase tracking-widest text-center hidden sm:table-cell">Unit</th>
+                             <th class="p-2.5 text-center text-[8px] font-black uppercase tracking-widest">Kol</th>
+                             <th class="p-2.5 text-right text-[8px] font-black uppercase tracking-widest">Tgk (Rp)</th>
+                             <th class="p-2.5 text-right text-[8px] font-black uppercase tracking-widest rounded-r-md">Baki Debet</th>
+                         </tr>
+                     </thead>
+                     <tbody id="tblWatchlist" class="before:block before:h-1"></tbody>
+                 </table>
              </div>
-          </div>
-          <div class="glass-card p-4 rounded-xl h-[500px]"><canvas id="vintageChart"></canvas></div>
-      </div>
-
-      <!-- 17. STRESS TEST -->
-      <div id="view-stress" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="glass-card p-6 rounded-2xl border-l-4 border-red-500 mb-4 flex items-center gap-4">
-             <i class="fas fa-tachometer-alt text-5xl grad-icon grad-red"></i>
-             <div>
-                 <h3 class="font-bold text-lg dark:text-white">Stress Test Simulator</h3>
-                 <div class="text-xs text-slate-500 mt-1">Simulasi dampak pemburukan kualitas kredit terhadap CKPN. Geser slider untuk mengubah parameter probabilitas default.</div>
-             </div>
-          </div>
-          <div class="glass-card p-6 rounded-xl text-center mb-6 border-2 border-red-100 dark:border-red-900/30 shadow-lg">
-             <div class="text-sm text-slate-400 uppercase font-black tracking-widest">Projected Cost (CKPN)</div>
-             <div class="text-5xl font-black text-red-600 mt-2 tracking-tighter" id="stress_total">...</div>
-          </div>
-          <div class="glass-card rounded-xl overflow-hidden">
-             <table class="w-full text-left text-sm"><thead class="bg-slate-50 dark:bg-slate-800/50"><tr><th class="p-3 text-slate-500">Bucket</th><th class="p-3 text-right text-slate-500">Total Exposure</th><th class="p-3 text-center text-slate-500">Prob. of Default (%)</th><th class="p-3 text-right text-slate-500">Estimated Loss</th></tr></thead><tbody id="tblStress"></tbody></table>
           </div>
       </div>
 
-      <!-- 18. CKPN FORECAST -->
-      <div id="view-ckpn" class="tab-view hidden fade-in space-y-6 p-4 md:p-6">
-          <div class="glass-card p-6 rounded-2xl border-l-4 border-blue-500 mb-4 flex items-center gap-4">
-             <i class="fas fa-shield-alt text-5xl grad-icon grad-blue"></i>
-             <div>
-                 <h3 class="font-bold text-lg dark:text-white">CKPN Forecaster (Baseline)</h3>
-                 <div class="text-xs text-slate-500 mt-1">Estimasi Cadangan Kerugian Penurunan Nilai berdasarkan kualitas kredit saat ini (Tanpa Stress Test).</div>
+      <!-- 6 - 9 NPL Views (Compact Structure) -->
+      <div id="view-nplall" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-slate-500 group bg-white/80 col-span-2 lg:col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">Total Baki Debet</div>
+                          <div class="text-base md:text-xl font-black text-slate-700 dark:text-white truncate" id="k_all_tot">...</div>
+                      </div>
+                      <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0"><i class="fas fa-vault text-[10px]"></i></div>
+                  </div>
+                  <div id="bdg_k_all_tot" class="mt-1.5 hidden"></div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-red-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest mb-0.5 truncate">NPL Global</div>
+                          <div class="text-base md:text-xl font-black text-red-600 truncate" id="k_all_npl">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-red-50 text-red-500 items-center justify-center shrink-0"><i class="fas fa-radiation text-[10px]"></i></div>
+                  </div>
+                  <div id="bdg_k_all_npl" class="mt-1.5 hidden"></div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-pink-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-pink-500 uppercase tracking-widest mb-0.5 truncate">KKR Global</div>
+                          <div class="text-base md:text-xl font-black text-pink-600 truncate" id="k_all_kkr">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-pink-50 text-pink-500 items-center justify-center shrink-0"><i class="fas fa-eye text-[10px]"></i></div>
+                  </div>
+                  <div id="bdg_k_all_kkr" class="mt-1.5 hidden"></div>
+              </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-slate-800 to-slate-900 rounded-[1.2rem] md:rounded-[1.5rem] p-4 md:p-5 text-white relative overflow-hidden shadow-md border border-white/10">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+              <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-3">
+                  <div class="text-center md:text-left w-full md:w-auto">
+                      <div class="text-slate-300 text-[8px] font-black uppercase tracking-[0.2em] mb-0.5">Simulasi Ratio NPL</div>
+                      <div class="text-3xl md:text-4xl font-black font-mono tracking-tighter leading-none" id="k_npl_rat_ALL">...</div>
+                      <div id="ks_res_ALL" class="text-[9px] mt-1.5 font-bold px-2 py-0.5 bg-white/10 backdrop-blur-sm rounded border border-white/20 hidden">...</div>
+                  </div>
+                  <div class="flex gap-2 w-full md:w-auto">
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-green-300 mb-0.5">🎯 Setoran</div>
+                          <div id="ks_heal_ALL" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-red-300 mb-0.5">⚠️ Jatuh Baru</div>
+                          <div id="ks_crash_ALL" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="relative z-10 mt-4 pt-3 border-t border-white/10 w-full animate-fade-in">
+                  <div class="flex justify-between items-end mb-2">
+                      <div class="text-[8px] font-bold text-slate-400 uppercase tracking-widest bg-black/20 px-2 py-0.5 rounded hidden sm:block"><i class="fas fa-sliders-h mr-1 text-blue-400"></i> Baki Debet</div>
+                      <div class="flex flex-col sm:items-end w-full sm:w-auto">
+                          <div class="text-[10px] font-black text-white font-mono bg-black/40 px-2 py-0.5 rounded text-center" id="sim_os_ALL">Geser Slider 👉</div>
+                          <div class="text-[7px] font-bold mt-1 text-center sm:text-right" id="sim_diff_ALL"></div>
+                      </div>
+                  </div>
+                  <input type="range" id="slide_os_ALL" min="-50" max="100" value="0" class="sim-slider w-full h-1.5" oninput="app.calcSim('ALL')">
+                  <div class="flex justify-between text-[7px] font-bold text-slate-400 uppercase mt-1.5">
+                      <span class="bg-red-500/20 text-red-300 px-1 py-0.5 rounded">-50%</span>
+                      <span id="sim_pct_ALL" class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10">0%</span>
+                      <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
+                  </div>
+              </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-skull-crossbones"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">NPL List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden backdrop-blur-md">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblALLNpl" class="before:block before:h-1"></tbody>
+                      </table>
+                  </div>
+              </div>
+
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-search-location"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden backdrop-blur-md">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblALLKkr" class="before:block before:h-1"></tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
+      </div>
+      
+      <div id="view-nplkur" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+        <!-- Struktur sama dengan NPL ALL, disesuaikan IDnya -->
+      </div>
+      <div id="view-nplkonsumtif" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+        <!-- Struktur sama dengan NPL ALL -->
+      </div>
+      <div id="view-nplprod" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+         <!-- Struktur sama dengan NPL ALL -->
+      </div>
+
+      <!-- 10. FRESH DROP -->
+      <div id="view-freshdrop" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/80 dark:border-slate-700 p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex items-center gap-3">
+              <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 text-white flex items-center justify-center shadow-md shadow-orange-500/30 transform rotate-3 shrink-0">
+                  <i class="fas fa-arrow-down-wide-short text-xl"></i>
+              </div>
+              <div>
+                  <h3 class="font-black text-lg md:text-xl text-slate-800 dark:text-white tracking-tight leading-none">Fresh Drop</h3>
+                  <p class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Penurunan kualitas bulan ini</p>
+              </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 md:gap-4">
+              <div class="glass-card rounded-[1rem] p-3 md:p-4 flex flex-col justify-between relative overflow-hidden border-b-[3px] border-red-500 shadow-sm bg-white/80">
+                   <div class="absolute -right-2 -bottom-2 opacity-5"><i class="fas fa-user-injured text-5xl text-red-500"></i></div>
+                   <div class="relative z-10 mb-1">
+                       <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Rekening Drop</div>
+                   </div>
+                   <div class="relative z-10 flex items-baseline gap-1.5">
+                      <span class="text-xl md:text-3xl font-black text-slate-800 dark:text-white leading-none" id="fresh_total_noa">0</span>
+                      <span class="text-[7px] font-black text-red-600 bg-red-100 px-1.5 py-0.5 rounded border border-red-200 animate-pulse">WASPADA</span>
+                   </div>
+              </div>
+              <div class="glass-card rounded-[1rem] p-3 md:p-4 flex flex-col justify-between relative overflow-hidden border-b-[3px] border-orange-500 shadow-sm bg-white/80">
+                   <div class="absolute -right-2 -bottom-2 opacity-5"><i class="fas fa-money-bill-trend-up text-5xl transform rotate-180 text-orange-500"></i></div>
+                   <div class="relative z-10 mb-1">
+                       <div class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Impact OS</div>
+                   </div>
+                   <div class="relative z-10">
+                      <span class="text-lg md:text-2xl font-black text-orange-600 font-mono tracking-tighter truncate leading-none" id="fresh_total_os">Rp 0</span>
+                   </div>
+              </div>
+          </div>
+          <div id="fresh_list_container" class="glass-card rounded-[1.2rem] min-h-[300px] flex flex-col justify-center border border-white/60 shadow-sm bg-white/60 p-2">
+              <div class="p-10 text-center text-slate-400">
+                  <i class="fas fa-circle-notch fa-spin text-2xl mb-2 text-orange-500"></i><br><span class="text-[8px] font-black uppercase tracking-widest">Memproses Analisa...</span>
+              </div>
+          </div>
+      </div>
+
+      <!-- 11. WRITE OFF (COMPACT) -->
+      <div id="view-writeoff" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white p-4 md:p-6 rounded-[1.2rem] md:rounded-[1.5rem] relative overflow-hidden shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div class="absolute right-0 top-0 h-full w-1/3 bg-white/5 skew-x-12 transform origin-bottom-left"></div>
+              
+              <div class="relative z-10 flex items-center gap-3">
+                  <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-700/50 rounded-xl flex items-center justify-center shadow-inner border border-slate-600 shrink-0">
+                      <i class="fas fa-book-dead text-xl text-slate-300"></i>
+                  </div>
+                  <div>
+                      <h3 class="font-black text-lg md:text-xl tracking-tighter leading-none">Hapus Buku (WO)</h3>
+                      <div class="text-[8px] md:text-[9px] text-slate-400 mt-1 font-medium max-w-sm">Fokus pada <b class="text-emerald-400">Recovery Aset</b>.</div>
+                  </div>
+              </div>
+              <div class="relative z-10 bg-slate-800/80 p-2.5 md:p-3 rounded-xl border border-slate-700 w-full sm:w-auto text-center sm:text-right">
+                  <div class="text-[8px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Saldo Tagihan</div>
+                  <div class="text-lg md:text-xl font-black font-mono tracking-tighter text-slate-200 leading-none" id="wo_total_os">...</div>
+                  <div class="text-[8px] font-bold text-slate-500 mt-1 bg-slate-900/50 px-2 py-0.5 rounded inline-block"><span id="wo_count" class="text-white">...</span> Debitur</div>
+              </div>
+          </div>
+          <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[450px] border border-white/60 shadow-sm bg-white/60 pb-1">
+              <div class="p-3 border-b border-white/50 flex justify-between items-center bg-white/40 shrink-0">
+                  <span class="font-black text-[10px] uppercase tracking-widest text-slate-700 flex items-center gap-1.5"><div class="w-5 h-5 rounded bg-red-100 text-red-600 flex items-center justify-center text-[9px]"><i class="fas fa-fire"></i></div> Recovery</span>
+                  <span class="text-[7px] px-1.5 py-0.5 bg-slate-800 text-white rounded font-black tracking-widest shadow-sm">KOL 5/E</span>
+              </div>
+              <div class="overflow-auto flex-1 custom-scrollbar px-1">
+                  <table class="w-full text-left text-[11px] md:text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
+                      <thead class="bg-white/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md">
+                          <tr class="text-[8px] font-black uppercase tracking-widest">
+                              <th class="p-2.5 rounded-l-md">Debitur / Loan</th>
+                              <th class="p-2.5 text-center hidden sm:table-cell">Unit</th>
+                              <th class="p-2.5 text-center">Tgl WO</th>
+                              <th class="p-2.5 text-right">Saldo</th>
+                              <th class="p-2.5 text-center rounded-r-md">Action</th>
+                          </tr>
+                      </thead>
+                      <tbody id="tblWriteOff" class="before:block before:h-1"></tbody>
+                  </table>
+              </div>
+          </div>
+      </div>
+
+      <!-- 12. REPORT PREVIEW (COMPACT) -->
+      <div id="view-report" class="tab-view hidden fade-in h-full flex flex-col relative bg-slate-200/50 overflow-hidden">
+          <div class="absolute top-3 left-0 w-full z-30 pointer-events-none flex justify-center px-4">
+              <div class="glass-card px-4 py-2 pointer-events-auto flex items-center gap-3 md:gap-4 rounded-full shadow-md border border-blue-400/50 bg-white/90 w-full max-w-sm justify-between">
+                  <div class="text-[8px] font-black text-slate-500 uppercase tracking-widest flex flex-col items-center">
+                      <span class="text-blue-600">Preview</span>
+                      <span class="text-[7px] text-slate-400 font-bold">Kertas A4</span>
+                  </div>
+                  <div class="h-5 w-px bg-slate-200"></div>
+                  <button onclick="app.downloadPDF()" class="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white text-[8px] md:text-[9px] font-black tracking-widest py-1.5 px-3 md:px-4 rounded-full shadow-sm active:scale-95 transition-transform shrink-0">
+                      <i class="fas fa-download"></i> UNDUH
+                  </button>
+              </div>
+          </div>
+          <div class="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-6 pt-20 pb-20 flex justify-center custom-scrollbar">
+              <div id="rpt_content_area" class="bg-white text-slate-800 shadow-md w-full max-w-[210mm] min-h-[297mm] p-[5mm] relative transition-all duration-500 ease-out origin-top rounded-sm ring-1 ring-slate-200 transform scale-[0.85] md:scale-100 md:mt-0 -mt-[5%]">
+                  <div id="rpt_placeholder" class="flex flex-col items-center justify-center h-full text-slate-300 py-32">
+                      <i class="fas fa-print text-4xl mb-3 text-blue-500/20"></i>
+                      <p class="text-[9px] font-black tracking-widest uppercase">Pilih filter di header...</p>
+                  </div>
+                  <div id="rpt_content_body" class="bg-white text-black print-format"></div>
+              </div>
+          </div>
+      </div>
+
+      <!-- 13. TOP OBLIGOR (COMPACT) -->
+      <div id="view-top" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="bg-gradient-to-r from-yellow-500 to-amber-600 p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] flex flex-row items-center gap-3 shadow-md relative overflow-hidden border border-white/20 text-white">
+             <div class="absolute -right-4 -bottom-4 opacity-20"><i class="fas fa-crown text-7xl transform -rotate-12"></i></div>
+             <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shrink-0 shadow-inner border border-white/30 relative z-10">
+                <i class="fas fa-crown text-xl text-yellow-100"></i>
+             </div>
+             <div class="relative z-10">
+                 <h3 class="font-black text-lg md:text-xl tracking-tighter leading-none">Top 20 Obligor</h3>
+                 <div class="text-[8px] md:text-[9px] text-yellow-100 mt-1 font-bold bg-black/20 px-1.5 py-0.5 inline-block rounded backdrop-blur-sm">Concentration Risk</div>
              </div>
           </div>
-          <div class="glass-card p-6 rounded-xl text-center mb-6 shadow-lg border-2 border-blue-50 dark:border-blue-900/30">
-             <div class="text-sm text-slate-400 uppercase font-black tracking-widest">Total Estimasi Cadangan</div>
-             <div class="text-5xl font-black text-slate-800 dark:text-white mt-2 tracking-tighter" id="ckpn_total">...</div>
+          <div class="glass-card rounded-[1.2rem] overflow-hidden border border-white/60 shadow-sm bg-white/60 pb-1">
+             <div class="overflow-x-auto custom-scrollbar px-1 pt-1">
+                 <table class="w-full text-left text-[11px] md:text-sm border-separate border-spacing-y-1">
+                    <thead class="bg-white/90 backdrop-blur-md text-slate-500 sticky top-0 z-10 rounded-md shadow-sm">
+                        <tr class="text-[8px] font-black uppercase tracking-widest">
+                            <th class="p-2.5 text-center rounded-l-md w-8">#</th>
+                            <th class="p-2.5">Debitur Utama</th>
+                            <th class="p-2.5 text-center hidden sm:table-cell">Unit</th>
+                            <th class="p-2.5 text-center">KOL</th>
+                            <th class="p-2.5 text-right rounded-r-md">Exposure</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tblTopObligor" class="before:block before:h-1"></tbody>
+                 </table>
+             </div>
           </div>
-          <div class="glass-card rounded-xl overflow-hidden">
-             <table class="w-full text-left text-sm"><thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-500"><tr><th class="p-3">Kolektibilitas</th><th class="p-3 text-right">Outstanding</th><th class="p-3 text-center">Rate</th><th class="p-3 text-right">CKPN</th></tr></thead><tbody id="tblCKPN"></tbody></table>
+      </div>
+
+      <!-- 14. KREDIT (DATA MASTER) -> Dihapus sesuai permintaan, karena view ini tidak digunakan di HTML ini -->
+
+      <!-- 15. RISK MATRIX (COMPACT) -->
+      <div id="view-risk" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+          <div class="bg-white/80 backdrop-blur-xl border border-white/80 p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex items-center gap-3 relative overflow-hidden">
+             <div class="absolute -right-2 -top-2 opacity-5"><i class="fas fa-chess-board text-6xl text-slate-500"></i></div>
+             <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                 <i class="fas fa-chess-board text-lg"></i>
+             </div>
+             <div class="relative z-10">
+                 <h3 class="font-black text-base md:text-lg tracking-tight leading-none">Portfolio Risk Matrix</h3>
+                 <div class="text-[7px] md:text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1 flex flex-wrap gap-1.5 items-center">
+                     <span>OS vs Tenor</span><span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                     <span class="text-red-500"><i class="fas fa-circle text-[5px]"></i> NPL</span>
+                     <span class="text-emerald-500"><i class="fas fa-circle text-[5px]"></i> Lancar</span>
+                 </div>
+             </div>
+          </div>
+          <div class="glass-card p-2 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] h-[350px] md:h-[500px] border border-white/60 shadow-sm bg-white/60"><canvas id="riskChart"></canvas></div>
+      </div>
+
+      <!-- 16. VINTAGE (COMPACT) -->
+      <div id="view-vintage" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+          <div class="bg-white/80 backdrop-blur-xl border border-white/80 p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex items-center gap-3 relative overflow-hidden">
+             <div class="absolute -right-2 -top-2 opacity-5"><i class="fas fa-history text-6xl text-slate-500"></i></div>
+             <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                 <i class="fas fa-history text-lg"></i>
+             </div>
+             <div class="relative z-10">
+                 <h3 class="font-black text-base md:text-lg tracking-tight leading-none">Vintage Analysis</h3>
+                 <div class="text-[7px] md:text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-1">Kualitas per Tahun Booking</div>
+             </div>
+          </div>
+          <div class="glass-card p-2 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] h-[350px] md:h-[500px] border border-white/60 shadow-sm bg-white/60"><canvas id="vintageChart"></canvas></div>
+      </div>
+
+      <!-- 17. STRESS TEST (COMPACT) -->
+      <div id="view-stress" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+          <div class="bg-gradient-to-r from-red-600 to-rose-700 p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] flex items-center gap-3 shadow-md relative overflow-hidden border border-white/10 text-white">
+             <div class="absolute right-0 bottom-0 opacity-10"><i class="fas fa-tachometer-alt text-7xl transform translate-x-1/4 translate-y-1/4"></i></div>
+             <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shrink-0 shadow-inner border border-white/30 relative z-10">
+                <i class="fas fa-tachometer-alt text-2xl"></i>
+             </div>
+             <div class="relative z-10">
+                 <h3 class="font-black text-lg md:text-xl tracking-tighter leading-none">Stress Test</h3>
+                 <div class="text-[8px] md:text-[9px] text-red-100 mt-1 font-medium bg-red-900/40 px-1.5 py-0.5 inline-block rounded backdrop-blur-sm">Simulasi Lonjakan CKPN</div>
+             </div>
+          </div>
+          <div class="glass-card p-4 rounded-[1.2rem] text-center shadow-sm border border-red-200 bg-red-50/50">
+             <div class="w-8 h-8 mx-auto bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-2"><i class="fas fa-bolt text-xs"></i></div>
+             <div class="text-[8px] text-red-500 uppercase font-black tracking-widest mb-0.5">Projected CKPN Cost</div>
+             <div class="text-2xl md:text-4xl font-black font-mono text-red-600 tracking-tighter leading-none" id="stress_total">...</div>
+          </div>
+          <div class="glass-card rounded-[1.2rem] overflow-hidden border border-white/60 shadow-sm bg-white/60 pb-1">
+             <div class="overflow-x-auto custom-scrollbar px-1 pt-1">
+                 <table class="w-full text-left text-[11px] md:text-sm border-separate border-spacing-y-1">
+                     <thead class="bg-white/90 backdrop-blur-md text-slate-500 sticky top-0 z-10 rounded-md shadow-sm">
+                         <tr class="text-[8px] font-black uppercase tracking-widest">
+                             <th class="p-2.5 rounded-l-md">Bucket</th>
+                             <th class="p-2.5 text-right hidden sm:table-cell">Exposure</th>
+                             <th class="p-2.5 text-center w-32 sm:w-48">PD (%)</th>
+                             <th class="p-2.5 text-right rounded-r-md text-red-500">Estimasi Loss</th>
+                         </tr>
+                     </thead>
+                     <tbody id="tblStress" class="before:block before:h-1"></tbody>
+                 </table>
+             </div>
+          </div>
+      </div>
+
+      <!-- 18. CKPN FORECAST (COMPACT) -->
+      <div id="view-ckpn" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
+          <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] flex items-center gap-3 shadow-md relative overflow-hidden border border-white/10 text-white">
+             <div class="absolute right-0 bottom-0 opacity-10"><i class="fas fa-shield-alt text-7xl transform translate-x-1/4 translate-y-1/4"></i></div>
+             <div class="w-12 h-12 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center shrink-0 shadow-inner border border-white/30 relative z-10">
+                <i class="fas fa-shield-alt text-2xl"></i>
+             </div>
+             <div class="relative z-10">
+                 <h3 class="font-black text-lg md:text-xl tracking-tighter leading-none">CKPN Forecaster</h3>
+                 <div class="text-[8px] md:text-[9px] text-blue-100 mt-1 font-medium bg-blue-900/40 px-1.5 py-0.5 inline-block rounded backdrop-blur-sm">Baseline Reserve Estimate</div>
+             </div>
+          </div>
+          <div class="glass-card p-4 rounded-[1.2rem] text-center shadow-sm border border-blue-200 bg-blue-50/50">
+             <div class="w-8 h-8 mx-auto bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-2"><i class="fas fa-piggy-bank text-xs"></i></div>
+             <div class="text-[8px] text-blue-600 uppercase font-black tracking-widest mb-0.5">Total Estimasi Cadangan</div>
+             <div class="text-2xl md:text-4xl font-black font-mono text-slate-800 dark:text-white tracking-tighter leading-none" id="ckpn_total">...</div>
+          </div>
+          <div class="glass-card rounded-[1.2rem] overflow-hidden border border-white/60 shadow-sm bg-white/60 pb-1">
+             <div class="overflow-x-auto custom-scrollbar px-1 pt-1">
+                 <table class="w-full text-left text-[11px] md:text-sm border-separate border-spacing-y-1">
+                     <thead class="bg-white/90 backdrop-blur-md text-slate-500 sticky top-0 z-10 rounded-md shadow-sm">
+                         <tr class="text-[8px] font-black uppercase tracking-widest">
+                             <th class="p-2.5 rounded-l-md">Kol</th>
+                             <th class="p-2.5 text-right">Outstanding</th>
+                             <th class="p-2.5 text-center hidden sm:table-cell">Rate</th>
+                             <th class="p-2.5 text-right rounded-r-md text-blue-600">Nilai CKPN</th>
+                         </tr>
+                     </thead>
+                     <tbody id="tblCKPN" class="before:block before:h-1"></tbody>
+                 </table>
+             </div>
           </div>
       </div>
 
       <!-- 19. MUTASI -->
       <div id="view-mutasi" class="tab-view hidden fade-in w-full bg-transparent">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div class="glass-card p-5 rounded-2xl border-l-4 border-emerald-500 shadow-sm group hover:shadow-md transition-all">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-1">New Booking (Cair)</div>
-                          <div id="m_val_cair" class="text-xl font-black text-slate-800 dark:text-white">...</div>
-                      </div>
-                      <div class="p-2 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg text-emerald-600"><i class="fas fa-plus-circle text-2xl grad-icon grad-emerald"></i></div>
-                  </div>
-                  <div class="mt-2 text-[10px] font-bold text-emerald-500 flex items-center gap-1"><i class="fas fa-user-plus text-[8px]"></i> <span id="m_noa_cair">0</span> Debitur Baru</div>
-              </div>
-              <div class="glass-card p-5 rounded-2xl border-l-4 border-rose-500 shadow-sm group hover:shadow-md transition-all">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-1">Repayment (Lunas)</div>
-                          <div id="m_val_lunas" class="text-xl font-black text-slate-800 dark:text-white">...</div>
-                      </div>
-                      <div class="p-2 bg-rose-50 dark:bg-rose-900/30 rounded-lg text-rose-600"><i class="fas fa-check-double text-2xl grad-icon grad-red"></i></div>
-                  </div>
-                  <div class="mt-2 text-[10px] font-bold text-rose-500 flex items-center gap-1"><i class="fas fa-user-minus text-[8px]"></i> <span id="m_noa_lunas">0</span> Debitur Lunas</div>
-              </div>
-              <div class="glass-card p-5 rounded-2xl border-l-4 border-blue-500 shadow-sm group hover:shadow-md transition-all">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Net Portfolio Growth</div>
-                          <div id="m_val_net" class="text-xl font-black text-slate-800 dark:text-white">...</div>
-                      </div>
-                      <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-blue-600"><i class="fas fa-chart-line text-2xl grad-icon grad-blue"></i></div>
-                  </div>
-              </div>
-              <div class="glass-card p-5 rounded-2xl border-l-4 border-orange-500 shadow-sm group hover:shadow-md transition-all">
-                  <div class="flex justify-between items-start">
-                      <div>
-                          <div class="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1">Quality Downgrade</div>
-                          <div id="m_val_drop" class="text-xl font-black text-slate-800 dark:text-white">...</div>
-                      </div>
-                      <div class="p-2 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-orange-600"><i class="fas fa-arrow-down text-2xl grad-icon grad-orange"></i></div>
-                  </div>
-                  <div class="mt-2 text-[10px] font-bold text-orange-500 flex items-center gap-1"><i class="fas fa-exclamation-triangle text-[8px]"></i> <span id="m_noa_drop">0</span> Debitur Drop</div>
-              </div>
-          </div>
-          <div class="glass-card rounded-3xl shadow-xl overflow-hidden">
-              <div class="flex p-2 bg-slate-100/50 dark:bg-slate-900/50 gap-1 border-b border-slate-200 dark:border-slate-700">
-                  <button onclick="app.switchMutasiTab('tab_new')" class="mut-btn active-mut flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all bg-white shadow-sm border border-slate-200">Pencairan</button>
-                  <button onclick="app.switchMutasiTab('tab_lunas')" class="mut-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all hover:bg-white/50">Pelunasan</button>
-                  <button onclick="app.switchMutasiTab('tab_drop')" class="mut-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all hover:bg-white/50">Downgrade</button>
-                  <button onclick="app.switchMutasiTab('tab_rise')" class="mut-btn flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all hover:bg-white/50">Upgrade</button>
-              </div>
-              <div class="p-0 h-[500px] overflow-y-auto custom-scrollbar relative">
-                  <div id="tab_new" class="mutasi-tab p-2 animate-fade-in"></div>
-                  <div id="tab_lunas" class="mutasi-tab hidden p-2 animate-fade-in"></div>
-                  <div id="tab_drop" class="mutasi-tab hidden p-2 animate-fade-in"></div>
-                  <div id="tab_rise" class="mutasi-tab hidden p-2 animate-fade-in"></div>
-              </div>
-          </div>
+          <!-- Area dirender JS -->
       </div>
 
-      <!-- 20. DEBTOR JOURNEY -->
-      <div id="view-journey" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="mb-6 flex flex-col md:flex-row justify-between items-end gap-4">
-              <div>
-                  <h2 class="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter flex items-center gap-2">
-                      <i class="fas fa-route grad-icon grad-emerald"></i> Debtor Journey
-                  </h2>
-                  <div class="flex items-center gap-2 mt-1">
-                      <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 uppercase tracking-wider">Live Monitoring</span>
+      <!-- 20. DEBTOR JOURNEY (COMPACT) -->
+      <div id="view-journey" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="mb-2 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-white/60 p-3 md:p-4 rounded-[1.2rem] backdrop-blur-md border border-white/80 shadow-sm">
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                  <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 text-white flex items-center justify-center shadow-sm transform -rotate-3 shrink-0"><i class="fas fa-route text-lg"></i></div>
+                  <div>
+                      <h2 class="text-lg md:text-xl font-black text-slate-800 uppercase tracking-tighter leading-none">Debtor Journey</h2>
+                      <div class="flex items-center gap-1 mt-1">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_5px_rgba(16,185,129,0.8)]"></span>
+                          <span class="text-[7px] md:text-[8px] font-black text-slate-400 uppercase tracking-widest">Live Monitoring</span>
+                      </div>
                   </div>
               </div>
-              <div class="flex gap-2">
-                  <div class="glass-card p-1 rounded-xl flex shadow-sm">
-                      <button onclick="app.toggleJourneyView('list')" id="btn-view-list" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-white text-emerald-600 shadow-sm flex items-center gap-2 border border-slate-200 active:scale-95"><i class="fas fa-list-ul"></i> LIST</button>
-                      <button onclick="app.toggleJourneyView('calendar')" id="btn-view-calendar" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white flex items-center gap-2 active:scale-95"><i class="fas fa-calendar-alt"></i> KALENDER</button>
-                  </div>
+              <div class="flex gap-1 w-full sm:w-auto bg-slate-100/50 p-1 rounded-lg border border-slate-200/50">
+                  <button onclick="app.toggleJourneyView('list')" id="btn-view-list" class="flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[8px] font-black tracking-widest transition-all bg-white text-emerald-600 shadow-sm flex justify-center items-center gap-1 active:scale-95"><i class="fas fa-list-ul"></i> TIMELINE</button>
+                  <button onclick="app.toggleJourneyView('calendar')" id="btn-view-calendar" class="flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[8px] font-black tracking-widest transition-all text-slate-500 hover:text-slate-800 flex justify-center items-center gap-1 active:scale-95"><i class="fas fa-calendar-alt"></i> KALENDER</button>
               </div>
           </div>
-          <div id="journey-list-container" class="grid grid-cols-1 lg:grid-cols-3 gap-6 transition-all duration-300">
-              <div class="lg:col-span-1 glass-card rounded-3xl overflow-hidden flex flex-col h-[600px] shadow-xl">
-                  <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50">
+
+          <div id="journey-list-container" class="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-5 transition-all duration-300">
+              <div class="lg:col-span-4 glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[400px] md:h-[550px] shadow-sm border border-white/60 bg-white/60">
+                  <div class="p-2 md:p-3 border-b border-slate-100/50 bg-white/50 backdrop-blur-sm">
                       <div class="relative group">
-                          <input type="text" id="searchJourney" onkeyup="app.searchDebtorJourney()" placeholder="Cari Nama / No Loan..." class="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold outline-none focus:border-emerald-500 transition shadow-sm group-hover:border-emerald-300">
-                          <i class="fas fa-search absolute left-3.5 top-3.5 text-slate-400 group-hover:text-emerald-500 transition"></i>
+                          <input type="text" id="searchJourney" onkeyup="app.searchDebtorJourney()" placeholder="Cari Debitur..." class="w-full pl-8 pr-3 py-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold outline-none focus:border-emerald-500 transition shadow-inner">
+                          <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-[10px]"></i>
                       </div>
                   </div>
-                  <div class="flex-1 overflow-y-auto custom-scrollbar" id="listDebtorJourney"></div>
+                  <div class="flex-1 overflow-y-auto custom-scrollbar p-1" id="listDebtorJourney"></div>
               </div>
-              <div class="lg:col-span-2 space-y-6" id="detailJourneyArea">
-                  <div class="glass-card rounded-3xl p-20 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-slate-300 dark:border-slate-700 h-[600px]">
-                      <div class="w-24 h-24 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 shadow-lg border border-slate-100">
-                          <i class="fas fa-user-clock text-5xl grad-icon grad-emerald"></i>
+              <div class="lg:col-span-8 space-y-3 md:space-y-4" id="detailJourneyArea">
+                  <div class="glass-card rounded-[1.2rem] p-6 flex flex-col items-center justify-center text-slate-400 border-2 border-dashed border-white/60 h-[400px] md:h-[550px] bg-slate-50/30">
+                      <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-3 shadow-sm border border-slate-100">
+                          <i class="fas fa-location-arrow text-2xl text-emerald-500/50"></i>
                       </div>
-                      <p class="font-black uppercase tracking-widest text-xs text-slate-500">Pilih debitur dari list untuk melihat timeline</p>
+                      <p class="font-black uppercase tracking-widest text-[9px] md:text-[10px] text-slate-500">Area Jelajah Waktu</p>
+                      <p class="text-[8px] font-bold mt-1 text-slate-400">Pilih debitur untuk membuka log.</p>
                   </div>
               </div>
           </div>
-          <div id="journey-calendar-container" class="hidden flex flex-col lg:flex-row gap-6 animate-fade-in h-[680px]">
-              <div class="glass-card rounded-3xl p-6 flex-1 shadow-2xl flex flex-col relative overflow-hidden">
-                  <div class="flex justify-between items-center mb-6 relative z-10">
-                      <button onclick="app.changeCalendarMonth(-1)" class="w-10 h-10 rounded-xl bg-white shadow-sm hover:shadow-md text-slate-600 transition flex items-center justify-center border border-slate-200 active:scale-95"><i class="fas fa-chevron-left"></i></button>
-                      <div class="text-center"><h3 id="cal-month-year" class="text-2xl font-black text-slate-800 dark:text-white uppercase tracking-tighter">MEMUAT...</h3></div>
-                      <button onclick="app.changeCalendarMonth(1)" class="w-10 h-10 rounded-xl bg-white shadow-sm hover:shadow-md text-slate-600 transition flex items-center justify-center border border-slate-200 active:scale-95"><i class="fas fa-chevron-right"></i></button>
-                  </div>
-                  <div id="calendar-grid" class="grid grid-cols-7 gap-2 flex-1 auto-rows-fr"></div>
-              </div>
-              <div class="w-full lg:w-96 glass-card rounded-3xl p-0 overflow-hidden flex flex-col border-l-4 border-emerald-500 shadow-2xl">
-                  <div class="p-6 bg-emerald-600 text-white relative overflow-hidden">
-                      <h3 id="cal-detail-date" class="text-3xl font-black tracking-tighter">Pilih Tanggal</h3>
-                      <div id="cal-detail-total" class="text-xs font-bold mt-3 bg-black/20 inline-block px-3 py-1.5 rounded-lg backdrop-blur-md">Potensi Masuk: Rp 0</div>
-                  </div>
-                  <div id="cal-detail-list" class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3 bg-slate-50/50 dark:bg-slate-900/50"></div>
-              </div>
+          
+          <div id="journey-calendar-container" class="hidden flex-col xl:flex-row gap-3 md:gap-5 animate-fade-in min-h-[450px]">
+              <!-- Kalender logic dari JS -->
           </div>
       </div>
 
-      <!-- 21. ARSIP KREDIT -->
-      <div id="view-archive" class="tab-view hidden fade-in p-4 md:p-6 space-y-6">
-          <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-6">
-              <div>
-                  <h2 class="text-3xl font-black text-slate-800 dark:text-white uppercase tracking-tighter flex items-center gap-2"><i class="fas fa-archive grad-icon grad-purple"></i> E-Arsip Kredit</h2>
-                  <p class="text-slate-500 font-bold uppercase text-[10px] tracking-widest mt-1">Penataan Berkas Fisik & Jaminan</p>
-              </div>
-              <div class="flex flex-col xl:flex-row gap-3 w-full md:w-auto items-end">
-                  <div class="relative group">
-                      <select id="filterCategory" onchange="app.filterArchive()" class="pl-8 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-purple-500 outline-none shadow-sm cursor-pointer w-40 transition">
-                          <option value="ALL">Semua Rak</option>
-                          <option value="AKTIF">Rak Aktif</option>
-                          <option value="LUNAS">Rak Lunas</option>
-                          <option value="HAPUS_BUKU">Rak Hapus Buku</option>
-                      </select>
+      <!-- 21. ARSIP KREDIT (COMPACT) -->
+      <div id="view-archive" class="tab-view hidden fade-in p-3 md:p-6 space-y-3 md:space-y-5">
+          <div class="bg-white/60 backdrop-blur-xl border border-white/80 p-3 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex flex-col xl:flex-row justify-between items-start xl:items-center gap-3">
+              <div class="flex items-center gap-3 w-full xl:w-auto">
+                  <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white flex items-center justify-center shadow-sm transform rotate-3 shrink-0"><i class="fas fa-archive text-xl"></i></div>
+                  <div>
+                      <h2 class="text-lg md:text-xl font-black text-slate-800 uppercase tracking-tighter leading-none">E-Arsip Kredit</h2>
+                      <p class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Penataan Berkas Fisik</p>
                   </div>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-2 w-full xl:w-auto p-1 bg-slate-50 rounded-lg border border-slate-100">
+                  <select id="filterCategory" onchange="app.filterArchive()" class="pl-2 pr-6 py-1.5 rounded-md bg-white border border-slate-200 text-[9px] font-black uppercase tracking-wider text-slate-600 focus:ring-1 focus:ring-purple-500 outline-none shadow-sm cursor-pointer min-w-[100px] appearance-none">
+                      <option value="ALL">Semua Rak</option>
+                      <option value="AKTIF">Rak Aktif</option>
+                      <option value="LUNAS">Rak Lunas</option>
+                      <option value="HAPUS_BUKU">Rak Ekstrakom</option>
+                  </select>
                   <div class="relative flex-1">
-                      <input type="text" id="searchArchive" onkeyup="app.filterArchive()" placeholder="Cari..." class="pl-10 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold shadow-sm focus:border-purple-500 outline-none w-full xl:w-48 transition">
-                      <i class="fas fa-search absolute left-3.5 top-3 text-slate-400"></i>
+                      <input type="text" id="searchArchive" onkeyup="app.filterArchive()" placeholder="Cari..." class="pl-7 pr-2 py-1.5 rounded-md bg-white border border-slate-200 text-[10px] font-bold shadow-sm focus:border-purple-500 outline-none w-full xl:w-40">
+                      <i class="fas fa-search absolute left-2.5 top-2 text-slate-400 text-[10px]"></i>
                   </div>
-                  <button onclick="app.exportArchiveData()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-500/30 flex items-center gap-2 active:scale-95"><i class="fas fa-file-excel"></i> Ekspor</button>
+                  <button onclick="app.exportArchiveData()" class="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-md text-[8px] font-black uppercase tracking-widest transition shadow-sm flex items-center justify-center gap-1 active:scale-95 shrink-0"><i class="fas fa-file-excel"></i> Unduh</button>
               </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <button onclick="document.getElementById('filterCategory').value='AKTIF'; app.filterArchive();" class="glass-card p-5 group text-left active:scale-95 border-l-4 border-blue-500">
-                  <div class="relative z-10 flex items-center justify-between">
-                      <div><div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Berkas Aktif</div><div id="arc-total" class="text-4xl font-black text-slate-800 dark:text-white">0</div></div>
-                      <i class="fas fa-box-open text-4xl grad-icon grad-blue group-hover:scale-110"></i>
+          
+          <div class="grid grid-cols-3 gap-2 md:gap-4">
+              <button onclick="document.getElementById('filterCategory').value='AKTIF'; app.filterArchive();" class="glass-card p-2 md:p-4 rounded-[1rem] group text-left active:scale-95 border-b-[3px] border-blue-500 hover:-translate-y-1 transition-all duration-300 bg-white/80">
+                  <div class="flex items-center justify-between">
+                      <div>
+                          <div class="text-[7px] md:text-[8px] font-black text-blue-500 uppercase tracking-widest mb-0.5 bg-blue-50 px-1.5 py-0.5 rounded w-fit">Berkas Aktif</div>
+                          <div id="arc-total" class="text-lg md:text-2xl font-black text-slate-800 leading-none">0</div>
+                      </div>
+                      <div class="hidden sm:flex w-8 h-8 rounded-lg bg-blue-50 text-blue-500 items-center justify-center group-hover:rotate-12 transition-transform">
+                          <i class="fas fa-box-open text-sm"></i>
+                      </div>
                   </div>
               </button>
-              <button onclick="app.filterNewFiles()" class="glass-card p-5 group text-left active:scale-95 border-l-4 border-emerald-500">
-                  <div class="relative z-10 flex items-center justify-between">
-                      <div><div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Berkas Baru</div><div id="arc-new" class="text-4xl font-black text-slate-800 dark:text-white">0</div></div>
-                      <i class="fas fa-plus text-4xl grad-icon grad-emerald group-hover:scale-110"></i>
+              <button onclick="app.filterNewFiles()" class="glass-card p-2 md:p-4 rounded-[1rem] group text-left active:scale-95 border-b-[3px] border-emerald-500 hover:-translate-y-1 transition-all duration-300 bg-white/80">
+                  <div class="flex items-center justify-between">
+                      <div>
+                          <div class="text-[7px] md:text-[8px] font-black text-emerald-500 uppercase tracking-widest mb-0.5 bg-emerald-50 px-1.5 py-0.5 rounded w-fit">Baru Masuk</div>
+                          <div id="arc-new" class="text-lg md:text-2xl font-black text-slate-800 leading-none">0</div>
+                      </div>
+                      <div class="hidden sm:flex w-8 h-8 rounded-lg bg-emerald-50 text-emerald-500 items-center justify-center group-hover:scale-110 transition-transform">
+                          <i class="fas fa-file-circle-plus text-sm"></i>
+                      </div>
                   </div>
               </button>
-              <button onclick="app.selectAllForPrint()" class="glass-card p-5 group text-left active:scale-95 border-l-4 border-purple-500">
-                  <div class="relative z-10 flex items-center justify-between">
-                      <div><div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Label Generator</div><div class="text-lg font-bold text-slate-800 dark:text-white">Cetak Otomatis</div></div>
-                      <i class="fas fa-qrcode text-4xl grad-icon grad-purple group-hover:scale-110"></i>
+              <button onclick="app.selectAllForPrint()" class="glass-card p-2 md:p-4 rounded-[1rem] group text-left active:scale-95 border-b-[3px] border-rose-500 hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-rose-500 to-red-600 text-white">
+                  <div class="flex items-center justify-between h-full">
+                      <div>
+                          <div class="text-[7px] md:text-[8px] font-black text-rose-100 uppercase tracking-widest mb-0.5 bg-black/20 px-1.5 py-0.5 rounded w-fit border border-white/20">Label Gen</div>
+                          <div class="text-[10px] md:text-sm font-black leading-tight mt-0.5">Cetak<br>Otomatis</div>
+                      </div>
+                      <div class="hidden sm:flex w-8 h-8 rounded-lg bg-white/20 text-white items-center justify-center group-hover:-rotate-12 transition-transform backdrop-blur-sm">
+                          <i class="fas fa-qrcode text-sm"></i>
+                      </div>
                   </div>
               </button>
           </div>
-          <div id="archive-grid" class="flex flex-col gap-2 pb-10 min-h-[400px] glass-card p-4">
-              <div class="col-span-full py-20 text-center text-slate-400">
-                  <i class="fas fa-circle-notch fa-spin text-3xl mb-3 grad-icon grad-purple"></i>
-                  <p class="font-bold uppercase tracking-widest text-xs">Memuat Data Arsip...</p>
+          
+          <div id="archive-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2 md:gap-3 pb-10 min-h-[350px]">
+              <!-- Dirender via JS -->
+              <div class="col-span-full glass-card p-10 rounded-[1.5rem] text-center text-slate-400 flex flex-col items-center justify-center border border-dashed border-white/60 bg-white/40">
+                  <i class="fas fa-circle-notch fa-spin text-2xl mb-2 text-purple-500"></i>
+                  <p class="font-black uppercase tracking-widest text-[9px]">Memuat Arsip...</p>
               </div>
           </div>
       </div>
       
     </div>
-  </main>
+</main>
 
   <!-- === SELURUH MODAL BAWAAN === -->
 
