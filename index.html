@@ -643,14 +643,391 @@
           </div>
       </div>
       
+      <!-- 7. NPL KUR -->
       <div id="view-nplkur" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
-        <!-- Struktur sama dengan NPL ALL, disesuaikan IDnya -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-purple-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-purple-500 uppercase tracking-widest mb-0.5 truncate">KUR Mikro OS</div>
+                          <div class="text-base md:text-xl font-black text-slate-700 dark:text-white truncate" id="k_mikro">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-purple-50 text-purple-500 items-center justify-center shrink-0"><i class="fas fa-seedling text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-blue-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-blue-500 uppercase tracking-widest mb-0.5 truncate">KUR Kecil OS</div>
+                          <div class="text-base md:text-xl font-black text-slate-700 dark:text-white truncate" id="k_kecil">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-blue-50 text-blue-500 items-center justify-center shrink-0"><i class="fas fa-tree text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-red-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest mb-0.5 truncate">Total NPL KUR</div>
+                          <div class="text-base md:text-xl font-black text-red-600 truncate" id="k_kur_npl">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-red-50 text-red-500 items-center justify-center shrink-0"><i class="fas fa-radiation text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-pink-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-pink-500 uppercase tracking-widest mb-0.5 truncate">Total KKR KUR</div>
+                          <div class="text-base md:text-xl font-black text-pink-600 truncate" id="k_kur_kkr">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-pink-50 text-pink-500 items-center justify-center shrink-0"><i class="fas fa-eye text-[10px]"></i></div>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-purple-800 to-indigo-900 rounded-[1.2rem] md:rounded-[1.5rem] p-4 md:p-5 text-white relative overflow-hidden shadow-md border border-white/10">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-pink-500/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+              <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-3">
+                  <div class="text-center md:text-left w-full md:w-auto">
+                      <div class="text-purple-200 text-[8px] font-black uppercase tracking-[0.2em] mb-0.5">Simulasi Ratio NPL KUR</div>
+                      <div class="text-3xl md:text-4xl font-black font-mono tracking-tighter leading-none" id="k_npl_rat_KUR">...</div>
+                      <div id="ks_res_KUR" class="text-[9px] mt-1.5 font-bold px-2 py-0.5 bg-white/10 backdrop-blur-sm rounded border border-white/20 hidden">...</div>
+                  </div>
+                  <div class="flex gap-2 w-full md:w-auto">
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-green-300 mb-0.5">🎯 Setoran</div>
+                          <div id="ks_heal_KUR" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-red-300 mb-0.5">⚠️ Jatuh Baru</div>
+                          <div id="ks_crash_KUR" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="relative z-10 mt-4 pt-3 border-t border-white/10 w-full animate-fade-in">
+                  <div class="flex justify-between items-end mb-2">
+                      <div class="text-[8px] font-bold text-purple-200 uppercase tracking-widest bg-black/20 px-2 py-0.5 rounded hidden sm:block"><i class="fas fa-sliders-h mr-1 text-purple-300"></i> Baki Debet</div>
+                      <div class="flex flex-col sm:items-end w-full sm:w-auto">
+                          <div class="text-[10px] font-black text-white font-mono bg-black/40 px-2 py-0.5 rounded text-center" id="sim_os_KUR">Geser Slider 👉</div>
+                          <div class="text-[7px] font-bold mt-1 text-center sm:text-right" id="sim_diff_KUR"></div>
+                      </div>
+                  </div>
+                  <input type="range" id="slide_os_KUR" min="-50" max="100" value="0" class="sim-slider w-full h-1.5" oninput="app.calcSim('KUR')">
+                  <div class="flex justify-between text-[7px] font-bold text-purple-300 uppercase mt-1.5">
+                      <span class="bg-red-500/20 text-red-300 px-1 py-0.5 rounded">-50%</span>
+                      <span id="sim_pct_KUR" class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10">0%</span>
+                      <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
+                  </div>
+              </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-virus"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">NPL KUR List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-lg overflow-hidden">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center hidden sm:table-cell">Unit</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right hidden lg:table-cell">Plafond</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblKURNpl" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50"></tbody>
+                      </table>
+                  </div>
+              </div>
+
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-pink-500 to-rose-400 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-eye"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR KUR List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-lg overflow-hidden">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center hidden sm:table-cell">Unit</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right hidden lg:table-cell">Plafond</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblKURKkr" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50"></tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
       </div>
+
+      <!-- 8. NPL KONSUMTIF -->
       <div id="view-nplkonsumtif" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
-        <!-- Struktur sama dengan NPL ALL -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-indigo-500 group bg-white/80 col-span-2 lg:col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">Total Baki Debet Konsumtif</div>
+                          <div class="text-base md:text-xl font-black text-slate-700 dark:text-white truncate" id="k_kons_tot">...</div>
+                      </div>
+                      <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0"><i class="fas fa-house-user text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-red-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest mb-0.5 truncate">NPL Konsumtif</div>
+                          <div class="text-base md:text-xl font-black text-red-600 truncate" id="k_kons_npl">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-red-50 text-red-500 items-center justify-center shrink-0"><i class="fas fa-exclamation-triangle text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-pink-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-pink-500 uppercase tracking-widest mb-0.5 truncate">KKR Konsumtif</div>
+                          <div class="text-base md:text-xl font-black text-pink-600 truncate" id="k_kons_kkr">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-pink-50 text-pink-500 items-center justify-center shrink-0"><i class="fas fa-eye text-[10px]"></i></div>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="bg-gradient-to-r from-indigo-700 to-blue-900 rounded-[1.2rem] md:rounded-[1.5rem] p-4 md:p-5 text-white relative overflow-hidden shadow-md border border-white/10">
+              <div class="absolute top-0 right-0 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+              <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-3">
+                  <div class="text-center md:text-left w-full md:w-auto">
+                      <div class="text-indigo-200 text-[8px] font-black uppercase tracking-[0.2em] mb-0.5">Simulasi Ratio NPL Konsumtif</div>
+                      <div class="text-3xl md:text-4xl font-black font-mono tracking-tighter leading-none" id="k_npl_rat_Kons">...</div>
+                      <div id="ks_res_Kons" class="text-[9px] mt-1.5 font-bold px-2 py-0.5 bg-white/10 backdrop-blur-sm rounded border border-white/20 hidden">...</div>
+                  </div>
+                  <div class="flex gap-2 w-full md:w-auto">
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-green-300 mb-0.5">🎯 Setoran</div>
+                          <div id="ks_heal_Kons" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-red-300 mb-0.5">⚠️ Jatuh Baru</div>
+                          <div id="ks_crash_Kons" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="relative z-10 mt-4 pt-3 border-t border-white/10 w-full animate-fade-in">
+                  <div class="flex justify-between items-end mb-2">
+                      <div class="text-[8px] font-bold text-indigo-200 uppercase tracking-widest bg-black/20 px-2 py-0.5 rounded hidden sm:block"><i class="fas fa-sliders-h mr-1 text-indigo-300"></i> Baki Debet</div>
+                      <div class="flex flex-col sm:items-end w-full sm:w-auto">
+                          <div class="text-[10px] font-black text-white font-mono bg-black/40 px-2 py-0.5 rounded text-center" id="sim_os_KONS">Geser Slider 👉</div>
+                          <div class="text-[7px] font-bold mt-1 text-center sm:text-right" id="sim_diff_KONS"></div>
+                      </div>
+                  </div>
+                  <input type="range" id="slide_os_KONS" min="-50" max="100" value="0" class="sim-slider w-full h-1.5" oninput="app.calcSim('KONS')">
+                  <div class="flex justify-between text-[7px] font-bold text-indigo-300 uppercase mt-1.5">
+                      <span class="bg-red-500/20 text-red-300 px-1 py-0.5 rounded">-50%</span>
+                      <span id="sim_pct_KONS" class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10">0%</span>
+                      <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
+                  </div>
+              </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-shopping-bag"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">NPL Konsumtif List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center hidden sm:table-cell">Unit</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right hidden lg:table-cell">Plafond</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblKonsNpl" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50"></tbody>
+                      </table>
+                  </div>
+              </div>
+
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-fuchsia-500 to-pink-500 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-user-clock"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR Konsumtif List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center hidden sm:table-cell">Unit</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right hidden lg:table-cell">Plafond</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblKonsKkr" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50"></tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
       </div>
+
+      <!-- 9. NPL PRODUKTIF -->
       <div id="view-nplprod" class="tab-view hidden fade-in space-y-3 md:space-y-5 p-3 md:p-6">
-         <!-- Struktur sama dengan NPL ALL -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-emerald-500 group bg-white/80 col-span-2 lg:col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5 truncate">Total Baki Debet Produktif</div>
+                          <div class="text-base md:text-xl font-black text-slate-700 dark:text-white truncate" id="k_prod_tot">...</div>
+                      </div>
+                      <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0"><i class="fas fa-industry text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-red-600 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest mb-0.5 truncate">NPL Produktif</div>
+                          <div class="text-base md:text-xl font-black text-red-600 truncate" id="k_prod_npl">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-red-50 text-red-500 items-center justify-center shrink-0"><i class="fas fa-exclamation-triangle text-[10px]"></i></div>
+                  </div>
+              </div>
+              <div class="glass-card p-3 md:p-4 rounded-[1rem] border-l-[3px] border-orange-500 group bg-white/80 col-span-1">
+                  <div class="flex justify-between items-center">
+                      <div class="min-w-0 pr-2">
+                          <div class="text-[8px] md:text-[9px] font-black text-orange-500 uppercase tracking-widest mb-0.5 truncate">KKR Produktif</div>
+                          <div class="text-base md:text-xl font-black text-orange-600 truncate" id="k_prod_kkr">...</div>
+                      </div>
+                      <div class="hidden sm:flex w-7 h-7 rounded-lg bg-orange-50 text-orange-500 items-center justify-center shrink-0"><i class="fas fa-eye text-[10px]"></i></div>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="bg-gradient-to-br from-emerald-700 to-teal-900 rounded-[1.2rem] md:rounded-[1.5rem] p-4 md:p-5 text-white relative overflow-hidden shadow-md border border-white/10">
+              <div class="absolute bottom-0 right-0 w-40 h-40 bg-emerald-400/20 rounded-full blur-2xl translate-x-1/4 translate-y-1/4"></div>
+              <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-3">
+                  <div class="text-center md:text-left w-full md:w-auto">
+                      <div class="text-emerald-200 text-[8px] font-black uppercase tracking-[0.2em] mb-0.5">Simulasi Ratio NPL Produktif</div>
+                      <div class="text-3xl md:text-4xl font-black font-mono tracking-tighter leading-none" id="k_npl_rat_Prod">...</div>
+                      <div id="ks_res_Prod" class="text-[9px] mt-1.5 font-bold px-2 py-0.5 bg-white/10 backdrop-blur-sm rounded border border-white/20 hidden">...</div>
+                  </div>
+                  <div class="flex gap-2 w-full md:w-auto">
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-green-300 mb-0.5">🎯 Setoran</div>
+                          <div id="ks_heal_Prod" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                      <div class="bg-white/5 backdrop-blur-md p-2 rounded-xl border border-white/10 text-center flex-1 md:min-w-[100px]">
+                          <div class="text-[7px] font-bold uppercase text-red-300 mb-0.5">⚠️ Jatuh Baru</div>
+                          <div id="ks_crash_Prod" class="font-mono font-black text-xs md:text-sm">Rp 0</div>
+                      </div>
+                  </div>
+              </div>
+              
+              <div class="relative z-10 mt-4 pt-3 border-t border-white/10 w-full animate-fade-in">
+                  <div class="flex justify-between items-end mb-2">
+                      <div class="text-[8px] font-bold text-emerald-200 uppercase tracking-widest bg-black/20 px-2 py-0.5 rounded hidden sm:block"><i class="fas fa-sliders-h mr-1 text-emerald-300"></i> Baki Debet</div>
+                      <div class="flex flex-col sm:items-end w-full sm:w-auto">
+                          <div class="text-[10px] font-black text-white font-mono bg-black/40 px-2 py-0.5 rounded text-center" id="sim_os_PROD">Geser Slider 👉</div>
+                          <div class="text-[7px] font-bold mt-1 text-center sm:text-right" id="sim_diff_PROD"></div>
+                      </div>
+                  </div>
+                  <input type="range" id="slide_os_PROD" min="-50" max="100" value="0" class="sim-slider w-full h-1.5" oninput="app.calcSim('PROD')">
+                  <div class="flex justify-between text-[7px] font-bold text-emerald-300 uppercase mt-1.5">
+                      <span class="bg-red-500/20 text-red-300 px-1 py-0.5 rounded">-50%</span>
+                      <span id="sim_pct_PROD" class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10">0%</span>
+                      <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
+                  </div>
+              </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-cogs"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">NPL Produktif List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center hidden sm:table-cell">Unit</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right hidden lg:table-cell">Plafond</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblProdNpl" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50"></tbody>
+                      </table>
+                  </div>
+              </div>
+              
+              <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50">
+                  <div class="p-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
+                      <div class="flex items-center gap-2">
+                          <div class="bg-white/20 w-6 h-6 rounded-md flex items-center justify-center text-xs"><i class="fas fa-chart-line"></i></div>
+                          <div>
+                              <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR Produktif List</div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
+                      <table class="w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
+                          <thead class="sticky top-0 z-10">
+                              <tr class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-md text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden">
+                                  <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
+                                  <th class="p-2">Identitas</th>
+                                  <th class="p-2 text-center hidden sm:table-cell">Unit</th>
+                                  <th class="p-2 text-center">Kol</th>
+                                  <th class="p-2 text-right hidden lg:table-cell">Plafond</th>
+                                  <th class="p-2 text-right">Baki Debet</th>
+                                  <th class="p-2 text-right rounded-r-md">Tgk</th>
+                              </tr>
+                          </thead>
+                          <tbody id="tblProdKkr" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50"></tbody>
+                      </table>
+                  </div>
+              </div>
+          </div>
       </div>
 
       <!-- 10. FRESH DROP -->
