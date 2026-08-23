@@ -8236,6 +8236,169 @@ function initBottomSheetPhysics() {
     attachPhysicsToModal('modal-branch-handle', 'modal-branch-content', closeBranchModal);
 }
 
+// --- FUNGSI EKSPOR WA: KOMPARASI CABANG ---
+function exportBranchWA() {
+    const stats = app.state.branch_perf;
+    if (!stats || Object.keys(stats).length === 0) return alert("Data komparasi tidak tersedia.");
+    
+    const fmt = v => new Intl.NumberFormat('id-ID').format(v || 0);
+    const dateStr = document.getElementById('headerDate') ? document.getElementById('headerDate').innerText : new Date().toLocaleDateString('id-ID');
+    
+    let msg = `*📊 LAPORAN KINERJA UNIT KERJA (PPU)*\n_Diekstrak dari DaKOPen pada ${dateStr}_\n\n`;
+
+    const sortedBranches = Object.keys(stats).sort((a,b) => (stats[b].os || 0) - (stats[a].os || 0));
+    
+    sortedBranches.forEach((br, i) => {
+        const d = stats[br];
+        let diffOs = (d.os || 0) - (d.prev_os || 0);
+        let sign = diffOs >= 0 ? '+' : '';
+        let nplPct = d.os > 0 ? (d.npl / d.os * 100).toFixed(2) : 0;
+        let kkrPct = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
+
+        msg += `*${i+1}. ${br}*\n`;
+        msg += `• OS: Rp ${fmt(d.os)} (${sign}Rp ${fmt(diffOs)})\n`;
+        msg += `• Debitur: ${fmt(d.noa)} NOA\n`;
+        msg += `• Pencairan: Rp ${fmt(d.cair_os)}\n`;
+        msg += `• Pelunasan: Rp ${fmt(d.lunas_os)}\n`;
+        msg += `• NPL: Rp ${fmt(d.npl)} (${nplPct}%)\n`;
+        msg += `• KKR: Rp ${fmt(d.kkr)} (${kkrPct}%)\n\n`;
+    });
+
+    msg += `_Laporan otomatis oleh Sistem Monitoring Kredit_`;
+    
+    // Gunakan fungsi WA helper yang sudah ada
+    if(typeof app.copyAndOpenWA === 'function') app.copyAndOpenWA('', encodeURIComponent(msg));
+    else window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// --- FUNGSI EKSPOR PDF: KOMPARASI CABANG ---
+function exportBranchPDF() {
+    const stats = app.state.branch_perf;
+    if (!stats || Object.keys(stats).length === 0) return alert("Data komparasi tidak tersedia.");
+    
+    if (document.getElementById('loader')) document.getElementById('loader').style.display = 'flex';
+
+    // 1. Buat kontainer cetak sementara
+    const printDiv = document.createElement('div');
+    printDiv.style.width = '210mm'; // Standar A4
+    printDiv.style.padding = '10mm 15mm';
+    printDiv.style.backgroundColor = '#ffffff';
+    printDiv.style.color = '#0f172a';
+    printDiv.style.fontFamily = 'Arial, sans-serif';
+    printDiv.style.position = 'absolute';
+    printDiv.style.left = '-9999px'; // Sembunyikan dari layar
+
+    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+    const dateStr = document.getElementById('headerDate') ? document.getElementById('headerDate').innerText : new Date().toLocaleDateString('id-ID');
+
+    // 2. Bangun Header PDF
+    let html = `
+    <div style="border-bottom: 3px solid #1e3a8a; padding-bottom: 12px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="color: #1e3a8a; font-size: 18pt; font-weight: 900; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">Komparasi Kinerja Unit Kerja</h1>
+            <p style="color: #64748b; font-size: 9pt; font-weight: bold; margin: 4px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Growth, Mutasi, & Risiko</p>
+        </div>
+        <div style="text-align: right;">
+            <p style="color: #1e293b; font-size: 9pt; font-weight: bold; margin: 0;">POSISI DATA: ${dateStr}</p>
+            <p style="color: #94a3b8; font-size: 7pt; margin: 2px 0 0 0;">DaKOPen PPU - Dicetak ${new Date().toLocaleDateString('id-ID')}</p>
+        </div>
+    </div>
+    `;
+
+    const sortedBranches = Object.keys(stats).sort((a,b) => (stats[b].os || 0) - (stats[a].os || 0));
+
+    // 3. Bangun Tabel Data PDF
+    html += `
+    <table style="width: 100%; border-collapse: collapse; font-size: 8pt;">
+        <thead>
+            <tr style="background-color: #1e293b; color: #ffffff;">
+                <th style="padding: 8px; text-align: center; border: 1px solid #cbd5e1;">#</th>
+                <th style="padding: 8px; text-align: left; border: 1px solid #cbd5e1;">Unit Kerja</th>
+                <th style="padding: 8px; text-align: right; border: 1px solid #cbd5e1;">Outstanding (OS)</th>
+                <th style="padding: 8px; text-align: right; border: 1px solid #cbd5e1;">Growth (Selisih)</th>
+                <th style="padding: 8px; text-align: right; background-color: #065f46; border: 1px solid #cbd5e1;">Cair (Inflow)</th>
+                <th style="padding: 8px; text-align: right; background-color: #9f1239; border: 1px solid #cbd5e1;">Lunas (Outflow)</th>
+                <th style="padding: 8px; text-align: right; background-color: #9a3412; border: 1px solid #cbd5e1;">KKR (Kol 2-5)</th>
+                <th style="padding: 8px; text-align: right; background-color: #991b1b; border: 1px solid #cbd5e1;">NPL (Kol 3-5)</th>
+            </tr>
+        </thead>
+        <tbody>
+    `;
+
+    sortedBranches.forEach((br, i) => {
+        const d = stats[br];
+        let diffOs = (d.os || 0) - (d.prev_os || 0);
+        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(2) : ((d.os || 0) > 0 ? 100 : 0);
+        let nplPct = d.os > 0 ? (d.npl / d.os * 100).toFixed(2) : 0;
+        let kkrPct = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
+        let bgRow = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+        let colorDiff = diffOs >= 0 ? '#15803d' : '#e11d48'; // Green : Red
+
+        html += `
+        <tr style="background-color: ${bgRow};">
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: center; color: #64748b;">${i+1}</td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold; color: #0f172a;">
+                ${br}<br><span style="font-size:6pt; font-weight:normal; color:#64748b;">${d.noa} NOA</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; font-weight: bold;">
+                ${fmtIDR(d.os)}
+            </td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; color: ${colorDiff}; font-weight: bold;">
+                ${diffOs >= 0 ? '+' : ''}${fmtIDR(diffOs)}<br><span style="font-size:6pt;">(${diffOs >= 0 ? '+' : ''}${pctGrowth}%)</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace;">
+                +${fmtIDR(d.cair_os)}<br><span style="font-size:6pt; color:#64748b;">${d.cair_noa} Rek</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace;">
+                -${fmtIDR(d.lunas_os)}<br><span style="font-size:6pt; color:#64748b;">${d.lunas_noa} Rek</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; color: #c2410c;">
+                ${fmtIDR(d.kkr)}<br><span style="font-size:6pt; background-color: #ffedd5; padding: 1px 4px; border-radius: 2px;">${kkrPct}%</span>
+            </td>
+            <td style="padding: 8px; border: 1px solid #cbd5e1; text-align: right; font-family: monospace; color: #b91c1c; font-weight: bold;">
+                ${fmtIDR(d.npl)}<br><span style="font-size:6pt; background-color: #fee2e2; padding: 1px 4px; border-radius: 2px;">${nplPct}%</span>
+            </td>
+        </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    
+    // Tanda Tangan Footer
+    html += `
+    <table style="width: 100%; text-align: center; margin-top: 40px; font-size: 8pt; border: none;">
+        <tr>
+            <td style="width: 50%; border: none;">
+                <div style="margin-bottom: 60px;">Mengetahui,<br><b>Pemimpin Cabang</b></div>
+                <div style="font-weight: bold; border-top: 1px solid #000; display: inline-block; padding-top: 2px; width: 150px;"></div>
+            </td>
+            <td style="width: 50%; border: none;">
+                <div style="margin-bottom: 60px;">Disiapkan Oleh,<br><b>Penyelia / Admin Kredit</b></div>
+                <div style="font-weight: bold; border-top: 1px solid #000; display: inline-block; padding-top: 2px; width: 150px;"></div>
+            </td>
+        </tr>
+    </table>
+    `;
+
+    printDiv.innerHTML = html;
+    document.body.appendChild(printDiv);
+
+    // 4. Eksekusi Print menggunakan HTML2PDF
+    const opt = {
+        margin: 5,
+        filename: `Kinerja_Unit_${dateStr.replace(/[^a-zA-Z0-9]/g, '')}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } // Landscape agar tabel lega
+    };
+
+    setTimeout(() => {
+        html2pdf().set(opt).from(printDiv).save().then(() => {
+            document.body.removeChild(printDiv);
+            if(document.getElementById('loader')) document.getElementById('loader').style.display = 'none';
+        });
+    }, 500);
+}
+
     
 
 
@@ -8400,6 +8563,8 @@ function initBottomSheetPhysics() {
     closeSectorModal: closeSectorModal,
     openBranchModal: openBranchModal,
     closeBranchModal: closeBranchModal,
+    exportBranchWA: exportBranchWA,        
+    exportBranchPDF: exportBranchPDF,
     togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
