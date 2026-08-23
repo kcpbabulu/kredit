@@ -7996,19 +7996,14 @@ function executeDeleteSheets() {
       }, 300); // Tunggu animasi CSS selesai
   }
 
-// --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE COMPACT) ---
-// --- FUNGSI MODAL KOMPARASI CABANG (BENTO STYLE COMPACT & SAFE VISIBILITY) ---
+// --- FUNGSI MODAL KOMPARASI CABANG (SUPER BENTO COMPACT) ---
 function openBranchModal() {
-    // 1. Ambil data dengan aman dari memori aplikasi
     let stats = null;
-    if (typeof s !== 'undefined' && s.branch_perf) {
-        stats = s.branch_perf;
-    } else if (typeof app !== 'undefined' && app.state && app.state.branch_perf) {
-        stats = app.state.branch_perf;
-    }
+    if (typeof s !== 'undefined' && s.branch_perf) stats = s.branch_perf;
+    else if (typeof app !== 'undefined' && app.state && app.state.branch_perf) stats = app.state.branch_perf;
 
     if(!stats || Object.keys(stats).length === 0) {
-        alert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data selesai.");
+        alert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data berhasil.");
         return;
     }
 
@@ -8017,6 +8012,32 @@ function openBranchModal() {
     
     let html = '';
     const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+    
+    // Format Singkat (Miliar / Juta) untuk badge selisih
+    const fmtShort = (v) => {
+        if(v === 0) return '0';
+        let abs = Math.abs(v);
+        if(abs >= 1e9) return (abs/1e9).toFixed(2).replace(/\.00$/, '') + 'M';
+        if(abs >= 1e6) return (abs/1e6).toFixed(0) + 'Jt';
+        return new Intl.NumberFormat('id-ID').format(abs);
+    };
+
+    // Helper Badge Selisih
+    const getDiff = (now, prev, isBadIfUp = false, isRupiah = true) => {
+        let diff = now - (prev || 0);
+        let pct = prev ? (diff / prev * 100).toFixed(1) : (now > 0 ? 100 : 0);
+        if(diff === 0) return `<span class="inline-block px-1.5 py-0.5 rounded border border-transparent bg-slate-100/50 dark:bg-slate-700/50 text-slate-400 text-[7px] md:text-[8px] font-black shadow-sm">Tetap</span>`;
+        
+        let sign = diff > 0 ? '+' : '';
+        let arrow = diff > 0 ? '▲' : '▼';
+        let isBad = isBadIfUp ? diff > 0 : diff < 0;
+        let color = isBad ? 'text-rose-600 bg-rose-100/60 border-rose-200 dark:bg-rose-900/30 dark:border-rose-800/50' : 'text-emerald-600 bg-emerald-100/60 border-emerald-200 dark:bg-emerald-900/30 dark:border-emerald-800/50';
+        let valStr = isRupiah ? 'Rp ' + fmtShort(diff) : fmtShort(diff);
+        
+        return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border shadow-sm text-[7px] md:text-[8px] font-black ${color}">
+                    <span>${arrow}</span> <span>${sign}${valStr} (${sign}${pct}%)</span>
+                </span>`;
+    };
 
     // Urutkan dari Eksposur paling besar
     const sortedBranches = Object.keys(stats).sort((a,b) => (stats[b].os || 0) - (stats[a].os || 0));
@@ -8024,30 +8045,28 @@ function openBranchModal() {
     let globalOs = 0;
     Object.values(stats).forEach(v => globalOs += (v.os || 0));
 
-    // 2. Render Kartu
     sortedBranches.forEach((br, i) => {
         const d = stats[br];
         const pNpl = d.os > 0 ? (d.npl / d.os * 100).toFixed(2) : 0;
         const pKkr = d.os > 0 ? (d.kkr / d.os * 100).toFixed(2) : 0;
         const pPort = globalOs > 0 ? (d.os / globalOs * 100).toFixed(1) : 0;
 
-        // Perhitungan Growth
-        let diffOs = (d.os || 0) - (d.prev_os || 0);
-        let pctGrowth = d.prev_os > 0 ? (diffOs / d.prev_os * 100).toFixed(2) : ((d.os || 0) > 0 ? 100 : 0);
-        
-        let growthColor = diffOs >= 0 ? 'text-emerald-700 bg-emerald-100 border-emerald-200' : 'text-rose-700 bg-rose-100 border-rose-200';
-        let growthIcon = diffOs >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-        let sign = diffOs >= 0 ? '+' : '';
+        // Tarik Data Diff
+        let noaDiff = getDiff(d.noa, d.prev_noa, false, false);
+        let osDiff = getDiff(d.os, d.prev_os, false, true);
+        let prodDiff = getDiff(d.prod, d.prev_prod, false, true);
+        let konsDiff = getDiff(d.kons, d.prev_kons, false, true);
+        let kurDiff = getDiff(d.kur, d.prev_kur, false, true);
+        let kkrDiff = getDiff(d.kkr, d.prev_kkr, true, true);
+        let nplDiff = getDiff(d.npl, d.prev_npl, true, true);
 
-        // Hiasan Peringkat Risiko
         let badgeNPL = pNpl > 5 ? 'bg-red-500 text-white shadow-sm border-transparent animate-pulse' : (pNpl > 0 ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
 
-        // [KUNCI PERBAIKAN]: Kelas 'opacity-0' DIHAPUS agar kartu PASTI MUNCUL tanpa risiko nyangkut transparan. Kita pakai 'animate-pop-in' murni.
         html += `
-        <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-purple-300 transition-all animate-pop-in" style="animation-delay: ${i * 30}ms;">
+        <div class="bg-white/90 dark:bg-slate-800/90 rounded-[1.5rem] p-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-purple-300 transition-all animate-pop-in flex flex-col gap-3" style="animation-delay: ${i * 40}ms; animation-fill-mode: forwards;">
             
-            <!-- ROW 1: Header Cabang & Growth -->
-            <div class="flex justify-between items-start mb-3 border-b border-dashed border-slate-200 dark:border-slate-700 pb-3">
+            <!-- ROW 1: Header Cabang & OS -->
+            <div class="flex justify-between items-start border-b border-dashed border-slate-200 dark:border-slate-700 pb-3">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center font-black shadow-inner border border-purple-200 dark:border-purple-800/50 shrink-0">
                         <i class="fas fa-building text-sm"></i>
@@ -8055,68 +8074,85 @@ function openBranchModal() {
                     <div class="min-w-0">
                         <div class="font-black text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
                         <div class="text-[9px] font-bold text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
-                            <span class="bg-slate-100 dark:bg-slate-900/50 px-2 py-0.5 rounded shadow-sm"><i class="fas fa-users text-blue-400"></i> ${d.noa || 0} NOA</span>
-                            <span class="bg-slate-100 dark:bg-slate-900/50 px-2 py-0.5 rounded shadow-sm">Porsi: ${pPort}%</span>
+                            <span class="flex items-center gap-1"><i class="fas fa-users text-blue-400"></i> ${d.noa || 0} NOA ${noaDiff}</span>
+                            <span class="opacity-50">|</span>
+                            <span>Porsi: ${pPort}%</span>
                         </div>
                     </div>
                 </div>
                 <div class="text-right shrink-0 ml-2">
-                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-sm">${fmtIDR(d.os)}</div>
-                    <div class="inline-flex items-center gap-1 mt-1 text-[8px] font-black px-2 py-1 rounded shadow-sm border ${growthColor}">
-                        <i class="fas ${growthIcon}"></i> ${sign}${fmtIDR(Math.abs(diffOs))} (${sign}${pctGrowth}%)
+                    <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-[13px] md:text-sm leading-tight">${fmtIDR(d.os)}</div>
+                    <div class="mt-1">${osDiff}</div>
+                </div>
+            </div>
+
+            <!-- ROW 2: Segmen Kredit (Prod, Kons, KUR) -->
+            <div class="grid grid-cols-3 gap-2">
+                <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-inner">
+                    <span class="text-[8px] font-black text-teal-600 uppercase tracking-widest mb-1">Produktif</span>
+                    <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] mb-1">${fmtIDR(d.prod)}</span>
+                    ${prodDiff}
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-inner">
+                    <span class="text-[8px] font-black text-indigo-600 uppercase tracking-widest mb-1">Konsumtif</span>
+                    <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] mb-1">${fmtIDR(d.kons)}</span>
+                    ${konsDiff}
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-inner">
+                    <span class="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">KUR</span>
+                    <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] mb-1">${fmtIDR(d.kur)}</span>
+                    ${kurDiff}
+                </div>
+            </div>
+
+            <!-- ROW 3: Mutasi & Risiko -->
+            <div class="grid grid-cols-2 gap-3 mt-1">
+                <!-- Col 1: Mutasi Cair Lunas -->
+                <div class="flex flex-col gap-2">
+                    <div class="flex-1 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
+                        <span class="text-[8px] font-black text-emerald-700 dark:text-emerald-400 uppercase flex items-center gap-1"><i class="fas fa-plus-circle"></i> Cair</span>
+                        <div class="text-right">
+                            <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[9px]">+${fmtIDR(d.cair_os || 0)}</div>
+                            <div class="text-[7px] font-bold text-emerald-600 mt-0.5">${d.cair_noa || 0} Rek</div>
+                        </div>
+                    </div>
+                    <div class="flex-1 bg-rose-50 dark:bg-rose-900/10 p-2 rounded-lg border border-rose-100 dark:border-rose-800/50 flex justify-between items-center">
+                        <span class="text-[8px] font-black text-rose-700 dark:text-rose-400 uppercase flex items-center gap-1"><i class="fas fa-check-double"></i> Lunas</span>
+                        <div class="text-right">
+                            <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[9px]">-${fmtIDR(d.lunas_os || 0)}</div>
+                            <div class="text-[7px] font-bold text-rose-600 mt-0.5">${d.lunas_noa || 0} Rek</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Col 2: Kinerja NPL KKR -->
+                <div class="flex flex-col gap-2">
+                    <div class="bg-orange-50/50 dark:bg-orange-900/20 p-2 rounded-lg border border-orange-100 dark:border-orange-800/40 flex flex-col justify-center relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[8px] font-black text-orange-600 uppercase tracking-widest">KKR (2-5)</span>
+                            <span class="text-[7px] font-bold text-orange-700 bg-orange-100 dark:bg-orange-900/60 border border-orange-200 dark:border-orange-800 px-1 py-0.5 rounded shadow-sm">${pKkr}%</span>
+                        </div>
+                        <div class="font-mono font-black text-orange-600 dark:text-orange-400 text-[10px] mb-1">${fmtIDR(d.kkr)}</div>
+                        <div>${kkrDiff}</div>
+                    </div>
+                    <div class="bg-red-50/50 dark:bg-red-900/20 p-2 rounded-lg border border-red-100 dark:border-red-800/40 flex flex-col justify-center relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[8px] font-black text-red-600 uppercase tracking-widest">NPL (3-5)</span>
+                            <span class="text-[7px] font-bold border px-1 py-0.5 rounded ${badgeNPL}">${pNpl}%</span>
+                        </div>
+                        <div class="font-mono font-black text-red-600 dark:text-red-400 text-[10px] mb-1">${fmtIDR(d.npl)}</div>
+                        <div>${nplDiff}</div>
                     </div>
                 </div>
             </div>
 
-            <!-- ROW 2: Mutasi (Cair & Lunas) -->
-            <div class="flex gap-2 mb-3">
-                <div class="flex-1 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded-xl border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
-                    <div class="flex items-center gap-1.5">
-                        <i class="fas fa-plus-circle text-emerald-500 text-[10px]"></i>
-                        <span class="text-[9px] font-black text-emerald-700 dark:text-emerald-400 uppercase">Cair</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[11px]">+${fmtIDR(d.cair_os || 0)}</div>
-                        <div class="text-[8px] font-bold text-emerald-600 mt-0.5">${d.cair_noa || 0} Rek</div>
-                    </div>
-                </div>
-                <div class="flex-1 bg-rose-50 dark:bg-rose-900/10 p-2 rounded-xl border border-rose-100 dark:border-rose-800/50 flex justify-between items-center">
-                    <div class="flex items-center gap-1.5">
-                        <i class="fas fa-check-double text-rose-500 text-[10px]"></i>
-                        <span class="text-[9px] font-black text-rose-700 dark:text-rose-400 uppercase">Lunas</span>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[11px]">-${fmtIDR(d.lunas_os || 0)}</div>
-                        <div class="text-[8px] font-bold text-rose-600 mt-0.5">${d.lunas_noa || 0} Rek</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ROW 3: Risk & Sektor Detail -->
-            <div class="flex gap-2">
-                <div class="flex-1 bg-slate-50 dark:bg-slate-900/30 p-2 rounded-xl border border-slate-100 dark:border-slate-700 shadow-inner flex flex-col justify-center">
-                    <div class="flex justify-between items-center text-[9px] font-bold"><span class="text-teal-600">Prod</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.prod)}</span></div>
-                    <div class="flex justify-between items-center text-[9px] font-bold mt-1"><span class="text-indigo-600">Kons</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kons)}</span></div>
-                    <div class="flex justify-between items-center text-[9px] font-bold mt-1"><span class="text-emerald-600">KUR</span><span class="font-mono text-slate-600 dark:text-slate-300">${fmtIDR(d.kur)}</span></div>
-                </div>
-                <div class="w-20 sm:w-24 bg-orange-50/50 dark:bg-orange-900/10 p-2 rounded-xl border border-orange-100 dark:border-orange-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
-                    <span class="text-[8px] font-black text-orange-500 uppercase tracking-widest mb-1">KKR (2-5)</span>
-                    <span class="font-mono font-black text-orange-600 dark:text-orange-400 text-[10px]">${fmtIDR(d.kkr)}</span>
-                    <span class="text-[8px] font-bold bg-orange-100 dark:bg-orange-900/50 text-orange-700 border border-orange-200 dark:border-orange-700 px-1.5 py-0.5 rounded mt-1 shadow-sm">${pKkr}%</span>
-                </div>
-                <div class="w-20 sm:w-24 bg-red-50/50 dark:bg-red-900/10 p-2 rounded-xl border border-red-100 dark:border-red-800/30 flex flex-col items-center justify-center text-center shrink-0 shadow-inner">
-                    <span class="text-[8px] font-black text-red-500 uppercase tracking-widest mb-1">NPL (3-5)</span>
-                    <span class="font-mono font-black text-red-600 dark:text-red-400 text-[10px]">${fmtIDR(d.npl)}</span>
-                    <span class="text-[8px] font-bold border px-1.5 py-0.5 rounded mt-1 ${badgeNPL}">${pNpl}%</span>
-                </div>
-            </div>
         </div>
         `;
     });
 
     container.innerHTML = html;
 
-    // 3. Animate Modal Entry
+    // Animate Modal Entry
     const modal = document.getElementById('modal-branch');
     const backdrop = document.getElementById('modal-branch-backdrop');
     const content = document.getElementById('modal-branch-content');
