@@ -2962,12 +2962,12 @@ window.switchMutasiTab = function(btn, tabId) {
 }
 
 
- // =================================================================
+// =================================================================
 // 1. VARIABLE GLOBAL & RESETTER
 // =================================================================
 var isSearching = false; 
 
-// --- 1. RENDER HALAMAN DATA KREDIT (MASTER) ---
+// --- RENDER HALAMAN DATA KREDIT (MASTER) ---
 function renderKreditPage() { 
     isSearching = false; 
     window.isServerSearchMode = false;
@@ -2976,10 +2976,97 @@ function renderKreditPage() {
     var container = document.getElementById('view-kredit');
     if(!container) return; 
 
+    // Render Struktur HTML Modern Playful (Compact & Safe Area)
+    var html = `
+    <div class="p-3 md:p-5 space-y-3 md:space-y-4 bg-transparent animate-fade-in">
+        
+        <!-- Header & Search -->
+        <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex flex-col xl:flex-row justify-between items-center gap-3 md:gap-4">
+            <div class="flex items-center gap-3 w-full xl:w-auto">
+                <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/30 shrink-0">
+                    <i class="fas fa-database text-lg md:text-xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white uppercase tracking-tighter leading-none">Data Master Kredit</h2>
+                    <div class="flex items-center gap-1.5 mt-1">
+                        <span class="px-1.5 py-0.5 rounded text-[7px] md:text-[8px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">Live</span>
+                        <span class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest" id="creditInfoStatus">Sinkronisasi...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full xl:w-auto">
+                <div class="relative flex-1 xl:w-64">
+                    <input id="searchCreditInput" type="text" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik Nama / No. PK..." class="w-full pl-8 pr-3 py-2 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] md:text-xs font-bold outline-none focus:border-blue-500 transition-all shadow-inner">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] md:text-xs"></i>
+                </div>
+                <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 shrink-0">Cari</button>
+                <button id="btnResetSearch" onclick="app.resetSearchCredit()" class="hidden bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 px-3 py-2 rounded-full text-[10px] md:text-xs transition-all active:scale-95 shrink-0"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+
+        <!-- KPI & Charts Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4">
+            <!-- KPI Kiri -->
+            <div class="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3 md:gap-4">
+                <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-blue-500 shadow-sm hover:shadow-md transition-all relative overflow-hidden bg-white/80 dark:bg-slate-800/80 flex-1 flex flex-col justify-center">
+                    <div class="absolute -right-3 -bottom-3 opacity-5"><i class="fas fa-coins text-7xl text-blue-500"></i></div>
+                    <div class="relative z-10">
+                        <div class="text-[8px] md:text-[9px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-blue-100 dark:border-blue-800/50">Total Outstanding</div>
+                        <div class="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter" id="kr_os">...</div>
+                    </div>
+                </div>
+                <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md transition-all relative overflow-hidden bg-white/80 dark:bg-slate-800/80 flex-1 flex flex-col justify-center">
+                    <div class="absolute -right-3 -bottom-3 opacity-5"><i class="fas fa-users text-7xl text-emerald-500"></i></div>
+                    <div class="relative z-10">
+                        <div class="text-[8px] md:text-[9px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-emerald-100 dark:border-emerald-800/50">Total Debitur</div>
+                        <div class="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter" id="kr_noa">...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Kanan -->
+            <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[220px] md:h-[280px] shadow-sm">
+                    <div class="text-[8px] md:text-[9px] font-black mb-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 uppercase tracking-widest shrink-0">
+                        <div class="w-6 h-6 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-xs"><i class="fas fa-chart-pie"></i></div> Komposisi Kredit
+                    </div>
+                    <div class="flex-1 relative w-full h-full"><canvas id="chKr1"></canvas></div>
+                </div>
+                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[220px] md:h-[280px] shadow-sm">
+                    <div class="text-[8px] md:text-[9px] font-black mb-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 uppercase tracking-widest shrink-0">
+                        <div class="w-6 h-6 rounded bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-xs"><i class="fas fa-chart-bar"></i></div> Sektor Ekonomi
+                    </div>
+                    <div class="flex-1 relative w-full h-full"><canvas id="chKr2"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Daftar Debitur -->
+        <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[400px] md:h-[500px] shadow-sm bg-white/80 dark:bg-slate-900/80 pb-1">
+            <div class="overflow-auto flex-1 custom-scrollbar px-1 pt-1">
+                <table class="w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1">
+                    <thead class="bg-slate-50/90 dark:bg-slate-800/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
+                        <tr class="text-[7px] md:text-[8px] font-black uppercase tracking-widest">
+                            <th class="p-2.5 md:p-3 rounded-l-md cursor-pointer hover:text-blue-600 transition" onclick="app.sortKredit('nama')">Identitas Debitur <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+                            <th class="p-2.5 md:p-3 text-center">No. Perjanjian</th>
+                            <th class="p-2.5 md:p-3 text-center">Status</th>
+                            <th class="p-2.5 md:p-3 text-right hidden sm:table-cell">Plafond Limit</th>
+                            <th class="p-2.5 md:p-3 text-right rounded-r-md cursor-pointer hover:text-blue-600 transition" onclick="app.sortKredit('os')">Baki Debet <i class="fas fa-sort text-slate-300 ml-1"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody id="creditTableBody" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50">
+                    <!-- Data disuntikkan oleh JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>`;
+
+    container.innerHTML = html;
+
     var branchVal = document.getElementById('selBranch')?.value || 'ALL';
     var dateVal = document.getElementById('selDate')?.value || '';
 
-    // Ambil Data dari Backend
     google.script.run
     .withSuccessHandler(function(res) {
         window.unlockSearch(); 
@@ -2990,7 +3077,6 @@ function renderKreditPage() {
              const totalOS = res.totalOS || 0; 
              const totalNOA = res.totalNOA || 0;
 
-             // Tampilkan Angka KPI
              if (typeof animateValue === 'function') {
                 animateValue('kr_os', 0, totalOS, 800, true);
                 animateValue('kr_noa', 0, totalNOA, 800, false);
@@ -3001,12 +3087,10 @@ function renderKreditPage() {
 
              document.getElementById('creditInfoStatus').innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> ${totalNOA.toLocaleString('id-ID')} Rekening`;
 
-             // Render Tabel
              renderCreditRows(res.list);
              window.allCreditData = res.list; 
 
-             // [KUNCI FIX]: Gambar Chart Komposisi & Sektor!
-             updateCreditCharts(res.list);
+             if (typeof updateCreditCharts === 'function') updateCreditCharts(res.list);
         }
     })
     .withFailureHandler(function(err) {
@@ -3019,63 +3103,157 @@ function renderKreditPage() {
     if(typeof unlockMenu === 'function') unlockMenu();
 }
 
-// --- 2. GENERATOR CHART KOMPOSISI & SEKTOR ---
-function updateCreditCharts(data) {
-    if(!data || data.length === 0) return;
-    
-    let komp = { 'PRODUKTIF': 0, 'KONSUMTIF': 0, 'KUR': 0 };
-    let sekt = {};
-    
-    // Agregasi Data
-    data.forEach(r => {
-        let os = Number(r.os) || 0;
-        let t = String(r.tags || r.jenis_kredit || r.type || '').toUpperCase();
-        
-        if(t.includes('PROD')) komp['PRODUKTIF'] += os;
-        else if(t.includes('KONS')) komp['KONSUMTIF'] += os;
-        else if(t.includes('KUR')) komp['KUR'] += os;
-        else komp['LAINNYA'] = (komp['LAINNYA'] || 0) + os;
-        
-        let sName = (r.sektor || 'UMUM').toUpperCase().substring(0, 20); // Batasi nama agar rapi di chart
-        if(!sekt[sName]) sekt[sName] = 0;
-        sekt[sName] += os;
-    });
-    
-    // Siapkan Data Chart
-    let komLabels = Object.keys(komp).filter(k => komp[k] > 0);
-    let komData = komLabels.map(k => komp[k]);
-    
-    // Sort Sektor Terbesar (Top 5)
-    let secSorted = Object.entries(sekt).sort((a,b) => b[1] - a[1]).slice(0, 5);
-    let secLabels = secSorted.map(x => x[0]);
-    let secData = secSorted.map(x => x[1]);
-    
-    // Gambar Ulang Canvas
-    if(window.renderChart) {
-        window.renderChart('chKr1', 'doughnut', komLabels, komData, 'Komposisi');
-        // Gunakan tipe 'bar' (Horizontal bar diatur oleh renderChart kita)
-        window.renderChart('chKr2', 'bar', secLabels, secData, 'Top Sektor');
+
+// =================================================================
+// 2. HANDLER SEARCH & UTILITIES
+// =================================================================
+window.handleSearchEnter = function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        if (isSearching) return; 
+
+        var inputEl = document.getElementById('searchCreditInput');
+        var keyword = inputEl.value;
+
+        if (keyword.length > 2) {
+            isSearching = true; 
+            inputEl.disabled = true; 
+            inputEl.classList.add('opacity-50');
+
+            var tbody = document.getElementById('creditTableBody');
+            if(tbody) tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="p-16 md:p-24 text-center">
+                        <div class="relative inline-flex w-16 h-16 md:w-20 md:h-20 bg-blue-50 dark:bg-slate-800 rounded-2xl shadow-inner items-center justify-center mb-4 mx-auto border border-slate-100 dark:border-slate-700">
+                             <i class="fas fa-database text-2xl md:text-3xl text-blue-300 dark:text-slate-600"></i>
+                             <i class="fas fa-search absolute -bottom-2 -right-2 text-xl text-blue-500 animate-bounce drop-shadow-md"></i>
+                        </div>
+                        <div class="text-blue-500 text-[9px] md:text-[10px] font-black tracking-[0.2em] uppercase animate-pulse">Memindai Database...</div>
+                    </td>
+                </tr>`;
+            
+            var branchVal = document.getElementById('selBranch')?.value || 'ALL';
+            var dateVal = document.getElementById('selDate')?.value || '';
+            
+            google.script.run
+                .withSuccessHandler(onSearchResult)
+                .withFailureHandler(onSearchFail)
+                .searchCreditGlobal(branchVal, dateVal, keyword);
+
+        } else if (keyword.length === 0) {
+            window.resetSearchCredit();
+        } else {
+             alert("Ketik minimal 3 huruf untuk mencari.");
+        }
     }
 }
 
-// --- 3. RENDER BARIS TABEL (SESUAI DESAIN GAMBAR) ---
+window.onSearchResult = function(res) {
+    window.unlockSearch(); 
+    var tbody = document.getElementById('creditTableBody');
+    if (!tbody) return; 
+
+    if (res.error) { 
+        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><div class="bg-rose-50 text-rose-500 font-bold text-xs p-4 rounded-xl inline-block shadow-inner">${res.error}</div></td></tr>`;
+        return; 
+    }
+    
+    var displayData = res.list || [];
+    var isLimited = false;
+    if (displayData.length > 100) {
+        displayData = displayData.slice(0, 100);
+        isLimited = true;
+    }
+    
+    renderCreditRows(displayData);
+    
+    var infoEl = document.getElementById('creditInfoStatus');
+    if (infoEl) {
+        var msg = `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded shadow-inner">Ditemukan</span> <b>${res.count}</b> kecocokan.`;
+        if (isLimited) msg += " (Top 100)";
+        infoEl.innerHTML = msg;
+    }
+    
+    var btnReset = document.getElementById('btnResetSearch');
+    if (btnReset) btnReset.classList.remove('hidden');
+    
+    setTimeout(() => { 
+        var inp = document.getElementById('searchCreditInput');
+        if(inp && !inp.disabled) inp.focus(); 
+    }, 100);
+}
+
+window.onSearchFail = function(err) {
+    window.unlockSearch();
+    var tbody = document.getElementById('creditTableBody');
+    if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><div class="bg-rose-50 text-rose-500 text-xs font-bold p-4 rounded-xl inline-block shadow-inner">Koneksi Gagal. Silakan coba lagi.</div></td></tr>`;
+}
+
+window.unlockSearch = function() {
+    isSearching = false; 
+    var inputEl = document.getElementById('searchCreditInput');
+    if(inputEl) {
+        inputEl.disabled = false;
+        inputEl.classList.remove('opacity-50'); 
+    }
+}
+
+window.resetSearchCredit = function() {
+    if(isSearching) return; 
+    document.getElementById('searchCreditInput').value = '';
+    if(window.allCreditData) {
+        renderCreditRows(window.allCreditData);
+        var infoEl = document.getElementById('creditInfoStatus');
+        if(infoEl) infoEl.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> Menampilkan 50 data teratas`;
+    }
+    document.getElementById('btnResetSearch').classList.add('hidden');
+    window.isServerSearchMode = false;
+}
+
+// =================================================================
+// 3. RENDER ROWS & SORTING (MODERN PLAYFUL ROW)
+// =================================================================
 function renderCreditRows(data) {
     var tbody = document.getElementById('creditTableBody');
     if(!tbody) return;
-
+    
     var fmtIDR = (v) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
 
     if(!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">Data Tidak Ditemukan</td></tr>`;
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="p-16 md:p-24 text-center animate-fade-in">
+                    <div class="flex flex-col items-center justify-center space-y-3">
+                        <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center shadow-inner border border-slate-200 dark:border-slate-700">
+                            <i class="fas fa-ghost text-2xl text-slate-300"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black tracking-widest uppercase text-slate-400">Pencarian Kosong</p>
+                            <p class="text-[9px] font-bold text-slate-400 mt-1">Coba gunakan kata kunci lain.</p>
+                        </div>
+                    </div>
+                </td>
+            </tr>`;
         return;
     }
 
     tbody.innerHTML = data.map((r, idx) => {
         var k = parseInt(r.kol) || 1; 
-        var bgKol = k >= 3 ? 'bg-red-100 text-red-700 border-red-200' : (k == 2 ? 'bg-orange-100 text-orange-700 border-orange-200' : 'bg-emerald-100 text-emerald-700 border-emerald-200');
-        var iconKol = k >= 3 ? 'fa-times-circle' : 'fa-check-circle';
+        
+        var kolConfig = {
+            1: { bg: 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600', icon: 'fa-check-circle' },
+            2: { bg: 'bg-amber-100 dark:bg-amber-900/40 text-amber-600', icon: 'fa-exclamation-circle' },
+            3: { bg: 'bg-orange-100 dark:bg-orange-900/40 text-orange-600', icon: 'fa-exclamation-triangle' },
+            4: { bg: 'bg-rose-100 dark:bg-rose-900/40 text-rose-600', icon: 'fa-skull' },
+            5: { bg: 'bg-red-600 text-white shadow-md animate-pulse-slow', icon: 'fa-skull-crossbones' },
+            'E': { bg: 'bg-blue-100 dark:bg-blue-900/40 text-blue-600', icon: 'fa-star' }
+        };
+        
+        var style = kolConfig[k] || kolConfig[1];
+        var isNpl = (k >= 3 && k <= 5);
+        var bakiColor = isNpl ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-white';
         var safeNama = String(r.nama || '-').replace(/'/g, "\\'");
-
+        
         return `
         <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50 animate-fade-in" style="animation-delay: ${Math.min(idx * 10, 500)}ms" onclick="if(window.app && typeof window.app.fetchDetail === 'function') window.app.fetchDetail('${r.loan}')">
             
@@ -3100,8 +3278,8 @@ function renderCreditRows(data) {
             </td>
             
             <td class="p-2 md:p-3 text-center align-middle">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded shadow-sm text-[8px] md:text-[9px] font-black uppercase tracking-wider border ${bgKol}">
-                    <i class="fas ${iconKol}"></i> KOL ${k}
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded shadow-sm text-[8px] md:text-[9px] font-black uppercase tracking-wider border ${style.bg}">
+                    <i class="fas ${style.icon}"></i> KOL ${k}
                 </span>
             </td>
             
@@ -3110,138 +3288,13 @@ function renderCreditRows(data) {
             </td>
             
             <td class="p-2 md:p-3 text-right align-middle rounded-r-md">
-                <div class="font-mono font-black text-slate-800 dark:text-white text-[11px] md:text-[13px] group-hover:text-blue-600 transition-colors tracking-tighter">${fmtIDR(r.os)}</div>
+                <div class="font-mono font-black ${bakiColor} text-[11px] md:text-[13px] group-hover:text-blue-600 transition-colors tracking-tighter">${fmtIDR(r.os)}</div>
                 <div class="text-[7px] md:text-[8px] font-bold text-slate-400 mt-0.5 flex justify-end items-center gap-1">
                     <i class="far fa-calendar-alt"></i> JT: ${r.tgl_jt || '-'}
                 </div>
             </td>
         </tr>`;
     }).join('');
-}
-
-
-// =================================================================
-// 2. HANDLER SEARCH (ENTER KEY)
-// =================================================================
-window.handleSearchEnter = function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        if (isSearching) return; 
-
-        var inputEl = document.getElementById('searchCreditInput');
-        var keyword = inputEl.value;
-
-        if (keyword.length > 2) {
-            isSearching = true; 
-            inputEl.disabled = true; 
-            inputEl.classList.add('opacity-50');
-
-            var tbody = document.getElementById('creditTableBody');
-            if(tbody) tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="p-24 text-center">
-                        <div class="relative inline-block w-24 h-24 bg-blue-50 dark:bg-slate-800 rounded-full shadow-inner flex items-center justify-center mb-4 mx-auto">
-                             <i class="fas fa-database text-4xl text-blue-200 dark:text-slate-600"></i>
-                             <i class="fas fa-search absolute bottom-4 right-4 text-2xl text-blue-500 animate-bounce"></i>
-                        </div>
-                        <div class="text-blue-500 text-[10px] font-black tracking-[0.2em] uppercase animate-pulse">Memindai Database...</div>
-                    </td>
-                </tr>`;
-            
-            var branchVal = document.getElementById('sel-branch')?.value || 'ALL';
-            var dateVal = document.getElementById('sel-date')?.value || '';
-            
-            google.script.run
-                .withSuccessHandler(onSearchResult)
-                .withFailureHandler(onSearchFail)
-                .searchCreditGlobal(branchVal, dateVal, keyword);
-
-        } else if (keyword.length === 0) {
-            window.resetSearchCredit();
-        } else {
-             alert("Ketik minimal 3 huruf untuk mencari.");
-        }
-    }
-}
-
-
-// =================================================================
-// 3. HANDLER HASIL SEARCH (SUKSES)
-// =================================================================
-window.onSearchResult = function(res) {
-    window.unlockSearch(); 
-
-    var tbody = document.getElementById('creditTableBody');
-    if (!tbody) return; 
-
-    if (res.error) { 
-        tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><div class="bg-rose-50 text-rose-500 font-bold p-4 rounded-xl inline-block shadow-inner">${res.error}</div></td></tr>`;
-        return; 
-    }
-    
-    // LIMITER (Anti Hang)
-    var displayData = res.list || [];
-    var isLimited = false;
-    if (displayData.length > 100) {
-        displayData = displayData.slice(0, 100);
-        isLimited = true;
-    }
-    
-    renderCreditRows(displayData);
-    
-    // Update Info Status
-    var infoEl = document.getElementById('creditInfoStatus');
-    if (infoEl) {
-        var msg = `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded shadow-inner">Ditemukan</span> <b>${res.count}</b> kecocokan.`;
-        if (isLimited) msg += " (Top 100)";
-        infoEl.innerHTML = msg;
-    }
-    
-    // Tampilkan tombol X
-    var btnReset = document.getElementById('btnResetSearch');
-    if (btnReset) btnReset.classList.remove('hidden');
-    
-    // Focus balik
-    setTimeout(() => { 
-        var inp = document.getElementById('searchCreditInput');
-        if(inp && !inp.disabled) inp.focus(); 
-    }, 100);
-}
-
-// =================================================================
-// 4. HANDLER GAGAL / ERROR
-// =================================================================
-window.onSearchFail = function(err) {
-    window.unlockSearch();
-    console.error(err);
-    var tbody = document.getElementById('creditTableBody');
-    if(tbody) tbody.innerHTML = `<tr><td colspan="5" class="p-10 text-center"><div class="bg-rose-50 text-rose-500 font-bold p-4 rounded-xl inline-block shadow-inner">Koneksi Gagal. Silakan coba lagi.</div></td></tr>`;
-}
-
-// =================================================================
-// 5. FUNGSI UNLOCK (BUKA GEMBOK)
-// =================================================================
-window.unlockSearch = function() {
-    isSearching = false; 
-    var inputEl = document.getElementById('searchCreditInput');
-    if(inputEl) {
-        inputEl.disabled = false;
-        inputEl.classList.remove('opacity-50'); 
-    }
-}
-
-// 7. RESET SEARCH
-window.resetSearchCredit = function() {
-    if(isSearching) return; 
-    
-    document.getElementById('searchCreditInput').value = '';
-    if(window.allCreditData) {
-        renderCreditRows(window.allCreditData);
-        var infoEl = document.getElementById('creditInfoStatus');
-        if(infoEl) infoEl.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> Menampilkan 50 data teratas`;
-    }
-    document.getElementById('btnResetSearch').classList.add('hidden');
-    window.isServerSearchMode = false;
 }
 
 // Fungsi Filter Client-Side (Sangat Cepat)
@@ -3255,96 +3308,126 @@ window.filterCreditTable = function(keyword) {
         (item.pk && item.pk.toLowerCase().includes(k))
     );
     
-    renderCreditRows(filtered.slice(0, 100)); // Dibatasi 100 agar DOM rendering sangat mulus
+    renderCreditRows(filtered.slice(0, 100));
 };
 
-  function sortKredit(key) {
-    if(!s.kredit) return; if(s.krSort.key === key) s.krSort.asc = !s.krSort.asc; else { s.krSort.key=key; s.krSort.asc=false;
+window.sortKredit = function(key) {
+    if(!window.allCreditData) return;
+    
+    // Init state jika belum ada
+    app.state = app.state || {};
+    if(!app.state.krSort) app.state.krSort = { key: 'os', asc: false };
+    
+    if(app.state.krSort.key === key) {
+        app.state.krSort.asc = !app.state.krSort.asc; 
+    } else { 
+        app.state.krSort.key = key; 
+        app.state.krSort.asc = false;
     }
-    s.kredit.list.sort((a,b) => { if(key === 'os') return s.krSort.asc ? a.os - b.os : b.os - a.os; if(key === 'nama') return s.krSort.asc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama); return 0; });
-    renderTableRaw('tblKredit', s.kredit.list.slice(0,200));
-  }
+    
+    window.allCreditData.sort((a,b) => { 
+        if(key === 'os') return app.state.krSort.asc ? a.os - b.os : b.os - a.os; 
+        if(key === 'nama') return app.state.krSort.asc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama); 
+        return 0; 
+    });
+    
+    renderCreditRows(window.allCreditData.slice(0,100));
+};
 
-  function renderTableRaw(tableId, rows) {
-    const body = el(tableId); if(!body) return;
-    if(!rows.length) { body.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-400">Data Kosong</td></tr>'; return;
-    }
-    body.innerHTML = rows.map(r => { let bg = getBranchColor(r.br); let tx = getBranchTextCol(r.br); return `<tr class="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800 transition"><td class="p-3 cursor-pointer group" onclick='app.fetchDetail("${r.loan}")'><div class="font-bold text-brand-600 group-hover:text-brand-800">${r.nama}</div><div class="text-[10px] text-gray-400 mt-0.5">${r.loan}</div></td><td class="p-3"><span class="branch-badge" style="background:${bg};color:${tx}">${r.br}</span></td><td class="p-3 text-center"><span class="badge ${r.kol>=3?'bg-red-100 text-red-600':r.kol==2?'bg-orange-100 text-orange-600':'bg-green-100 text-green-600'}">${r.kol}</span></td><td class="p-3 text-right font-mono text-xs text-gray-500">${fmt(r.plafond)}</td><td class="p-3 text-right font-mono text-sm font-bold text-gray-700 dark:text-gray-300">${fmt(r.os)}</td></tr>`; }).join('');
-  }
 
-  function renderTrend(res) {
+// =================================================================
+// 4. TREND PERFORMANCE (WIDGET STYLE)
+// =================================================================
+function renderTrend(res) {
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
     
     var container = document.getElementById('view-trend');
-    // Inject HTML container jika belum ada isinya
+    if(!container) return;
+
+    // Perhitungan untuk skala chart HTML murni
+    const maxOS = Math.max(...res.map(x => x.os));
+    const last = res[res.length-1];
+    const first = res[0];
+    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v);
+
     container.innerHTML = `
-    <div class="p-6 space-y-6 fade-in">
-        <div class="flex justify-between items-end">
+    <div class="p-3 md:p-5 space-y-3 md:space-y-4 fade-in">
+        
+        <!-- Header -->
+        <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-slate-200/60 dark:border-slate-700/50 p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] shadow-sm flex items-center gap-3">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shadow-md transform -rotate-3 shrink-0">
+                <i class="fas fa-chart-line text-lg md:text-xl"></i>
+            </div>
             <div>
-                <h3 class="text-2xl font-bold text-slate-800 dark:text-white">Trend Performance</h3>
-                <p class="text-slate-500 text-sm">Analisa korelasi Pertumbuhan Aset (Volume) vs Kualitas (NPL).</p>
+                <h3 class="font-black text-lg md:text-xl text-slate-800 dark:text-white tracking-tight leading-none">Trend Performance</h3>
+                <p class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest">OS Volume vs Kualitas (NPL)</p>
             </div>
         </div>
 
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow border border-slate-200 dark:border-slate-700">
-            <div class="flex items-end justify-between h-64 gap-2 md:gap-4">
+        <!-- HTML Based Chart Area -->
+        <div class="glass-card p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-sm border border-white/60 dark:border-slate-700/50 bg-white/60 dark:bg-slate-900/60 flex flex-col">
+            <div class="flex items-end justify-between h-[200px] md:h-[280px] gap-1.5 md:gap-4 mt-2 relative">
                 ${res.map(d => {
-                    // Skala Tinggi Bar (Max asumsi 100% tinggi relatif)
-                    var maxOS = Math.max(...res.map(x => x.os));
-                    var hPct = (d.os / maxOS) * 80; // Max tinggi 80%
-                    
-                    // Warna Bar (Jika NPL naik drastis bulan ini -> Merah)
-                    var nplRatio = (d.npl/d.os*100);
-                    var barColor = nplRatio > 5 ? 'bg-red-400' : 'bg-blue-500';
-                    
+                    let hPct = (d.os / maxOS) * 80; // Sisakan ruang atas
+                    let nplRatio = (d.npl/d.os*100);
+                    let barColor = nplRatio > 5 ? 'from-red-400 to-rose-600' : 'from-blue-400 to-indigo-600';
+                    let dotColor = nplRatio > 5 ? 'bg-red-500 ring-red-200 shadow-[0_0_10px_rgba(239,68,68,0.8)]' : 'bg-emerald-500 ring-emerald-200 shadow-[0_0_10px_rgba(16,185,129,0.8)]';
+                    let dotPos = Math.min(nplRatio * 10, 95); // Skala visual NPL (10x ratio)
+
                     return `
                     <div class="group relative flex flex-col items-center justify-end w-full h-full cursor-pointer">
-                        <div class="absolute bottom-full mb-2 hidden group-hover:block bg-slate-900 text-white text-[10px] p-2 rounded shadow-lg z-10 w-32 text-center">
-                            <div class="font-bold">${d.label}</div>
-                            <div>OS: ${(d.os/1000000000).toFixed(1)} M</div>
-                            <div class="${nplRatio>5?'text-red-300':'text-green-300'}">NPL: ${nplRatio.toFixed(2)}%</div>
+                        
+                        <!-- Floating Tooltip -->
+                        <div class="absolute bottom-full mb-3 hidden group-hover:flex flex-col bg-slate-800/95 backdrop-blur-md text-white text-[9px] md:text-[10px] p-2.5 rounded-xl shadow-xl z-20 w-32 md:w-40 text-center border border-slate-600 transform transition-all animate-pop-in">
+                            <div class="font-black text-blue-300 uppercase tracking-widest mb-1 border-b border-slate-600 pb-1">${d.label}</div>
+                            <div class="font-mono mt-1">OS: ${(d.os/1e9).toFixed(1)} M</div>
+                            <div class="font-mono font-bold ${nplRatio>5 ? 'text-red-400' : 'text-emerald-400'}">NPL: ${nplRatio.toFixed(2)}%</div>
                         </div>
                         
-                        <div class="absolute w-3 h-3 rounded-full border-2 border-white shadow-sm z-10 ${nplRatio>5?'bg-red-600':'bg-emerald-500'}" 
-                             style="bottom: ${Math.min(nplRatio * 10, 95)}%; transition: all 0.5s;"></div>
+                        <!-- Floating Dot Indicator -->
+                        <div class="absolute w-2.5 h-2.5 md:w-3.5 md:h-3.5 rounded-full border border-white z-10 ${dotColor} ring-2 transition-all duration-500 group-hover:scale-125" 
+                             style="bottom: ${dotPos}%;"></div>
                         
-                        <div class="${barColor} w-full md:w-12 rounded-t-sm opacity-80 hover:opacity-100 transition-all duration-500 relative" style="height: ${hPct}%">
-                             <div class="absolute top-2 left-0 right-0 text-center text-[9px] text-white/90 font-mono hidden md:block">
-                                ${nplRatio.toFixed(1)}%
-                             </div>
+                        <!-- Gradient Bar -->
+                        <div class="w-full md:w-12 rounded-t-md md:rounded-t-xl bg-gradient-to-t ${barColor} opacity-70 group-hover:opacity-100 transition-all duration-500 relative shadow-inner" style="height: ${hPct}%">
+                             <div class="absolute top-1 left-0 right-0 text-center text-[7px] md:text-[9px] text-white/90 font-black hidden md:block">${nplRatio.toFixed(1)}%</div>
                         </div>
                         
-                        <div class="mt-2 text-[10px] text-slate-500 font-bold rotate-0 md:rotate-0">${d.label}</div>
+                        <!-- Label Bulan -->
+                        <div class="mt-2 text-[7px] md:text-[9px] text-slate-500 font-bold truncate w-full text-center">${d.label.split(' ')[0]}</div>
                     </div>`;
                 }).join('')}
             </div>
             
-            <div class="mt-6 flex items-center justify-center gap-6 text-xs text-slate-500">
-                <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-500 rounded-sm"></div> Volume Kredit (OS)</div>
-                <div class="flex items-center gap-2"><div class="w-3 h-3 bg-red-600 rounded-full border border-white"></div> Trend NPL Ratio (Titik)</div>
+            <!-- Legend -->
+            <div class="mt-6 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 flex flex-wrap items-center justify-center gap-4 md:gap-8 text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-gradient-to-t from-blue-400 to-indigo-600 rounded-sm shadow-sm"></div> Volume Kredit (OS)</div>
+                <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 bg-red-500 rounded-full border border-white ring-2 ring-red-200 shadow-sm"></div> Trend NPL Ratio</div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <div class="font-bold text-blue-800 text-sm mb-1">Growth Insight</div>
-                <div class="text-xs text-blue-600">
-                    Posisi kredit terakhir tercatat <b>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(res[res.length-1].os)}</b>.
-                    Trend volume menunjukkan pergerakan yang ${res[res.length-1].os > res[0].os ? 'POSITIF (Bertumbuh)' : 'NEGATIF (Kontraksi)'}.
+        <!-- Insights Bento -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+             <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-blue-500 bg-blue-50/50 dark:bg-blue-900/10 flex flex-col justify-center">
+                <div class="font-black text-blue-700 dark:text-blue-400 text-[10px] md:text-[11px] mb-1.5 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-chart-line"></i> Growth Insight</div>
+                <div class="text-[9px] md:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Posisi kredit terakhir tercatat <b class="font-mono text-blue-600 dark:text-blue-400">${fmtIDR(last.os)}</b>.
+                    Trend volume menunjukkan pergerakan yang <b class="${last.os > first.os ? 'text-emerald-600' : 'text-rose-600'}">${last.os > first.os ? 'POSITIF (Ekspansi)' : 'NEGATIF (Kontraksi)'}</b> dibandingkan awal periode pengamatan.
                 </div>
              </div>
-             <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
-                <div class="font-bold text-orange-800 text-sm mb-1">Risk Insight</div>
-                <div class="text-xs text-orange-600">
-                    Rasio NPL terkini di level <b>${(res[res.length-1].npl/res[res.length-1].os*100).toFixed(2)}%</b>.
-                    Perlu perhatian khusus jika titik NPL (Dot) konsisten berada di atas batang volume.
+             <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-orange-500 bg-orange-50/50 dark:bg-orange-900/10 flex flex-col justify-center">
+                <div class="font-black text-orange-700 dark:text-orange-400 text-[10px] md:text-[11px] mb-1.5 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-exclamation-triangle"></i> Risk Insight</div>
+                <div class="text-[9px] md:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    Rasio NPL terkini berada di level <b class="font-mono text-orange-600 dark:text-orange-400">${(last.npl/last.os*100).toFixed(2)}%</b>.
+                    Waspadai jika titik rasio NPL (Dot) bergerak melampaui tinggi batang volume kredit.
                 </div>
              </div>
         </div>
     </div>`;
-      unlockMenu();
+    unlockMenu();
 }
 
+    
   function fetchDetail(loanId) { 
     if(el('loader')) el('loader').style.display = 'flex'; 
     // PERBAIKAN 1: Syntax google.script.run dibersihkan
