@@ -1502,6 +1502,91 @@
     </div>
 </main>
 
+  </main> <!-- Penutup main utama aplikasi -->
+
+  <!-- ======================================================= -->
+  <!-- NATIVE MENU SHEET (MENU UTAMA MOBILE)                   -->
+  <!-- ======================================================= -->
+  <div id="nativeMenuSheet" class="fixed inset-x-0 bottom-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-2xl rounded-t-[2rem] md:rounded-t-[2.5rem] shadow-[0_-20px_50px_rgba(0,0,0,0.15)] z-[80] transform translate-y-full transition-transform duration-500 ease-out flex flex-col max-h-[85vh] border-t border-slate-200/50 dark:border-slate-700 pb-safe">
+      <div class="p-3 md:p-4 flex justify-center shrink-0 cursor-pointer" onclick="app.toggleNativeMenu()">
+          <div class="w-12 h-1.5 bg-slate-300 dark:bg-slate-600 rounded-full"></div>
+      </div>
+      <div class="p-4 md:p-6 grid grid-cols-4 gap-y-6 gap-x-4 text-center overflow-y-auto custom-scrollbar">
+          <div onclick="app.switchTab('view-nplall')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-globe text-xl md:text-2xl grad-icon grad-red"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Total NPL</span></div>
+          <div onclick="app.switchTab('view-collection')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fab fa-whatsapp text-xl md:text-2xl grad-icon grad-emerald"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Collection</span></div>
+          <div onclick="app.switchTab('view-journey')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-route text-xl md:text-2xl grad-icon grad-blue"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Journey</span></div>
+          <div onclick="app.switchTab('view-archive')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-archive text-xl md:text-2xl grad-icon grad-purple"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Arsip</span></div>
+          
+          <div onclick="app.switchTab('view-watchlist')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-eye text-xl md:text-2xl grad-icon grad-orange"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Watchlist</span></div>
+          <div onclick="app.switchTab('view-freshdrop')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-arrow-down-wide-short text-xl md:text-2xl grad-icon grad-red"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Fresh Drop</span></div>
+          <div onclick="app.switchTab('view-maturity')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-hourglass-half text-xl md:text-2xl grad-icon grad-blue"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Jatuh Tempo</span></div>
+          <div onclick="app.switchTab('view-writeoff')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-skull-crossbones text-xl md:text-2xl grad-icon grad-purple"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Hapus Buku</span></div>
+          
+          <div onclick="app.switchTab('view-report')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-print text-xl md:text-2xl grad-icon grad-blue"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Cetak Lapor</span></div>
+          <div onclick="app.switchTab('view-map')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-map-marked-alt text-xl md:text-2xl grad-icon grad-emerald"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Peta PPU</span></div>
+          <div onclick="app.switchTab('view-risk')" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-chess-board text-xl md:text-2xl grad-icon grad-purple"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Risk Matrix</span></div>
+          <div onclick="app.openUploadModal()" class="flex flex-col items-center gap-2 active:scale-90 transition group"><div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-sm flex items-center justify-center group-hover:shadow-md"><i class="fas fa-cloud-upload-alt text-xl md:text-2xl grad-icon grad-gold"></i></div><span class="text-[9px] md:text-[10px] font-bold text-slate-600 dark:text-slate-300">Upload DB</span></div>
+      </div>
+  </div>
+  <div id="nativeOverlay" onclick="app.toggleNativeMenu()" class="fixed inset-0 bg-slate-900/60 z-[70] hidden backdrop-blur-sm transition-opacity duration-300"></div>
+
+  <!-- ======================================================= -->
+  <!-- LACI MENU BAWAH (MOBILE BOTTOM SHEETS)                  -->
+  <!-- ======================================================= -->
+  
+  <!-- 1. Laci Menu Kredit -->
+  <div id="sheet-kredit" class="custom-bottom-sheet">
+      <div class="sheet-header" onclick="app.closeAllSheets()"></div>
+      <div class="p-4 md:p-6 grid grid-cols-2 gap-3 md:gap-4">
+          <div onclick="app.switchTab('view-nplall')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-red-300">
+              <i class="fas fa-globe text-3xl md:text-4xl grad-icon grad-red mb-1"></i> NPL Total
+          </div>
+          <div onclick="app.switchTab('view-nplkur')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-purple-300">
+              <i class="fas fa-seedling text-3xl md:text-4xl grad-icon grad-purple mb-1"></i> NPL KUR
+          </div>
+          <div onclick="app.switchTab('view-nplkonsumtif')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-blue-300">
+              <i class="fas fa-shopping-bag text-3xl md:text-4xl grad-icon grad-blue mb-1"></i> Konsumtif
+          </div>
+          <div onclick="app.switchTab('view-nplprod')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-orange-300">
+              <i class="fas fa-industry text-3xl md:text-4xl grad-icon grad-orange mb-1"></i> Produktif
+          </div>
+      </div>
+  </div>
+
+  <!-- 2. Laci Menu Operasional -->
+  <div id="sheet-ops" class="custom-bottom-sheet">
+      <div class="sheet-header" onclick="app.closeAllSheets()"></div>
+      <div class="p-4 md:p-6 grid grid-cols-2 gap-3 md:gap-4">
+          <div onclick="app.switchTab('view-collection')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-emerald-300">
+              <i class="fab fa-whatsapp text-3xl md:text-4xl grad-icon grad-emerald mb-1"></i> Collection
+          </div>
+          <div onclick="app.switchTab('view-watchlist')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-red-300">
+              <i class="fas fa-eye text-3xl md:text-4xl grad-icon grad-red mb-1"></i> Watchlist
+          </div>
+          <div onclick="app.switchTab('view-freshdrop')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-orange-300">
+              <i class="fas fa-arrow-down-wide-short text-3xl md:text-4xl grad-icon grad-orange mb-1"></i> Fresh Drop
+          </div>
+          <div onclick="app.switchTab('view-maturity')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-blue-300">
+              <i class="fas fa-hourglass-half text-3xl md:text-4xl grad-icon grad-blue mb-1"></i> Jatuh Tempo
+          </div>
+      </div>
+  </div>
+
+  <!-- 3. Laci Menu Utilitas -->
+  <div id="sheet-util" class="custom-bottom-sheet">
+      <div class="sheet-header" onclick="app.closeAllSheets()"></div>
+      <div class="p-4 md:p-6 space-y-3">
+          <button onclick="app.switchTab('view-report')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white font-black flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-lg shadow-blue-500/30">
+              <i class="fas fa-print text-lg"></i> CETAK LAPORAN PDF
+          </button>
+          <button onclick="app.openUploadModal()" class="w-full py-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white font-black flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-sm">
+              <i class="fas fa-cloud-upload-alt text-lg grad-icon grad-gold"></i> UPLOAD DATA BARU
+          </button>
+      </div>
+  </div>
+  
+  <!-- ======================================================= -->
+
   <!-- ======================================================= -->
   <!-- KUMPULAN MODAL (COMPACT, BENTO STYLE & SAFE AREA)       -->
   <!-- ======================================================= -->
