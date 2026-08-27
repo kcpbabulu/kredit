@@ -7720,6 +7720,64 @@ window.updatePageCheckboxState = function() {
     masterChk.checked = allChecked;
 };
 
+
+// =================================================================
+// FITUR SINKRONISASI MANUAL E-ARSIP (TRIGGER BACKEND)
+// =================================================================
+window.syncArchiveData = function(btnEl) {
+    // 1. Matikan tombol dan putar ikon Sync
+    if (btnEl) {
+        const icon = btnEl.querySelector('i');
+        if (icon) icon.classList.add('fa-spin');
+        btnEl.classList.add('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        btnEl.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> Memproses DB...`;
+    }
+
+    // 2. Munculkan Global Loader dengan pesan khusus
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.display = 'flex';
+        const loaderText = loader.querySelector('span:last-child');
+        if(loaderText) loaderText.innerText = "Meracik Database Master...";
+    }
+
+    // 3. Panggil fungsi sapu jagat di Server (Code.gs)
+    google.script.run
+        .withSuccessHandler(function(res) {
+            if(res && res.status === "error") {
+                alert("Gagal Sinkronisasi: " + res.message);
+                resetSyncButton(btnEl);
+            } else {
+                // Berhasil meracik DB Master! Sekarang tarik datanya ke layar...
+                if (loader) {
+                    const loaderText = loader.querySelector('span:last-child');
+                    if(loaderText) loaderText.innerText = "Memuat E-Arsip...";
+                }
+                
+                // Gunakan fungsi loadArchiveData() bawaan aplikasi Anda
+                if (typeof window.loadArchiveData === 'function') {
+                    window.loadArchiveData();
+                }
+                
+                // Kembalikan tombol ke wujud semula
+                resetSyncButton(btnEl);
+            }
+        })
+        .withFailureHandler(function(err) {
+            alert("Koneksi ke server terputus: " + err.message);
+            resetSyncButton(btnEl);
+        })
+        .manualTriggerSync(); // <--- Ini yang memanggil Code.gs
+};
+
+// Fungsi pembantu untuk mereset tombol Sync
+function resetSyncButton(btnEl) {
+    if (btnEl) {
+        btnEl.classList.remove('opacity-50', 'cursor-not-allowed', 'pointer-events-none');
+        btnEl.innerHTML = `<i class="fas fa-sync-alt"></i> Sync`;
+    }
+}
+
     
 // --- FUNGSI UBAH STATUS ---
 function changeStatus(loanId, newStatus) {
@@ -8747,11 +8805,12 @@ window.renderTableRaw = function(tableId, rows) {
     printSingleLabel: printSingleLabel,
     openDetailFromArchive: openDetailFromArchive,
     filterNewFiles: filterNewFiles,
-   selectAllForPrint: window.selectAllForPrint,
+    selectAllForPrint: window.selectAllForPrint,
     printSelectedLabels: window.printSelectedLabels,
     toggleSelect: window.toggleSelect,
     togglePageSelection: window.togglePageSelection,
     updatePageCheckboxState: window.updatePageCheckboxState,
+    syncArchiveData: window.syncArchiveData,
     changeStatus: changeStatus,
     changePage: changePage,
     calcSim: calcSim,
