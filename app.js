@@ -7118,6 +7118,7 @@ function loadArchiveData() {
             return d;
         });
 
+        window.allArchiveData = archiveCache;
         filterArchive(true); 
         
         const elTotal = document.getElementById('arc-total');
