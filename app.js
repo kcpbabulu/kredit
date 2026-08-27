@@ -7485,10 +7485,113 @@ function printSingleLabel(noUrut, loan, nama, jenis, tgl, cabang) {
     w.document.open(); w.document.write(finalHtmlContent); w.document.close();
 }
 
-function printSelectedLabels() {
-    const ids = Array.from(selectedLabels);
+// =================================================================
+// 1. FLOATING ACTION BAR (PENGENDALI TOMBOL CETAK MELAYANG)
+// =================================================================
+window.updateFloatingPrintBar = function() {
+    let bar = document.getElementById('floating-print-bar');
+    const container = document.getElementById('view-archive');
+
+    // Jika elemen bar belum ada, JS akan merakitnya secara dinamis!
+    if (!bar && container) {
+        bar = document.createElement('div');
+        bar.id = 'floating-print-bar';
+        // Styling Glassmorphism melayang di bawah layar
+        bar.className = 'fixed bottom-24 md:bottom-10 left-1/2 transform -translate-x-1/2 z-[150] bg-slate-900/95 backdrop-blur-xl border border-slate-700 p-3 md:p-4 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between gap-4 transition-all duration-500 translate-y-32 opacity-0 pointer-events-none w-[90%] max-w-sm';
+        bar.innerHTML = `
+            <div class="flex items-center gap-3 pl-2">
+                <div class="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center animate-pulse border border-blue-500/30">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div>
+                    <div class="text-white font-black text-sm md:text-base leading-none"><span id="print-selected-count">0</span> Berkas</div>
+                    <div class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Siap Dicetak</div>
+                </div>
+            </div>
+            <button onclick="if(window.app && window.app.printSelectedLabels) window.app.printSelectedLabels()" id="btnPrintSelected" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2 border border-blue-400/50">
+                <i class="fas fa-print"></i> Cetak Label
+            </button>
+        `;
+        container.appendChild(bar);
+    }
+
+    if (!bar) return;
+
+    // Ambil jumlah item yang dicentang dari set global
+    if (!window.selectedLabels) window.selectedLabels = new Set();
+    const count = window.selectedLabels.size;
+    
+    const countText = document.getElementById('print-selected-count');
+    if(countText) countText.innerText = count;
+
+    // Tampilkan bar jika > 0, sembunyikan jika 0
+    if (count > 0) {
+        bar.classList.remove('translate-y-32', 'opacity-0', 'pointer-events-none');
+        bar.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    } else {
+        bar.classList.add('translate-y-32', 'opacity-0', 'pointer-events-none');
+        bar.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+    }
+};
+
+// =================================================================
+// 2. OVERRIDE FUNGSI TOGGLE CHECKBOX MANUAL
+// =================================================================
+window.toggleSelect = function(loanId, checkboxEl) {
+    if (!window.selectedLabels) window.selectedLabels = new Set();
+    
+    if (checkboxEl.checked) {
+        window.selectedLabels.add(loanId);
+        checkboxEl.closest('.group').classList.add('ring-2', 'ring-blue-500', 'bg-blue-50/50', 'z-10');
+    } else {
+        window.selectedLabels.delete(loanId);
+        checkboxEl.closest('.group').classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/50', 'z-10');
+    }
+    
+    // [KUNCI]: Panggil Floating Bar setiap ada perubahan centang
+    window.updateFloatingPrintBar();
+};
+
+// =================================================================
+// 3. OVERRIDE FUNGSI SELECT ALL / CETAK OTOMATIS
+// =================================================================
+window.selectAllForPrint = function() {
+    const checkboxes = document.querySelectorAll('#archive-grid input[type="checkbox"].page-checkbox');
+    let count = 0;
+    
+    checkboxes.forEach(chk => {
+        if(!chk.checked) {
+            chk.click(); // Akan otomatis men-trigger window.toggleSelect
+            count++;
+        }
+    });
+    
+    if(count > 0) {
+        // Beri efek highlight/denyut pada tombol Cetak agar User sadar
+        setTimeout(() => {
+            const btn = document.getElementById('btnPrintSelected');
+            if(btn) {
+                btn.classList.add('ring-4', 'ring-blue-400');
+                setTimeout(() => btn.classList.remove('ring-4', 'ring-blue-400'), 1000);
+            }
+        }, 400);
+    } else {
+        alert("Semua berkas yang tampil di halaman ini sudah dicentang.");
+    }
+};
+
+// =================================================================
+// 4. GENERATOR JENDELA CETAK (TIDAK BERUBAH DARI MILIK ANDA)
+// =================================================================
+window.printSelectedLabels = function() {
+    if (!window.selectedLabels) return;
+    const ids = Array.from(window.selectedLabels);
     if(ids.length === 0) return alert("Silakan centang minimal satu berkas!");
     
+    // Ambil dari cache/state arsip Anda
+    const archiveCache = app.state && app.state.archive_list ? app.state.archive_list : window.allArchiveData; 
+    if(!archiveCache) return alert("Data arsip belum termuat sempurna.");
+
     const itemsToPrint = archiveCache.filter(item => ids.includes(item.loan));
     if(itemsToPrint.length === 0) return;
 
@@ -7496,16 +7599,18 @@ function printSelectedLabels() {
     let labelsHTML = '';
     
     itemsToPrint.forEach(item => {
-        const t = item._theme || getCreditColorTheme(item.jenis_kredit);
+        // Fallback tema jika getCreditColorTheme tidak tersedia global
+        const t = item._theme || (typeof getCreditColorTheme === 'function' ? getCreditColorTheme(item.jenis_kredit) : {hex:'#0f172a'});
         const branchName = item.cabang || 'BANKALTIMTARA';
         const safeJenis = (item.jenis_kredit || 'UMUM').substring(0, 25); 
+        const tglFix = item._tglFix || item.tgl_mulai || '-';
 
         labelsHTML += `
         <div class="label-wrapper">
             <div class="label-container">
                 <div class="zone-number" style="background-color: ${t.hex} !important;">
                     <div class="label-small">ARSIP</div>
-                    <div class="big-digit">${item.no_urut}</div>
+                    <div class="big-digit">${item.no_urut || '-'}</div>
                 </div>
                 <div class="zone-info" style="border-bottom: 3px solid ${t.hex};">
                     <div class="info-loan" style="color: ${t.hex} !important;">${item.loan}</div>
@@ -7516,7 +7621,7 @@ function printSelectedLabels() {
                     <div class="meta-branch">${branchName}</div>
                     <div class="meta-date-group">
                         <span class="meta-label">REALISASI</span>
-                        <span class="meta-value">${item._tglFix}</span>
+                        <span class="meta-value">${tglFix}</span>
                     </div>
                 </div>
             </div>
@@ -7563,7 +7668,7 @@ function printSelectedLabels() {
     `;
     const finalHtmlContent = htmlContent.replace('<\\\\/script>', '<\\/script>');
     w.document.open(); w.document.write(finalHtmlContent); w.document.close();
-}
+};
 
 function changePage(step) {
     currentPage += step;
@@ -7646,26 +7751,7 @@ function filterNewFiles() {
     alert(`Menampilkan ${newItems.length} berkas baru bulan ini.`);
 }
 
-function selectAllForPrint() {
-    const checkboxes = document.querySelectorAll('#archive-grid input[type="checkbox"]');
-    let count = 0;
-    
-    checkboxes.forEach(chk => {
-        if(!chk.checked) {
-            chk.click(); 
-            count++;
-        }
-    });
-    
-    if(count > 0) {
-        document.getElementById('btnPrintSelected').scrollIntoView({behavior: 'smooth', block: 'center'});
-        const btn = document.getElementById('btnPrintSelected');
-        btn.classList.add('ring-4', 'ring-blue-400');
-        setTimeout(() => btn.classList.remove('ring-4', 'ring-blue-400'), 1000);
-    } else {
-        alert("Semua berkas yang tampil sudah dipilih.");
-    }
-}
+
 
 // --- FUNGSI MANAJEMEN SHEET (HAPUS DATA) ---
 
@@ -8637,9 +8723,9 @@ window.renderTableRaw = function(tableId, rows) {
     printSingleLabel: printSingleLabel,
     openDetailFromArchive: openDetailFromArchive,
     filterNewFiles: filterNewFiles,
-    selectAllForPrint: selectAllForPrint,
-    toggleSelect: toggleSelect,
-    printSelectedLabels: printSelectedLabels,
+    selectAllForPrint: window.selectAllForPrint,
+    toggleSelect: window.toggleSelect,
+    printSelectedLabels: window.printSelectedLabels
     changeStatus: changeStatus,
     changePage: changePage,
     calcSim: calcSim,
