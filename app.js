@@ -7678,26 +7678,49 @@ function changePage(step) {
     if(grid) grid.scrollIntoView({behavior: 'auto', block: 'start'});
 }
 
-function togglePageSelection(masterChk) {
-    const isChecked = masterChk.checked;
-    document.querySelectorAll('.page-checkbox').forEach(chk => {
-        if (chk.checked !== isChecked) {
-            chk.checked = isChecked;
-            const loanId = chk.id.replace('chk_', ''); 
-            toggleSelect(loanId, chk);
+// =================================================================
+// 2. OVERRIDE FUNGSI MASTER CHECKBOX & SELECT ALL
+// =================================================================
+
+// Fungsi untuk menangani klik kotak "Pilih Hal" (Select All)
+window.togglePageSelection = function(masterCheckbox) {
+    if (!window.selectedLabels) window.selectedLabels = new Set();
+    const checkboxes = document.querySelectorAll('#archive-grid input[type="checkbox"].page-checkbox');
+    
+    checkboxes.forEach(chk => {
+        // Samakan status centang dengan master checkbox
+        chk.checked = masterCheckbox.checked;
+        const loanId = chk.id.replace('chk_', '');
+        
+        // Tambah atau Hapus dari memori
+        if (masterCheckbox.checked) {
+            window.selectedLabels.add(loanId);
+            chk.closest('.group').classList.add('ring-2', 'ring-blue-500', 'bg-blue-50/50', 'z-10');
+        } else {
+            window.selectedLabels.delete(loanId);
+            chk.closest('.group').classList.remove('ring-2', 'ring-blue-500', 'bg-blue-50/50', 'z-10');
         }
     });
-}
+    
+    // [KUNCI]: Panggil Bilah Melayang
+    if (typeof window.updateFloatingPrintBar === 'function') {
+        window.updateFloatingPrintBar();
+    }
+};
 
-function updatePageCheckboxState() {
-    const checkboxes = document.querySelectorAll('.page-checkbox');
+// Fungsi agar Master Checkbox menyesuaikan diri (Otomatis tercentang jika semua dipilih manual)
+window.updatePageCheckboxState = function() {
     const masterChk = document.getElementById('checkAllPage');
-    if(!masterChk) return;
-    if (checkboxes.length === 0) { masterChk.checked = false; masterChk.disabled = true; return; }
-    masterChk.checked = Array.from(checkboxes).every(c => c.checked);
-    masterChk.disabled = false;
-}
+    const checkboxes = document.querySelectorAll('#archive-grid input[type="checkbox"].page-checkbox');
+    
+    if (!masterChk || checkboxes.length === 0) return;
+    
+    // Cek apakah semua anak checkbox tercentang
+    const allChecked = Array.from(checkboxes).every(chk => chk.checked);
+    masterChk.checked = allChecked;
+};
 
+    
 // --- FUNGSI UBAH STATUS ---
 function changeStatus(loanId, newStatus) {
     if(!confirm(`Pindahkan berkas ini ke Rak ${newStatus.replace('_', ' ')}?`)) return;
@@ -8724,9 +8747,11 @@ window.renderTableRaw = function(tableId, rows) {
     printSingleLabel: printSingleLabel,
     openDetailFromArchive: openDetailFromArchive,
     filterNewFiles: filterNewFiles,
-    selectAllForPrint: window.selectAllForPrint,
-    toggleSelect: window.toggleSelect,
+   selectAllForPrint: window.selectAllForPrint,
     printSelectedLabels: window.printSelectedLabels,
+    toggleSelect: window.toggleSelect,
+    togglePageSelection: window.togglePageSelection,
+    updatePageCheckboxState: window.updatePageCheckboxState,
     changeStatus: changeStatus,
     changePage: changePage,
     calcSim: calcSim,
@@ -8740,7 +8765,6 @@ window.renderTableRaw = function(tableId, rows) {
     handleSearchEnter: window.handleSearchEnter,
     resetSearchCredit: window.resetSearchCredit,
     sortKredit: window.sortKredit,
-    togglePageSelection: togglePageSelection,
     closeModal: function(id) {
         const modal = document.getElementById(id);
         if (modal) modal.classList.add('hidden');
