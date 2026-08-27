@@ -8725,7 +8725,7 @@ window.renderTableRaw = function(tableId, rows) {
     filterNewFiles: filterNewFiles,
     selectAllForPrint: window.selectAllForPrint,
     toggleSelect: window.toggleSelect,
-    printSelectedLabels: window.printSelectedLabels
+    printSelectedLabels: window.printSelectedLabels,
     changeStatus: changeStatus,
     changePage: changePage,
     calcSim: calcSim,
