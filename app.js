@@ -8047,49 +8047,115 @@ function executeDeleteSheets() {
   }
 
 
-// --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (SINKRON DENGAN HTML BARU) ---
+// =================================================================
+// MESIN MODAL SEKTOR EKONOMI (KALKULASI, SORTING, RENDERING)
+// =================================================================
+
+// 1. Fungsi Utama Pembuka Modal
 window.openSectorModal = function(sectorName) {
-    // 1. Ambil elemen HTML sesuai ID yang BENAR
     const modal = document.getElementById('modalSector');
-    const tbody = document.getElementById('modalSectorContent');
     const titleEl = document.getElementById('modalSectorTitle');
+    if (!modal || !titleEl) return;
 
-    // Pengaman: Jika HTML belum siap, hentikan agar tidak error 'null'
-    if (!modal || !tbody || !titleEl) return;
-
-    // 2. Set Judul Modal
     titleEl.innerText = sectorName.toUpperCase();
 
-    // 3. Ambil data (Bisa dari app.state.data atau window.allCreditData)
+    // Mengambil master data
     const allData = (app.state && app.state.data && app.state.data.all_list) ? app.state.data.all_list : (window.allCreditData || []);
-    
-    // 4. Filter Cerdas (EXACT MATCH)
     const searchTarget = sectorName.toLowerCase().trim();
+
+    // Filter Sektor
     const filtered = allData.filter(r => {
         if (r.sektor) return String(r.sektor).toLowerCase().trim() === searchTarget;
         return false;
     });
 
+    // Simpan ke memori global untuk fitur Sorting
+    if (!window.appState) window.appState = {};
+    window.appState.currentSectorData = filtered;
+    window.appState.sectorSort = { key: 'os', asc: false }; // Urutan awal: OS terbesar
+
+    // Hitung KPI 
+    let tOS = 0, tKKR = 0, tNPL = 0;
+    filtered.forEach(r => {
+        let os = Number(r.os || 0);
+        let kol = parseInt(r.kol) || 1;
+        tOS += os;
+        if(kol == 2) tKKR += os; // Hanya Kolom 2 untuk KKR murni
+        if(kol >= 3) tNPL += os; // Kolom 3-5 untuk NPL
+    });
+
+    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+    
+    // Suntikkan Angka ke Bento Card HTML
+    const sumOS = document.getElementById('sec-sum-os');
+    const sumKKR = document.getElementById('sec-sum-kkr');
+    const sumNPL = document.getElementById('sec-sum-npl');
+    
+    if(sumOS) sumOS.innerText = fmtIDR(tOS);
+    if(sumKKR) sumKKR.innerText = fmtIDR(tKKR);
+    if(sumNPL) sumNPL.innerText = fmtIDR(tNPL);
+
+    // Render tabel untuk pertama kali dengan sorting bawaan (Baki Debet Besar)
+    window.sortSector('os', true);
+
+    // Tampilkan Animasi
+    modal.classList.remove('hidden');
+};
+
+// 2. Fungsi Engine Sorting Tabel (Dipicu saat klik Header Tabel HTML)
+window.sortSector = function(key, isInit = false) {
+    if (!window.appState || !window.appState.currentSectorData) return;
+
+    if (!isInit) {
+        // Balikkan urutan jika klik judul yang sama
+        if (window.appState.sectorSort.key === key) {
+            window.appState.sectorSort.asc = !window.appState.sectorSort.asc;
+        } else {
+            window.appState.sectorSort.key = key;
+            window.appState.sectorSort.asc = false; // Jika ganti kategori, jadikan besar -> kecil dulu
+        }
+    }
+
+    const asc = window.appState.sectorSort.asc;
+
+    window.appState.currentSectorData.sort((a, b) => {
+        if (key === 'os') {
+            return asc ? a.os - b.os : b.os - a.os;
+        } else if (key === 'kol') {
+            return asc ? a.kol - b.kol : b.kol - a.kol;
+        } else if (key === 'nama') {
+            let nA = String(a.nama || '').toLowerCase();
+            let nB = String(b.nama || '').toLowerCase();
+            return asc ? nA.localeCompare(nB) : nB.localeCompare(nA);
+        }
+        return 0;
+    });
+
+    // Perintahkan render ulang setelah array diurutkan
+    window.renderSectorRows(window.appState.currentSectorData);
+};
+
+// 3. Fungsi Render Baris HTML (Menjadi sangat cepat dan ringan)
+window.renderSectorRows = function(data) {
+    const tbody = document.getElementById('modalSectorContent');
+    if (!tbody) return;
+
     const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
     let html = '';
 
-    // 5. Render Baris per Baris (Dicocokkan menjadi 4 Kolom sesuai HTML)
-    if(filtered.length === 0) {
+    if(data.length === 0) {
         html = `<tr><td colspan="4" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
                     <i class="fas fa-folder-open text-3xl mb-3 block opacity-50"></i>
-                    Tidak ada detail rincian untuk sektor ini
+                    Tidak ada rincian debitur
                 </td></tr>`;
     } else {
-        // Urutkan dari Baki Debet terbesar
-        filtered.sort((a,b) => b.os - a.os);
-
-        filtered.forEach((r, i) => {
+        data.forEach((r, i) => {
             const bakiDebet = Number(r.os || 0);
             const kol = parseInt(r.kol) || 1;
             
-            // Pewarnaan KOL
+            // Kolor Badge
             let kolColor = 'bg-emerald-100 text-emerald-600 border-emerald-200';
-            if(kol == 5) kolColor = 'bg-red-500 text-white border-red-600 animate-pulse-slow';
+            if(kol == 5) kolColor = 'bg-red-500 text-white border-red-600 animate-pulse-slow shadow-lg shadow-red-500/40';
             else if(kol == 4) kolColor = 'bg-rose-100 text-rose-600 border-rose-200';
             else if(kol == 3) kolColor = 'bg-orange-100 text-orange-600 border-orange-200';
             else if(kol == 2) kolColor = 'bg-amber-100 text-amber-600 border-amber-200';
@@ -8098,6 +8164,7 @@ window.openSectorModal = function(sectorName) {
             const noRekening = r.loan || r.pk || '-';
             const unitCabang = r.br || '-';
 
+            // Z-Index fix via HTML sudah diatasi, klik fetchDetail akan memunculkan popup z-[200]
             html += `
             <tr class="hover:bg-violet-50/50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50 animate-fade-in" style="animation-delay: ${Math.min(i * 10, 300)}ms" onclick="if(window.app && window.app.fetchDetail) window.app.fetchDetail('${noRekening}')">
                 <td class="p-2.5 md:p-3 rounded-l-md align-middle">
@@ -8117,11 +8184,7 @@ window.openSectorModal = function(sectorName) {
         });
     }
 
-    // 6. Suntikkan HTML ke tabel
     tbody.innerHTML = html;
-    
-    // 7. Buka Modal
-    modal.classList.remove('hidden');
 };
 
 // --- FUNGSI MODAL KOMPARASI CABANG (SUPER BENTO COMPACT) ---
@@ -8782,7 +8845,8 @@ window.renderTableRaw = function(tableId, rows) {
     changePage: changePage,
     calcSim: calcSim,
     resetSimSliders: resetSimSliders,
-    openSectorModal: openSectorModal,
+    openSectorModal: window.openSectorModal,
+    sortSector: window.sortSector,
     openBranchModal: openBranchModal,
     closeBranchModal: closeBranchModal,
     exportBranchWA: exportBranchWA,        
