@@ -8047,113 +8047,82 @@ function executeDeleteSheets() {
   }
 
 
-// --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (FINAL & EXACT MATCH) ---
-  function openSectorModal(sectorName) {
-      // 1. Ambil data dari all_list (yang sudah memuat KOL 1-5)
-      const allData = (app.state.data && app.state.data.all_list) ? app.state.data.all_list : [];
-      
-      // 2. Filter Cerdas (EXACT MATCH / SAMA PERSIS)
-      // Kita tidak lagi menggunakan substring, melainkan mencocokkan teks secara utuh
-      const searchTarget = sectorName.toLowerCase().trim();
-      
-      const filtered = allData.filter(r => {
-          if (r.sektor) {
-              const rowSector = String(r.sektor).toLowerCase().trim();
-              return rowSector === searchTarget;
-          }
-          return false;
-      });
+// --- FUNGSI INTERAKTIF: POPUP DETAIL SEKTOR (SINKRON DENGAN HTML BARU) ---
+window.openSectorModal = function(sectorName) {
+    // 1. Ambil elemen HTML sesuai ID yang BENAR
+    const modal = document.getElementById('modalSector');
+    const tbody = document.getElementById('modalSectorContent');
+    const titleEl = document.getElementById('modalSectorTitle');
 
-      const tbody = document.getElementById('tbl-modal-sector');
-      const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
-      
-      let html = '';
-      
-      // Variabel Penampung Kalkulasi
-      let totalOS = 0;
-      let totalKKR = 0;
-      let totalNPL = 0;
-      
-      // 3. Render Baris per Baris & Lakukan Perhitungan
-      filtered.forEach((r, i) => {
-          const bakiDebet = Number(r.os || 0);
-          const kol = parseInt(r.kol) || 1;
-          
-          // --- KALKULASI TOTAL ---
-          totalOS += bakiDebet;
-          if(kol >= 2) totalKKR += bakiDebet;
-          if(kol >= 3) totalNPL += bakiDebet;
-          
-          // --- STYLING KOL WARNA-WARNI ---
-          let kolColor = 'bg-emerald-500 text-white'; // Default KOL 1 (Lancar)
-          if(kol == 5) kolColor = 'bg-red-500 text-white animate-pulse-slow';
-          else if(kol == 4) kolColor = 'bg-pink-500 text-white';
-          else if(kol == 3) kolColor = 'bg-orange-500 text-white';
-          else if(kol == 2) kolColor = 'bg-yellow-500 text-black';
-          
-          const namaDebitur = r.nama || 'Tanpa Nama';
-          const noRekening = r.loan || r.pk || '-';
-          const unitCabang = r.br || '-';
-          const nilaiTunggakan = Number(r.tgk || 0);
-          
-          html += `
-          <tr class="hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors group cursor-pointer border-b border-slate-50 dark:border-slate-800/50">
-              <td class="p-4 text-center font-bold text-slate-400 group-hover:text-blue-500 transition-colors">${i+1}</td>
-              <td class="p-4">
-                  <div class="font-black text-slate-700 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all transform group-hover:translate-x-1">${namaDebitur}</div>
-                  <div class="text-[10px] font-bold opacity-50 uppercase tracking-widest mt-1"><i class="fas fa-fingerprint mr-1"></i> ${noRekening}</div>
-              </td>
-              <td class="p-4 hidden sm:table-cell text-xs font-bold text-slate-500"><i class="fas fa-building mr-1"></i> ${unitCabang}</td>
-              <td class="p-4 text-center">
-                  <span class="px-2 py-1 text-[10px] font-black rounded-md shadow-sm ${kolColor}">KOL ${kol}</span>
-              </td>
-              <td class="p-4 text-right font-mono font-black text-slate-700 dark:text-slate-200 group-hover:text-blue-600 transition-colors">${fmtIDR(bakiDebet)}</td>
-              <td class="p-4 text-right font-mono font-black ${nilaiTunggakan > 0 ? 'text-red-500' : 'text-slate-300'}">${fmtIDR(nilaiTunggakan)}</td>
-          </tr>`;
-      });
-      
-      if(filtered.length === 0) {
-          html = `<tr><td colspan="6" class="p-12 text-center flex flex-col items-center justify-center">
-                    <i class="fas fa-folder-open text-4xl text-slate-300 mb-3 hover:scale-110 transition-transform"></i>
-                    <span class="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Tidak ada detail rincian untuk ${sectorName}</span>
-                  </td></tr>`;
-      }
-      
-      tbody.innerHTML = html;
-      
-      // 4. Kalkulasi Persentase
-      const pctKKR = totalOS > 0 ? ((totalKKR / totalOS) * 100).toFixed(2) : 0;
-      const pctNPL = totalOS > 0 ? ((totalNPL / totalOS) * 100).toFixed(2) : 0;
-      
-      // 5. Suntikkan Data ke Footer HTML
-      document.getElementById('modal-sector-title').innerText = sectorName.toUpperCase();
-      document.getElementById('modal-sector-count').innerText = filtered.length; 
-      
-      document.getElementById('modal-sector-os').innerText = fmtIDR(totalOS);
-      document.getElementById('modal-sector-kkr').innerText = fmtIDR(totalKKR);
-      document.getElementById('modal-sector-pct-kkr').innerText = `${pctKKR}% dari Total`;
-      
-      document.getElementById('modal-sector-npl').innerText = fmtIDR(totalNPL);
-      document.getElementById('modal-sector-pct-npl').innerText = `${pctNPL}% dari Total`;
-      
-      // 6. Animasi Masuk
-      const modal = document.getElementById('modal-sector');
-      modal.classList.remove('hidden');
-      setTimeout(() => {
-          modal.classList.remove('opacity-0');
-          if(modal.children[1]) modal.children[1].classList.remove('scale-95'); 
-      }, 10);
-  }
+    // Pengaman: Jika HTML belum siap, hentikan agar tidak error 'null'
+    if (!modal || !tbody || !titleEl) return;
 
-  // --- FUNGSI MENUTUP MODAL ---
-  function closeSectorModal() {
-      const modal = document.getElementById('modal-sector');
-      modal.classList.add('opacity-0');
-      modal.children[1].classList.add('scale-95'); // Efek Zoom Out
-      setTimeout(() => {
-          modal.classList.add('hidden');
-      }, 300); // Tunggu animasi CSS selesai
-  }
+    // 2. Set Judul Modal
+    titleEl.innerText = sectorName.toUpperCase();
+
+    // 3. Ambil data (Bisa dari app.state.data atau window.allCreditData)
+    const allData = (app.state && app.state.data && app.state.data.all_list) ? app.state.data.all_list : (window.allCreditData || []);
+    
+    // 4. Filter Cerdas (EXACT MATCH)
+    const searchTarget = sectorName.toLowerCase().trim();
+    const filtered = allData.filter(r => {
+        if (r.sektor) return String(r.sektor).toLowerCase().trim() === searchTarget;
+        return false;
+    });
+
+    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
+    let html = '';
+
+    // 5. Render Baris per Baris (Dicocokkan menjadi 4 Kolom sesuai HTML)
+    if(filtered.length === 0) {
+        html = `<tr><td colspan="4" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
+                    <i class="fas fa-folder-open text-3xl mb-3 block opacity-50"></i>
+                    Tidak ada detail rincian untuk sektor ini
+                </td></tr>`;
+    } else {
+        // Urutkan dari Baki Debet terbesar
+        filtered.sort((a,b) => b.os - a.os);
+
+        filtered.forEach((r, i) => {
+            const bakiDebet = Number(r.os || 0);
+            const kol = parseInt(r.kol) || 1;
+            
+            // Pewarnaan KOL
+            let kolColor = 'bg-emerald-100 text-emerald-600 border-emerald-200';
+            if(kol == 5) kolColor = 'bg-red-500 text-white border-red-600 animate-pulse-slow';
+            else if(kol == 4) kolColor = 'bg-rose-100 text-rose-600 border-rose-200';
+            else if(kol == 3) kolColor = 'bg-orange-100 text-orange-600 border-orange-200';
+            else if(kol == 2) kolColor = 'bg-amber-100 text-amber-600 border-amber-200';
+
+            const safeNama = String(r.nama || 'Tanpa Nama').replace(/'/g, "\\'");
+            const noRekening = r.loan || r.pk || '-';
+            const unitCabang = r.br || '-';
+
+            html += `
+            <tr class="hover:bg-violet-50/50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50 animate-fade-in" style="animation-delay: ${Math.min(i * 10, 300)}ms" onclick="if(window.app && window.app.fetchDetail) window.app.fetchDetail('${noRekening}')">
+                <td class="p-2.5 md:p-3 rounded-l-md align-middle">
+                    <div class="font-black text-[10px] md:text-xs text-slate-700 dark:text-white group-hover:text-violet-600 transition-colors truncate max-w-[140px] md:max-w-[220px]">${safeNama}</div>
+                    <div class="text-[8px] md:text-[9px] font-bold text-slate-400 font-mono mt-0.5 flex items-center gap-1"><i class="fas fa-fingerprint opacity-50 text-violet-400"></i> ${noRekening}</div>
+                </td>
+                <td class="p-2.5 md:p-3 hidden sm:table-cell text-center align-middle">
+                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-200/50 dark:border-slate-700 shadow-sm">${unitCabang}</span>
+                </td>
+                <td class="p-2.5 md:p-3 text-center align-middle">
+                    <span class="px-2 py-0.5 text-[8px] md:text-[9px] font-black rounded shadow-sm border ${kolColor}">KOL ${kol}</span>
+                </td>
+                <td class="p-2.5 md:p-3 text-right rounded-r-md align-middle">
+                    <div class="font-mono font-black text-slate-700 dark:text-slate-200 group-hover:scale-105 origin-right transition-transform text-[11px] md:text-sm tracking-tighter">${fmtIDR(bakiDebet)}</div>
+                </td>
+            </tr>`;
+        });
+    }
+
+    // 6. Suntikkan HTML ke tabel
+    tbody.innerHTML = html;
+    
+    // 7. Buka Modal
+    modal.classList.remove('hidden');
+};
 
 // --- FUNGSI MODAL KOMPARASI CABANG (SUPER BENTO COMPACT) ---
 function openBranchModal() {
