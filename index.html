@@ -1679,6 +1679,46 @@
     </div>
   </div>
 
+  <!-- 4. Modal Detail Sektor Ekonomi -->
+  <div id="modalSector" class="fixed inset-0 z-[150] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+      <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-2xl shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-24 md:mb-0 overflow-hidden border border-white/30 dark:border-slate-700/50 transform transition-all animate-pop-in">
+          
+          <!-- Header Modal -->
+          <div class="p-3.5 sm:p-4 border-b border-slate-200/60 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-gradient-to-r from-violet-500/10 to-fuchsia-500/10">
+              <h3 class="font-black text-sm sm:text-base text-slate-800 dark:text-white flex items-center gap-3">
+                  <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-violet-100 dark:bg-violet-900/50 text-violet-600 flex items-center justify-center shadow-inner shrink-0">
+                      <i class="fas fa-chart-pie"></i>
+                  </div>
+                  <div>
+                      <div class="text-[8px] md:text-[9px] text-violet-500 uppercase tracking-widest leading-none mb-0.5">Rincian Sektor</div>
+                      <div id="modalSectorTitle" class="leading-tight truncate max-w-[200px] md:max-w-sm">Nama Sektor</div>
+                  </div>
+              </h3>
+              <button onclick="app.closeModal('modalSector')" class="w-8 h-8 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition shadow-sm border border-slate-200 dark:border-slate-600 active:scale-90 shrink-0">
+                  <i class="fas fa-times text-xs"></i>
+              </button>
+          </div>
+          
+          <!-- Tabel Data Sektor -->
+          <div class="p-0 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 dark:bg-slate-900/30">
+              <table class="w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1 p-2">
+                  <thead class="bg-white/90 dark:bg-slate-800/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
+                      <tr class="text-[7px] md:text-[8px] font-black uppercase tracking-widest">
+                          <th class="p-2.5 md:p-3 rounded-l-md">Debitur</th>
+                          <th class="p-2.5 md:p-3 text-center hidden sm:table-cell">Unit</th>
+                          <th class="p-2.5 md:p-3 text-center">Kol</th>
+                          <th class="p-2.5 md:p-3 text-right rounded-r-md">Baki Debet</th>
+                      </tr>
+                  </thead>
+                  <tbody id="modalSectorContent" class="before:block before:h-1 divide-y divide-slate-100/50 dark:divide-slate-800/50">
+                      <!-- Data disuntikkan oleh JS -->
+                  </tbody>
+              </table>
+          </div>
+          
+      </div>
+  </div>
+
   <!-- 3. Modal Komparasi Cabang (Bottom Sheet Floating) -->
   <div id="modal-branch" class="fixed inset-0 z-[1000] hidden flex-col justify-end md:p-6 transition-opacity duration-300">
       <div id="modal-branch-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 cursor-pointer" onclick="if(app && app.closeBranchModal) app.closeBranchModal()"></div>
