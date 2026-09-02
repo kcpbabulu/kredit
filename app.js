@@ -8783,7 +8783,6 @@ window.renderTableRaw = function(tableId, rows) {
     calcSim: calcSim,
     resetSimSliders: resetSimSliders,
     openSectorModal: openSectorModal,
-    closeSectorModal: closeSectorModal,
     openBranchModal: openBranchModal,
     closeBranchModal: closeBranchModal,
     exportBranchWA: exportBranchWA,        
