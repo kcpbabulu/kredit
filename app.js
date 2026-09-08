@@ -3466,6 +3466,22 @@ function renderTrend(res) {
 
       let waBtn = `<button onclick="app.sendWA('${r.hp}','${r.nama}','${r.total_tgk}',${r.kol},'${r.loan}','${r.tgl_bayar}','${r.pk}','${r.mulai}',${tenor},${r.plafond},'${r.rek}')" class="w-full mt-4 ${btnColor} text-white py-3 rounded-xl text-xs font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"><i class="fab fa-whatsapp text-base"></i> ${btnText}</button>`;
 
+      // --- LOGIKA BADGE RIWAYAT TERBURUK (HISTORICAL RISK) ---
+      let historyBadge = '';
+      if (r.worst_kol && r.worst_kol > r.kol) {
+          let badgeColor = r.worst_kol >= 3 ? 'bg-red-100 dark:bg-red-900/30 text-red-600 border-red-200 dark:border-red-800' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 border-orange-200 dark:border-orange-800';
+          let icon = r.worst_kol >= 3 ? 'fa-exclamation-triangle' : 'fa-exclamation-circle';
+          
+          historyBadge = `
+          <div class="mt-2.5 flex items-center justify-between p-2 rounded-lg border ${badgeColor} shadow-sm animate-pulse-slow">
+              <div class="flex items-center gap-2">
+                  <i class="fas ${icon} text-sm"></i>
+                  <span class="text-[9px] font-black uppercase tracking-widest leading-tight">PERHATIAN!<br>Pernah KOL ${r.worst_kol}</span>
+              </div>
+              <span class="text-[8px] font-bold bg-white/80 dark:bg-slate-800/80 px-2 py-0.5 rounded shadow-sm border border-black/5">(${r.worst_date})</span>
+          </div>`;
+      }
+
       el('detailContent').innerHTML = `
           <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-xl mb-4 border border-blue-100 dark:border-blue-800/50">
               <h3 class="text-sm font-black text-blue-800 dark:text-blue-300 leading-tight">${r.nama}</h3>
@@ -3474,6 +3490,7 @@ function renderTrend(res) {
                   <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.type}</span>
                   <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.gol}</span>
               </div>
+              ${historyBadge}
           </div>
           
           <div class="space-y-0.5 px-1">
