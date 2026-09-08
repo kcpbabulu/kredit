@@ -7764,7 +7764,7 @@ window.syncArchiveData = function(btnEl) {
                 if (loader) loader.style.display = 'none';
             } else {
                 // Berhasil! Ubah teks loader
-                if (loaderText) loaderText.innerText = "Memuat E-Arsip...";
+                if (loaderText) loaderText.innerText = "Memproses Data...";
                 
                 // Eksekusi penarikan data ulang secara langsung (tanpa window.)
                 if (typeof loadArchiveData === 'function') {
