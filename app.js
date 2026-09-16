@@ -3573,7 +3573,7 @@ function renderTrend(res) {
             m[0] = findCol(['JOBDATE']); m[1] = findCol(['L0BRCD', 'KODE_CABANG']); m[2] = findCol(['BRNAME']);
             m[3] = findCol(['KOL']); m[4] = findCol(['L0LNTY', 'TIPE_KREDIT']); m[5] = findCol(['LYTITL']);
             m[6] = findCol(['L0ECON', 'KODE_SEKTOR']); m[7] = findCol(['ECNAME']); m[8] = findCol(['L0CIRT', 'BUNGA_PERSEN']);
-            m[9] = findCol(['NASABAH_ID', 'L0CSPR']); m[10] = findCol(['LOAN_ID', 'L0LNNO']); m[11] = findCol(['NAMA', 'L0NAME']);
+            m[9] = findCol(['NASABAH_ID', 'L0FISN']); m[10] = findCol(['LOAN_ID', 'L0LNNO']); m[11] = findCol(['NAMA', 'L0NAME']);
             m[12] = findCol(['PK', 'L0NARR']); m[13] = findCol(['DATE', 'DATE_START']); m[14] = findCol(['DATE1', 'DATE_END']);
             m[15] = findCol(['TGLBYRAK']); m[16] = findCol(['NO_REK', 'L0RSTL']); m[17] = findCol(['PLAFOND', 'PLA']);
             m[18] = findCol(['BAKI']); m[19] = findCol(['TUNGPK']); m[20] = findCol(['TUNGBG']);
