@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=61">
+  <link rel="stylesheet" href="style.css?v=62">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1608,7 +1608,7 @@
   <!-- ======================================================= -->
 
   <!-- 1. Modal Detail Debitur -->
-  <div id="modalDetail" class="fixed inset-0 z-[200] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+  <div id="modalDetail" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[200] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
     <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-24 md:mb-0 overflow-hidden border border-white/30 dark:border-slate-700/50 transform transition-all animate-pop-in">
         <!-- Header -->
         <div class="p-3.5 sm:p-4 border-b border-slate-200/60 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
@@ -1625,7 +1625,7 @@
   </div>
   
   <!-- 2. Modal Upload Data -->
-  <div id="modalUpload" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+  <div id="modalUpload" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
     <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[1.5rem] p-5 md:p-6 w-full max-w-sm shadow-2xl border border-white/30 dark:border-slate-700/50 transform transition-transform duration-300 max-h-[80vh] md:max-h-[90vh] mb-24 md:mb-0 overflow-y-auto custom-scrollbar animate-pop-in">
         
         <!-- Header Upload -->
@@ -1692,7 +1692,7 @@
   </div>
 
  <!-- 4. Modal Detail Sektor Ekonomi (Interactive) -->
-  <div id="modalSector" class="fixed inset-0 z-[150] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+  <div id="modalSector" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[150] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
       <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-2xl shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-24 md:mb-0 overflow-hidden border border-white/30 dark:border-slate-700/50 transform transition-all animate-pop-in">
           
           <!-- Header Modal -->
@@ -1755,7 +1755,7 @@
       </div>
   </div>
   <!-- 3. Modal Komparasi Cabang (Bottom Sheet Floating) -->
-  <div id="modal-branch" class="fixed inset-0 z-[1000] hidden flex-col justify-end md:p-6 transition-opacity duration-300">
+  <div id="modal-branch" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[1000] hidden flex-col justify-end md:p-6 transition-opacity duration-300">
       <div id="modal-branch-backdrop" class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300 cursor-pointer" onclick="if(app && app.closeBranchModal) app.closeBranchModal()"></div>
       
       <!-- FIX: mb-24 agar mengambang di atas navigasi HP -->
@@ -1800,7 +1800,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=61"></script>
+  <script src="app.js?v=62"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
