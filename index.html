@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=75">
+  <link rel="stylesheet" href="style.css?v=76">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -99,11 +99,15 @@
 
   <div class="network-status-wrap" aria-live="polite"><span id="network-status" class="network-status">Online</span><span class="network-status-note">Status koneksi aplikasi · Data kredit memerlukan koneksi server</span></div>
 
+  <!-- Overlay untuk menutup drawer/sidebar pada perangkat sentuh -->
+  <button id="sidebarOverlay" class="sidebar-overlay hidden" type="button" aria-label="Tutup menu" onclick="app.toggleSidebar()"></button>
+
   <!-- SIDEBAR KIRI -->
   <aside id="sidebar" class="fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-r border-gray-200 dark:border-slate-700 w-64 flex flex-col h-full z-50 transition-transform duration-300 ease-in-out">
-    <div class="h-16 flex items-center px-6 border-b border-gray-200 dark:border-slate-700 shrink-0">
+    <div class="h-16 flex items-center px-5 border-b border-gray-200 dark:border-slate-700 shrink-0 sidebar-brand-row">
       <i class="fas fa-chart-pie text-xl mr-3 grad-icon grad-blue"></i>
-      <span class="font-bold text-lg">DaKOPen <span class="text-brand-600">PPU</span></span>
+      <span class="font-bold text-lg flex-1">DaKOPen <span class="text-brand-600">PPU</span></span>
+      <button id="sidebarCloseBtn" type="button" class="sidebar-close-btn md:hidden" aria-label="Tutup menu" title="Tutup menu" onclick="app.toggleSidebar()"><i class="fas fa-arrow-left"></i><span>Kembali</span></button>
     </div>
     
     <nav class="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
@@ -1853,7 +1857,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=75"></script>
+  <script src="app.js?v=76"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
