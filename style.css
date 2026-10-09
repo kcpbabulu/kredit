@@ -374,3 +374,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-transparency: reduce) {
     #modalDetail, #modalUpload, #modalSector, #modal-branch-backdrop { backdrop-filter: none !important; }
 }
+
+
+/* V63: readable chart states and deterministic nested modal stacking */
+.chart-empty-state { z-index: 2; min-height: 80px; border: 1px dashed rgba(148,163,184,.45); border-radius: 12px; background: rgba(248,250,252,.78); }
+.dark .chart-empty-state { background: rgba(15,23,42,.72); color: #cbd5e1; }
+#modalSector { z-index: 9000 !important; }
+#modalDetail { z-index: 10050 !important; }
+#modalUpload { z-index: 11000 !important; }
+#view-map #map_canvas { background: #e2e8f0; }
+#view-map .leaflet-container { font-family: inherit; }
