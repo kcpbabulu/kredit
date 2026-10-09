@@ -1139,7 +1139,37 @@ window.setScenario = function(type) {
       unlockMenu();
 }
 
-  function renderDashboard(res) {
+  function renderCreditIntelligence(res) {
+    const byId = id => document.getElementById(id);
+    const put = (id, value) => { const node=byId(id); if(node) node.textContent=value; };
+    const k = (res && res.kpi) || {};
+    const total = Number(k.total_os) || 0;
+    const npl = Number(k.npl_os) || 0;
+    const kkr = Number(k.kkr_os) || 0;
+    const ratio = total > 0 ? (npl / total) * 100 : 0;
+    const fmtMoney = value => 'Rp ' + (Number(value)||0).toLocaleString('id-ID',{maximumFractionDigits:0});
+    const top = Array.isArray(res && res.top_npl) ? res.top_npl : [];
+    put('dak-intel-npl', total > 0 ? ratio.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})+'%' : '—');
+    put('dak-intel-npl-note', total > 0 ? fmtMoney(npl)+' baki debet NPL' : 'Data outstanding belum tersedia');
+    put('dak-intel-kkr', fmtMoney(kkr));
+    put('dak-intel-kkr-note', 'Total KKR dari respons dashboard');
+    put('dak-intel-cases', top.length.toLocaleString('id-ID')+' debitur');
+    put('dak-intel-cases-note', top.length ? 'Daftar prioritas tersedia pada dashboard' : 'Tidak ada daftar Top NPL pada respons');
+    put('dak-intel-data', res && res.kpi ? 'Tersedia' : 'Periksa');
+    put('dak-intel-data-note', 'Respons dashboard berhasil diproses');
+    const badge=byId('dak-intel-updated'); if(badge){badge.innerHTML='<span></span> Data dimuat'; badge.classList.add('is-ready');}
+    const insight = byId('dak-intel-insight');
+    if(insight){
+      let message = 'Pantau tren NPL dan KKR bersama perubahan periode pembanding; tindak lanjut harus merujuk pada detail debitur dan catatan petugas.';
+      if(total <= 0) message = 'Nilai outstanding belum tersedia atau nol. Periksa tanggal posisi, cabang aktif, dan status sinkronisasi sebelum mengambil kesimpulan.';
+      else if(ratio >= 5) message = 'Rasio NPL berada pada atau di atas 5%. Prioritaskan validasi debitur penyumbang NPL, perkembangan KOL, serta rencana tindak lanjut.';
+      else if(ratio >= 3) message = 'Rasio NPL perlu dipantau ketat. Tinjau debitur dengan baki debet besar dan perubahan kolektibilitas agar kenaikan risiko dapat ditangani lebih awal.';
+      else message = 'Rasio NPL di bawah 3% berdasarkan respons saat ini. Tetap tinjau KKR, komitmen pembayaran, dan jatuh tempo agar sinyal awal tidak terlewat.';
+      insight.textContent=message;
+    }
+}
+
+function renderDashboard(res) {
     s.data = res; 
     if(el('loader')) el('loader').style.display='none';
     
@@ -1201,6 +1231,9 @@ window.setScenario = function(type) {
             el('bdg_v_kkr').classList.remove('hidden');
         }
     }
+
+    // F. Credit Intelligence Center: gunakan hanya nilai yang tersedia dari respons dashboard.
+    try { renderCreditIntelligence(res); } catch (intelErr) { console.warn('Credit Intelligence Center:', intelErr); }
 
     // F. Render Chart Sektor & Tabel
     renderTableRaw('tblTop', res.top_npl ? res.top_npl.slice(0,10) : []);
