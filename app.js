@@ -3847,16 +3847,25 @@ function updateUploadUI(pct, status) {
   }
 
 
-  function toggleSidebar() {
-    const sidebar = el('sidebar');
-    const overlay = el('sidebarOverlay');
+  function toggleSidebar(forceClose) {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
     if (!sidebar) return;
-    
-    if (sidebar.classList.contains('-translate-x-full')) {
-        sidebar.classList.remove('-translate-x-full');
-        if (overlay) overlay.classList.remove('hidden');
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    const isOpen = !sidebar.classList.contains('-translate-x-full');
+    const shouldClose = forceClose === true || (forceClose !== false && isOpen);
+    if (shouldClose) {
+        sidebar.classList.add('-translate-x-full');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.classList.remove('sidebar-open');
+        const trigger = document.querySelector('header button[onclick*="toggleSidebar"]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'false');
     } else {
-        internalCloseAll(); // Tutup dengan cara standar
+        sidebar.classList.remove('-translate-x-full');
+        if (overlay && isMobile) overlay.classList.remove('hidden');
+        document.body.classList.toggle('sidebar-open', isMobile);
+        const trigger = document.querySelector('header button[onclick*="toggleSidebar"]');
+        if (trigger) trigger.setAttribute('aria-expanded', 'true');
     }
 }
 
@@ -9072,11 +9081,19 @@ window.dakApplyPermissions = function() {
   const ids={'view-dash':'dashboard','view-journey':'journey','view-archive':'archive','view-report':'report','view-map':'map','view-nplall':'nplall','view-nplkur':'nplkur','view-nplkonsumtif':'nplkonsumtif','view-nplprod':'nplprod','view-collection':'collection','view-watchlist':'watchlist','view-freshdrop':'freshdrop','view-maturity':'maturity','view-writeoff':'writeoff','view-top':'top','view-risk':'risk','view-vintage':'vintage','view-stress':'stress','view-ckpn':'ckpn','view-kredit':'kredit','view-mutasi':'mutasi'};
   document.querySelectorAll('#sidebar .nav-btn').forEach(btn=>{const m=btn.getAttribute('onclick')||'';const match=m.match(/view-[a-z0-9-]+/);if(!match)return;const key=ids[match[0]];if(key && user.role!=='admin' && !(user.permissions&&user.permissions[key]))btn.classList.add('hidden');else btn.classList.remove('hidden');});
   const upload=document.querySelector('#sidebar button[onclick*="openUploadModal"]'); if(upload) upload.classList.toggle('hidden',user.role!=='admin' && !(user.permissions&&user.permissions.upload));
-  let admin=document.getElementById('dak-admin-panel-btn');
-  if(user.role==='admin' && !admin){admin=document.createElement('button');admin.id='dak-admin-panel-btn';admin.className='w-full mt-2 py-3 rounded-xl border border-blue-200 text-blue-700 font-bold';admin.innerHTML='<i class="fas fa-user-shield mr-2"></i> Pengaturan Admin';admin.onclick=window.dakOpenAdmin;const footer=document.querySelector('#sidebar .p-4.border-t');if(footer)footer.appendChild(admin);}
+  const ensureAdminButton=(id,host,extraClass)=>{
+    if(!host)return;
+    let b=document.getElementById(id);
+    if(!b){b=document.createElement('button');b.id=id;b.type='button';b.innerHTML='<i class="fas fa-user-shield w-6 mr-2" aria-hidden="true"></i><span>Pengaturan Pengguna</span>';b.onclick=()=>{window.dakOpenAdmin();};host.appendChild(b);}
+    b.className=extraClass;
+    b.classList.toggle('hidden',user.role!=='admin');
+  };
+  ensureAdminButton('dak-admin-panel-btn',document.querySelector('#sidebar .p-4.border-t'),'w-full mt-2 py-3 rounded-xl border border-blue-200 text-blue-700 font-bold bg-blue-50 hover:bg-blue-100 transition');
+  ensureAdminButton('dak-admin-nav-btn',document.querySelector('#sidebar nav'),'nav-btn w-full flex items-center px-4 py-3 rounded-xl text-blue-700 dark:text-blue-300 bg-blue-50/70 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/40 font-semibold mt-3');
   if(!document.getElementById('dak-session-toolbar')){const toolbar=document.createElement('div');toolbar.id='dak-session-toolbar';toolbar.className='dak-session-toolbar';toolbar.innerHTML='<span class="dak-profile-avatar" aria-hidden="true"><i class="fas fa-user"></i></span><span class="dak-profile-copy"><small class="dak-profile-eyebrow">SESI AKTIF</small><span id="dak-user-label"></span></span><button type="button" id="dak-logout"><i class="fas fa-arrow-right-from-bracket" aria-hidden="true"></i><span>Keluar</span></button>';const header=document.querySelector('main>div:first-child>header');if(header){header.appendChild(toolbar);}else{document.body.appendChild(toolbar);}document.getElementById('dak-logout').onclick=()=>{fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'authLogout',args:[],token:window.DAK_AUTH.token})}).finally(()=>{localStorage.removeItem('dakopen_token_v64');window.location.reload();});};}
 };
 window.dakOpenAdmin = function(){
+ if(window.matchMedia('(max-width: 767px)').matches) toggleSidebar(true);
  const old=document.getElementById('dak-admin-modal');if(old)old.remove();const wrap=document.createElement('div');wrap.id='dak-admin-modal';wrap.className='dak-admin-backdrop';wrap.innerHTML=`<section class="dak-admin-card"><header><div><span class="text-xs font-black text-blue-600 uppercase">Kontrol akses</span><h2>Pengaturan Administrator</h2><p>Atur pengguna, menu yang terlihat, dan izin upload.</p></div><button id="dak-admin-close" aria-label="Tutup">×</button></header><div class="dak-admin-layout"><aside id="dak-user-list"><p>Memuat pengguna…</p></aside><form id="dak-user-form"><div class="dak-admin-fields"><label>Username<input id="dak-u-username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+"></label><label>Nama tampilan<input id="dak-u-name" required maxlength="100"></label><label>Password baru <small>(kosongkan saat mengedit agar tidak berubah)</small><input id="dak-u-password" type="password" minlength="10" autocomplete="new-password"></label><label class="dak-active-label"><input id="dak-u-active" type="checkbox" checked> Akun aktif</label></div><h3>Jangkauan cabang</h3><div class="dak-branch-scope"><label><input type="radio" name="dak-branch-scope" value="all" checked> Seluruh cabang</label><label><input type="radio" name="dak-branch-scope" value="selected"> Cabang tertentu</label></div><div id="dak-branch-grid" class="dak-branch-grid"><span class="dak-muted">Memuat daftar cabang…</span></div><h3>Hak akses per menu</h3><div id="dak-permission-grid" class="dak-permission-grid"></div><div class="dak-admin-actions"><button type="button" id="dak-user-new" class="secondary">Pengguna baru</button><button type="submit" class="primary">Simpan pengguna</button></div><div id="dak-admin-message" role="status"></div></form></div></section>`;document.body.appendChild(wrap);
  const menuLabels={dashboard:'Dashboard',journey:'Linimasa Debitur',archive:'Arsip Kredit',report:'Cetak Laporan',map:'Peta Sebaran NPL',nplall:'NPL Total',nplkur:'NPL KUR',nplkonsumtif:'NPL Konsumtif',nplprod:'NPL Produktif',collection:'Collection Center',watchlist:'Watchlist (EWS)',freshdrop:'Fresh Drop',maturity:'Jatuh Tempo',writeoff:'Hapus Buku (WO)',top:'Top Obligor',risk:'Risk Matrix',vintage:'Vintage Analysis',stress:'Stress Test',ckpn:'CKPN Forecast',kredit:'Data Kredit',mutasi:'Cair & Lunas',upload:'Upload Data'};
  const grid=document.getElementById('dak-permission-grid');const branchGrid=document.getElementById('dak-branch-grid');let availableBranches=[];window.google.script.run.withSuccessHandler(list=>{availableBranches=list||[];branchGrid.innerHTML=availableBranches.map(b=>`<label><input type="checkbox" data-branch="${String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><span>${String(b).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span></label>`).join('')||'<span class="dak-muted">Tidak ada daftar cabang pada snapshot terbaru.</span>';if(selected)formUser(selected);}).withFailureHandler(()=>{branchGrid.innerHTML='<span class="dak-muted">Daftar cabang belum dapat dimuat.</span>';}).adminListBranches();Object.entries(menuLabels).forEach(([k,v])=>{grid.insertAdjacentHTML('beforeend',`<label><input type="checkbox" data-permission="${k}" checked> <span>${v}</span></label>`)});
