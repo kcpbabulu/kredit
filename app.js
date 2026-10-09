@@ -263,8 +263,9 @@ function initLeafletMap(points) {
     mapInstance = L.map('map_canvas', { zoomControl: false }).setView(centerPPU, 10);
 
     // Style Peta Bersih (CartoDB Positron)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap'
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
     }).addTo(mapInstance);
 
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
@@ -3131,6 +3132,33 @@ function renderKreditPage() {
 }
 
 
+// V63: Grafik Data Kredit dirender eksplisit setelah data berhasil dimuat.
+function updateCreditCharts(rows) {
+    const list = Array.isArray(rows) ? rows : [];
+    const norm = v => String(v ?? '').trim() || 'Tidak Diklasifikasikan';
+    const sumBy = (key, max=8) => {
+        const totals = new Map();
+        list.forEach(r => { const label=norm(r[key]); const os=Number(r.os ?? r.baki_debet ?? r.outstanding ?? 0) || 0; totals.set(label,(totals.get(label)||0)+os); });
+        return [...totals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,max);
+    };
+    const fmt = v => new Intl.NumberFormat('id-ID',{notation:'compact',maximumFractionDigits:1}).format(v);
+    const paintEmpty = (id, message) => { const canvas=document.getElementById(id); if(!canvas) return; const wrap=canvas.parentElement; if(wrap) { let note=wrap.querySelector('.chart-empty-state'); if(!note){note=document.createElement('div');note.className='chart-empty-state absolute inset-0 flex items-center justify-center text-center text-xs font-semibold text-slate-400 p-4';wrap.appendChild(note);} note.textContent=message; } };
+    const paintChart = (id,type,entries,title) => {
+        const canvas=document.getElementById(id); if(!canvas) return;
+        const old=charts[id]; if(old){old.destroy();delete charts[id];}
+        const oldEmpty=canvas.parentElement?.querySelector('.chart-empty-state'); if(oldEmpty) oldEmpty.remove();
+        if(!entries.length || entries.every(x=>!Number.isFinite(x[1]) || x[1]===0)){paintEmpty(id,'Belum ada data yang dapat divisualisasikan untuk filter ini.');return;}
+        if(typeof Chart==='undefined'){paintEmpty(id,'Komponen grafik gagal dimuat. Periksa koneksi lalu muat ulang.');return;}
+        const labels=entries.map(x=>x[0]); const values=entries.map(x=>x[1]);
+        charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels,datasets:[{label:title,data:values,backgroundColor:['#7c3aed','#2563eb','#0d9488','#f59e0b','#e11d48','#64748b','#0891b2','#9333ea'],borderColor:'#ffffff',borderWidth:2,borderRadius:type==='bar'?5:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:type==='bar'?'y':'x',plugins:{legend:{display:type!=='bar',position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}},tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y ?? c.parsed)}}},scales:type==='bar'?{x:{beginAtZero:true,ticks:{callback:v=>fmt(v),font:{size:9}},grid:{color:'rgba(148,163,184,.15)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}:{}}});
+    };
+    // Komposisi berdasarkan jenis/fasilitas kredit jika tersedia; fallback berdasarkan KOL.
+    const compositionKey = list.some(r=>r.jenis_kredit||r.jenis||r.type||r.produk) ? (r=>norm(r.jenis_kredit||r.jenis||r.type||r.produk)) : (r=>'KOL '+(r.kol??r.kolektibilitas??'Tidak diketahui'));
+    const compositionMap=new Map(); list.forEach(r=>{const k=compositionKey(r);const v=Number(r.os??r.baki_debet??r.outstanding??0)||0;compositionMap.set(k,(compositionMap.get(k)||0)+v);});
+    paintChart('chKr1','doughnut',[...compositionMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,7),'Komposisi Kredit');
+    paintChart('chKr2','bar',sumBy('sektor',8),'Outstanding per Sektor');
+}
+
 // =================================================================
 // 2. HANDLER SEARCH & UTILITIES
 // =================================================================
@@ -3470,6 +3498,7 @@ function renderTrend(res) {
       if(el('loader')) el('loader').style.display = 'none'; 
       if(!r) { alert("Data Detail tidak ditemukan."); return; } 
       el('modalDetail').classList.remove('hidden');
+      el('modalDetail').style.zIndex = '10050'; // Detail selalu di atas modal sektor/overlay lain
       el('modalDetail').setAttribute('aria-hidden', 'false');
 
       // Helper row yang lebih compact (text-xs)
@@ -3747,6 +3776,7 @@ function updateUploadUI(pct, status) {
 
     // 2. TUTUP SEMUA MODAL
     document.getElementById('modalDetail')?.classList.add('hidden');
+    if (document.getElementById('modalDetail')) document.getElementById('modalDetail').style.zIndex = ''; 
     document.getElementById('modalUpload')?.classList.add('hidden');
     document.getElementById('modalWA')?.classList.add('hidden');
 
