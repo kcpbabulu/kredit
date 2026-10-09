@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=73">
+  <link rel="stylesheet" href="style.css?v=74">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1853,7 +1853,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=73"></script>
+  <script src="app.js?v=74"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
@@ -1908,7 +1908,7 @@
     }
   </script>
 
-  <!-- DaKOPen V73: universal menu search / command palette -->
+  <!-- DaKOPen V74: menu and debtor quick search / command palette -->
   <div id="dak-command-palette" class="dak-command-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="dak-command-title" onclick="if(event.target===this)dakCloseCommandPalette()">
     <section class="dak-command-dialog">
       <div class="dak-command-head"><div><span class="dak-command-eyebrow">DAKOPEN QUICK ACCESS</span><h2 id="dak-command-title">Cari menu atau fitur</h2></div><button type="button" onclick="dakCloseCommandPalette()" class="dak-command-close" aria-label="Tutup pencarian"><i class="fas fa-times"></i></button></div>
@@ -1943,17 +1943,53 @@
       ['Mutasi Kredit','Pergerakan portofolio kredit','view-mutasi','fa-arrows-rotate'],
       ['Data Kredit','Data dan pencarian kredit','view-kredit','fa-database']
     ];
-    let activeIndex=0, filtered=entries;
+    let activeIndex=0, filtered=entries, lastQuery='';
     const modal=()=>document.getElementById('dak-command-palette');
     const input=()=>document.getElementById('dak-command-input');
+    function entryAllowed(item){
+      if(item[2]==='__upload__') return !document.querySelector('#sidebar button[onclick*="openUploadModal"]')?.classList.contains('hidden');
+      if(item[2]==='view-archive') { const btn=document.querySelector('#sidebar .nav-btn[onclick*="loadArchiveData"]'); return !btn || !btn.classList.contains('hidden'); }
+      if(item[2]==='view-journey') { const btn=document.querySelector('#sidebar .nav-btn[onclick*="view-journey"]'); return !btn || !btn.classList.contains('hidden'); }
+      const btn=document.querySelector(`#sidebar .nav-btn[onclick*="${item[2]}"]`);
+      return !btn || !btn.classList.contains('hidden');
+    }
     window.dakOpenCommandPalette=function(){const m=modal();if(!m)return;m.hidden=false;document.body.classList.add('dak-command-open');render('');setTimeout(()=>input().focus(),30)};
     window.dakCloseCommandPalette=function(){const m=modal();if(m)m.hidden=true;document.body.classList.remove('dak-command-open')};
-    function render(q){const term=(q||'').trim().toLocaleLowerCase('id');filtered=entries.filter(x=>!term||(x[0]+' '+x[1]).toLocaleLowerCase('id').includes(term));activeIndex=Math.min(activeIndex,Math.max(0,filtered.length-1));const host=document.getElementById('dak-command-results');if(!host)return;
-      host.innerHTML=filtered.length?filtered.map((x,i)=>`<button type="button" role="option" aria-selected="${i===activeIndex}" class="dak-command-result ${i===activeIndex?'is-active':''}" data-index="${i}"><span class="dak-command-result-icon"><i class="fas ${x[3]}"></i></span><span class="dak-command-result-copy"><strong>${x[0]}</strong><small>${x[1]}</small></span><i class="fas fa-arrow-turn-down dak-command-enter"></i></button>`).join(''):'<div class="dak-command-empty"><i class="fas fa-magnifying-glass"></i><strong>Menu tidak ditemukan</strong><span>Coba kata kunci yang lebih singkat.</span></div>';
-      host.querySelectorAll('[data-index]').forEach(b=>b.addEventListener('click',()=>openEntry(Number(b.dataset.index))));}
-    function openEntry(i){const item=filtered[i];if(!item)return;window.dakCloseCommandPalette();if(item[2]==='__upload__'&&window.app&&typeof app.openUploadModal==='function')app.openUploadModal();else if(item[2]==='view-archive'&&window.app&&typeof app.loadArchiveData==='function')app.loadArchiveData();else if(item[2]==='view-journey'&&window.app&&app.state&&app.state.data&&app.state.data.npl_list){app.switchTab(item[2]);app.renderJourneyPage()}else if(window.app&&typeof app.switchTab==='function')app.switchTab(item[2]);}
+    function render(q){
+      const raw=(q||'').trim(), term=raw.toLocaleLowerCase('id');
+      const menus=entries.filter(x=>entryAllowed(x)&&(!term||(x[0]+' '+x[1]).toLocaleLowerCase('id').includes(term)));
+      const canSearchDebtor=entryAllowed(entries.find(x=>x[2]==='view-kredit'));
+      const quick=(raw.length>=3&&canSearchDebtor)?[[`Cari data debitur: ${raw}`,'Cari nama, nomor PK, atau rekening pada Data Kredit','__debtor_search__','fa-user-magnifying-glass',raw]]:[];
+      filtered=[...quick,...menus]; lastQuery=raw;
+      activeIndex=Math.min(activeIndex,Math.max(0,filtered.length-1));
+      const host=document.getElementById('dak-command-results');if(!host)return;
+      host.innerHTML=filtered.length?filtered.map((x,i)=>`<button type="button" role="option" aria-selected="${i===activeIndex}" class="dak-command-result ${i===activeIndex?'is-active':''} ${x[2]==='__debtor_search__'?'dak-command-debtor-action':''}" data-index="${i}"><span class="dak-command-result-icon"><i class="fas ${x[3]}"></i></span><span class="dak-command-result-copy"><strong>${escapeHtml(x[0])}</strong><small>${escapeHtml(x[1])}</small></span><i class="fas fa-arrow-turn-down dak-command-enter"></i></button>`).join(''):'<div class="dak-command-empty"><i class="fas fa-magnifying-glass"></i><strong>Menu tidak ditemukan</strong><span>Coba kata kunci lain atau gunakan minimal 3 karakter untuk mencari debitur.</span></div>';
+      host.querySelectorAll('[data-index]').forEach(b=>b.addEventListener('click',()=>openEntry(Number(b.dataset.index))));
+    }
+    function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function openEntry(i){
+      const item=filtered[i];if(!item)return;window.dakCloseCommandPalette();
+      if(item[2]==='__debtor_search__'){
+        const keyword=item[4]||lastQuery;
+        if(window.app&&typeof app.switchTab==='function')app.switchTab('view-kredit');
+        window.setTimeout(()=>{
+          const inp=document.getElementById('searchCreditInput');
+          if(inp){inp.value=keyword;inp.disabled=false;if(window.app&&typeof app.handleSearchEnter==='function')app.handleSearchEnter({key:'Enter',preventDefault:function(){}});else if(typeof window.handleSearchEnter==='function')window.handleSearchEnter({key:'Enter',preventDefault:function(){}});}
+        },450);
+      } else if(item[2]==='__upload__'&&window.app&&typeof app.openUploadModal==='function')app.openUploadModal();
+      else if(item[2]==='view-archive'&&window.app&&typeof app.loadArchiveData==='function')app.loadArchiveData();
+      else if(item[2]==='view-journey'&&window.app&&app.state&&app.state.data&&app.state.data.npl_list){app.switchTab(item[2]);app.renderJourneyPage();}
+      else if(window.app&&typeof app.switchTab==='function')app.switchTab(item[2]);
+    }
     document.addEventListener('DOMContentLoaded',()=>{const inp=input();if(inp)inp.addEventListener('input',()=>{activeIndex=0;render(inp.value)});});
-    document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.dakOpenCommandPalette();return}if(modal()&&!modal().hidden){if(e.key==='Escape'){window.dakCloseCommandPalette();e.preventDefault()}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();activeIndex=(activeIndex+(e.key==='ArrowDown'?1:-1)+filtered.length)%Math.max(filtered.length,1);render(input().value);const active=document.querySelector('.dak-command-result.is-active');if(active)active.scrollIntoView({block:'nearest'})}else if(e.key==='Enter'){e.preventDefault();openEntry(activeIndex)}}});
+    document.addEventListener('keydown',e=>{
+      if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.dakOpenCommandPalette();return;}
+      if(modal()&&!modal().hidden){
+        if(e.key==='Escape'){window.dakCloseCommandPalette();e.preventDefault();}
+        else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();activeIndex=(activeIndex+(e.key==='ArrowDown'?1:-1)+filtered.length)%Math.max(filtered.length,1);render(input().value);const active=document.querySelector('.dak-command-result.is-active');if(active)active.scrollIntoView({block:'nearest'});}
+        else if(e.key==='Enter'){e.preventDefault();openEntry(activeIndex);}
+      }
+    });
   })();
   </script>
 
