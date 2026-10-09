@@ -3470,6 +3470,7 @@ function renderTrend(res) {
       if(el('loader')) el('loader').style.display = 'none'; 
       if(!r) { alert("Data Detail tidak ditemukan."); return; } 
       el('modalDetail').classList.remove('hidden');
+      el('modalDetail').setAttribute('aria-hidden', 'false');
 
       // Helper row yang lebih compact (text-xs)
       const row = (l, v, m, b) => `<div class="flex justify-between py-1.5 border-b border-dashed border-slate-100 dark:border-slate-700/50"><span class="text-xs text-slate-500">${l}</span><span class="text-xs ${m?'font-mono':''} ${b?'font-black text-slate-800 dark:text-white':'font-bold text-slate-600 dark:text-slate-300'} text-right">${v}</span></div>`;
@@ -8143,6 +8144,7 @@ window.openSectorModal = function(sectorName) {
 
     // Tampilkan Animasi
     modal.classList.remove('hidden');
+    modal.setAttribute('aria-hidden', 'false');
 };
 
 // 2. Fungsi Engine Sorting Tabel (Dipicu saat klik Header Tabel HTML)
@@ -8393,6 +8395,7 @@ function openBranchModal() {
 
     if(modal) {
         modal.classList.remove('hidden');
+        modal.setAttribute('aria-hidden', 'false');
         modal.style.display = 'flex'; 
 
         if (navigator.vibrate) navigator.vibrate(10);
@@ -8417,6 +8420,7 @@ function closeBranchModal() {
     
     setTimeout(() => {
         modal.classList.add('hidden');
+        modal.setAttribute('aria-hidden', 'true');
         modal.style.display = '';
     }, 300);
 }
@@ -8800,6 +8804,7 @@ window.renderTableRaw = function(tableId, rows) {
             const modal = document.getElementById('modalUpload');
             if(modal) {
                 modal.classList.remove('hidden');
+                modal.setAttribute('aria-hidden', 'false');
                 // Reset input tanggal
                 const upDate = document.getElementById('upDate');
                 if(upDate) upDate.value = "";
@@ -8899,13 +8904,34 @@ window.renderTableRaw = function(tableId, rows) {
     sortKredit: window.sortKredit,
     closeModal: function(id) {
         const modal = document.getElementById(id);
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.setAttribute('aria-hidden', 'true');
+        }
         const overlay = document.getElementById('nativeOverlay');
         if (overlay) overlay.classList.add('hidden');
     }
   };   
 
 })(); // Tutup IIFE
+
+// Modal UX global: Escape closes the topmost modal; clicking the backdrop closes standard dialogs.
+document.addEventListener('keydown', function(event) {
+    if (event.key !== 'Escape') return;
+    const branch = document.getElementById('modal-branch');
+    if (branch && !branch.classList.contains('hidden')) {
+        if (window.app && typeof window.app.closeBranchModal === 'function') window.app.closeBranchModal();
+        return;
+    }
+    const ids = ['modalSector', 'modalUpload', 'modalDetail'];
+    const active = ids.map(id => document.getElementById(id)).find(node => node && !node.classList.contains('hidden'));
+    if (active && window.app && typeof window.app.closeModal === 'function') window.app.closeModal(active.id);
+});
+document.addEventListener('click', function(event) {
+    const modal = event.target;
+    if (!modal || !['modalDetail', 'modalUpload', 'modalSector'].includes(modal.id)) return;
+    if (window.app && typeof window.app.closeModal === 'function') window.app.closeModal(modal.id);
+});
 
 // Init Listener
 document.addEventListener("DOMContentLoaded", function() { 
