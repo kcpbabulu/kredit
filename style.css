@@ -560,3 +560,36 @@ html.dark .tab-view .overflow-x-auto{box-shadow:0 4px 18px rgba(0,0,0,.12)}
   main>div:first-child>header .no-print select{font-size:11px!important}
 }
 @media(prefers-reduced-motion:reduce){.mobile-scroll{scroll-behavior:auto}#bottom-nav *{animation:none!important;transition:none!important}}
+
+
+/* DaKOPen V70 — Credit Intelligence Center */
+.dak-intelligence{box-shadow:0 12px 34px rgba(15,35,70,.055)}
+.dak-intel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:18px 20px 14px;border-bottom:1px solid rgba(148,163,184,.18);background:linear-gradient(110deg,rgba(37,99,235,.055),rgba(20,184,166,.035))}
+.dak-eyebrow{font-size:10px;font-weight:900;letter-spacing:.14em;color:#2563eb;display:flex;align-items:center;gap:7px}
+html.dark .dak-eyebrow{color:#93c5fd}
+.dak-live-pill{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;background:#f1f5f9;color:#64748b;font-size:10px;font-weight:800;white-space:nowrap}
+.dak-live-pill span{width:7px;height:7px;border-radius:50%;background:#f59e0b}
+.dak-live-pill.is-ready span{background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.13)}
+html.dark .dak-live-pill{background:#1e293b;color:#cbd5e1}
+.dak-intel-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:14px 16px}
+.dak-intel-tile{position:relative;min-width:0;text-align:left;padding:15px;border:1px solid #e2e8f0;border-radius:18px;background:#fff;display:flex;flex-direction:column;align-items:flex-start;gap:7px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;overflow:hidden}
+.dak-intel-tile:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,35,70,.09);border-color:#bfdbfe}
+.dak-intel-tile:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
+html.dark .dak-intel-tile{background:#111d32;border-color:#334155}
+.dak-intel-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#eff6ff;color:#2563eb}
+.dak-intel-tile.risk .dak-intel-icon{background:#fef2f2;color:#dc2626}.dak-intel-tile.watch .dak-intel-icon{background:#fff7ed;color:#c2410c}.dak-intel-tile.action .dak-intel-icon{background:#ecfdf5;color:#047857}.dak-intel-tile.data .dak-intel-icon{background:#eff6ff;color:#1d4ed8}
+html.dark .dak-intel-tile .dak-intel-icon{filter:brightness(.85)}
+.dak-intel-label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:#64748b}
+html.dark .dak-intel-label{color:#a8b7cb}
+.dak-intel-tile strong{font-size:clamp(17px,1.5vw,24px);line-height:1.15;letter-spacing:-.035em;font-weight:900;color:#17243a;overflow-wrap:anywhere}
+html.dark .dak-intel-tile strong{color:#f8fafc}
+.dak-intel-tile small{font-size:11px;line-height:1.4;color:#64748b;min-height:30px}
+html.dark .dak-intel-tile small{color:#a8b7cb}
+.dak-intel-link{font-size:10px;font-weight:800;color:#2563eb;margin-top:auto;padding-top:4px}
+html.dark .dak-intel-link{color:#93c5fd}
+.dak-intel-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px 15px;border-top:1px solid rgba(148,163,184,.16)}
+.dak-source-note{font-size:9px;color:#94a3b8;white-space:nowrap}
+@media(max-width:1023px){.dak-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:767px){.dak-intel-head{padding:15px 14px 12px;gap:8px}.dak-intel-head h2{font-size:16px}.dak-intel-head p{max-width:42ch;font-size:11px}.dak-live-pill{font-size:9px;padding:5px 7px}.dak-intel-grid{gap:9px;padding:11px}.dak-intel-tile{padding:12px;border-radius:16px;gap:6px;min-height:155px}.dak-intel-tile strong{font-size:clamp(16px,4.5vw,21px)}.dak-intel-tile small{font-size:10px;min-height:28px}.dak-intel-link{font-size:10px}.dak-intel-bottom{padding:11px 13px;align-items:flex-start}.dak-source-note{display:none}}
+@media(max-width:360px){.dak-intel-grid{grid-template-columns:1fr}.dak-intel-tile{min-height:unset}.dak-intel-tile small{min-height:unset}}
+@media(prefers-reduced-motion:reduce){.dak-intel-tile{transition:none}}
