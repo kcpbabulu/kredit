@@ -3990,12 +3990,12 @@ function downloadPDF() {
     const fileName = `Laporan_Kredit_${fileDateSuffix}.pdf`;
 
     const opt = {
-        margin:       [10, 5, 10, 5], 
+        margin:       [8, 8, 10, 8],
         filename:     fileName,
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true, logging: false },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+        html2canvas:  { scale: 1.5, useCORS: true, logging: false, letterRendering: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' },
+        pagebreak:    { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break-card'] }
     };
 
     setTimeout(() => {
@@ -4141,7 +4141,13 @@ function generateFullReportHTML(res) {
         .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #0f172a; padding: 8px 12px; margin-bottom: 12px; background: #f1f5f9; border-radius: 6px; border-left: 4px solid #0f172a; display: flex; align-items: center; }
         .w-money { text-align: right; font-family: 'Courier New', monospace; font-weight: 700; font-size: 10px; }
         .page-break { page-break-before: always; height: 10px; }
-        .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+        .avoid-break { page-break-inside: auto; break-inside: auto; }
+        .avoid-break-card, .rpt-font .summary-card { page-break-inside: avoid; break-inside: avoid; }
+        thead { display: table-header-group; }
+        tfoot { display: table-footer-group; }
+        tr { page-break-inside: avoid; break-inside: avoid; }
+        .section-title { page-break-after: avoid; break-after: avoid; }
+        @page { size: A4 landscape; margin: 8mm; }
     </style>
     <div class="rpt-font">`;
 
