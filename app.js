@@ -21,29 +21,37 @@ function createGasProxy(successHandler, failureHandler) {
             // Jika bukan handler, berarti ini adalah NAMA FUNGSI (misal: getDashboardData)
             return function(...args) {
                 // Eksekusi Fetch ke Google Apps Script
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
                 fetch(GAS_URL, {
                     method: 'POST',
+                    signal: controller.signal,
                     // Harus plain text agar terhindar dari CORS Preflight Error di browser
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({ action: propName, args: args })
                 })
-                .then(res => res.json())
+                .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
                 .then(res => {
                     // --- TAMBAHKAN 3 BARIS INI (AUTO-CLEANER) ---
                     document.querySelectorAll('.tab-view').forEach(el => {
                         el.classList.remove('opacity-50', 'pointer-events-none');
                     });
                     // -----------------
-                    if (res.status === 'success' && successHandler) {
-                        successHandler(res.data);
-                    } else if (res.status === 'error') {
-                        console.error("GAS API Error:", res.message);
-                        if (failureHandler) failureHandler(res.message);
+                    clearTimeout(timeoutId);
+                    if (res.status === 'success') {
+                        if (successHandler) successHandler(res.data);
+                    } else {
+                        const apiError = new Error(res.message || 'Respons server tidak valid');
+                        console.error('GAS API Error:', apiError);
+                        if (failureHandler) failureHandler(apiError);
+                        else showAppNotice('Permintaan gagal: ' + apiError.message, 'error');
                     }
                 })
                 .catch(err => {
+                    clearTimeout(timeoutId);
                     console.error("Fetch Error:", err);
                     if (failureHandler) failureHandler(err);
+                    else showAppNotice(err.name === 'AbortError' ? 'Server terlalu lama merespons. Coba lagi.' : 'Koneksi ke server gagal. Periksa internet Anda.', 'error');
                 });
             };
         }
@@ -52,6 +60,24 @@ function createGasProxy(successHandler, failureHandler) {
 
 // Terapkan Proxy
 window.google.script.run = createGasProxy(null, null);
+
+// UX & reliability helpers (V61)
+window.showAppNotice = function(message, type='info') {
+  let host = document.getElementById('dakopen-notice-host');
+  if (!host) { host=document.createElement('div'); host.id='dakopen-notice-host'; host.className='dakopen-notice-host'; document.body.appendChild(host); }
+  const item=document.createElement('div'); item.className='dakopen-notice dakopen-notice-'+type; item.textContent=String(message || 'Terjadi kesalahan'); item.setAttribute('role','status'); host.appendChild(item);
+  window.setTimeout(()=>item.remove(), 5500);
+};
+window.parseKolektibilitas = function(value) { const v=String(value ?? '').trim().toUpperCase(); if (v==='E'||v==='HB'||v.includes('HAPUS')) return 5; const n=Number.parseInt(v,10); return Number.isFinite(n)&&n>=1&&n<=5?n:1; };
+window.escapeHTML = function(value) { return String(value ?? '').replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch])); };
+function updateNetworkStatus() {
+  let el=document.getElementById('network-status'); if(!el) return;
+  const online=navigator.onLine; el.textContent=online?'Online':'Offline'; el.classList.toggle('is-offline',!online);
+  el.setAttribute('aria-label',online?'Koneksi internet tersedia':'Koneksi internet tidak tersedia');
+}
+window.addEventListener('online',()=>{updateNetworkStatus();showAppNotice('Koneksi kembali tersedia. Muat ulang data untuk sinkronisasi.','success');});
+window.addEventListener('offline',()=>{updateNetworkStatus();showAppNotice('Offline: hanya aset aplikasi yang tersimpan yang dapat dibuka. Data kredit belum tentu terbaru.','warning');});
+document.addEventListener('DOMContentLoaded',updateNetworkStatus);
 
 // ================= BATAS BRIDGE PROXY =================
 
