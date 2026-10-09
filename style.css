@@ -270,3 +270,34 @@ input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus
 }
 .dark .mobile-menu-card { box-shadow: 0 8px 20px -5px rgba(0,0,0,0.3); }
 .mobile-menu-card:active { transform: scale(0.92); opacity: 0.9; }
+
+/* ================= DaKOPen V61 Corporate Banking UX ================= */
+:root { --dak-navy:#102a43; --dak-blue:#1769aa; --dak-border:#d9e2ec; --dak-muted:#627d98; }
+body { background:#f4f7fb !important; color:#243b53; transition:background-color .15s ease,color .15s ease; }
+.dark body { background:#0b1220 !important; color:#e6edf5; }
+body > div.fixed.inset-0 { opacity:.12; }
+.animate-blob, .animate-float { animation:none !important; }
+#sidebar { background:rgba(255,255,255,.98) !important; border-color:#d9e2ec !important; box-shadow:2px 0 16px rgba(16,42,67,.04); }
+.dark #sidebar { background:#111c2e !important; border-color:#27364b !important; }
+.nav-btn { border-radius:10px; margin:2px 6px; }
+.nav-btn:hover { background:#edf5ff; }
+.dark .nav-btn:hover { background:#1d2b40; }
+.nav-btn::before { background:var(--dak-blue); }
+.glass-card { backdrop-filter:none; -webkit-backdrop-filter:none; background:#fff; border:1px solid #e2e8f0; box-shadow:0 2px 8px rgba(16,42,67,.035); }
+.dark .glass-card { background:#111c2e; border-color:#27364b; }
+button, .nav-btn, input, select { transition-duration:.15s !important; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline:3px solid #60a5fa; outline-offset:2px; }
+.network-status-wrap { position:fixed; right:12px; bottom:10px; z-index:180; display:flex; align-items:center; gap:8px; pointer-events:none; }
+.network-status { border:1px solid #bbf7d0; background:#f0fdf4; color:#166534; border-radius:999px; padding:4px 9px; font-size:10px; font-weight:800; box-shadow:0 2px 8px #0f172a0a; }
+.network-status.is-offline { border-color:#fecaca; background:#fef2f2; color:#991b1b; }
+.network-status-note { font-size:10px; color:#64748b; background:rgba(255,255,255,.9); padding:4px 8px; border-radius:8px; }
+.dark .network-status-note { color:#cbd5e1; background:#111c2e; }
+.dakopen-notice-host { position:fixed; top:76px; right:14px; z-index:10000; display:grid; gap:8px; width:min(380px,calc(100vw - 28px)); pointer-events:none; }
+.dakopen-notice { padding:12px 14px; border-radius:12px; box-shadow:0 12px 35px #0f172a1f; border:1px solid #dbeafe; background:#fff; color:#1e293b; font-size:13px; font-weight:600; pointer-events:auto; }
+.dakopen-notice-error { background:#fff1f2; color:#9f1239; border-color:#fecdd3; }
+.dakopen-notice-warning { background:#fffbeb; color:#92400e; border-color:#fde68a; }
+.dakopen-notice-success { background:#f0fdf4; color:#166534; border-color:#bbf7d0; }
+.dark .dakopen-notice { background:#172338; color:#e2e8f0; border-color:#334155; }
+.tab-view { overscroll-behavior:contain; }
+@media (max-width:767px) { .network-status-wrap { bottom:6px; right:8px; } .network-status-note { display:none; } #sidebar { max-width: min(86vw,320px); } .tab-view { -webkit-overflow-scrolling:touch; } }
+@media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
