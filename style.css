@@ -619,3 +619,42 @@ html.dark #view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card,html.dark #vi
 @media(max-width:767px){#view-dash{padding:12px!important;gap:12px!important}.dak-dashboard-hero{align-items:flex-start;flex-direction:column;gap:17px;padding:21px 19px;border-radius:23px;min-height:unset}.dak-dashboard-hero h1{font-size:25px;margin-top:9px}.dak-dashboard-hero p{font-size:12px;max-width:42ch}.dak-hero-actions{width:100%;max-width:none;display:grid;grid-template-columns:1fr 1fr}.dak-hero-action{min-height:43px;padding:0 9px;font-size:11px}.dak-section-caption{padding:2px 2px 0}.dak-section-caption h2{font-size:16px}.dak-section-kicker{font-size:8px}#view-dash .grid.grid-cols-2.xl\:grid-cols-4{gap:9px!important}#view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card{min-height:102px;padding:12px!important;border-radius:17px!important}#view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card .text-\[8px\],#view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card .text-\[9px\]{letter-spacing:.08em}#view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card .text-base.md\:text-xl{font-size:clamp(14px,4vw,18px)}.dak-intel-head{padding:15px 14px 12px}.dak-intel-grid{padding:10px;gap:9px}.dak-intel-tile{min-height:150px;padding:12px;border-radius:17px}.dak-intel-bottom{padding:12px 14px}#view-dash .grid.grid-cols-1.lg\:grid-cols-3>.glass-card{height:360px!important}.dak-section-caption-secondary{margin-top:3px}}
 @media(max-width:390px){.dak-dashboard-hero h1{font-size:22px}.dak-hero-action{font-size:10px;gap:6px}.dak-intel-grid{grid-template-columns:1fr 1fr}.dak-intel-tile{min-height:145px}#view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card{min-height:94px;padding:10px!important}#view-dash .grid.grid-cols-2.xl\:grid-cols-4>.glass-card .text-base.md\:text-xl{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.dak-hero-action,#view-dash .glass-card{transition:none!important}}
+
+
+/* ================= V72 NPL WORKSPACE + RESPONSIVE UX ================= */
+:root { --dak-brand:#1d4ed8; --dak-line:#e2e8f0; --dak-panel:#ffffff; }
+.dark { --dak-line:#334155; --dak-panel:#0f172a; }
+.npl-page-intro{position:relative;display:flex;align-items:center;gap:16px;min-height:112px;padding:20px 22px;border:1px solid rgba(148,163,184,.22);border-radius:22px;overflow:hidden;background:linear-gradient(115deg,#eff6ff 0%,#fff 56%,#ecfeff 100%);box-shadow:0 8px 26px rgba(15,23,42,.055)}
+.dark .npl-page-intro{background:linear-gradient(115deg,#172554 0%,#0f172a 58%,#134e4a 100%);border-color:#334155}
+.npl-page-intro:after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-65px;top:-100px;background:rgba(59,130,246,.10);pointer-events:none}
+.npl-intro-icon{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:#dbeafe;color:#1d4ed8;font-size:22px;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(37,99,235,.08)}
+.dark .npl-intro-icon{background:#1e3a8a;color:#bfdbfe}
+.npl-purple .npl-intro-icon{background:#f3e8ff;color:#7e22ce}.dark .npl-purple .npl-intro-icon{background:#581c87;color:#e9d5ff}
+.npl-red .npl-intro-icon{background:#fee2e2;color:#b91c1c}.dark .npl-red .npl-intro-icon{background:#7f1d1d;color:#fecaca}
+.npl-emerald .npl-intro-icon{background:#d1fae5;color:#047857}.dark .npl-emerald .npl-intro-icon{background:#064e3b;color:#a7f3d0}
+.npl-intro-copy{min-width:0;flex:1}.npl-eyebrow{display:block;font-size:9px;font-weight:900;letter-spacing:.18em;color:#64748b;margin-bottom:4px}.dark .npl-eyebrow{color:#94a3b8}
+.npl-intro-copy h1{margin:0;font-size:clamp(20px,2vw,27px);font-weight:850;letter-spacing:-.035em;color:#0f172a;line-height:1.15}.dark .npl-intro-copy h1{color:#f8fafc}
+.npl-intro-copy p{margin:6px 0 0;font-size:12px;line-height:1.5;color:#64748b}.dark .npl-intro-copy p{color:#cbd5e1}
+.npl-intro-badge{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid #dbeafe;background:rgba(255,255,255,.72);border-radius:999px;color:#1d4ed8;font-size:11px;font-weight:800;white-space:nowrap}.dark .npl-intro-badge{background:rgba(15,23,42,.65);border-color:#334155;color:#bfdbfe}
+#view-nplall .glass-card,#view-nplkur .glass-card,#view-nplkonsumtif .glass-card,#view-nplprod .glass-card{border-radius:18px;transition:box-shadow .2s ease,transform .2s ease,border-color .2s ease}
+#view-nplall .glass-card:hover,#view-nplkur .glass-card:hover,#view-nplkonsumtif .glass-card:hover,#view-nplprod .glass-card:hover{box-shadow:0 12px 28px rgba(15,23,42,.08)}
+#view-nplall table,#view-nplkur table,#view-nplkonsumtif table,#view-nplprod table{min-width:540px}
+#view-nplall th,#view-nplkur th,#view-nplkonsumtif th,#view-nplprod th{font-size:10px;letter-spacing:.04em}
+#view-nplall td,#view-nplkur td,#view-nplkonsumtif td,#view-nplprod td{vertical-align:middle}
+#view-nplall button,#view-nplkur button,#view-nplkonsumtif button,#view-nplprod button{touch-action:manipulation}
+@media(max-width:767px){
+ .npl-page-intro{gap:11px;padding:15px 14px;min-height:unset;border-radius:18px;align-items:flex-start}
+ .npl-intro-icon{width:42px;height:42px;border-radius:13px;font-size:18px}
+ .npl-intro-copy h1{font-size:20px}.npl-intro-copy p{font-size:11px;max-width:42ch}
+ .npl-intro-badge{display:none}
+ #view-nplall,#view-nplkur,#view-nplkonsumtif,#view-nplprod{padding:12px!important;gap:12px!important}
+ #view-nplall .glass-card,#view-nplkur .glass-card,#view-nplkonsumtif .glass-card,#view-nplprod .glass-card{border-radius:16px}
+ #view-nplall .grid.grid-cols-2.lg\:grid-cols-3{gap:9px}
+ #view-nplall .text-base,#view-nplkur .text-base,#view-nplkonsumtif .text-base,#view-nplprod .text-base{font-size:clamp(13px,3.8vw,17px)}
+ #view-nplall .h-\[350px\],#view-nplkur .h-\[350px\],#view-nplkonsumtif .h-\[350px\],#view-nplprod .h-\[350px\]{height:340px}
+ #view-nplall .h-\[450px\],#view-nplkur .h-\[450px\],#view-nplkonsumtif .h-\[450px\],#view-nplprod .h-\[450px\]{height:380px}
+ #view-nplall input[type=range],#view-nplkur input[type=range],#view-nplkonsumtif input[type=range],#view-nplprod input[type=range]{min-height:28px}
+ #view-nplall th,#view-nplkur th,#view-nplkonsumtif th,#view-nplprod th{font-size:9px;padding:9px 7px}
+ #view-nplall td,#view-nplkur td,#view-nplkonsumtif td,#view-nplprod td{padding:8px 7px}
+}
+@media(prefers-reduced-motion:reduce){#view-nplall .glass-card,#view-nplkur .glass-card,#view-nplkonsumtif .glass-card,#view-nplprod .glass-card{transition:none!important}}
