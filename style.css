@@ -192,7 +192,7 @@ input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus
 .dark .leaflet-tile-container { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%); transition: filter 0.5s ease; }
 .leaflet-popup-content-wrapper { 
     border-radius: 1.2rem !important; background: rgba(255,255,255,0.95) !important; 
-    backdrop-filter: blur(10px) !important; border: 1px solid rgba(0,0,0,0.05) !important; 
+    backdrop-filter: none !important; -webkit-backdrop-filter: none !important; border: 1px solid rgba(0,0,0,0.05) !important; 
     box-shadow: 0 15px 30px -10px rgba(0,0,0,0.2) !important;
 }
 .dark .leaflet-popup-content-wrapper { background: rgba(30, 41, 59, 0.95) !important; color: white !important; border-color: rgba(255,255,255,0.1) !important; }
@@ -275,7 +275,7 @@ input[type="text"]:focus, input[type="date"]:focus, select:focus, textarea:focus
 :root { --dak-navy:#102a43; --dak-blue:#1769aa; --dak-border:#d9e2ec; --dak-muted:#627d98; }
 body { background:#f4f7fb !important; color:#243b53; transition:background-color .15s ease,color .15s ease; }
 .dark body { background:#0b1220 !important; color:#e6edf5; }
-body > div.fixed.inset-0 { opacity:.12; }
+/* Jangan menerapkan opacity ke overlay global: opacity pada parent ikut memudarkan seluruh isi modal. */
 .animate-blob, .animate-float { animation:none !important; }
 #sidebar { background:rgba(255,255,255,.98) !important; border-color:#d9e2ec !important; box-shadow:2px 0 16px rgba(16,42,67,.04); }
 .dark #sidebar { background:#111c2e !important; border-color:#27364b !important; }
@@ -301,3 +301,76 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .tab-view { overscroll-behavior:contain; }
 @media (max-width:767px) { .network-status-wrap { bottom:6px; right:8px; } .network-status-note { display:none; } #sidebar { max-width: min(86vw,320px); } .tab-view { -webkit-overflow-scrolling:touch; } }
 @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:.01ms !important; } }
+
+
+/* ================= DaKOPen V62 — Modal Clarity & UX Fix =================
+/* Layer overlay harus tetap solid; blur hanya boleh berada pada backdrop, bukan panel isi. */
+#modalDetail, #modalUpload, #modalSector, #modal-branch {
+    opacity: 1 !important;
+    isolation: isolate;
+    z-index: 10000 !important;
+}
+#modalDetail > div, #modalUpload > div, #modalSector > div, #modal-branch-content {
+    opacity: 1 !important;
+    color: #243b53;
+    background-color: #ffffff !important;
+    background-image: none;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border-color: #d9e2ec !important;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .28) !important;
+    text-rendering: optimizeLegibility;
+}
+.dark #modalDetail > div, .dark #modalUpload > div,
+.dark #modalSector > div, .dark #modal-branch-content {
+    color: #e6edf5;
+    background-color: #111c2e !important;
+    border-color: #334155 !important;
+}
+#modalDetail, #modalUpload, #modalSector {
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
+#modalDetail > div, #modalUpload > div, #modalSector > div {
+    max-height: min(88dvh, 900px) !important;
+    min-height: 0;
+}
+#modalDetail #detailContent, #modalSector .overflow-y-auto,
+#modalUpload .overflow-y-auto, #modal-branch-content #list-modal-branch {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+#modalDetail button, #modalUpload button, #modalSector button,
+#modal-branch button { min-height: 36px; }
+#modalDetail h3, #modalUpload h3, #modalSector h3, #modal-branch h3 {
+    line-height: 1.35;
+}
+#modalDetail input, #modalDetail select, #modalDetail textarea,
+#modalUpload input, #modalUpload select, #modalUpload textarea,
+#modalSector input, #modalSector select, #modalSector textarea,
+#modal-branch input, #modal-branch select, #modal-branch textarea {
+    font-size: 14px;
+}
+#modalDetail .text-\[7px\], #modalDetail .text-\[8px\],
+#modalUpload .text-\[7px\], #modalUpload .text-\[8px\],
+#modalSector .text-\[7px\], #modalSector .text-\[8px\] { letter-spacing: .02em; }
+#modal-branch { padding-left: 0; padding-right: 0; }
+#modal-branch-backdrop { background: rgba(15, 23, 42, .68) !important; }
+#modal-branch-content { border-radius: 24px 24px 0 0; }
+@media (min-width: 768px) {
+    #modal-branch-content { border-radius: 24px; }
+}
+@media (max-width: 767px) {
+    #modalDetail > div, #modalUpload > div, #modalSector > div {
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: max(8px, env(safe-area-inset-bottom));
+        border-radius: 18px;
+    }
+    #modalSector table { min-width: 100%; }
+    #modalSector th, #modalSector td { padding-left: 8px; padding-right: 8px; }
+    #modal-branch-content { max-height: 88dvh !important; margin-bottom: 0 !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+    #modalDetail, #modalUpload, #modalSector, #modal-branch-backdrop { backdrop-filter: none !important; }
+}
