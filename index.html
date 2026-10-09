@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=70">
+  <link rel="stylesheet" href="style.css?v=71">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -247,6 +247,20 @@
       <!-- 1. DASHBOARD UTAMA -->
       <div id="view-dash" class="tab-view fade-in p-3 md:p-5 space-y-3 md:space-y-4 bg-transparent">
          
+         <!-- V71 DASHBOARD HERO -->
+         <section class="dak-dashboard-hero" aria-label="Ringkasan dashboard">
+           <div class="dak-hero-copy">
+             <div class="dak-hero-eyebrow"><span class="dak-hero-pulse"></span> CREDIT INTELLIGENCE CENTER</div>
+             <h1>Ringkasan Portofolio</h1>
+             <p>Pahami posisi kredit, temukan risiko, dan tentukan tindakan berikutnya dari satu tempat.</p>
+           </div>
+           <div class="dak-hero-actions">
+             <button type="button" class="dak-hero-action" onclick="app.refresh()"><i class="fas fa-rotate"></i><span>Perbarui data</span></button>
+             <button type="button" class="dak-hero-action dak-hero-action-primary" onclick="app.switchTab('view-nplall')"><i class="fas fa-shield-halved"></i><span>Analisis risiko</span><i class="fas fa-arrow-up-right-from-square dak-action-arrow"></i></button>
+           </div>
+         </section>
+         <div class="dak-section-caption"><div><span class="dak-section-kicker">01 / PORTOFOLIO</span><h2>Indikator utama</h2></div><span class="dak-section-hint">Pilih kartu untuk melihat detail</span></div>
+
          <!-- Baris 1: 4 KPI Utama (Mini Bento) -->
          <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
             <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] border-b-[3px] border-blue-500 shadow-sm hover:shadow-md group hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-800 dark:to-blue-900/10 cursor-pointer" onclick="app.switchTab('view-kredit')">
@@ -294,6 +308,7 @@
             </div>
          </div>
          
+         <div class="dak-section-caption dak-section-caption-secondary"><div><span class="dak-section-kicker">02 / KOMPOSISI</span><h2>Profil portofolio</h2></div><span class="dak-section-hint">Komposisi dan perbandingan unit</span></div>
          <!-- Baris 2: 4 KPI Tambahan -->
          <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
             <div class="glass-card p-3 rounded-[1rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md group transition-all duration-300 bg-white/80 dark:bg-slate-800/80 cursor-pointer" onclick="app.switchTab('view-mutasi')">
@@ -364,7 +379,8 @@
             </div>
          </div>
          
-         <!-- CREDIT INTELLIGENCE CENTER V70 -->
+         <div class="dak-section-caption dak-section-caption-secondary"><div><span class="dak-section-kicker">03 / INTELIJEN RISIKO</span><h2>Fokus perhatian</h2></div><span class="dak-section-hint">Indikator berbasis data aktif</span></div>
+         <!-- CREDIT INTELLIGENCE CENTER V71 -->
          <section id="dak-intelligence" class="dak-intelligence glass-card rounded-2xl md:rounded-3xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 overflow-hidden">
            <div class="dak-intel-head">
              <div class="min-w-0"><div class="dak-eyebrow"><i class="fas fa-brain"></i> CREDIT INTELLIGENCE CENTER</div><h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white mt-1">Fokus perhatian portofolio</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ringkasan berbasis data dashboard aktif. Pilih indikator untuk membuka analisis terkait.</p></div>
@@ -379,6 +395,7 @@
            <div class="dak-intel-bottom"><div class="flex items-start gap-2"><i class="fas fa-circle-info mt-0.5 text-blue-500"></i><p id="dak-intel-insight" class="text-xs leading-relaxed text-slate-600 dark:text-slate-300">Ringkasan akan dihitung setelah data dashboard berhasil dimuat. Indikator ini membantu prioritas, bukan pengganti analisis kredit.</p></div><span class="dak-source-note">Sumber: data dashboard aktif</span></div>
          </section>
 
+         <div class="dak-section-caption dak-section-caption-secondary"><div><span class="dak-section-kicker">04 / EKSPLORASI</span><h2>Sektor & debitur berisiko</h2></div><span class="dak-section-hint">Pilih item untuk membuka detail</span></div>
          <!-- Baris 3: Sebaran Sektor & Top NPL -->
          <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
             
@@ -1815,7 +1832,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=70"></script>
+  <script src="app.js?v=71"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
