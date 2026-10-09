@@ -679,3 +679,41 @@ main>div:first-child{z-index:30}main>div:first-child>header{border:1px solid rgb
 @media(min-width:768px){#sidebar{width:264px;flex-shrink:0}main{min-width:0}main>div:first-child{padding:14px 16px 0!important}.tab-view{max-width:1720px;margin-inline:auto}.tab-view:not(#view-map):not(#view-report){padding:clamp(16px,1.6vw,28px)!important}.dak-command-backdrop{padding-top:12vh}}
 @media(max-width:767px){.dak-command-trigger{width:38px;height:38px;min-height:38px;justify-content:center;padding:0;border-radius:12px}.dak-command-trigger span,.dak-command-trigger kbd{display:none}.dak-command-backdrop{padding:calc(9vh + env(safe-area-inset-top)) 9px 10px}.dak-command-dialog{border-radius:20px;max-height:78dvh}.dak-command-head{padding:17px 16px 12px}.dak-command-head h2{font-size:17px}.dak-command-input-wrap{margin:0 12px 9px;min-height:46px}.dak-command-results{padding:0 7px 7px}.dak-command-result{padding:9px 10px}.dak-command-foot{flex-wrap:wrap;justify-content:center;padding:10px 8px}.dak-command-foot span:last-child{width:100%;justify-content:center}.tab-view .overflow-x-auto{max-width:100%;overscroll-behavior-x:contain}.tab-view .grid{min-width:0}.dakopen-notice-host{top:calc(10px + env(safe-area-inset-top));left:10px;right:10px;width:auto}.dakopen-notice{font-size:12px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tab-view,.dak-command-dialog,.dakopen-notice{animation:none!important}*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+
+/* DaKOPen V74 — operational and executive views, polished shared interaction */
+:root{--dak-card-border:rgba(203,213,225,.72);--dak-card-shadow:0 8px 24px rgba(15,35,70,.055)}
+html.dark{--dak-card-border:rgba(51,65,85,.9);--dak-card-shadow:0 8px 26px rgba(0,0,0,.16)}
+#view-collection,#view-watchlist,#view-freshdrop,#view-maturity,#view-writeoff,#view-top,#view-risk,#view-vintage,#view-stress,#view-ckpn{isolation:isolate}
+#view-collection>*,#view-watchlist>*,#view-freshdrop>*,#view-maturity>*,#view-writeoff>*,#view-top>*,#view-risk>*,#view-vintage>*,#view-stress>*,#view-ckpn>*{min-width:0}
+#view-collection .glass-card,#view-watchlist .glass-card,#view-freshdrop .glass-card,#view-maturity .glass-card,#view-writeoff .glass-card,#view-top .glass-card,#view-risk .glass-card,#view-vintage .glass-card,#view-stress .glass-card,#view-ckpn .glass-card{border-color:var(--dak-card-border)!important;box-shadow:var(--dak-card-shadow);}
+#view-collection table,#view-watchlist table,#view-freshdrop table,#view-maturity table,#view-writeoff table,#view-top table{width:100%;border-collapse:separate;border-spacing:0}
+#view-collection thead th,#view-watchlist thead th,#view-freshdrop thead th,#view-maturity thead th,#view-writeoff thead th,#view-top thead th{position:sticky;top:0;z-index:2;background:#f8fafc;color:#52637a;font-size:10px;font-weight:850;letter-spacing:.045em;text-transform:uppercase;border-bottom:1px solid #dfe7f1}
+html.dark #view-collection thead th,html.dark #view-watchlist thead th,html.dark #view-freshdrop thead th,html.dark #view-maturity thead th,html.dark #view-writeoff thead th,html.dark #view-top thead th{background:#142238;color:#b7c7dd;border-color:#334155}
+#view-collection tbody tr:hover,#view-watchlist tbody tr:hover,#view-freshdrop tbody tr:hover,#view-maturity tbody tr:hover,#view-writeoff tbody tr:hover,#view-top tbody tr:hover{background:rgba(37,99,235,.055)}
+#view-collection .overflow-auto,#view-watchlist .overflow-auto,#view-freshdrop .overflow-auto,#view-maturity .overflow-auto,#view-writeoff .overflow-auto,#view-top .overflow-auto,#view-collection .overflow-x-auto,#view-watchlist .overflow-x-auto,#view-freshdrop .overflow-x-auto,#view-maturity .overflow-x-auto,#view-writeoff .overflow-x-auto,#view-top .overflow-x-auto{border-radius:14px;overscroll-behavior:contain;scrollbar-width:thin}
+#view-risk canvas,#view-vintage canvas,#view-stress canvas,#view-ckpn canvas{max-width:100%}
+#view-collection h3,#view-watchlist h3,#view-freshdrop h3,#view-maturity h2,#view-writeoff h3,#view-top h3,#view-risk h3,#view-vintage h3,#view-stress h3,#view-ckpn h3{letter-spacing:-.025em}
+#view-collection button:focus-visible,#view-watchlist button:focus-visible,#view-freshdrop button:focus-visible,#view-maturity button:focus-visible,#view-writeoff button:focus-visible,#view-top button:focus-visible,#view-risk button:focus-visible,#view-vintage button:focus-visible,#view-stress button:focus-visible,#view-ckpn button:focus-visible{outline:3px solid rgba(59,130,246,.65);outline-offset:2px}
+.dak-command-debtor-action{border-color:#bfdbfe;background:linear-gradient(100deg,#eff6ff,#f8fbff);margin-bottom:5px}
+.dak-command-debtor-action .dak-command-result-icon{background:#dbeafe;color:#1d4ed8}
+html.dark .dak-command-debtor-action{background:linear-gradient(100deg,#172d4a,#142238);border-color:#315782}
+html.dark .dak-command-debtor-action .dak-command-result-icon{background:#1e3a5f;color:#93c5fd}
+/* Header/profile separation: markup nests header inside the first main wrapper, so target the real selector. */
+main>div:first-child>header{position:relative;min-width:0}
+@media(min-width:768px){
+  main>div:first-child>header{padding-top:66px!important;padding-right:16px!important;align-items:stretch}
+  .dak-session-toolbar{top:10px!important;right:14px!important;z-index:81;max-width:min(520px,calc(100vw - 32px))!important}
+  main>div:first-child>header .no-print{min-width:0;flex-wrap:wrap;overflow:visible!important}
+  main>div:first-child>header #selBranch,main>div:first-child>header #selDate,main>div:first-child>header #selComp{min-height:38px}
+}
+@media(min-width:768px) and (max-width:1279px){main>div:first-child>header{gap:8px}main>div:first-child>header>.w-full.xl\:w-auto{width:100%}main>div:first-child>header .no-print{justify-content:flex-start}}
+@media(max-width:767px){
+  main>div:first-child>header{padding-top:10px!important;padding-right:10px!important;gap:8px}
+  main>div:first-child>header .no-print{width:100%;overflow-x:auto!important;justify-content:flex-start;padding-bottom:3px}
+  .dak-session-toolbar{position:fixed!important;top:auto!important;bottom:calc(84px + env(safe-area-inset-bottom))!important;left:10px!important;right:10px!important;width:auto!important;max-width:none!important;z-index:85;justify-content:space-between;gap:8px;border-radius:16px;padding:7px 9px 7px 12px;}
+  .dak-session-toolbar span{max-width:calc(100vw - 120px)!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #view-collection .h-\[450px\],#view-collection .md\:h-\[600px\]{height:min(68dvh,620px)}
+  #view-vintage .h-\[350px\]{height:300px}
+}
+@media(prefers-reduced-motion:reduce){#view-collection *,#view-watchlist *,#view-freshdrop *,#view-maturity *,#view-writeoff *,#view-top *,#view-risk *,#view-vintage *,#view-stress *,#view-ckpn *{scroll-behavior:auto!important}}
