@@ -717,3 +717,39 @@ main>div:first-child>header{position:relative;min-width:0}
   #view-vintage .h-\[350px\]{height:300px}
 }
 @media(prefers-reduced-motion:reduce){#view-collection *,#view-watchlist *,#view-freshdrop *,#view-maturity *,#view-writeoff *,#view-top *,#view-risk *,#view-vintage *,#view-stress *,#view-ckpn *{scroll-behavior:auto!important}}
+
+
+/* DaKOPen V75 — integrated, natural session profile for desktop and mobile */
+.dak-session-toolbar{
+  position:absolute!important;top:10px!important;right:14px!important;left:auto!important;bottom:auto!important;
+  display:flex!important;align-items:center!important;gap:10px!important;width:auto!important;max-width:min(360px,calc(100% - 28px))!important;
+  padding:7px 8px 7px 9px!important;border:1px solid rgba(203,213,225,.72)!important;border-radius:999px!important;
+  background:rgba(255,255,255,.82)!important;color:#334155!important;box-shadow:0 5px 18px rgba(15,35,70,.07)!important;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:45!important;font-size:12px!important;line-height:1.2;
+}
+.dak-profile-avatar{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 30px;border-radius:50%;background:linear-gradient(145deg,#dbeafe,#ccfbf1);color:#1d4ed8;font-size:12px}
+.dak-profile-copy{display:flex;flex-direction:column;gap:2px;min-width:0;max-width:200px}
+.dak-profile-eyebrow{font-size:8px;font-weight:900;letter-spacing:.12em;color:#94a3b8}
+#dak-user-label{display:block;max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:750;color:#334155}
+#dak-logout{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:32px;padding:0 12px!important;border:1px solid #dbe4ef!important;border-radius:999px!important;background:#eef3f9!important;color:#334155!important;font-size:11px!important;font-weight:800!important;white-space:nowrap;transition:background .18s ease,border-color .18s ease,transform .18s ease}
+#dak-logout:hover{background:#e0ecff!important;border-color:#bfdbfe!important;color:#1d4ed8!important}
+#dak-logout:focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+html.dark .dak-session-toolbar{background:rgba(15,23,42,.88)!important;border-color:#334155!important;color:#e2e8f0!important;box-shadow:0 5px 20px rgba(0,0,0,.2)!important}
+html.dark .dak-profile-avatar{background:linear-gradient(145deg,#1e3a5f,#134e4a);color:#93c5fd}
+html.dark #dak-user-label{color:#e2e8f0}
+html.dark #dak-logout{background:#263449!important;border-color:#3b4b62!important;color:#e2e8f0!important}
+html.dark #dak-logout:hover{background:#1e3a5f!important;color:#bfdbfe!important}
+@media(min-width:768px){
+  main>div:first-child>header{padding-top:66px!important}
+  .dak-session-toolbar{top:10px!important;right:14px!important}
+}
+@media(max-width:767px){
+  main>div:first-child>header{padding-top:10px!important;padding-bottom:12px!important}
+  .dak-session-toolbar{position:relative!important;inset:auto!important;order:4;align-self:stretch;width:100%!important;max-width:100%!important;margin-top:2px;padding:8px 10px!important;border-radius:16px!important;box-shadow:0 3px 12px rgba(15,35,70,.045)!important;gap:9px!important}
+  .dak-profile-avatar{width:32px;height:32px;flex-basis:32px}
+  .dak-profile-copy{flex:1;max-width:none}
+  #dak-user-label{max-width:calc(100vw - 150px);font-size:11px}
+  #dak-logout{min-height:34px;padding:0 12px!important}
+  .dak-session-toolbar span{max-width:none!important}
+}
+@media(max-width:380px){.dak-profile-eyebrow{font-size:7px}#dak-user-label{max-width:calc(100vw - 142px);font-size:10px}.dak-session-toolbar{padding:7px 8px!important;gap:7px!important}}
