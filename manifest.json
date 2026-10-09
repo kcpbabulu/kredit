@@ -1,6 +1,6 @@
 {
-  "name": "DaKOPen V65 PPU",
-  "short_name": "DaKOPen",
+  "name": "DaKOPen PPU V70 - Credit Intelligence Center",
+  "short_name": "DaKOPen V70",
   "description": "Dashboard Kredit Orang Penajam - Sistem Monitoring Kredit",
   "start_url": "./index.html",
   "scope": "./",
