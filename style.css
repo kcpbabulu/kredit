@@ -472,3 +472,25 @@ main>header>*{min-width:0}
 }
 @media(max-width:380px){.dak-permission-grid,.dak-branch-grid{grid-template-columns:minmax(0,1fr)}.tab-view{padding:9px!important}.dak-login-card{padding:24px 18px}.dak-session-toolbar span{max-width:45vw}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tab-view{animation:none!important}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
+
+
+/* V68: header safe-area so the session profile never covers date/branch filters */
+@media (min-width: 768px) {
+  main > header { padding-top: 66px !important; padding-right: 20px !important; position: relative; }
+  .dak-session-toolbar { top: 8px !important; right: 12px !important; max-width: min(520px, calc(100vw - 32px)) !important; }
+  main > header .no-print { min-width: 0; flex-wrap: wrap; overflow: visible !important; }
+  main > header #selBranch, main > header #selDate, main > header #selComp { min-height: 38px; font-size: 12px !important; }
+}
+@media (max-width: 767px) {
+  main > header { padding-bottom: 10px !important; }
+  .dak-session-toolbar { bottom: calc(82px + env(safe-area-inset-bottom)) !important; top: auto !important; max-width: calc(100vw - 16px) !important; }
+}
+@media print {
+  @page { size: A4 landscape; margin: 8mm; }
+  #dak-session-toolbar, #loader, .no-print { display: none !important; }
+  #rpt_content_body { overflow: visible !important; width: 100% !important; }
+  .rpt-font { width: 100% !important; max-width: none !important; }
+  .page-break { break-before: page !important; page-break-before: always !important; height: 0 !important; }
+  table { break-inside: auto !important; page-break-inside: auto !important; }
+  tr { break-inside: avoid !important; page-break-inside: avoid !important; }
+}
