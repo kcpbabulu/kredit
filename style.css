@@ -494,3 +494,69 @@ main>header>*{min-width:0}
   table { break-inside: auto !important; page-break-inside: auto !important; }
   tr { break-inside: avoid !important; page-break-inside: avoid !important; }
 }
+
+
+/* DaKOPen V69 — mobile-first SuperApp experience */
+:root{--dak-mobile-radius:20px;--dak-mobile-gap:12px}
+button,a,select,input,[role="button"]{-webkit-tap-highlight-color:transparent}
+button{touch-action:manipulation}
+.nav-btn,.nav-item,.tab-view button{transition:transform .16s ease,background-color .18s ease,border-color .18s ease,box-shadow .18s ease}
+.nav-btn:active,.tab-view button:active{transform:scale(.985)}
+#bottom-nav{width:min(94vw,440px);bottom:calc(10px + env(safe-area-inset-bottom));padding:7px 8px;min-height:68px;gap:3px;border-radius:24px;background:rgba(255,255,255,.94);box-shadow:0 14px 40px rgba(15,35,70,.18),0 2px 8px rgba(15,35,70,.06);}
+html.dark #bottom-nav{background:rgba(15,23,42,.96);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+#bottom-nav .nav-item{min-height:48px;min-width:44px;justify-content:center;border-radius:17px;position:relative}
+#bottom-nav .nav-item:focus-visible,#bottom-nav [aria-label]:focus-visible{outline:3px solid #60a5fa;outline-offset:2px}
+#bottom-nav .nav-item.active>div{background:linear-gradient(135deg,rgba(37,99,235,.14),rgba(20,184,166,.13));color:#2563eb}
+#bottom-nav .nav-item:after{content:attr(aria-label);display:block;font-size:9px;line-height:1;font-weight:800;color:currentColor;opacity:.78;white-space:nowrap;margin-top:-3px}
+#bottom-nav .nav-item>div{padding:7px 11px!important}
+#bottom-nav .nav-item i{font-size:17px!important}
+#bottom-nav .relative.-mt-8{cursor:pointer;min-width:54px;align-items:center}
+#bottom-nav .relative.-mt-8>div{width:50px;height:50px;border-width:3px;margin-top:-1px}
+#bottom-nav .relative.-mt-8:after{content:'Menu';font-size:9px;font-weight:800;color:#64748b;margin-top:2px}
+html.dark #bottom-nav .relative.-mt-8:after{color:#cbd5e1}
+.mobile-scroll{scroll-behavior:smooth;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain}
+.tab-view .rounded-2xl,.tab-view .rounded-xl{border-radius:var(--dak-mobile-radius)}
+.tab-view .overflow-x-auto{box-shadow:0 4px 18px rgba(15,35,70,.045)}
+html.dark .tab-view .overflow-x-auto{box-shadow:0 4px 18px rgba(0,0,0,.12)}
+@media(max-width:767px){
+  body{font-size:14px;line-height:1.45}
+  #sidebar{border-radius:0 24px 24px 0;padding-top:env(safe-area-inset-top);}
+  #sidebar nav{padding:12px 12px calc(105px + env(safe-area-inset-bottom))}
+  #sidebar .nav-btn{min-height:46px;border-radius:14px;padding:11px 13px;font-size:14px}
+  #sidebar .nav-btn i{font-size:16px}
+  main>div:first-child{padding:8px 9px 0!important}
+  main>div:first-child>header{border-radius:20px!important;padding:12px!important;box-shadow:0 8px 24px rgba(15,35,70,.055)}
+  main>div:first-child>header>div:first-child{margin-bottom:8px!important}
+  main>div:first-child>header h1{font-size:14px!important}
+  main>div:first-child>header .no-print{display:flex;flex-wrap:wrap;overflow:visible!important;gap:7px}
+  main>div:first-child>header .no-print>div:first-child{width:100%;max-width:100%;border-radius:14px;justify-content:space-between;padding:5px 8px}
+  main>div:first-child>header .no-print select{font-size:12px!important;min-height:38px;max-width:none!important;flex:1;min-width:0!important}
+  .tab-view{padding:10px!important;padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+  .tab-view h1{font-size:clamp(20px,6vw,28px)!important;line-height:1.15}
+  .tab-view h2{font-size:clamp(17px,4.8vw,22px)!important}
+  .tab-view h3{font-size:15px!important}
+  .tab-view .grid{gap:10px!important}
+  .tab-view .grid>*{min-width:0;max-width:100%}
+  .tab-view button,.tab-view select,.tab-view input:not([type=checkbox]):not([type=radio]){min-height:42px}
+  .tab-view .overflow-x-auto{border-radius:16px;margin-block:4px;scrollbar-width:thin}
+  .tab-view table{min-width:650px;font-size:12px}
+  .tab-view table th,.tab-view table td{padding:10px 9px!important;white-space:nowrap}
+  .dak-session-toolbar{left:10px;right:10px;width:auto;bottom:calc(84px + env(safe-area-inset-bottom));justify-content:space-between;border-radius:18px;box-shadow:0 8px 24px rgba(15,35,70,.16)}
+  .dak-session-toolbar span{max-width:52vw}
+  #loader{z-index:220;top:calc(12px + env(safe-area-inset-top));bottom:auto;border-radius:16px;padding:12px 16px}
+  .dak-admin-backdrop{padding:env(safe-area-inset-top) 7px calc(7px + env(safe-area-inset-bottom))}
+  .dak-admin-card{border-radius:22px;box-shadow:0 24px 80px rgba(2,15,35,.28)}
+  .dak-admin-actions{padding-bottom:calc(10px + env(safe-area-inset-bottom))}
+  .dak-login-screen{padding:12px!important}
+  .dak-login-shell{border-radius:24px!important;min-height:0!important}
+  .dak-login-card{padding:28px 20px!important}
+  .modal,.fixed.inset-0{overscroll-behavior:contain}
+}
+@media(max-width:390px){
+  #bottom-nav{width:96vw;padding:5px 5px;gap:0}
+  #bottom-nav .nav-item:after{font-size:8px}
+  #bottom-nav .nav-item>div{padding:6px 8px!important}
+  #bottom-nav .relative.-mt-8>div{width:45px;height:45px}
+  main>div:first-child>header .no-print select{font-size:11px!important}
+}
+@media(prefers-reduced-motion:reduce){.mobile-scroll{scroll-behavior:auto}#bottom-nav *{animation:none!important;transition:none!important}}
