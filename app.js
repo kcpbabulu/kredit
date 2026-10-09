@@ -429,7 +429,7 @@ function updateCard(id, currVal, diffVal, prevVal, invertColor) {
 
   // --- INIT FUNCTION (DENGAN SINKRONISASI MENU LAPORAN) ---
 function init() {
-    console.log("DaKOPen V66 — Branch-aware initialization and unified banking UX");
+    console.log("DaKOPen V67 — responsive UX hardening and branch-aware initialization");
     
     // Setup Tema & Loader
     if(localStorage.getItem('theme')==='dark') document.documentElement.classList.add('dark');
