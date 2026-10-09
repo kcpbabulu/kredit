@@ -429,7 +429,7 @@ function updateCard(id, currVal, diffVal, prevVal, invertColor) {
 
   // --- INIT FUNCTION (DENGAN SINKRONISASI MENU LAPORAN) ---
 function init() {
-    console.log("App Init V60 Resilience (Report Hub Ready)");
+    console.log("DaKOPen V66 — Branch-aware initialization and unified banking UX");
     
     // Setup Tema & Loader
     if(localStorage.getItem('theme')==='dark') document.documentElement.classList.add('dark');
@@ -496,20 +496,40 @@ function init() {
 // --- LOAD BRANCHES (UPDATE: ISI JUGA DROPDOWN DI MENU LAPORAN) ---
 function loadBranches() {
     google.script.run.withSuccessHandler(res => {
-      let h = '<option value="ALL">Semua Unit</option>'; 
-      res.forEach(b => h += `<option value="${b}">${b}</option>`);
-      
-      // A. Isi Dropdown Toolbar Utama
-      el('selBranch').innerHTML = h; 
-      el('selBranch').value = 'ALL';
+      // Batasi pilihan cabang sesuai sesi login. Pengguna dengan scope tertentu
+      // tidak pernah menerima opsi ALL, dan cabang awal otomatis menjadi cabang
+      // pertama yang diizinkan sebelum refresh pertama mengambil data.
+      const authUser = window.DAK_AUTH && window.DAK_AUTH.user;
+      const isRestricted = !!(authUser && authUser.role !== 'admin' && authUser.branchScope === 'selected');
+      const allowed = isRestricted && Array.isArray(authUser.branches) ? authUser.branches : [];
+      const available = (res || []).map(b => String(b)).filter(b => !isRestricted || allowed.includes(b));
+      const options = isRestricted
+        ? available.map(b => `<option value="${b.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">${b.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('')
+        : '<option value="ALL">Semua Unit</option>' + available.map(b => `<option value="${b.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">${b.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
+      const defaultBranch = isRestricted ? (available[0] || '') : 'ALL';
+      const h = options || '<option value="">Tidak ada cabang yang diizinkan</option>';
 
-      // B. Isi Dropdown Menu Laporan [BARU]
+      // A. Isi Dropdown Toolbar Utama dan pilih cabang awal yang aman.
+      if (el('selBranch')) {
+        el('selBranch').innerHTML = h;
+        el('selBranch').value = defaultBranch;
+        el('selBranch').disabled = isRestricted && available.length <= 1;
+      }
+      s.filter.b = defaultBranch;
+
+      // B. Filter laporan menggunakan cakupan cabang yang sama.
       if(el('rptBranchSel')) {
-          el('rptBranchSel').innerHTML = h;
-          el('rptBranchSel').value = 'ALL';
+        el('rptBranchSel').innerHTML = h;
+        el('rptBranchSel').value = defaultBranch;
+        el('rptBranchSel').disabled = isRestricted && available.length <= 1;
+      }
+      if (isRestricted && !available.length) {
+        if (el('loader')) el('loader').style.display = 'none';
+        if (typeof window.showAppNotice === 'function') window.showAppNotice('Akun ini belum diberi cabang. Hubungi Administrator.', 'warning');
+        return;
       }
 
-      // Refresh Tampilan Awal
+      // Refresh pertama berlangsung setelah filter cabang sesuai hak akses terpasang.
       refresh();
       
     }).getBranchList(s.filter.d);
@@ -8708,7 +8728,19 @@ function exportBranchPDF() {
 
 
  
-  function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light'); }
+  function toggleTheme() {
+    const dark = !document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark', dark);
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+    document.querySelectorAll('#themeIcon').forEach(icon => { icon.className = `fas ${dark ? 'fa-sun' : 'fa-moon'} text-xs group-hover:rotate-12 transition-transform`; });
+    document.querySelectorAll('[data-theme-toggle] i').forEach(icon => { icon.className = `fas ${dark ? 'fa-sun' : 'fa-moon'}`; });
+    document.dispatchEvent(new CustomEvent('dakopen:themechange', {detail:{theme:dark?'dark':'light'}}));
+  }
+  function syncThemeControls() {
+    const dark = document.documentElement.classList.contains('dark');
+    document.querySelectorAll('#themeIcon').forEach(icon => { icon.className = `fas ${dark ? 'fa-sun' : 'fa-moon'} text-xs group-hover:rotate-12 transition-transform`; });
+  }
+  document.addEventListener('DOMContentLoaded', syncThemeControls);
   // --- PUBLIC API EXPORT ---
   // --- PUBLIC API EXPORT ---
 
