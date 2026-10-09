@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dashboard Kredit Orang Penajam DaKOPen V67</title>
+  <title>DaKOPen PPU — Credit Intelligence SuperApp</title>
   
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="manifest.json">
@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=72">
+  <link rel="stylesheet" href="style.css?v=73">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -209,7 +209,8 @@
               </div>
           </div>
           <!-- Tombol Tema Mobile -->
-          <button data-theme-toggle onclick="app.toggleTheme()" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95">
+          <button type="button" class="dak-command-trigger" onclick="dakOpenCommandPalette()" aria-label="Cari menu dan fitur"><i class="fas fa-magnifying-glass"></i><span>Cari menu</span><kbd>Ctrl K</kbd></button>
+            <button data-theme-toggle onclick="app.toggleTheme()" class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95">
              <i class="fas fa-moon text-[10px]"></i>
           </button>
         </div>
@@ -1852,7 +1853,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=72"></script>
+  <script src="app.js?v=73"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
@@ -1906,5 +1907,55 @@
       });
     }
   </script>
+
+  <!-- DaKOPen V73: universal menu search / command palette -->
+  <div id="dak-command-palette" class="dak-command-backdrop" hidden role="dialog" aria-modal="true" aria-labelledby="dak-command-title" onclick="if(event.target===this)dakCloseCommandPalette()">
+    <section class="dak-command-dialog">
+      <div class="dak-command-head"><div><span class="dak-command-eyebrow">DAKOPEN QUICK ACCESS</span><h2 id="dak-command-title">Cari menu atau fitur</h2></div><button type="button" onclick="dakCloseCommandPalette()" class="dak-command-close" aria-label="Tutup pencarian"><i class="fas fa-times"></i></button></div>
+      <label class="dak-command-input-wrap"><i class="fas fa-search"></i><input id="dak-command-input" type="search" placeholder="Contoh: NPL, debitur, laporan..." autocomplete="off"><kbd>ESC</kbd></label>
+      <div id="dak-command-results" class="dak-command-results" role="listbox" aria-label="Hasil menu"></div>
+      <div class="dak-command-foot"><span><kbd>↑</kbd><kbd>↓</kbd> pilih</span><span><kbd>Enter</kbd> buka menu</span><span>Menu mengikuti hak akses yang tersedia</span></div>
+    </section>
+  </div>
+  <script>
+  (function(){
+    const entries = [
+      ['Dashboard','Ringkasan portofolio, KPI dan tren','view-dash','fa-house'],
+      ['Linimasa Debitur','Riwayat dan perjalanan debitur','view-journey','fa-route'],
+      ['Arsip Kredit','Pencarian dan arsip kredit','view-archive','fa-box-archive'],
+      ['Cetak Laporan','Laporan dan pencetakan','view-report','fa-print'],
+      ['Peta Sebaran NPL','Peta risiko dan sebaran debitur','view-map','fa-map-location-dot'],
+      ['NPL Total','Ringkasan kredit bermasalah','view-nplall','fa-chart-pie'],
+      ['NPL KUR','Analisis kredit usaha rakyat','view-nplkur','fa-seedling'],
+      ['NPL Konsumtif','Analisis kredit konsumtif','view-nplkonsumtif','fa-bag-shopping'],
+      ['NPL Produktif','Analisis kredit produktif','view-nplprod','fa-industry'],
+      ['Collection Center','Tindak lanjut penagihan','view-collection','fa-phone'],
+      ['Watchlist / EWS','Pemantauan dini risiko kredit','view-watchlist','fa-eye'],
+      ['Fresh Drop','Perubahan kualitas kredit','view-freshdrop','fa-arrow-trend-down'],
+      ['Jatuh Tempo','Pemantauan jatuh tempo','view-maturity','fa-calendar-days'],
+      ['Hapus Buku','Data kredit hapus buku','view-writeoff','fa-file-circle-xmark'],
+      ['Upload Database','Unggah atau perbarui sumber data','__upload__','fa-cloud-arrow-up'],
+      ['Top Obligor','Debitur dengan eksposur terbesar','view-top','fa-ranking-star'],
+      ['Risk Matrix','Matriks risiko kredit','view-risk','fa-border-all'],
+      ['Vintage Analysis','Analisis vintage kredit','view-vintage','fa-chart-line'],
+      ['Stress Test','Simulasi tekanan portofolio','view-stress','fa-gauge-high'],
+      ['CKPN','Analisis CKPN','view-ckpn','fa-calculator'],
+      ['Mutasi Kredit','Pergerakan portofolio kredit','view-mutasi','fa-arrows-rotate'],
+      ['Data Kredit','Data dan pencarian kredit','view-kredit','fa-database']
+    ];
+    let activeIndex=0, filtered=entries;
+    const modal=()=>document.getElementById('dak-command-palette');
+    const input=()=>document.getElementById('dak-command-input');
+    window.dakOpenCommandPalette=function(){const m=modal();if(!m)return;m.hidden=false;document.body.classList.add('dak-command-open');render('');setTimeout(()=>input().focus(),30)};
+    window.dakCloseCommandPalette=function(){const m=modal();if(m)m.hidden=true;document.body.classList.remove('dak-command-open')};
+    function render(q){const term=(q||'').trim().toLocaleLowerCase('id');filtered=entries.filter(x=>!term||(x[0]+' '+x[1]).toLocaleLowerCase('id').includes(term));activeIndex=Math.min(activeIndex,Math.max(0,filtered.length-1));const host=document.getElementById('dak-command-results');if(!host)return;
+      host.innerHTML=filtered.length?filtered.map((x,i)=>`<button type="button" role="option" aria-selected="${i===activeIndex}" class="dak-command-result ${i===activeIndex?'is-active':''}" data-index="${i}"><span class="dak-command-result-icon"><i class="fas ${x[3]}"></i></span><span class="dak-command-result-copy"><strong>${x[0]}</strong><small>${x[1]}</small></span><i class="fas fa-arrow-turn-down dak-command-enter"></i></button>`).join(''):'<div class="dak-command-empty"><i class="fas fa-magnifying-glass"></i><strong>Menu tidak ditemukan</strong><span>Coba kata kunci yang lebih singkat.</span></div>';
+      host.querySelectorAll('[data-index]').forEach(b=>b.addEventListener('click',()=>openEntry(Number(b.dataset.index))));}
+    function openEntry(i){const item=filtered[i];if(!item)return;window.dakCloseCommandPalette();if(item[2]==='__upload__'&&window.app&&typeof app.openUploadModal==='function')app.openUploadModal();else if(item[2]==='view-archive'&&window.app&&typeof app.loadArchiveData==='function')app.loadArchiveData();else if(item[2]==='view-journey'&&window.app&&app.state&&app.state.data&&app.state.data.npl_list){app.switchTab(item[2]);app.renderJourneyPage()}else if(window.app&&typeof app.switchTab==='function')app.switchTab(item[2]);}
+    document.addEventListener('DOMContentLoaded',()=>{const inp=input();if(inp)inp.addEventListener('input',()=>{activeIndex=0;render(inp.value)});});
+    document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();window.dakOpenCommandPalette();return}if(modal()&&!modal().hidden){if(e.key==='Escape'){window.dakCloseCommandPalette();e.preventDefault()}else if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();activeIndex=(activeIndex+(e.key==='ArrowDown'?1:-1)+filtered.length)%Math.max(filtered.length,1);render(input().value);const active=document.querySelector('.dak-command-result.is-active');if(active)active.scrollIntoView({block:'nearest'})}else if(e.key==='Enter'){e.preventDefault();openEntry(activeIndex)}}});
+  })();
+  </script>
+
 </body>
 </html>
