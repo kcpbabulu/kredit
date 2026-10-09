@@ -28,7 +28,7 @@ function createGasProxy(successHandler, failureHandler) {
                     signal: controller.signal,
                     // Harus plain text agar terhindar dari CORS Preflight Error di browser
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: propName, args: args })
+                    body: JSON.stringify({ action: propName, args: args, token: (window.DAK_AUTH && window.DAK_AUTH.token) || localStorage.getItem('dakopen_token_v64') || '' })
                 })
                 .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
                 .then(res => {
@@ -39,6 +39,7 @@ function createGasProxy(successHandler, failureHandler) {
                     // -----------------
                     clearTimeout(timeoutId);
                     if (res.status === 'success') {
+                        if (propName === 'authLogin' && res.data && res.data.token) window.dakApplySession(res.data);
                         if (successHandler) successHandler(res.data);
                     } else {
                         const apiError = new Error(res.message || 'Respons server tidak valid');
@@ -8965,5 +8966,50 @@ document.addEventListener('click', function(event) {
 
 // Init Listener
 document.addEventListener("DOMContentLoaded", function() { 
-    if(window.app && window.app.init) window.app.init(); 
+    window.dakStartAuth(); 
 });
+
+// DaKOPen V64 Authentication UX and per-menu access control
+window.DAK_AUTH = {token: localStorage.getItem('dakopen_token_v64') || '', user: null};
+window.dakApplySession = function(session) {
+  window.DAK_AUTH.token=session.token; window.DAK_AUTH.user=session.user;
+  localStorage.setItem('dakopen_token_v64',session.token);
+  const overlay=document.getElementById('dak-login-screen'); if(overlay) overlay.remove();
+  window.dakApplyPermissions();
+  const label=document.getElementById('dak-user-label'); if(label) label.textContent=(session.user.name||session.user.username)+' · '+(session.user.role==='admin'?'Administrator':'Pengguna');
+  if(window.app && window.app.init && !window.__dakInitialized) { window.__dakInitialized=true; window.app.init(); }
+};
+window.dakStartAuth = function() {
+  const token=localStorage.getItem('dakopen_token_v64');
+  if(token) {
+    window.DAK_AUTH.token=token;
+    // Validate session with server before exposing application content.
+    fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'authMe',args:[],token})})
+      .then(r=>r.json()).then(r=>{ if(r.status==='success'){ window.dakApplySession({token,user:r.data}); } else { localStorage.removeItem('dakopen_token_v64'); window.DAK_AUTH.token=''; window.dakShowLogin(); } })
+      .catch(()=>window.dakShowLogin());
+  } else window.dakShowLogin();
+};
+window.dakShowLogin = function() {
+  if(document.getElementById('dak-login-screen')) return;
+  const el=document.createElement('div'); el.id='dak-login-screen'; el.className='dak-login-screen'; el.innerHTML=`<form class="dak-login-card" id="dak-login-form"><div class="dak-brand-mark"><i class="fas fa-chart-pie"></i></div><div class="text-xs font-black uppercase tracking-[.2em] text-blue-600">DaKOPen PPU</div><h1>Masuk ke aplikasi</h1><p>Gunakan akun yang diberikan Administrator.</p><label for="dak-login-user">Username</label><input id="dak-login-user" autocomplete="username" required maxlength="40" placeholder="Masukkan username"><label for="dak-login-pass">Password</label><input id="dak-login-pass" type="password" autocomplete="current-password" required placeholder="Masukkan password"><div id="dak-login-error" role="alert"></div><button id="dak-login-submit" type="submit">Masuk <i class="fas fa-arrow-right"></i></button><small>Akses tercatat pada sesi aplikasi. Jangan bagikan kata sandi.</small></form>`;
+  document.body.appendChild(el);
+  document.getElementById('dak-login-form').addEventListener('submit',function(e){e.preventDefault();const btn=document.getElementById('dak-login-submit'),err=document.getElementById('dak-login-error');btn.disabled=true;btn.textContent='Memverifikasi…';err.textContent='';fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'authLogin',args:[document.getElementById('dak-login-user').value,document.getElementById('dak-login-pass').value]})}).then(r=>r.json()).then(r=>{if(r.status!=='success')throw new Error(r.message||'Login gagal');window.dakApplySession(r.data);}).catch(e=>{err.textContent=e.message||'Login gagal. Periksa koneksi.';btn.disabled=false;btn.innerHTML='Masuk <i class="fas fa-arrow-right"></i>';});});
+};
+window.dakApplyPermissions = function() {
+  const user=window.DAK_AUTH.user; if(!user) return;
+  const ids={'view-dash':'dashboard','view-journey':'journey','view-archive':'archive','view-report':'report','view-map':'map','view-nplall':'nplall','view-nplkur':'nplkur','view-nplkonsumtif':'nplkonsumtif','view-nplprod':'nplprod','view-collection':'collection','view-watchlist':'watchlist','view-freshdrop':'freshdrop','view-maturity':'maturity','view-writeoff':'writeoff','view-top':'top','view-risk':'risk','view-vintage':'vintage','view-stress':'stress','view-ckpn':'ckpn','view-kredit':'kredit','view-mutasi':'mutasi'};
+  document.querySelectorAll('#sidebar .nav-btn').forEach(btn=>{const m=btn.getAttribute('onclick')||'';const match=m.match(/view-[a-z0-9-]+/);if(!match)return;const key=ids[match[0]];if(key && user.role!=='admin' && !(user.permissions&&user.permissions[key]))btn.classList.add('hidden');else btn.classList.remove('hidden');});
+  const upload=document.querySelector('#sidebar button[onclick*="openUploadModal"]'); if(upload) upload.classList.toggle('hidden',user.role!=='admin' && !(user.permissions&&user.permissions.upload));
+  let admin=document.getElementById('dak-admin-panel-btn');
+  if(user.role==='admin' && !admin){admin=document.createElement('button');admin.id='dak-admin-panel-btn';admin.className='w-full mt-2 py-3 rounded-xl border border-blue-200 text-blue-700 font-bold';admin.innerHTML='<i class="fas fa-user-shield mr-2"></i> Pengaturan Admin';admin.onclick=window.dakOpenAdmin;const footer=document.querySelector('#sidebar .p-4.border-t');if(footer)footer.appendChild(admin);}
+  if(!document.getElementById('dak-session-toolbar')){const toolbar=document.createElement('div');toolbar.id='dak-session-toolbar';toolbar.className='dak-session-toolbar';toolbar.innerHTML='<span id="dak-user-label"></span><button type="button" id="dak-logout">Keluar</button>';document.body.appendChild(toolbar);document.getElementById('dak-logout').onclick=()=>{fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'authLogout',args:[],token:window.DAK_AUTH.token})}).finally(()=>{localStorage.removeItem('dakopen_token_v64');window.location.reload();});};}
+};
+window.dakOpenAdmin = function(){
+ const old=document.getElementById('dak-admin-modal');if(old)old.remove();const wrap=document.createElement('div');wrap.id='dak-admin-modal';wrap.className='dak-admin-backdrop';wrap.innerHTML=`<section class="dak-admin-card"><header><div><span class="text-xs font-black text-blue-600 uppercase">Kontrol akses</span><h2>Pengaturan Administrator</h2><p>Atur pengguna, menu yang terlihat, dan izin upload.</p></div><button id="dak-admin-close" aria-label="Tutup">×</button></header><div class="dak-admin-layout"><aside id="dak-user-list"><p>Memuat pengguna…</p></aside><form id="dak-user-form"><div class="dak-admin-fields"><label>Username<input id="dak-u-username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+"></label><label>Nama tampilan<input id="dak-u-name" required maxlength="100"></label><label>Password baru <small>(kosongkan saat mengedit agar tidak berubah)</small><input id="dak-u-password" type="password" minlength="10" autocomplete="new-password"></label><label class="dak-active-label"><input id="dak-u-active" type="checkbox" checked> Akun aktif</label></div><h3>Hak akses per menu</h3><div id="dak-permission-grid" class="dak-permission-grid"></div><div class="dak-admin-actions"><button type="button" id="dak-user-new" class="secondary">Pengguna baru</button><button type="submit" class="primary">Simpan pengguna</button></div><div id="dak-admin-message" role="status"></div></form></div></section>`;document.body.appendChild(wrap);
+ const menuLabels={dashboard:'Dashboard',journey:'Linimasa Debitur',archive:'Arsip Kredit',report:'Cetak Laporan',map:'Peta Sebaran NPL',nplall:'NPL Total',nplkur:'NPL KUR',nplkonsumtif:'NPL Konsumtif',nplprod:'NPL Produktif',collection:'Collection Center',watchlist:'Watchlist (EWS)',freshdrop:'Fresh Drop',maturity:'Jatuh Tempo',writeoff:'Hapus Buku (WO)',top:'Top Obligor',risk:'Risk Matrix',vintage:'Vintage Analysis',stress:'Stress Test',ckpn:'CKPN Forecast',kredit:'Data Kredit',mutasi:'Cair & Lunas',upload:'Upload Data'};
+ const grid=document.getElementById('dak-permission-grid');Object.entries(menuLabels).forEach(([k,v])=>{grid.insertAdjacentHTML('beforeend',`<label><input type="checkbox" data-permission="${k}" checked> <span>${v}</span></label>`)});
+ let users=[],selected=null;const list=document.getElementById('dak-user-list');function formUser(u){selected=u||null;document.getElementById('dak-u-username').value=u?u.username:'';document.getElementById('dak-u-username').readOnly=!!u;document.getElementById('dak-u-name').value=u?u.name:'';document.getElementById('dak-u-password').value='';document.getElementById('dak-u-active').checked=u?u.active:true;grid.querySelectorAll('[data-permission]').forEach(c=>c.checked?c.checked=!u||!!(u.permissions&&u.permissions[c.dataset.permission]):c.checked=!!(u&&u.permissions&&u.permissions[c.dataset.permission]));document.getElementById('dak-admin-message').textContent='';}
+ function renderList(){list.innerHTML='<h3>Daftar pengguna</h3>'+users.map(u=>`<button type="button" data-user="${u.username.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" class="dak-user-item ${selected&&selected.username===u.username?'selected':''}"><strong>${u.name}</strong><small>@${u.username} · ${u.role==='admin'?'Administrator':u.active?'Aktif':'Nonaktif'}</small></button>`).join('');list.querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>{formUser(users.find(u=>u.username===b.dataset.user));renderList();});}
+ function load(){window.google.script.run.withSuccessHandler(r=>{users=r||[];renderList();if(!selected)formUser(null);}).withFailureHandler(e=>{list.textContent=e.message;}) .adminListUsers();}
+ document.getElementById('dak-admin-close').onclick=()=>wrap.remove();document.getElementById('dak-user-new').onclick=()=>{formUser(null);document.getElementById('dak-u-username').readOnly=false;renderList();};document.getElementById('dak-user-form').onsubmit=e=>{e.preventDefault();const data={username:document.getElementById('dak-u-username').value,name:document.getElementById('dak-u-name').value,password:document.getElementById('dak-u-password').value,active:document.getElementById('dak-u-active').checked,role:document.getElementById('dak-u-username').value.toLowerCase()==='admin'?'admin':'user',permissions:{}};grid.querySelectorAll('[data-permission]').forEach(c=>data.permissions[c.dataset.permission]=c.checked);window.google.script.run.withSuccessHandler(()=>{document.getElementById('dak-admin-message').textContent='Pengguna berhasil disimpan.';selected=null;load();}).withFailureHandler(err=>document.getElementById('dak-admin-message').textContent=err.message).adminSaveUser(data);};load();
+};
