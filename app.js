@@ -1942,18 +1942,38 @@ window.actionWA = function(nama, hp, pk, tgk, os, tgl) {
 // =================================================================
 function showToast(msg, type) {
     if (!document.body) return;
-
-    var div = document.createElement('div');
-    var colorClass = type === 'warning' ? 'bg-orange-600' : 'bg-slate-800';
-    
-    div.className = "fixed bottom-20 left-1/2 transform -translate-x-1/2 " + colorClass + " text-white px-6 py-3 rounded-full shadow-lg text-xs font-bold z-[9999] flex items-center gap-2 animate-bounce";
-    div.innerHTML = '<i class="fas fa-clipboard-check text-lg"></i> <span class="ml-2">' + msg + '</span>';
-    
-    document.body.appendChild(div);
-    
-    setTimeout(function() {
-        if (div && div.parentNode) div.parentNode.removeChild(div);
-    }, 3000);
+    var kind = ['success','warning','error','info'].indexOf(String(type || '').toLowerCase()) >= 0 ? String(type).toLowerCase() : 'info';
+    var stack = document.querySelector('.dak-toast-stack');
+    if (!stack) {
+        stack = document.createElement('div');
+        stack.className = 'dak-toast-stack';
+        stack.setAttribute('aria-live', 'polite');
+        stack.setAttribute('aria-relevant', 'additions text');
+        document.body.appendChild(stack);
+    }
+    var toast = document.createElement('div');
+    toast.className = 'dak-toast';
+    toast.dataset.type = kind;
+    toast.setAttribute('role', kind === 'error' ? 'alert' : 'status');
+    var icon = document.createElement('span');
+    icon.className = 'dak-toast-icon';
+    var iconEl = document.createElement('i');
+    iconEl.className = 'fas ' + ({success:'fa-check',warning:'fa-exclamation-triangle',error:'fa-times',info:'fa-info'}[kind] || 'fa-info');
+    iconEl.setAttribute('aria-hidden','true');
+    icon.appendChild(iconEl);
+    var message = document.createElement('span');
+    message.className = 'dak-toast-message';
+    message.textContent = String(msg == null ? '' : msg);
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'dak-toast-close';
+    close.setAttribute('aria-label','Tutup notifikasi');
+    close.innerHTML = '<i class="fas fa-times" aria-hidden="true"></i>';
+    toast.appendChild(icon); toast.appendChild(message); toast.appendChild(close); stack.appendChild(toast);
+    var removed = false;
+    function removeToast(){ if (removed) return; removed = true; if (toast.parentNode) toast.parentNode.removeChild(toast); if (stack && !stack.children.length && stack.parentNode) stack.parentNode.removeChild(stack); }
+    close.addEventListener('click', removeToast);
+    window.setTimeout(removeToast, kind === 'error' ? 6000 : 3800);
 }
 
 
