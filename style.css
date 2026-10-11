@@ -780,3 +780,61 @@ html.dark #dak-admin-nav-btn{background:rgba(30,58,95,.45);color:#bfdbfe;border-
 }
 @media(min-width:768px){.sidebar-overlay{display:none!important}#sidebarCloseBtn{display:none!important}}
 @media(prefers-reduced-motion:reduce){.sidebar-overlay,#sidebar{transition:none!important}}
+
+
+/* =====================================================================
+   DaKOPen V78 — World-class loading system + coherent global polish
+   ===================================================================== */
+:root{
+  --dak-navy:#102b50;--dak-blue:#2563eb;--dak-cyan:#38bdf8;
+  --dak-border:rgba(148,163,184,.22);--dak-shadow:0 14px 38px rgba(15,35,70,.075);
+  --dak-radius:22px;
+}
+
+/* Premium global processing overlay. JS may continue to toggle display:flex/none. */
+#loader.dak-loader{
+  position:fixed!important;inset:0!important;z-index:9999!important;display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;height:100dvh;padding:22px;overflow:hidden;isolation:isolate;
+  background:rgba(241,246,253,.68);backdrop-filter:blur(13px) saturate(135%);-webkit-backdrop-filter:blur(13px) saturate(135%);
+  color:#eaf3ff;white-space:normal;min-width:0;transform:none;top:0;left:0;
+  animation:dakLoaderFade .24s ease-out both;
+}
+#loader[style*="display: none"]{display:none!important}
+.dak-loader-backdrop{position:absolute;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,rgba(37,99,235,.10),transparent 43%),linear-gradient(135deg,rgba(239,246,255,.70),rgba(248,250,252,.84))}
+.dak-loader-orb{position:absolute;display:block;border-radius:50%;filter:blur(2px);opacity:.6;animation:dakOrbFloat 9s ease-in-out infinite alternate}
+.dak-loader-orb-a{width:280px;height:280px;top:-95px;right:-65px;background:radial-gradient(circle at 35% 35%,rgba(56,189,248,.34),rgba(37,99,235,.02) 70%)}
+.dak-loader-orb-b{width:330px;height:330px;bottom:-140px;left:-90px;background:radial-gradient(circle at 60% 40%,rgba(45,212,191,.25),rgba(59,130,246,.02) 72%);animation-delay:-4s}
+.dak-loader-grid{position:absolute;inset:0;opacity:.15;background-image:linear-gradient(rgba(37,99,235,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,.12) 1px,transparent 1px);background-size:38px 38px;mask-image:radial-gradient(ellipse at center,#000,transparent 78%)}
+.dak-loader-card{position:relative;width:min(100%,390px);padding:27px 28px 22px;border-radius:28px;border:1px solid rgba(255,255,255,.82);background:linear-gradient(150deg,rgba(16,43,80,.98),rgba(11,31,60,.985) 62%,rgba(17,57,91,.98));box-shadow:0 32px 90px rgba(15,35,70,.24),inset 0 1px 0 rgba(255,255,255,.13);overflow:hidden;animation:dakLoaderCardIn .42s cubic-bezier(.2,.8,.2,1) both}
+.dak-loader-card:before{content:"";position:absolute;inset:0 0 auto;height:1px;background:linear-gradient(90deg,transparent,rgba(125,211,252,.8),transparent)}
+.dak-loader-card:after{content:"";position:absolute;right:-100px;top:80px;width:240px;height:240px;border:1px solid rgba(125,211,252,.08);border-radius:50%;box-shadow:0 0 0 24px rgba(125,211,252,.025),0 0 0 48px rgba(125,211,252,.02);pointer-events:none}
+.dak-loader-brand-row{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.dak-loader-brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:11px;color:#fff;background:linear-gradient(145deg,#38bdf8,#2563eb);box-shadow:0 7px 20px rgba(37,99,235,.32);font-size:15px}
+.dak-loader-brand{font-size:15px;font-weight:850;letter-spacing:-.035em;color:#f8fbff}.dak-loader-brand b{color:#7dd3fc}
+.dak-loader-live{margin-left:auto;display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border:1px solid rgba(110,231,183,.22);border-radius:999px;background:rgba(16,185,129,.09);color:#a7f3d0;font-size:8px;font-weight:900;letter-spacing:.12em}
+.dak-loader-live i{width:5px;height:5px;border-radius:50%;background:#34d399;box-shadow:0 0 0 4px rgba(52,211,153,.12);animation:dakLivePulse 1.8s ease-in-out infinite}
+.dak-loader-visual{position:relative;width:122px;height:122px;margin:24px auto 18px;display:grid;place-items:center}
+.dak-loader-ring{position:absolute;inset:0;border-radius:50%;border:1px solid transparent}
+.dak-loader-ring-outer{border-color:rgba(125,211,252,.25);border-top-color:#7dd3fc;border-right-color:rgba(56,189,248,.68);animation:dakSpin 2.6s linear infinite}
+.dak-loader-ring-middle{inset:10px;border-color:rgba(96,165,250,.22);border-bottom-color:#60a5fa;border-left-color:rgba(45,212,191,.75);animation:dakSpinReverse 2s linear infinite}
+.dak-loader-ring-inner{inset:22px;border:1px dashed rgba(186,230,253,.3);animation:dakSpin 9s linear infinite}
+.dak-loader-core{width:54px;height:54px;display:grid;place-items:center;border-radius:18px;color:#dff6ff;font-size:21px;background:linear-gradient(145deg,rgba(56,189,248,.23),rgba(37,99,235,.28));border:1px solid rgba(125,211,252,.35);box-shadow:0 0 32px rgba(56,189,248,.13),inset 0 1px 0 rgba(255,255,255,.12);animation:dakCorePulse 2s ease-in-out infinite}
+.dak-loader-spark{position:absolute;width:7px;height:7px;border-radius:50%;background:#a5f3fc;box-shadow:0 0 13px rgba(125,211,252,.9)}.dak-loader-spark-a{top:15px;right:21px}.dak-loader-spark-b{bottom:20px;left:11px;width:5px;height:5px;background:#6ee7b7}.dak-loader-spark-c{bottom:14px;right:30px;width:4px;height:4px}
+.dak-loader-copy{text-align:center;position:relative;z-index:1}.dak-loader-eyebrow{font-size:9px;font-weight:900;letter-spacing:.18em;color:#7dd3fc}.dak-loader-title{margin-top:8px;font-size:22px;line-height:1.25;font-weight:850;letter-spacing:-.035em;color:#fff;text-wrap:balance;overflow-wrap:anywhere}.dak-loader-description{margin:8px auto 0;max-width:285px;font-size:12px;line-height:1.65;color:#b8cbe1}
+.dak-loader-progress{height:4px;margin:22px 0 15px;overflow:hidden;border-radius:999px;background:rgba(148,163,184,.17);position:relative}.dak-loader-progress span{display:block;width:38%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#2563eb,#38bdf8,#6ee7b7);box-shadow:0 0 12px rgba(56,189,248,.45);animation:dakProgressSweep 1.55s cubic-bezier(.4,0,.2,1) infinite}
+.dak-loader-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#8fa8c5;font-size:9px;font-weight:750;letter-spacing:.035em}.dak-loader-foot>span:first-child{display:inline-flex;align-items:center;gap:6px}.dak-loader-foot>span:first-child i{color:#6ee7b7}.dak-loader-wait{display:inline-flex;align-items:center;gap:3px}.dak-loader-wait i{width:3px;height:3px;border-radius:50%;background:#7dd3fc;animation:dakDot 1.1s infinite ease-in-out}.dak-loader-wait i:nth-child(2){animation-delay:.15s}.dak-loader-wait i:nth-child(3){animation-delay:.3s}
+html.dark #loader.dak-loader{background:rgba(2,6,23,.72)}html.dark .dak-loader-backdrop{background:radial-gradient(ellipse at 50% 45%,rgba(37,99,235,.18),transparent 48%),linear-gradient(135deg,rgba(2,6,23,.82),rgba(15,23,42,.82))}
+@keyframes dakSpin{to{transform:rotate(360deg)}}@keyframes dakSpinReverse{to{transform:rotate(-360deg)}}@keyframes dakCorePulse{0%,100%{transform:scale(1);box-shadow:0 0 24px rgba(56,189,248,.12),inset 0 1px 0 rgba(255,255,255,.12)}50%{transform:scale(1.045);box-shadow:0 0 34px rgba(56,189,248,.24),inset 0 1px 0 rgba(255,255,255,.18)}}@keyframes dakProgressSweep{0%{transform:translateX(-120%)}100%{transform:translateX(350%)}}@keyframes dakDot{0%,60%,100%{opacity:.25;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}@keyframes dakLivePulse{0%,100%{opacity:1}50%{opacity:.45}}@keyframes dakLoaderFade{from{opacity:0}to{opacity:1}}@keyframes dakLoaderCardIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes dakOrbFloat{from{transform:translate3d(0,0,0)}to{transform:translate3d(18px,-16px,0)}}
+@media(max-width:480px){#loader.dak-loader{padding:16px}.dak-loader-card{padding:23px 20px 19px;border-radius:24px}.dak-loader-visual{width:106px;height:106px;margin:22px auto 16px}.dak-loader-title{font-size:20px}.dak-loader-description{font-size:11px}.dak-loader-foot{font-size:8px}}
+@media(prefers-reduced-motion:reduce){#loader.dak-loader *,#loader.dak-loader *:before,#loader.dak-loader *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+
+/* Consistent micro-interactions and surfaces across the application. */
+button, [role="button"], input, select, textarea{transition-duration:.18s}
+button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(59,130,246,.35);outline-offset:2px}
+.tab-view:not(.hidden) .bg-white.rounded-2xl,.tab-view:not(.hidden) .bg-white.rounded-3xl{box-shadow:var(--dak-shadow);border-color:var(--dak-border)}
+.tab-view:not(.hidden) table thead th{letter-spacing:.045em;font-size:10px;font-weight:850}
+.tab-view:not(.hidden) table tbody tr{transition:background-color .16s ease}
+.tab-view:not(.hidden) table tbody tr:hover{background-color:rgba(219,234,254,.28)}
+html.dark .tab-view:not(.hidden) table tbody tr:hover{background-color:rgba(30,58,95,.28)}
+@media(max-width:767px){.tab-view:not(.hidden) .rounded-2xl,.tab-view:not(.hidden) .rounded-3xl{scroll-margin-top:12px}.tab-view:not(.hidden) button{touch-action:manipulation}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
