@@ -882,3 +882,55 @@ html.dark .tab-view:not(.hidden) table tbody tr:hover{background-color:rgba(30,5
   main > div:first-child > header { gap: 9px !important; }
   .dak-session-toolbar { box-shadow: 0 8px 24px rgba(15,35,65,.12) !important; }
 }
+
+
+/* DaKOPen V80 — true full-viewport loading, polished dialogs and notifications */
+#loader.dak-loader{
+  position:fixed!important;inset:0!important;top:0!important;right:0!important;bottom:0!important;left:0!important;
+  width:100vw!important;max-width:none!important;height:100vh!important;height:100dvh!important;max-height:none!important;
+  margin:0!important;padding:clamp(14px,3vw,28px)!important;box-sizing:border-box!important;
+  display:flex;align-items:center;justify-content:center;overflow:hidden!important;border:0!important;border-radius:0!important;
+  z-index:2147483000!important;transform:none!important;white-space:normal!important;
+  background:rgba(239,245,253,.97)!important;backdrop-filter:blur(18px) saturate(120%)!important;-webkit-backdrop-filter:blur(18px) saturate(120%)!important;
+  overscroll-behavior:contain;touch-action:none;
+}
+#loader.dak-loader[style*="display: none"]{display:none!important}
+#loader.dak-loader .dak-loader-backdrop{position:absolute!important;inset:0!important;z-index:0!important;background:radial-gradient(ellipse at 80% 15%,rgba(56,189,248,.18),transparent 42%),radial-gradient(ellipse at 12% 85%,rgba(45,212,191,.12),transparent 40%),linear-gradient(145deg,#f7faff,#edf4fc)!important;pointer-events:none}
+#loader.dak-loader .dak-loader-card{z-index:1;width:min(100%,410px)!important;max-width:100%!important;max-height:calc(100dvh - 32px)!important;overflow:auto!important;overscroll-behavior:contain;box-sizing:border-box;flex:0 1 auto;}
+html.dark #loader.dak-loader{background:rgba(4,12,25,.985)!important}
+html.dark #loader.dak-loader .dak-loader-backdrop{background:radial-gradient(ellipse at 80% 15%,rgba(37,99,235,.24),transparent 42%),radial-gradient(ellipse at 12% 85%,rgba(20,184,166,.12),transparent 40%),linear-gradient(145deg,#0b1526,#101c2e)!important}
+@media(max-width:767px){
+  #loader.dak-loader{inset:0!important;top:0!important;left:0!important;right:0!important;bottom:0!important;width:100vw!important;height:100vh!important;height:100dvh!important;max-width:none!important;padding:calc(12px + env(safe-area-inset-top)) 14px calc(12px + env(safe-area-inset-bottom))!important;border-radius:0!important;z-index:2147483000!important}
+  #loader.dak-loader .dak-loader-card{width:min(100%,390px)!important;max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px)!important;padding:clamp(18px,5vw,24px)!important;border-radius:24px!important}
+  #loader.dak-loader .dak-loader-visual{width:clamp(82px,25vw,106px)!important;height:clamp(82px,25vw,106px)!important;margin:clamp(14px,4vw,20px) auto!important}
+  #loader.dak-loader .dak-loader-title{font-size:clamp(19px,5.5vw,22px)!important}
+  #loader.dak-loader .dak-loader-description{font-size:12px!important}
+}
+/* SweetAlert2: shared, consistent dialog/toast language */
+.swal2-container{z-index:2147482000!important;padding:16px!important;box-sizing:border-box!important}
+.swal2-container.swal2-backdrop-show{background:rgba(8,20,39,.48)!important;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.swal2-popup{width:min( min(100%, 32rem), calc(100vw - 28px))!important;max-width:calc(100vw - 28px)!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;border:1px solid rgba(219,230,244,.95)!important;border-radius:24px!important;padding:26px!important;box-shadow:0 28px 90px rgba(8,20,39,.24)!important;font-family:'Plus Jakarta Sans',Inter,ui-sans-serif,system-ui,sans-serif!important;color:#1d2b42!important}
+.swal2-title{font-size:clamp(20px,4vw,25px)!important;font-weight:850!important;letter-spacing:-.035em!important;color:#17263d!important}
+.swal2-html-container{font-size:14px!important;line-height:1.65!important;color:#60718a!important}
+.swal2-actions{gap:9px!important;flex-wrap:wrap!important;width:100%!important}
+.swal2-styled{min-height:44px!important;border-radius:12px!important;padding:11px 18px!important;font-weight:800!important;box-shadow:none!important;margin:0!important}
+.swal2-styled.swal2-confirm{background:linear-gradient(110deg,#2563eb,#1478d4)!important}
+.swal2-styled.swal2-cancel{background:#edf2f8!important;color:#334155!important}
+.swal2-input,.swal2-select,.swal2-textarea{max-width:100%!important;width:100%!important;box-sizing:border-box!important;border:1px solid #d7e1ee!important;border-radius:12px!important;box-shadow:none!important}
+.swal2-input:focus,.swal2-select:focus,.swal2-textarea:focus{border-color:#4b8cf0!important;box-shadow:0 0 0 3px rgba(37,99,235,.13)!important}
+.swal2-icon{margin:12px auto 16px!important}
+.swal2-container.swal2-top,.swal2-container.swal2-top-end,.swal2-container.swal2-top-start{padding-top:calc(14px + env(safe-area-inset-top))!important}
+.swal2-container.swal2-bottom,.swal2-container.swal2-bottom-end,.swal2-container.swal2-bottom-start{padding-bottom:calc(14px + env(safe-area-inset-bottom))!important}
+.swal2-toast{width:min(430px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;border-radius:16px!important;padding:13px 15px!important;box-shadow:0 12px 36px rgba(8,20,39,.18)!important}
+html.dark .swal2-popup{background:#101c2e!important;border-color:#314158!important;color:#e5edf8!important}
+html.dark .swal2-title{color:#f1f5fb!important}html.dark .swal2-html-container{color:#b7c6da!important}html.dark .swal2-styled.swal2-cancel{background:#26364c!important;color:#e5edf8!important}
+/* Native toast fallback: anchored above the mobile dock, never bouncing or covering controls */
+.dak-toast-stack{position:fixed;z-index:2147482500;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translateX(-50%);width:min(440px,calc(100vw - 28px));display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.dak-toast{display:flex;align-items:flex-start;gap:11px;padding:13px 15px;border:1px solid rgba(203,213,225,.7);border-radius:16px;background:rgba(255,255,255,.97);color:#24344d;box-shadow:0 14px 40px rgba(15,35,70,.18);font-size:13px;font-weight:650;line-height:1.45;pointer-events:auto;animation:dakToastIn .22s ease-out both;overflow-wrap:anywhere}
+.dak-toast-icon{flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border-radius:9px;background:#eaf2ff;color:#2563eb}
+.dak-toast[data-type="success"] .dak-toast-icon{background:#dcfce7;color:#047857}.dak-toast[data-type="warning"] .dak-toast-icon{background:#fff7ed;color:#c2410c}.dak-toast[data-type="error"] .dak-toast-icon{background:#fee2e2;color:#b91c1c}
+.dak-toast-message{flex:1;min-width:0}.dak-toast-close{border:0!important;background:transparent!important;color:#8290a4!important;padding:2px 4px!important;min-width:24px;min-height:24px;border-radius:7px!important}
+html.dark .dak-toast{background:rgba(16,28,46,.98);border-color:#314158;color:#e5edf8}html.dark .dak-toast-close{color:#a8b8cc!important}
+@keyframes dakToastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:767px){.dak-toast-stack{bottom:calc(88px + env(safe-area-inset-bottom));width:calc(100vw - 24px)}.dak-toast{border-radius:14px;padding:12px}}
+@media(prefers-reduced-motion:reduce){.dak-toast{animation:none!important}}
