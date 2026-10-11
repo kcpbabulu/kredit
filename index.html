@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=77">
+  <link rel="stylesheet" href="style.css?v=78">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -82,22 +82,38 @@
       <div class="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
   </div>
 
-  <!-- ========================================== -->
-  <!-- GLOBAL FLOATING LOADER (ANTI-WRAP FIX)     -->
-  <!-- ========================================== -->
-  <div id="loader" style="display: none;" class="fixed top-24 md:top-8 left-1/2 transform -translate-x-1/2 z-[200] bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl px-6 py-3 rounded-full shadow-[0_20px_50px_-10px_rgba(14,165,233,0.6)] border border-white/50 dark:border-slate-600 flex items-center gap-3 whitespace-nowrap min-w-max">
-      <div class="relative flex h-3 w-3 shrink-0">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-3 w-3 bg-gradient-to-tr from-blue-600 to-emerald-400"></span>
+  <!-- DA KOPEN V78 · PREMIUM GLOBAL LOADING EXPERIENCE -->
+  <div id="loader" class="dak-loader" style="display:none" role="status" aria-live="polite" aria-atomic="true" aria-label="Memproses data">
+    <div class="dak-loader-backdrop" aria-hidden="true">
+      <span class="dak-loader-orb dak-loader-orb-a"></span>
+      <span class="dak-loader-orb dak-loader-orb-b"></span>
+      <span class="dak-loader-grid"></span>
+    </div>
+    <div class="dak-loader-card">
+      <div class="dak-loader-brand-row">
+        <span class="dak-loader-brand-mark"><i class="fas fa-chart-pie"></i></span>
+        <span class="dak-loader-brand">DaKOPen <b>PPU</b></span>
+        <span class="dak-loader-live"><i></i> LIVE</span>
       </div>
-      <span id="loader-text" class="text-[10px] font-black uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-emerald-500 dark:from-blue-400 dark:to-emerald-300">
-          Memproses Data...
-      </span>
+      <div class="dak-loader-visual" aria-hidden="true">
+        <span class="dak-loader-ring dak-loader-ring-outer"></span>
+        <span class="dak-loader-ring dak-loader-ring-middle"></span>
+        <span class="dak-loader-ring dak-loader-ring-inner"></span>
+        <span class="dak-loader-core"><i class="fas fa-chart-line"></i></span>
+        <span class="dak-loader-spark dak-loader-spark-a"></span>
+        <span class="dak-loader-spark dak-loader-spark-b"></span>
+        <span class="dak-loader-spark dak-loader-spark-c"></span>
+      </div>
+      <div class="dak-loader-copy">
+        <div class="dak-loader-eyebrow">CREDIT INTELLIGENCE CENTER</div>
+        <div id="loader-text" class="dak-loader-title">Menyiapkan data...</div>
+        <p class="dak-loader-description">Mohon tunggu, kami sedang menyinkronkan informasi Anda.</p>
+      </div>
+      <div class="dak-loader-progress" aria-hidden="true"><span></span></div>
+      <div class="dak-loader-foot"><span><i class="fas fa-shield-alt"></i> Koneksi aman</span><span class="dak-loader-wait">Memproses <i></i><i></i><i></i></span></div>
+    </div>
   </div>
-  <!-- ========================================== -->
-
-
-  <div class="network-status-wrap" aria-live="polite"><span id="network-status" class="network-status">Online</span><span class="network-status-note">Status koneksi aplikasi · Data kredit memerlukan koneksi server</span></div>
+  <!-- END PREMIUM GLOBAL LOADER -->
 
   <!-- Overlay untuk menutup drawer/sidebar pada perangkat sentuh -->
   <button id="sidebarOverlay" class="sidebar-overlay hidden" type="button" aria-label="Tutup menu" onclick="app.toggleSidebar()"></button>
@@ -1857,7 +1873,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=77"></script>
+  <script src="app.js?v=78"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
