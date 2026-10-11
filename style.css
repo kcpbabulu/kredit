@@ -474,12 +474,36 @@ main>header>*{min-width:0}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tab-view{animation:none!important}*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
 
 
-/* V68: header safe-area so the session profile never covers date/branch filters */
+/* V79: compact two-tier header — profile occupies a deliberate slim top rail */
 @media (min-width: 768px) {
-  main > header { padding-top: 66px !important; padding-right: 20px !important; position: relative; }
-  .dak-session-toolbar { top: 8px !important; right: 12px !important; max-width: min(520px, calc(100vw - 32px)) !important; }
+  main > header {
+    padding-top: 50px !important;
+    padding-right: 20px !important;
+    position: relative;
+    min-height: 112px;
+    align-content: center;
+  }
+  .dak-session-toolbar {
+    position: absolute !important;
+    top: 7px !important;
+    right: 12px !important;
+    max-width: min(460px, calc(100% - 24px)) !important;
+    min-height: 38px;
+    padding: 5px 7px 5px 10px !important;
+    gap: 9px !important;
+    box-shadow: 0 4px 16px rgba(15,23,42,.07) !important;
+  }
+  .dak-session-toolbar button { padding: 7px 11px !important; }
   main > header .no-print { min-width: 0; flex-wrap: wrap; overflow: visible !important; }
   main > header #selBranch, main > header #selDate, main > header #selComp { min-height: 38px; font-size: 12px !important; }
+}
+@media (min-width: 768px) and (max-width: 1100px) {
+  main > header { padding-top: 48px !important; gap: 8px !important; }
+  .dak-session-toolbar { max-width: calc(100% - 16px) !important; }
+}
+@media (min-width: 768px) {
+  main > header .w-full.xl\\:w-auto { min-width: 0; }
+  main > header .no-print { justify-content: flex-end; }
 }
 @media (max-width: 767px) {
   main > header { padding-bottom: 10px !important; }
@@ -838,3 +862,23 @@ button:focus-visible,[role="button"]:focus-visible,input:focus-visible,select:fo
 html.dark .tab-view:not(.hidden) table tbody tr:hover{background-color:rgba(30,58,95,.28)}
 @media(max-width:767px){.tab-view:not(.hidden) .rounded-2xl,.tab-view:not(.hidden) .rounded-3xl{scroll-margin-top:12px}.tab-view:not(.hidden) button{touch-action:manipulation}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+
+
+/* DaKOPen V79 — polished global header rhythm */
+@media (min-width: 768px) {
+  main > div:first-child { padding-top: 10px !important; }
+  main > div:first-child > header {
+    border-radius: 24px !important;
+    border-color: rgba(219,230,244,.9) !important;
+    box-shadow: 0 12px 34px rgba(15,35,65,.055), 0 1px 2px rgba(15,35,65,.035) !important;
+    background: rgba(255,255,255,.88) !important;
+  }
+  main > div:first-child > header > div:first-child { align-self: flex-end; }
+  main > div:first-child > header > div:nth-child(2) { align-self: flex-end; }
+  .dak-command-trigger { min-height: 38px; border-radius: 13px !important; }
+}
+@media (max-width: 767px) {
+  main > div:first-child { padding-top: 6px !important; }
+  main > div:first-child > header { gap: 9px !important; }
+  .dak-session-toolbar { box-shadow: 0 8px 24px rgba(15,35,65,.12) !important; }
+}
