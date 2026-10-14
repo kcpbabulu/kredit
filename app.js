@@ -4064,7 +4064,7 @@ function downloadPDF() {
 
     // A4 landscape memiliki area cetak sekitar 279 mm. Gunakan lebar tetap
     // agar laporan tidak ikut menyusut mengikuti container responsif/HP.
-    const pageWidthPx = 1050;
+    const pageWidthPx = 1120;
     const opt = {
         margin: [8, 8, 10, 8],
         filename: fileName,
@@ -4087,7 +4087,7 @@ function downloadPDF() {
     const staging = document.createElement('div');
     staging.className = 'dak-pdf-staging';
     staging.setAttribute('aria-hidden', 'true');
-    staging.style.cssText = `position:fixed;left:-12000px;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;contain:layout style;`;
+    staging.style.cssText = `position:fixed;left:0;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;opacity:.01;contain:layout style;`;
     const clone = element.cloneNode(true);
     clone.removeAttribute('id');
     clone.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fff!important;color:#0f172a!important;transform:none!important;zoom:1!important;`;
@@ -4098,10 +4098,10 @@ function downloadPDF() {
     const pdfFix = document.createElement('style');
     pdfFix.textContent = `
       .dak-pdf-staging, .dak-pdf-staging * { box-sizing:border-box !important; }
-      .dak-pdf-staging .rpt-font { width:100% !important; min-width:0 !important; max-width:none !important; margin:0 !important; padding:0 !important; transform:none !important; }
+      .dak-pdf-staging .rpt-font { display:block !important; width:${pageWidthPx}px !important; min-width:${pageWidthPx}px !important; max-width:${pageWidthPx}px !important; margin:0 !important; padding:0 !important; transform:none !important; }
       .dak-pdf-staging .page-break { height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important; break-before:auto !important; page-break-before:auto !important; }
-      .dak-pdf-staging table { width:100% !important; max-width:100% !important; }
-      .dak-pdf-staging thead { display:table-header-group !important; }
+      .dak-pdf-staging table { display:table !important; width:100% !important; min-width:100% !important; max-width:100% !important; table-layout:fixed !important; }
+      .dak-pdf-staging .rpt-report-masthead, .dak-pdf-staging .rpt-report-note, .dak-pdf-staging .section-title, .dak-pdf-staging .card-grid { width:100% !important; max-width:100% !important; }\n      .dak-pdf-staging thead { display:table-header-group !important; }
       .dak-pdf-staging tr { break-inside:avoid; page-break-inside:avoid; }
     `;
     staging.appendChild(pdfFix);
@@ -4254,31 +4254,33 @@ function generateFullReportHTML(res) {
 
     let html = `
     <style>
-        .rpt-font{font-family:Arial,Helvetica,sans-serif;color:#17243b;line-height:1.42;width:100%;margin:0 auto;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-        .rpt-font *{box-sizing:border-box}
-        .rpt-font .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
-        .rpt-font table{width:100%;border-collapse:collapse;border-spacing:0;font-size:9px;margin:0 0 18px;border:1px solid #dbe4ef;border-radius:0;overflow:visible;table-layout:auto}
-        .rpt-font th{background:#17365d!important;color:#fff!important;padding:8px 7px;text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:.35px;border:1px solid #274a73;font-size:8px;line-height:1.3}
-        .rpt-font td{border-bottom:1px solid #e6edf5;padding:7px;color:#334155;vertical-align:middle;overflow-wrap:anywhere}
-        .rpt-font tr:last-child td{border-bottom:1px solid #dbe4ef}
-        .rpt-font tr:nth-child(even){background-color:#f6f9fc}
-        .rpt-font .section-title{font-size:10px;font-weight:800;text-transform:uppercase;color:#17365d;padding:9px 12px;margin:16px 0 10px;background:#edf4fb;border-radius:0;border-left:4px solid #2c75bd;display:flex;align-items:center;letter-spacing:.45px}
-        .rpt-font .w-money{text-align:right;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:9px;white-space:nowrap}
-        .rpt-font .page-break{page-break-before:always;break-before:page;height:0;margin:0;padding:0}
-        .rpt-font .avoid-break{page-break-inside:avoid;break-inside:avoid}
-        .rpt-font .avoid-break-card,.rpt-font .summary-card{page-break-inside:avoid;break-inside:avoid}
-        .rpt-font thead{display:table-header-group} .rpt-font tfoot{display:table-footer-group}
-        .rpt-font tr{page-break-inside:avoid;break-inside:avoid}
-        .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
-        .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:17px 20px;margin:0 0 18px;background:#102b4e;color:#fff;border-bottom:4px solid #38bdf8}
-        .rpt-report-brand{font-size:19px;font-weight:800;letter-spacing:-.4px;color:#fff}.rpt-report-brand span{color:#7dd3fc}
-        .rpt-report-kicker{font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:#b9d8f4;font-weight:700;margin-top:4px}
-        .rpt-report-meta{text-align:right;font-size:9px;line-height:1.7;color:#e4eef8}.rpt-report-meta strong{color:#fff}
-        .rpt-report-note{border:1px solid #d8e5f2;background:#f7fbff;padding:9px 12px;margin:0 0 16px;color:#52657b;font-size:9px}
-        .dak-report-error{margin:24px;padding:28px;border:1px solid #fecaca;border-radius:18px;background:#fff7f7;color:#991b1b;display:flex;flex-direction:column;gap:10px;text-align:center}.dak-report-error strong{font-size:18px}.dak-report-error button{align-self:center;background:#1d4ed8;color:white;border-radius:10px;padding:10px 18px;font-weight:700}
-        @page{size:A4 landscape;margin:9mm}
-        @media screen{.rpt-font{background:#fff;padding:0}.rpt-font .page-break{height:12px}}
-        @media print{.rpt-font{width:100%!important}.rpt-font table{overflow:visible}.rpt-font th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+      .rpt-font{font-family:Arial,Helvetica,sans-serif;color:#17243b;line-height:1.42;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff}
+      .rpt-font *{box-sizing:border-box}
+      .rpt-font .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px;width:100%}
+      .rpt-font table{width:100%!important;max-width:100%!important;min-width:0!important;border-collapse:collapse;border-spacing:0;font-size:9px;margin:0 0 18px;border:1px solid #d9e3ef;table-layout:fixed;overflow:visible}
+      .rpt-font th{background:#15345b!important;color:#fff!important;padding:8px 7px;text-align:left;font-weight:800;text-transform:uppercase;letter-spacing:.3px;border:1px solid #294a70;font-size:8px;line-height:1.35;vertical-align:middle;overflow-wrap:anywhere}
+      .rpt-font td{border-bottom:1px solid #e5ebf3;padding:7px;color:#334155;vertical-align:middle;overflow-wrap:anywhere;word-break:normal}
+      .rpt-font tr:last-child td{border-bottom:1px solid #d9e3ef}
+      .rpt-font tr:nth-child(even){background-color:#f5f8fc}
+      .rpt-font .section-title{font-size:11px;font-weight:800;text-transform:uppercase;color:#17365d;padding:10px 13px;margin:18px 0 11px;background:#edf4fb;border-radius:7px;border-left:4px solid #2878c8;display:block;letter-spacing:.4px;line-height:1.35}
+      .rpt-font .w-money{text-align:right;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:9px;white-space:normal;overflow-wrap:anywhere}
+      .rpt-font .page-break{page-break-before:always;break-before:page;height:0!important;min-height:0!important;margin:0!important;padding:0!important}
+      .rpt-font .avoid-break{page-break-inside:avoid;break-inside:avoid}
+      .rpt-font .avoid-break-card,.rpt-font .summary-card{page-break-inside:avoid;break-inside:avoid}
+      .rpt-font thead{display:table-header-group} .rpt-font tfoot{display:table-footer-group}
+      .rpt-font tr{page-break-inside:avoid;break-inside:avoid}
+      .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
+      .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:22px;padding:18px 22px;margin:0 0 16px;background:linear-gradient(115deg,#102746 0%,#173e68 72%,#1d5685 100%);color:#fff;border-bottom:4px solid #38bdf8;border-radius:0 0 10px 10px;width:100%;min-height:94px}
+      .rpt-report-brand{font-size:20px;font-weight:800;letter-spacing:-.45px;color:#fff}.rpt-report-brand span{color:#7dd3fc}
+      .rpt-report-kicker{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#b9d8f4;font-weight:800;margin-top:4px}
+      .rpt-report-meta{text-align:right;font-size:9px;line-height:1.7;color:#e4eef8;min-width:170px}.rpt-report-meta strong{color:#fff}
+      .rpt-report-note{border:1px solid #d8e5f2;border-left:4px solid #38bdf8;background:#f7fbff;padding:10px 13px;margin:0 0 15px;color:#52657b;font-size:9px;border-radius:6px}
+      .dak-report-error{margin:24px;padding:28px;border:1px solid #fecaca;border-radius:18px;background:#fff7f7;color:#991b1b;display:flex;flex-direction:column;gap:10px;text-align:center}.dak-report-error strong{font-size:18px}.dak-report-error button{align-self:center;background:#1d4ed8;color:white;border-radius:10px;padding:10px 18px;font-weight:700}
+      .rpt-font .avoid-break[style*="grid-template-columns"]{width:100%!important}
+      .rpt-font .rpt-report-masthead h1{overflow-wrap:anywhere}
+      @page{size:A4 landscape;margin:8mm}
+      @media screen{.rpt-font{background:#fff;padding:0;width:100%!important}.rpt-font .page-break{height:0!important}}
+      @media print{.rpt-font{width:100%!important;max-width:none!important}.rpt-font table{overflow:visible;width:100%!important}.rpt-font th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     </style>
     <div class="rpt-font">`;
 
