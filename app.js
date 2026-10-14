@@ -4037,49 +4037,89 @@ function renderMaturityPage(res) {
 function downloadPDF() {
     const element = document.getElementById('rpt_content_body');
     if (!element || element.innerHTML.trim() === "") {
-        refreshReport(true); 
+        refreshReport(true);
+        return;
+    }
+    if (typeof html2pdf !== 'function') {
+        showToast('Library PDF belum tersedia. Periksa koneksi internet lalu coba kembali.', 'error');
         return;
     }
 
-    if(document.getElementById('loader')) document.getElementById('loader').style.display = 'flex';
-
-    let rawDate = s.filter.d || ""; 
-    let fileDateSuffix = "Report";
-    if(rawDate.length === 10) {
-        let parts = rawDate.split('-'); 
-        fileDateSuffix = parts[2] + parts[1] + parts[0]; 
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.display = 'flex';
+        loader.setAttribute('aria-busy', 'true');
     }
-    const fileName = `Laporan_Kredit_${fileDateSuffix}.pdf`;
 
+    const rawDate = s.filter.d || "";
+    let fileDateSuffix = "Report";
+    if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
+        const parts = rawDate.split('-');
+        fileDateSuffix = parts[2] + parts[1] + parts[0];
+    }
+    const unitSuffix = String(s.filter.b || 'Konsolidasi').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 40);
+    const fileName = `DaKOPen_Laporan_Kredit_${unitSuffix}_${fileDateSuffix}.pdf`;
     const opt = {
-        margin:       [8, 8, 10, 8],
-        filename:     fileName,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 1.5, useCORS: true, logging: false, letterRendering: true },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' },
-        pagebreak:    { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break-card'] }
+        margin: [9, 9, 12, 9],
+        filename: fileName,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            letterRendering: true,
+            backgroundColor: '#ffffff',
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: Math.max(element.scrollWidth || 1200, 1200)
+        },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break-card', '.summary-card'] }
     };
 
-    setTimeout(() => {
-        html2pdf().set(opt).from(element).save().then(() => {
-            if(document.getElementById('loader')) document.getElementById('loader').style.display = 'none';
+    // Clone the report into a neutral off-screen canvas so the PDF does not inherit
+    // preview transforms, scroll clipping, or responsive scaling from the app shell.
+    const staging = document.createElement('div');
+    staging.className = 'dak-pdf-staging';
+    staging.style.cssText = 'position:fixed;left:0;top:0;width:279mm;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;';
+    const clone = element.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.style.cssText += ';width:100%;max-width:none;overflow:visible;background:#fff;color:#0f172a;transform:none;';
+    staging.appendChild(clone);
+    document.body.appendChild(staging);
+
+    html2pdf().set(opt).from(clone).save()
+        .then(() => { if (typeof showToast === 'function') showToast('PDF berhasil dibuat.', 'success'); })
+        .catch(err => {
+            console.error('PDF export failed:', err);
+            if (typeof showToast === 'function') showToast('PDF gagal dibuat. Coba ulangi atau kurangi data laporan.', 'error');
+        })
+        .finally(() => {
+            staging.remove();
+            if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
         });
-    }, 500);
 }
 
 // ======================================================
 // 3. REFRESH & KIRIM PARAMETER BULAN (PENTING)
 // ======================================================
 function refreshReport(autoDownload = false) {
-    if(document.getElementById('loader')) document.getElementById('loader').style.display = 'flex';
-    
-    // Set matRange ke 6 (6 bulan = 180 hari) untuk cakupan strategis
-    let matRange = 6; 
-    
-    google.script.run.withSuccessHandler(function(res) {
-        renderReportPreview(res);
-        if(autoDownload) downloadPDF(); 
-    }).getFullReportData(s.filter.b, s.filter.d, s.filter.c, matRange);
+    const loader = document.getElementById('loader');
+    if (loader) { loader.style.display = 'flex'; loader.setAttribute('aria-busy', 'true'); }
+    const matRange = Number(document.getElementById('selMatRange')?.value || 6) || 6;
+    google.script.run
+        .withSuccessHandler(function(res) {
+            renderReportPreview(res);
+            if (autoDownload) downloadPDF();
+        })
+        .withFailureHandler(function(err) {
+            console.error('Report data request failed:', err);
+            if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
+            const container = document.getElementById('rpt_content_body');
+            if (container) container.innerHTML = `<div class="dak-report-error"><strong>Laporan belum dapat dimuat</strong><span>${String(err?.message || 'Terjadi kesalahan saat mengambil data.').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</span><button type="button" onclick="app.refreshReport()">Coba lagi</button></div>`;
+            if (typeof showToast === 'function') showToast('Gagal memuat data laporan. Silakan coba kembali.', 'error');
+        })
+        .getFullReportData(s.filter.b, s.filter.d, s.filter.c, matRange);
 }
 
 // ======================================================
@@ -4192,41 +4232,48 @@ function generateFullReportHTML(res) {
 
     let html = `
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
-        .rpt-font { font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; line-height: 1.4; width: 100%; length: 100%; margin:0 auto; }
-        .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 9px; margin-bottom: 20px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
-        th { background: #0f172a !important; color: #ffffff !important; padding: 10px 8px; text-align: left; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #334155; }
-        td { border-bottom: 1px solid #f1f5f9; padding: 8px; color: #334155; vertical-align: middle; }
-        tr:last-child td { border-bottom: none; }
-        tr:nth-child(even) { background-color: #f8fafc; }
-        .section-title { font-size: 11px; font-weight: 800; text-transform: uppercase; color: #0f172a; padding: 8px 12px; margin-bottom: 12px; background: #f1f5f9; border-radius: 6px; border-left: 4px solid #0f172a; display: flex; align-items: center; }
-        .w-money { text-align: right; font-family: 'Courier New', monospace; font-weight: 700; font-size: 10px; }
-        .page-break { page-break-before: always; height: 10px; }
-        .avoid-break { page-break-inside: auto; break-inside: auto; }
-        .avoid-break-card, .rpt-font .summary-card { page-break-inside: avoid; break-inside: avoid; }
-        thead { display: table-header-group; }
-        tfoot { display: table-footer-group; }
-        tr { page-break-inside: avoid; break-inside: avoid; }
-        .section-title { page-break-after: avoid; break-after: avoid; }
-        @page { size: A4 landscape; margin: 8mm; }
+        .rpt-font{font-family:Arial,Helvetica,sans-serif;color:#17243b;line-height:1.42;width:100%;margin:0 auto;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+        .rpt-font *{box-sizing:border-box}
+        .rpt-font .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 0 18px}
+        .rpt-font table{width:100%;border-collapse:collapse;border-spacing:0;font-size:9px;margin:0 0 18px;border:1px solid #dbe4ef;border-radius:0;overflow:visible;table-layout:auto}
+        .rpt-font th{background:#17365d!important;color:#fff!important;padding:8px 7px;text-align:left;font-weight:700;text-transform:uppercase;letter-spacing:.35px;border:1px solid #274a73;font-size:8px;line-height:1.3}
+        .rpt-font td{border-bottom:1px solid #e6edf5;padding:7px;color:#334155;vertical-align:middle;overflow-wrap:anywhere}
+        .rpt-font tr:last-child td{border-bottom:1px solid #dbe4ef}
+        .rpt-font tr:nth-child(even){background-color:#f6f9fc}
+        .rpt-font .section-title{font-size:10px;font-weight:800;text-transform:uppercase;color:#17365d;padding:9px 12px;margin:16px 0 10px;background:#edf4fb;border-radius:0;border-left:4px solid #2c75bd;display:flex;align-items:center;letter-spacing:.45px}
+        .rpt-font .w-money{text-align:right;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:9px;white-space:nowrap}
+        .rpt-font .page-break{page-break-before:always;break-before:page;height:0;margin:0;padding:0}
+        .rpt-font .avoid-break{page-break-inside:avoid;break-inside:avoid}
+        .rpt-font .avoid-break-card,.rpt-font .summary-card{page-break-inside:avoid;break-inside:avoid}
+        .rpt-font thead{display:table-header-group} .rpt-font tfoot{display:table-footer-group}
+        .rpt-font tr{page-break-inside:avoid;break-inside:avoid}
+        .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
+        .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:17px 20px;margin:0 0 18px;background:#102b4e;color:#fff;border-bottom:4px solid #38bdf8}
+        .rpt-report-brand{font-size:19px;font-weight:800;letter-spacing:-.4px;color:#fff}.rpt-report-brand span{color:#7dd3fc}
+        .rpt-report-kicker{font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:#b9d8f4;font-weight:700;margin-top:4px}
+        .rpt-report-meta{text-align:right;font-size:9px;line-height:1.7;color:#e4eef8}.rpt-report-meta strong{color:#fff}
+        .rpt-report-note{border:1px solid #d8e5f2;background:#f7fbff;padding:9px 12px;margin:0 0 16px;color:#52657b;font-size:9px}
+        .dak-report-error{margin:24px;padding:28px;border:1px solid #fecaca;border-radius:18px;background:#fff7f7;color:#991b1b;display:flex;flex-direction:column;gap:10px;text-align:center}.dak-report-error strong{font-size:18px}.dak-report-error button{align-self:center;background:#1d4ed8;color:white;border-radius:10px;padding:10px 18px;font-weight:700}
+        @page{size:A4 landscape;margin:9mm}
+        @media screen{.rpt-font{background:#fff;padding:0}.rpt-font .page-break{height:12px}}
+        @media print{.rpt-font{width:100%!important}.rpt-font table{overflow:visible}.rpt-font th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     </style>
     <div class="rpt-font">`;
 
     const getHeader = (title, sub) => `
-        <div class="avoid-break" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
+        <div class="rpt-report-masthead avoid-break">
             <div>
-                <h1 style="font-size: 22px; font-weight: 800; text-transform: uppercase; color: #0f172a; margin: 0; letter-spacing: -1px;">${title}</h1>
-                <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">${sub}</div>
+                <div class="rpt-report-brand">DaKOPen <span>PPU</span></div>
+                <div class="rpt-report-kicker">Credit Intelligence · Executive Reporting</div>
+                <h1 style="font-size:17px;line-height:1.2;font-weight:800;text-transform:uppercase;color:#fff;margin:12px 0 0;letter-spacing:.15px">${title}</h1>
+                <div style="font-size:9px;font-weight:700;color:#c6d9ed;text-transform:uppercase;letter-spacing:.65px;margin-top:4px">${sub}</div>
             </div>
-            <div style="text-align: right;">
-                <div style="background: #0f172a; color: white; padding: 4px 10px; border-radius: 4px; font-size: 9px; font-weight: 800; margin-bottom: 5px;">${unitName}</div>
-                <div style="font-size: 9px; font-weight: 700; color: #475569;">POSISI: ${dateStr}</div>
-            </div>
+            <div class="rpt-report-meta"><div><strong>UNIT / CAKUPAN</strong></div><div>${unitName}</div><div style="margin-top:5px"><strong>POSISI DATA</strong></div><div>${dateStr}</div><div style="margin-top:5px">Dibuat: ${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</div></div>
         </div>`;
 
     // 1. GLOBAL SUMMARY (EXECUTIVE DASHBOARD STYLE)
 html += getHeader('Executive Risk Report', '01. Ringkasan Kualitas Aset');
+html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Laporan ini menyajikan posisi portofolio, kualitas aset, eksposur sektor, segmentasi risiko, mutasi kredit, dan konsentrasi debitur berdasarkan filter yang dipilih. Gunakan angka dan rincian pada setiap bagian sebagai dasar analisis lanjutan.</div>`;
 
 let rNpl = curr.os > 0 ? (curr.npl / curr.os) * 100 : 0;
 let rKkr = curr.os > 0 ? (curr.kkr / curr.os) * 100 : 0;
