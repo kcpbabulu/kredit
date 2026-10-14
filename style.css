@@ -934,3 +934,15 @@ html.dark .dak-toast{background:rgba(16,28,46,.98);border-color:#314158;color:#e
 @keyframes dakToastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:767px){.dak-toast-stack{bottom:calc(88px + env(safe-area-inset-bottom));width:calc(100vw - 24px)}.dak-toast{border-radius:14px;padding:12px}}
 @media(prefers-reduced-motion:reduce){.dak-toast{animation:none!important}}
+
+
+/* DaKOPen V81 — Premium report workspace and PDF controls */
+.dak-report-workspace{background:linear-gradient(145deg,#eef4fb 0%,#f8fafc 48%,#edf6f7 100%)!important}
+html.dark .dak-report-workspace{background:linear-gradient(145deg,#0b1220 0%,#111827 55%,#0f1e2b 100%)!important}
+.dak-report-scroll{overscroll-behavior:contain;scrollbar-gutter:stable}
+.dak-report-paper{box-shadow:0 24px 70px rgba(15,35,70,.15),0 3px 12px rgba(15,35,70,.06)!important}
+#view-report .glass-card button{min-height:38px;font-size:10px;letter-spacing:.08em}
+#view-report #rpt_placeholder{min-height:150mm;border:1px dashed #cbd5e1;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#fff);margin:4px;padding:24px}
+#view-report #rpt_placeholder p{font-size:11px;color:#64748b;text-align:center;max-width:260px;line-height:1.6}
+@media(max-width:767px){#view-report .dak-report-paper{transform:scale(.72);transform-origin:top left;margin-right:-28%;margin-bottom:-60mm}#view-report .dak-report-scroll{padding-left:8px!important;padding-right:8px!important}#view-report .glass-card{border-radius:16px!important}}
+@media print{#view-report .dak-report-paper{box-shadow:none!important;border:0!important;transform:none!important;min-width:0!important;max-width:none!important;padding:0!important}.dak-report-workspace{background:#fff!important}}
