@@ -4051,16 +4051,22 @@ function downloadPDF() {
         loader.setAttribute('aria-busy', 'true');
     }
 
-    const rawDate = s.filter.d || "";
-    let fileDateSuffix = "Report";
-    if (/^\d{4}-\d{2}-\d{2}$/.test(rawDate)) {
-        const parts = rawDate.split('-');
-        fileDateSuffix = parts[2] + parts[1] + parts[0];
-    }
-    const unitSuffix = String(s.filter.b || 'Konsolidasi').replace(/[^a-zA-Z0-9_-]+/g, '_').slice(0, 40);
-    const fileName = `DaKOPen_Laporan_Kredit_${unitSuffix}_${fileDateSuffix}.pdf`;
+    // Nama file mengikuti unit yang dipilih: "KCP Babulu" -> "KCPBabulu".
+    const rawDate = String(s?.filter?.d || '');
+    const fileDateSuffix = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
+        ? rawDate.split('-').reverse().join('')
+        : new Date().toLocaleDateString('id-ID', {day:'2-digit', month:'2-digit', year:'numeric'}).replace(/\D/g, '');
+    const rawUnit = String(s?.filter?.b || 'ALL').trim();
+    const unitSuffix = (!rawUnit || /^(ALL|SEMUA UNIT|KONSOLIDASI)$/i.test(rawUnit))
+        ? 'ALL'
+        : rawUnit.replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
+    const fileName = `Laporan_Kredit_${unitSuffix}_${fileDateSuffix}.pdf`;
+
+    // A4 landscape memiliki area cetak sekitar 279 mm. Gunakan lebar tetap
+    // agar laporan tidak ikut menyusut mengikuti container responsif/HP.
+    const pageWidthPx = 1050;
     const opt = {
-        margin: [9, 9, 12, 9],
+        margin: [8, 8, 10, 8],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
@@ -4071,33 +4077,49 @@ function downloadPDF() {
             backgroundColor: '#ffffff',
             scrollX: 0,
             scrollY: 0,
-            windowWidth: Math.max(element.scrollWidth || 1200, 1200)
+            windowWidth: pageWidthPx,
+            windowHeight: Math.max(window.innerHeight || 900, 900)
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break-card', '.summary-card'] }
+        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.avoid-break-card', '.summary-card'] }
     };
 
-    // Clone the report into a neutral off-screen canvas so the PDF does not inherit
-    // preview transforms, scroll clipping, or responsive scaling from the app shell.
     const staging = document.createElement('div');
     staging.className = 'dak-pdf-staging';
-    staging.style.cssText = 'position:fixed;left:0;top:0;width:279mm;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;';
+    staging.setAttribute('aria-hidden', 'true');
+    staging.style.cssText = `position:fixed;left:-12000px;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;contain:layout style;`;
     const clone = element.cloneNode(true);
     clone.removeAttribute('id');
-    clone.style.cssText += ';width:100%;max-width:none;overflow:visible;background:#fff;color:#0f172a;transform:none;';
+    clone.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fff!important;color:#0f172a!important;transform:none!important;zoom:1!important;`;
     staging.appendChild(clone);
+
+    // Netralisasi break manual pada versi PDF. Break manual dalam preview
+    // responsif sebelumnya dapat menyisakan halaman kosong saat html2pdf memecah tabel.
+    const pdfFix = document.createElement('style');
+    pdfFix.textContent = `
+      .dak-pdf-staging, .dak-pdf-staging * { box-sizing:border-box !important; }
+      .dak-pdf-staging .rpt-font { width:100% !important; min-width:0 !important; max-width:none !important; margin:0 !important; padding:0 !important; transform:none !important; }
+      .dak-pdf-staging .page-break { height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important; break-before:auto !important; page-break-before:auto !important; }
+      .dak-pdf-staging table { width:100% !important; max-width:100% !important; }
+      .dak-pdf-staging thead { display:table-header-group !important; }
+      .dak-pdf-staging tr { break-inside:avoid; page-break-inside:avoid; }
+    `;
+    staging.appendChild(pdfFix);
     document.body.appendChild(staging);
 
-    html2pdf().set(opt).from(clone).save()
-        .then(() => { if (typeof showToast === 'function') showToast('PDF berhasil dibuat.', 'success'); })
-        .catch(err => {
-            console.error('PDF export failed:', err);
-            if (typeof showToast === 'function') showToast('PDF gagal dibuat. Coba ulangi atau kurangi data laporan.', 'error');
-        })
-        .finally(() => {
-            staging.remove();
-            if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
-        });
+    // Tunggu layout clone dihitung sebelum snapshot canvas dibuat.
+    requestAnimationFrame(() => {
+        html2pdf().set(opt).from(clone).save()
+            .then(() => { if (typeof showToast === 'function') showToast(`PDF berhasil dibuat: ${fileName}`, 'success'); })
+            .catch(err => {
+                console.error('PDF export failed:', err);
+                if (typeof showToast === 'function') showToast('PDF gagal dibuat. Periksa koneksi dan coba kembali.', 'error');
+            })
+            .finally(() => {
+                staging.remove();
+                if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
+            });
+    });
 }
 
 // ======================================================
