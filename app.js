@@ -4064,13 +4064,14 @@ function downloadPDF() {
 
     // A4 landscape memiliki area cetak sekitar 279 mm. Gunakan lebar tetap
     // agar laporan tidak ikut menyusut mengikuti container responsif/HP.
-    const pageWidthPx = 1120;
+    const pageWidthPx = 1050;
     const opt = {
-        margin: [8, 8, 10, 8],
+        margin: [5, 5, 8, 5],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
-            scale: 2,
+            scale: 1.6,
+            width: pageWidthPx,
             useCORS: true,
             logging: false,
             letterRendering: true,
@@ -4078,7 +4079,7 @@ function downloadPDF() {
             scrollX: 0,
             scrollY: 0,
             windowWidth: pageWidthPx,
-            windowHeight: Math.max(window.innerHeight || 900, 900)
+            windowHeight: Math.max(window.innerHeight || 900, 1200)
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
         pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.avoid-break-card', '.summary-card'] }
@@ -4087,11 +4088,23 @@ function downloadPDF() {
     const staging = document.createElement('div');
     staging.className = 'dak-pdf-staging';
     staging.setAttribute('aria-hidden', 'true');
-    staging.style.cssText = `position:fixed;left:0;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;opacity:.01;contain:layout style;`;
+    staging.style.cssText = `position:fixed;left:-100000px;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;opacity:1;contain:none;`;
     const clone = element.cloneNode(true);
     clone.removeAttribute('id');
-    clone.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fff!important;color:#0f172a!important;transform:none!important;zoom:1!important;`;
+    clone.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fff!important;color:#0f172a!important;transform:none!important;zoom:1!important;position:relative!important;left:0!important;`;
     staging.appendChild(clone);
+    // html2pdf membuat klon internal di luar staging. Karena itu, aturan penting
+    // dipasang inline pada root laporan agar lebar tidak kembali ke ukuran layar HP.
+    const pdfRoot = clone.querySelector('.rpt-font');
+    if (pdfRoot) {
+        pdfRoot.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;margin:0!important;padding:0!important;height:auto!important;max-height:none!important;overflow:visible!important;transform:none!important;zoom:1!important;background:#fff!important;color:#17243b!important;`;
+        pdfRoot.querySelectorAll('table').forEach(table => {
+            table.style.cssText += `;display:table!important;width:100%!important;min-width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;`;
+        });
+        pdfRoot.querySelectorAll('.section-title,.rpt-report-masthead,.rpt-report-note,.card-grid').forEach(node => {
+            node.style.maxWidth = '100%';
+        });
+    }
 
     // Netralisasi break manual pada versi PDF. Break manual dalam preview
     // responsif sebelumnya dapat menyisakan halaman kosong saat html2pdf memecah tabel.
@@ -4099,6 +4112,9 @@ function downloadPDF() {
     pdfFix.textContent = `
       .dak-pdf-staging, .dak-pdf-staging * { box-sizing:border-box !important; }
       .dak-pdf-staging .rpt-font { display:block !important; width:${pageWidthPx}px !important; min-width:${pageWidthPx}px !important; max-width:${pageWidthPx}px !important; margin:0 !important; padding:0 !important; transform:none !important; }
+      .dak-pdf-staging .avoid-break:has(> table) { break-inside:auto !important; page-break-inside:auto !important; }
+      .dak-pdf-staging .avoid-break:has(> .section-title + table) { break-inside:auto !important; page-break-inside:auto !important; }
+      .dak-pdf-staging .rpt-font td, .dak-pdf-staging .rpt-font th { overflow-wrap:anywhere !important; word-break:normal !important; }
       .dak-pdf-staging .page-break { height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important; break-before:auto !important; page-break-before:auto !important; }
       .dak-pdf-staging table { display:table !important; width:100% !important; min-width:100% !important; max-width:100% !important; table-layout:fixed !important; }
       .dak-pdf-staging .rpt-report-masthead, .dak-pdf-staging .rpt-report-note, .dak-pdf-staging .section-title, .dak-pdf-staging .card-grid { width:100% !important; max-width:100% !important; }\n      .dak-pdf-staging thead { display:table-header-group !important; }
@@ -4315,7 +4331,7 @@ html += `
 
     // 2. SEKTOR EKONOMI
     html += `
-    <div class="avoid-break" style="margin-top: 10px;">
+    <div class="report-section-flow" style="margin-top: 10px;">
         <div class="section-title">02. Analisa Eksposur Per Sektor Ekonomi</div>
         <table>
             <thead>
