@@ -38,7 +38,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=80">
+  <link rel="stylesheet" href="style.css?v=81">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1212,13 +1212,13 @@
           </div>
       </div>
 
-      <!-- 12. REPORT PREVIEW (COMPACT) -->
-      <div id="view-report" class="tab-view hidden fade-in h-full flex flex-col relative bg-slate-200/50 overflow-hidden">
+      <!-- 12. REPORT PREVIEW (PREMIUM PDF WORKSPACE V81) -->
+      <div id="view-report" class="tab-view hidden fade-in h-full flex flex-col relative bg-slate-100 dark:bg-slate-950 overflow-hidden dak-report-workspace">
           <div class="absolute top-3 left-0 w-full z-30 pointer-events-none flex justify-center px-4">
-              <div class="glass-card px-4 py-2 pointer-events-auto flex items-center gap-3 md:gap-4 rounded-full shadow-md border border-blue-400/50 bg-white/90 w-full max-w-sm justify-between">
+              <div class="glass-card px-4 py-2.5 pointer-events-auto flex items-center gap-3 md:gap-4 rounded-2xl shadow-lg border border-slate-200 bg-white/95 dark:bg-slate-900/95 dark:border-slate-700 w-full max-w-md justify-between">
                   <div class="text-[8px] font-black text-slate-500 uppercase tracking-widest flex flex-col items-center">
-                      <span class="text-blue-600">Preview</span>
-                      <span class="text-[7px] text-slate-400 font-bold">Kertas A4</span>
+                      <span class="text-blue-600">PRATINJAU LAPORAN</span>
+                      <span class="text-[7px] text-slate-400 font-bold">PDF · A4 LANDSCAPE</span>
                   </div>
                   <div class="h-5 w-px bg-slate-200"></div>
                   <button onclick="app.downloadPDF()" class="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white text-[8px] md:text-[9px] font-black tracking-widest py-1.5 px-3 md:px-4 rounded-full shadow-sm active:scale-95 transition-transform shrink-0">
@@ -1226,8 +1226,8 @@
                   </button>
               </div>
           </div>
-          <div class="flex-1 overflow-y-auto overflow-x-hidden p-2 md:p-6 pt-20 pb-20 flex justify-center custom-scrollbar">
-              <div id="rpt_content_area" class="bg-white text-slate-800 shadow-md w-full max-w-[210mm] min-h-[297mm] p-[5mm] relative transition-all duration-500 ease-out origin-top rounded-sm ring-1 ring-slate-200 transform scale-[0.85] md:scale-100 md:mt-0 -mt-[5%]">
+          <div class="flex-1 overflow-y-auto overflow-x-auto p-3 md:p-8 pt-20 md:pt-24 pb-24 flex justify-center items-start custom-scrollbar dak-report-scroll">
+              <div id="rpt_content_area" class="dak-report-paper bg-white text-slate-800 shadow-xl w-full max-w-[297mm] min-w-[280mm] min-h-[210mm] p-[8mm] relative origin-top rounded-md ring-1 ring-slate-200">
                   <div id="rpt_placeholder" class="flex flex-col items-center justify-center h-full text-slate-300 py-32">
                       <i class="fas fa-print text-4xl mb-3 text-blue-500/20"></i>
                       <p class="text-[9px] font-black tracking-widest uppercase">Pilih filter di header...</p>
@@ -1873,7 +1873,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=80"></script>
+  <script src="app.js?v=81"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
