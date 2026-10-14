@@ -4064,13 +4064,13 @@ function downloadPDF() {
 
     // A4 landscape memiliki area cetak sekitar 279 mm. Gunakan lebar tetap
     // agar laporan tidak ikut menyusut mengikuti container responsif/HP.
-    const pageWidthPx = 1050;
+    const pageWidthPx = 1080; // A4 landscape content width with 5 mm side margins at 96 dpi
     const opt = {
-        margin: [5, 5, 8, 5],
+        margin: [7, 7, 10, 7],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
-            scale: 1.6,
+            scale: 1.7,
             width: pageWidthPx,
             useCORS: true,
             logging: false,
@@ -4078,11 +4078,11 @@ function downloadPDF() {
             backgroundColor: '#ffffff',
             scrollX: 0,
             scrollY: 0,
-            windowWidth: pageWidthPx,
+            windowWidth: 1280,
             windowHeight: Math.max(window.innerHeight || 900, 1200)
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-        pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', '.avoid-break', '.avoid-break-card', '.summary-card'] }
+        pagebreak: { mode: ['css'], avoid: ['tr', '.avoid-break-card', '.summary-card'] }
     };
 
     const staging = document.createElement('div');
@@ -4091,6 +4091,7 @@ function downloadPDF() {
     staging.style.cssText = `position:fixed;left:-100000px;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;opacity:1;contain:none;`;
     const clone = element.cloneNode(true);
     clone.removeAttribute('id');
+    clone.querySelectorAll('.dak-report-tools, .no-pdf').forEach(node => node.remove());
     clone.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fff!important;color:#0f172a!important;transform:none!important;zoom:1!important;position:relative!important;left:0!important;`;
     staging.appendChild(clone);
     // html2pdf membuat klon internal di luar staging. Karena itu, aturan penting
@@ -4202,7 +4203,7 @@ function generateFullReportHTML(res) {
     let matOs = matData.stats.os || 0; 
     let dateStr = res.dates.current;
     if(res.dates.prev) dateStr += ` vs ${res.dates.prev}`;
-    let unitName = res.meta.branch === 'ALL' ? 'KONSOLIDASI SELURUH UNIT' : res.meta.branch;
+    let unitName = res.meta.branch === 'ALL' ? 'KONSOLIDASI SELURUH UNIT' : String(res.meta.branch || 'UNIT TIDAK DIKETAHUI').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
     // --- PERBAIKAN DI SINI: FORMATTER PRESISI TINGGI ---
     // Menggunakan maximumFractionDigits: 20 agar semua desimal dari database muncul (tidak dibulatkan)
@@ -4270,21 +4271,29 @@ function generateFullReportHTML(res) {
 
     let html = `
     <style>
-      .rpt-font{font-family:Arial,Helvetica,sans-serif;color:#17243b;line-height:1.42;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;font-size:10px;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff}
+      .rpt-font{font-family:Inter,Arial,Helvetica,sans-serif;color:#17243b;line-height:1.48;width:100%!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;font-size:10.5px;-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#fff}
       .rpt-font *{box-sizing:border-box}
       .rpt-font .card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 18px;width:100%}
-      .rpt-font table{width:100%!important;max-width:100%!important;min-width:0!important;border-collapse:collapse;border-spacing:0;font-size:9px;margin:0 0 18px;border:1px solid #d9e3ef;table-layout:fixed;overflow:visible}
-      .rpt-font th{background:#15345b!important;color:#fff!important;padding:8px 7px;text-align:left;font-weight:800;text-transform:uppercase;letter-spacing:.3px;border:1px solid #294a70;font-size:8px;line-height:1.35;vertical-align:middle;overflow-wrap:anywhere}
-      .rpt-font td{border-bottom:1px solid #e5ebf3;padding:7px;color:#334155;vertical-align:middle;overflow-wrap:anywhere;word-break:normal}
+      .rpt-font table{width:100%!important;max-width:100%!important;min-width:0!important;border-collapse:collapse;border-spacing:0;font-size:9.5px;margin:0 0 15px;border:1px solid #d9e3ef;table-layout:fixed;overflow:visible}
+      .rpt-font th{background:#15345b!important;color:#fff!important;padding:9px 8px;text-align:left;font-weight:800;text-transform:uppercase;letter-spacing:.35px;border:1px solid #294a70;font-size:8.5px;line-height:1.4;vertical-align:middle;overflow-wrap:anywhere}
+      .rpt-font td{border-bottom:1px solid #e5ebf3;padding:8px;color:#334155;vertical-align:middle;overflow-wrap:anywhere;word-break:normal}
       .rpt-font tr:last-child td{border-bottom:1px solid #d9e3ef}
       .rpt-font tr:nth-child(even){background-color:#f5f8fc}
       .rpt-font .section-title{font-size:11px;font-weight:800;text-transform:uppercase;color:#17365d;padding:10px 13px;margin:18px 0 11px;background:#edf4fb;border-radius:7px;border-left:4px solid #2878c8;display:block;letter-spacing:.4px;line-height:1.35}
       .rpt-font .w-money{text-align:right;font-family:Arial,Helvetica,sans-serif;font-weight:700;font-size:9px;white-space:normal;overflow-wrap:anywhere}
-      .rpt-font .page-break{page-break-before:always;break-before:page;height:0!important;min-height:0!important;margin:0!important;padding:0!important}
-      .rpt-font .avoid-break{page-break-inside:avoid;break-inside:avoid}
+      .rpt-font .page-break{page-break-before:auto!important;break-before:auto!important;display:block!important;height:1px!important;min-height:1px!important;margin:18px 0!important;padding:0!important;border-top:1px solid #dbe5f1!important}
+      .rpt-font .avoid-break{page-break-inside:auto;break-inside:auto}
       .rpt-font .avoid-break-card,.rpt-font .summary-card{page-break-inside:avoid;break-inside:avoid}
       .rpt-font thead{display:table-header-group} .rpt-font tfoot{display:table-footer-group}
       .rpt-font tr{page-break-inside:avoid;break-inside:avoid}
+      .rpt-font .dak-report-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:0 0 16px;border:1px solid #dbe5f1;border-radius:12px;background:#f8fbff}
+      .rpt-font .dak-report-tools input{min-width:180px;flex:1;border:1px solid #cbd8e8;border-radius:9px;padding:8px 10px;background:#fff;color:#17243b;font-size:10px;outline:none}
+      .rpt-font .dak-report-tools button,.rpt-font .dak-report-tools a{border:1px solid #d4e1f0;border-radius:9px;background:#fff;color:#173e68;padding:8px 10px;font-weight:800;font-size:9px;text-decoration:none;cursor:pointer}
+      .rpt-font .dak-report-tools button:hover,.rpt-font .dak-report-tools a:hover{background:#eaf3ff;border-color:#93c5fd}
+      .rpt-font .rpt-report-masthead{border-radius:14px;border:1px solid #1f4772;border-bottom:4px solid #38bdf8;box-shadow:0 6px 18px rgba(16,39,70,.08)}
+      .rpt-font .section-title{border-radius:9px;border-left-width:5px;box-shadow:0 2px 7px rgba(23,54,93,.05)}
+      .rpt-font .rpt-report-note{border-radius:10px;line-height:1.6}
+      .rpt-font .report-subsection{margin:14px 0 8px;padding:7px 10px;background:#f4f8fc;border-left:3px solid #93b9e2;color:#294a70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
       .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
       .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:22px;padding:18px 22px;margin:0 0 16px;background:linear-gradient(115deg,#102746 0%,#173e68 72%,#1d5685 100%);color:#fff;border-bottom:4px solid #38bdf8;border-radius:0 0 10px 10px;width:100%;min-height:94px}
       .rpt-report-brand{font-size:20px;font-weight:800;letter-spacing:-.45px;color:#fff}.rpt-report-brand span{color:#7dd3fc}
@@ -4295,7 +4304,7 @@ function generateFullReportHTML(res) {
       .rpt-font .avoid-break[style*="grid-template-columns"]{width:100%!important}
       .rpt-font .rpt-report-masthead h1{overflow-wrap:anywhere}
       @page{size:A4 landscape;margin:8mm}
-      @media screen{.rpt-font{background:#fff;padding:0;width:100%!important}.rpt-font .page-break{height:0!important}}
+      @media screen{.rpt-font{background:#fff;padding:0;width:100%!important}.rpt-font .page-break{height:1px!important;margin:12px 0!important}}
       @media print{.rpt-font{width:100%!important;max-width:none!important}.rpt-font table{overflow:visible;width:100%!important}.rpt-font th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     </style>
     <div class="rpt-font">`;
@@ -4315,6 +4324,8 @@ function generateFullReportHTML(res) {
 html += getHeader('Executive Risk Report', '01. Ringkasan Kualitas Aset');
 html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Laporan ini menyajikan posisi portofolio, kualitas aset, eksposur sektor, segmentasi risiko, mutasi kredit, dan konsentrasi debitur berdasarkan filter yang dipilih. Gunakan angka dan rincian pada setiap bagian sebagai dasar analisis lanjutan.</div>`;
 
+html += `<div class="dak-report-tools no-pdf" role="region" aria-label="Navigasi laporan"><strong style="font-size:10px;color:#173e68;white-space:nowrap">Navigasi laporan</strong><input type="search" aria-label="Cari isi laporan" placeholder="Cari sektor, debitur, atau kata kunci…" oninput="(function(q){document.querySelectorAll('#rpt_content_body .rpt-font tbody tr').forEach(function(r){r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none';});})(this.value.trim().toLowerCase())"><a href="#rpt-sec-sektor">Sektor</a><a href="#rpt-sec-produktif">Produktif</a><a href="#rpt-sec-kur">KUR</a><a href="#rpt-sec-konsumtif">Konsumtif</a><a href="#rpt-sec-mutasi">Mutasi</a><a href="#rpt-sec-top">Top Obligor</a><a href="#rpt-sec-maturity">Jatuh Tempo</a><button type="button" onclick="document.querySelectorAll('#rpt_content_body tbody tr').forEach(function(r){r.style.display='';});document.querySelector('#rpt_content_body .dak-report-tools input').value=''">Reset</button></div>`;
+
 let rNpl = curr.os > 0 ? (curr.npl / curr.os) * 100 : 0;
 let rKkr = curr.os > 0 ? (curr.kkr / curr.os) * 100 : 0;
 
@@ -4332,7 +4343,7 @@ html += `
     // 2. SEKTOR EKONOMI
     html += `
     <div class="report-section-flow" style="margin-top: 10px;">
-        <div class="section-title">02. Analisa Eksposur Per Sektor Ekonomi</div>
+        <div class="section-title" id="rpt-sec-sektor">02. Analisa Eksposur Per Sektor Ekonomi</div>
         <table>
             <thead>
                 <tr>
@@ -4443,8 +4454,11 @@ html += `
         return page;
     };
 
+    html += `<span id="rpt-sec-produktif"></span>`;
     html += renderSegPage('Kredit Produktif', 'prod_all', 'emerald', 3);
+    html += `<span id="rpt-sec-kur"></span>`;
     html += renderSegPage('Kredit KUR', 'kur', 'indigo', 4);
+    html += `<span id="rpt-sec-konsumtif"></span>`;
     html += renderSegPage('Kredit Konsumtif', 'kons', 'blue', 5);
 
 
@@ -4458,6 +4472,7 @@ html += `
         let netLabel = isGrowth ? 'EXPANSION (GROWTH)' : 'CONTRACTION';
 
         html += `<div class="page-break"></div>`; 
+        html += `<span id="rpt-sec-mutasi"></span>`;
         html += getHeader('Portfolio Movement Dynamics', '06. Analisa Arus Dana (Cair vs Lunas)');
         
         // --- 1. KPI TILES (COMPACT FLOW LAYOUT) ---
@@ -4605,6 +4620,7 @@ if(topObligors.length > 0) {
     const subHeaderBg = '#fffbeb'; // Light Amber
     
     html += `<div class="page-break"></div>`;
+    html += `<span id="rpt-sec-top"></span>`;
     html += getHeader('Concentration Risk Analysis', '07. Top 20 Obligor (Pareto)');
     
     // --- 1. KPI TILES (COMPACT PREMIUM STYLE) ---
@@ -4742,6 +4758,7 @@ if(topObligors.length > 0) {
 // 08. MATURITY STRATEGIC WATCHLIST (RETENTION ANALYSIS)
 // ======================================================
 html += `<div class="page-break"></div>`; 
+html += `<span id="rpt-sec-maturity"></span>`;
 html += getHeader('Retention & Maturity Strategy', '08. Monitoring Jatuh Tempo');
 
 // Informational Alert Box - Executive Design
@@ -4827,7 +4844,7 @@ if(matList && matList.length > 0) {
 // FOOTER (AUDIT READY)
 // ======================================================
 html += `
-<div class="avoid-break" style="margin-top: 60px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+<div class="avoid-break" style="margin-top: 24px; padding-top: 14px; border-top: 1px solid #e2e8f0;">
     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
         <div style="font-size: 8px; color: #94a3b8; font-style: italic;">
             Laporan ini dihasilkan secara otomatis oleh DAKOPEN RISK INTELLIGENCE V60.<br>
@@ -4835,11 +4852,11 @@ html += `
         </div>
         <div style="display: flex; gap: 50px; text-align: center; padding-right: 20px;">
             <div style="width: 120px;">
-                <div style="font-size: 9px; font-weight: 700; margin-bottom: 50px;">Admin Kredit,</div>
+                <div style="font-size: 9px; font-weight: 700; margin-bottom: 28px;">Admin Kredit,</div>
                 <div style="border-top: 1.5px solid #0f172a; font-size: 9px; font-weight: 800; padding-top: 5px;">UNIT KREDIT</div>
             </div>
             <div style="width: 120px;">
-                <div style="font-size: 9px; font-weight: 700; margin-bottom: 50px;">Pimpinan Unit,</div>
+                <div style="font-size: 9px; font-weight: 700; margin-bottom: 28px;">Pimpinan Unit,</div>
                 <div style="border-top: 1.5px solid #0f172a; font-size: 9px; font-weight: 800; padding-top: 5px;">PIMPINAN</div>
             </div>
         </div>
@@ -6085,7 +6102,7 @@ function generateResumeFinal() {
                 </table>
 
                 <div style="margin: 20px 0; background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 15px;">
-                    <div style="font-weight: bold; font-size: 9pt; margin-bottom: 50px; color: #475569;">ARAHAN PEMIMPIN CABANG:</div>
+                    <div style="font-weight: bold; font-size: 9pt; margin-bottom: 28px; color: #475569;">ARAHAN PEMIMPIN CABANG:</div>
                 </div>
 
                 <div style="text-align: center; margin-top: 20px;">
