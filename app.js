@@ -4083,7 +4083,7 @@ function downloadPDF() {
         pdf.setFont('helvetica','normal'); pdf.setFontSize(7);
         pdf.text('Posisi data: ' + (rawDate ? rawDate.split('-').reverse().join('/') : '-'), pageW - margin.right, 12.7, { align:'right' });
         pdf.setDrawColor(218, 226, 237); pdf.setLineWidth(.25); pdf.line(margin.left, pageH - 10, pageW - margin.right, pageH - 10);
-        pdf.setTextColor(muted); pdf.setFontSize(7);
+        pdf.setTextColor(...muted); pdf.setFontSize(7);
         pdf.text('Dokumen internal • Gunakan sesuai kewenangan dan ketentuan kerahasiaan data', margin.left, pageH - 5.8);
         pdf.text(`Halaman ${pageNo} dari ${totalPages}`, pageW - margin.right, pageH - 5.8, { align:'right' });
     }
