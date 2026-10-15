@@ -4603,22 +4603,39 @@ function generateFullReportHTML(res) {
 
       .rpt-font .report-subsection{margin:14px 0 8px;padding:7px 10px;background:#f4f8fc;border-left:3px solid #93b9e2;color:#294a70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
       .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
-      .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:22px;padding:18px 22px;margin:0 0 16px;background:linear-gradient(115deg,#102746 0%,#173e68 72%,#1d5685 100%);color:#fff;border-bottom:4px solid #38bdf8;border-radius:0 0 10px 10px;width:100%;min-height:94px}
-      .rpt-report-brand{font-size:20px;font-weight:800;letter-spacing:-.45px;color:#fff}.rpt-report-brand span{color:#7dd3fc}
+      .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:12px 16px;margin:0 0 10px;background:linear-gradient(115deg,#102746 0%,#173e68 72%,#1d5685 100%);color:#fff;border-bottom:3px solid #38bdf8;border-radius:0 0 10px 10px;width:100%;min-height:0;box-sizing:border-box}
+      .rpt-report-brand{font-size:16px;font-weight:800;letter-spacing:-.35px;line-height:1.1;color:#fff}.rpt-report-brand span{color:#7dd3fc}
       .rpt-report-kicker{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#b9d8f4;font-weight:800;margin-top:4px}
-      .rpt-report-meta{text-align:right;font-size:9px;line-height:1.7;color:#e4eef8;min-width:170px}.rpt-report-meta strong{color:#fff}
+      .rpt-report-meta{text-align:right;font-size:8px;line-height:1.45;color:#e4eef8;min-width:150px;max-width:42%;overflow-wrap:anywhere}.rpt-report-meta strong{color:#fff}
       .rpt-report-note{border:1px solid #d8e5f2;border-left:4px solid #38bdf8;background:#f7fbff;padding:10px 13px;margin:0 0 15px;color:#52657b;font-size:9px;border-radius:6px}
       .dak-report-error{margin:24px;padding:28px;border:1px solid #fecaca;border-radius:18px;background:#fff7f7;color:#991b1b;display:flex;flex-direction:column;gap:10px;text-align:center}.dak-report-error strong{font-size:18px}.dak-report-error button{align-self:center;background:#1d4ed8;color:white;border-radius:10px;padding:10px 18px;font-weight:700}
       .rpt-font .avoid-break[style*="grid-template-columns"]{width:100%!important}
-      .rpt-font .rpt-report-masthead h1{overflow-wrap:anywhere}
+      .rpt-font .rpt-report-masthead h1{overflow-wrap:anywhere;font-size:14px!important;line-height:1.15!important;margin:7px 0 0!important}.rpt-report-masthead-compact{padding:9px 13px!important;margin-bottom:8px!important;border-bottom-width:2px!important;border-radius:9px!important}.rpt-report-masthead-compact .rpt-report-brand{font-size:13px!important}.rpt-report-masthead-compact .rpt-report-kicker{font-size:6.5px!important;letter-spacing:1px!important;margin-top:2px!important}.rpt-report-masthead-compact h1{font-size:12px!important;margin-top:4px!important;letter-spacing:.2px!important}.rpt-report-masthead-compact .rpt-report-meta{font-size:7px!important;line-height:1.3!important;min-width:130px!important}.rpt-report-masthead-compact .rpt-report-meta div{margin-top:2px!important}
       @page{size:A4 portrait;margin:9mm}
       @media screen{.rpt-font{background:#fff;padding:0;width:100%!important}.rpt-font .page-break{height:1px!important;margin:12px 0!important}}
       @media print{.rpt-font{width:100%!important;max-width:none!important}.rpt-font table{overflow:visible;width:100%!important}.rpt-font th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+      /* V96: compact report rhythm, stable A4 tables, no oversized repeated mastheads */
+      .rpt-font .page-break{margin:5px 0!important;border-top:1px solid #e5edf5!important}
+      .rpt-font .rpt-report-note{padding:7px 10px!important;margin-bottom:9px!important;font-size:8px!important;line-height:1.45!important}
+      .rpt-font .section-title{padding:7px 10px!important;margin:10px 0 7px!important;font-size:9px!important;line-height:1.25!important;box-shadow:none!important}
+      .rpt-font .report-subsection{margin:8px 0 5px!important;padding:5px 8px!important;font-size:8px!important;line-height:1.25!important}
+      .rpt-font .segment-kpi-grid{gap:6px!important;margin:7px 0 10px!important}
+      .rpt-font .segment-kpi-grid .card-big{padding:8px!important;border-radius:9px!important;box-shadow:0 1px 4px rgba(15,35,70,.05)!important}
+      .rpt-font table{table-layout:fixed!important;border-collapse:collapse!important;width:100%!important;max-width:100%!important}
+      .rpt-font th{padding:5px 4px!important;font-size:7px!important;line-height:1.2!important;letter-spacing:.15px!important;white-space:normal!important;overflow-wrap:anywhere!important}
+      .rpt-font td{padding:5px 4px!important;font-size:7px!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+      .rpt-font td.w-money{font-size:7px!important;line-height:1.2!important;font-variant-numeric:tabular-nums}
+      .rpt-font .avoid-break[style*='margin-bottom: 25px']{margin-bottom:10px!important}
+      .rpt-font .avoid-break[style*='margin-bottom: 20px']{margin-bottom:10px!important}
+      .rpt-font .avoid-break[style*='margin-bottom: 15px']{margin-bottom:8px!important}
+      .rpt-font .rpt-report-masthead{break-after:avoid!important;page-break-after:avoid!important}
+      .rpt-font .segment-heading{break-after:avoid!important;page-break-after:avoid!important}
+      @media(max-width:640px){.rpt-report-masthead{gap:8px!important;padding:10px!important}.rpt-report-meta{min-width:112px!important;font-size:7px!important}.rpt-report-brand{font-size:15px!important}.rpt-font .rpt-report-masthead h1{font-size:13px!important}.rpt-font .segment-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
     </style>
     <div class="rpt-font">`;
 
     const getHeader = (title, sub) => `
-        <div class="rpt-report-masthead avoid-break">
+        <div class="rpt-report-masthead ${title === 'Segmental Analysis' ? 'rpt-report-masthead-compact' : ''} avoid-break">
             <div>
                 <div class="rpt-report-brand">DaKOPen <span>PPU</span></div>
                 <div class="rpt-report-kicker">Credit Intelligence · Executive Reporting</div>
