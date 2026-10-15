@@ -4035,6 +4035,40 @@ function renderMaturityPage(res) {
 // 2. DOWNLOAD PDF (WYSIWYG)
 // ======================================================
 function downloadPDF() {
+    const report = document.querySelector('#rpt_content_body .rpt-font');
+    if (!report || !report.innerText.trim() || /DATA TIDAK TERSEDIA|Laporan belum dapat dimuat/i.test(report.innerText.slice(0,180))) {
+        if (typeof showToast === 'function') showToast('Pratinjau laporan belum tersedia. Muat data terlebih dahulu.', 'warning');
+        refreshReport(false);
+        return;
+    }
+    // Use the exact report DOM shown in the workspace. The browser's print engine paginates
+    // this DOM with the report's own typography, colors, tables and section order; no canvas
+    // screenshot or separate visual template is generated.
+    const rawDate = String(s?.filter?.d || '');
+    const suffix = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
+        ? rawDate.split('-').reverse().join('')
+        : new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\D/g,'');
+    const rawUnit = String(s?.filter?.b || 'ALL').trim();
+    const unit = (!rawUnit || /^(ALL|SEMUA UNIT|KONSOLIDASI)$/i.test(rawUnit)) ? 'ALL' : rawUnit.replace(/[^a-zA-Z0-9]/g,'').slice(0,40);
+    const originalTitle = document.title;
+    const filename = `Laporan_Kredit_${unit}_${suffix}`;
+    document.title = filename;
+    document.documentElement.classList.add('dak-print-report-active');
+    const cleanup = () => {
+        document.documentElement.classList.remove('dak-print-report-active');
+        document.title = originalTitle;
+        window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup, { once:true });
+    if (typeof showToast === 'function') showToast('Pilih “Simpan sebagai PDF” pada dialog cetak browser. Tata letak mengikuti pratinjau laporan.', 'info');
+    // Let the browser finish applying print styles before opening its native print dialog.
+    requestAnimationFrame(() => setTimeout(() => {
+        try { window.print(); }
+        catch (err) { cleanup(); console.error('Report print failed:', err); if (typeof showToast === 'function') showToast('Dialog cetak tidak dapat dibuka. Coba dari menu browser.', 'error'); }
+    }, 80));
+}
+
+function downloadNativePDF() {
     const root = document.querySelector('#rpt_content_body .rpt-font');
     if (!root || !root.innerText.trim()) {
         refreshReport(true);
@@ -9350,7 +9384,8 @@ window.renderTableRaw = function(tableId, rows) {
     // 6. Report & Print
     renderReportPage: renderReportPage, 
     printPDF: printPDF, 
-    downloadPDF: downloadPDF, 
+    downloadPDF: downloadPDF,
+    downloadNativePDF: downloadNativePDF, 
     renderReportPreview: renderReportPreview, 
     refreshReport: refreshReport, 
     
