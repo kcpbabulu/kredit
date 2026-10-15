@@ -4653,6 +4653,17 @@ function generateFullReportHTML(res) {
       .rpt-font .avoid-break[style*='margin-bottom: 15px']{margin-bottom:8px!important}
       .rpt-font .rpt-report-masthead{break-after:avoid!important;page-break-after:avoid!important}
       .rpt-font .segment-heading{break-after:avoid!important;page-break-after:avoid!important}
+      
+      .rpt-font .report-insight-block{border:1px solid #dbe5f1;border-radius:12px;padding:11px 12px;margin:10px 0 14px;background:linear-gradient(135deg,#fff 0%,#f8fbff 100%);break-inside:avoid;page-break-inside:avoid}
+      .rpt-font .report-block-heading{display:flex;align-items:center;gap:9px;margin-bottom:9px;min-width:0}
+      .rpt-font .report-block-heading>div{min-width:0;flex:1}.rpt-font .report-block-heading strong{display:block;font-size:10px;font-weight:900;color:#17365d}.rpt-font .report-block-heading small{display:block;font-size:7px;color:#64748b;margin-top:2px}
+      .rpt-font .report-icon{width:27px;height:27px;display:flex;align-items:center;justify-content:center;border-radius:8px;flex:none}.rpt-font .report-icon.blue{background:#dbeafe;color:#1d4ed8}.rpt-font .report-icon.slate{background:#e2e8f0;color:#334155}.rpt-font .report-icon.amber{background:#fef3c7;color:#b45309}
+      .rpt-font .trend-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:6px 0}.rpt-font .trend-series{border:1px solid #e2e8f0;border-radius:9px;background:#fff;padding:7px;min-width:0}.rpt-font .trend-series-title{font-size:7.5px;font-weight:800;color:#334155;display:flex;align-items:center;gap:5px}.rpt-font .trend-series-title span{width:7px;height:7px;border-radius:50%;display:inline-block}.rpt-font .trend-series svg{width:100%;height:70px;display:block;margin-top:4px}.rpt-font .trend-axis{display:flex;justify-content:space-between;gap:3px;font-size:5.5px;color:#64748b}.rpt-font .trend-empty{font-size:7px;color:#64748b;padding:10px;border:1px dashed #cbd5e1;border-radius:7px;background:#fff}
+      .rpt-font .reconciliation-table{font-size:7px!important;margin:0!important}.rpt-font .reconciliation-table th,.rpt-font .reconciliation-table td{padding:5px 6px!important;font-size:7px!important}.rpt-font .recon-ok{color:#047857;font-weight:800}.rpt-font .recon-warn{color:#b91c1c;font-weight:800}.rpt-font .recon-status{font-size:6.5px;font-weight:900;border-radius:99px;padding:4px 7px;white-space:nowrap}.rpt-font .recon-status.ok{background:#dcfce7;color:#166534}.rpt-font .recon-status.warn{background:#fee2e2;color:#991b1b}.rpt-font .report-footnote{font-size:6.5px;color:#64748b;line-height:1.4;margin:7px 0 0}
+      .rpt-font .priority-list{display:grid;gap:6px}.rpt-font .priority-row{display:grid;grid-template-columns:24px 58px 1fr;gap:7px;align-items:start;padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff}.rpt-font .priority-no{font-size:8px;font-weight:900;color:#64748b}.rpt-font .priority-level{font-size:6px;font-weight:900;border-radius:99px;padding:3px 5px;text-align:center}.rpt-font .priority-level.high{background:#fee2e2;color:#991b1b}.rpt-font .priority-level.watch{background:#fef3c7;color:#92400e}.rpt-font .priority-level.validate{background:#dbeafe;color:#1d4ed8}.rpt-font .priority-row b{font-size:7.5px;color:#17243b}.rpt-font .priority-row p{font-size:6.7px;color:#64748b;line-height:1.35;margin:2px 0 0}.rpt-font .report-definitions{display:flex;flex-wrap:wrap;gap:5px 12px;border-top:1px solid #dbe5f1;padding:8px 2px;margin:8px 0 10px;font-size:6.5px;color:#64748b}.rpt-font .report-definitions strong{width:100%;color:#17365d;font-size:7.5px}
+      .rpt-font .maturity-bucket-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:8px 0 12px}.rpt-font .maturity-bucket{min-width:0;padding:7px;border:1px solid #e2e8f0;border-top:2px solid var(--bucket-color);border-radius:8px;background:var(--bucket-bg)}.rpt-font .maturity-bucket span{display:block;font-size:6.3px;font-weight:800;color:var(--bucket-color)}.rpt-font .maturity-bucket strong{display:block;font-size:8px;color:#17243b;margin-top:4px}.rpt-font .maturity-bucket small{display:block;font-size:6.2px;color:#475569;margin-top:3px;overflow-wrap:anywhere}@media(max-width:640px){.rpt-font .maturity-bucket-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media print{.rpt-font .maturity-bucket-grid{grid-template-columns:repeat(5,minmax(0,1fr))}}
+      @media(max-width:640px){.rpt-font .trend-grid{grid-template-columns:1fr}.rpt-font .report-insight-block{padding:9px}.rpt-font .reconciliation-table{min-width:560px!important}}
+      @media print{.rpt-font .report-insight-block,.rpt-font .report-definitions{break-inside:avoid;page-break-inside:avoid}.rpt-font .trend-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpt-font .trend-series svg{height:55px}}
       @media(max-width:640px){.rpt-report-masthead{gap:8px!important;padding:10px!important}.rpt-report-meta{min-width:112px!important;font-size:7px!important}.rpt-report-brand{font-size:15px!important}.rpt-font .rpt-report-masthead h1{font-size:13px!important}.rpt-font .segment-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
     </style>
     <div class="rpt-font">`;
@@ -4679,7 +4690,7 @@ const prevKkrPctGlobal = prev && Number(prev.os)>0 ? Number(prev.kkr||0)/Number(
 const ppLabel = v => `${v>0?'+':''}${v.toFixed(2)} pp`;
 html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Posisi portofolio ${fmtIDR(curr.os)} pada ${dateStr}, mencakup ${fmtNum(curr.noa)} rekening. Rasio NPL ${portfolioNplPct.toFixed(2)}% dan rasio KKR ${portfolioKkrPct.toFixed(2)}${prevNplPctGlobal!==null?`; perubahan NPL ${ppLabel(portfolioNplPct-prevNplPctGlobal)} dan KKR ${ppLabel(portfolioKkrPct-prevKkrPctGlobal)} dibanding periode pembanding`:''}. Sorotan ini merupakan indikator awal untuk menentukan prioritas penelaahan.</div>`;
 
-html += `<div class="dak-report-tools no-pdf" role="region" aria-label="Navigasi laporan"><strong style="font-size:10px;color:#173e68;white-space:nowrap">Navigasi laporan</strong><input type="search" aria-label="Cari isi laporan" placeholder="Cari sektor, debitur, atau kata kunci…" oninput="(function(q){document.querySelectorAll('#rpt_content_body .rpt-font tbody tr').forEach(function(r){r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none';});})(this.value.trim().toLowerCase())"><a href="#rpt-sec-sektor">Sektor</a><a href="#rpt-sec-produktif">Produktif</a><a href="#rpt-sec-kur">KUR</a><a href="#rpt-sec-konsumtif">Konsumtif</a><a href="#rpt-sec-mutasi">Mutasi</a><a href="#rpt-sec-top">Top Obligor</a><a href="#rpt-sec-maturity">Jatuh Tempo</a><button type="button" onclick="document.querySelectorAll('#rpt_content_body tbody tr').forEach(function(r){r.style.display='';});document.querySelector('#rpt_content_body .dak-report-tools input').value=''">Reset</button></div>`;
+html += `<div class="dak-report-tools no-pdf" role="region" aria-label="Navigasi laporan"><strong style="font-size:10px;color:#173e68;white-space:nowrap">Navigasi laporan</strong><input type="search" aria-label="Cari isi laporan" placeholder="Cari sektor, debitur, atau kata kunci…" oninput="(function(q){document.querySelectorAll('#rpt_content_body .rpt-font tbody tr').forEach(function(r){r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none';});})(this.value.trim().toLowerCase())"><a href="#rpt-sec-trend">Tren</a><a href="#rpt-sec-reconciliation">Rekonsiliasi</a><a href="#rpt-sec-priority">Prioritas</a><a href="#rpt-sec-sektor">Sektor</a><a href="#rpt-sec-produktif">Produktif</a><a href="#rpt-sec-kur">KUR</a><a href="#rpt-sec-konsumtif">Konsumtif</a><a href="#rpt-sec-mutasi">Mutasi</a><a href="#rpt-sec-top">Top Obligor</a><a href="#rpt-sec-maturity">Jatuh Tempo</a><button type="button" onclick="document.querySelectorAll('#rpt_content_body tbody tr').forEach(function(r){r.style.display='';});document.querySelector('#rpt_content_body .dak-report-tools input').value=''">Reset</button></div>`;
 
 let rNpl = curr.os > 0 ? (curr.npl / curr.os) * 100 : 0;
 let rKkr = curr.os > 0 ? (curr.kkr / curr.os) * 100 : 0;
@@ -4704,6 +4715,44 @@ html += `<div class="executive-insight-panel" role="region" aria-label="Insight 
   </div>
   <div class="executive-insight-foot"><i class="fas fa-circle-info"></i> Insight bersifat indikator awal berbasis snapshot, bukan pengganti analisis kredit dan verifikasi petugas.</div>
 </div>`;
+
+// Historical trend (up to six available snapshots ending at selected position).
+const historyRows = Array.isArray(res.history) ? res.history : [];
+const trendMetric = historyRows.map(h => ({date:String(h.label||h.date||''),os:Number(h.os)||0,npl:Number(h.npl)||0,kkr:Number(h.kkr)||0,nplPct:Number(h.os)>0?(Number(h.npl)||0)/Number(h.os)*100:0,kkrPct:Number(h.os)>0?(Number(h.kkr)||0)/Number(h.os)*100:0}));
+const svgLine = (values, color, label) => {
+  if(values.length<2) return `<div class="trend-empty">Tren historis belum tersedia (minimal dua snapshot).</div>`;
+  const W=520,H=92,pad=10, vals=values.map(v=>Number(v)||0), min=Math.min(...vals), max=Math.max(...vals), span=max-min||1;
+  const pts=vals.map((v,i)=>`${pad+i*(W-2*pad)/(vals.length-1)},${H-pad-((v-min)/span)*(H-2*pad)}`).join(' ');
+  return `<div class="trend-series"><div class="trend-series-title"><span style="background:${color}"></span>${label}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tren ${label}" preserveAspectRatio="none"><line x1="10" y1="${H-10}" x2="${W-10}" y2="${H-10}" stroke="#dbe5f1" stroke-width="1"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${vals.map((v,i)=>{const x=pad+i*(W-2*pad)/(vals.length-1),y=H-pad-((v-min)/span)*(H-2*pad);return `<circle cx="${x}" cy="${y}" r="3.2" fill="${color}"/>`}).join('')}</svg><div class="trend-axis">${trendMetric.map(v=>`<span>${v.date}</span>`).join('')}</div></div>`;
+};
+html += `<div class="report-insight-block avoid-break" id="rpt-sec-trend"><div class="report-block-heading"><span class="report-icon blue"><i class="fas fa-chart-line"></i></span><div><strong>Tren Kualitas Aset</strong><small>${trendMetric.length} snapshot tersedia hingga ${dateStr.split(' vs ')[0]||dateStr}; bukan proyeksi</small></div></div><div class="trend-grid">${svgLine(trendMetric.map(v=>v.nplPct),'#dc2626','Rasio NPL')}${svgLine(trendMetric.map(v=>v.kkrPct),'#0d9488','Rasio KKR')}</div><div class="trend-grid">${svgLine(trendMetric.map(v=>v.os),'#2563eb','Outstanding')}${svgLine(trendMetric.map(v=>v.npl),'#b91c1c','Nominal NPL')}</div></div>`;
+
+// Reconciliation and data quality: report discrepancies rather than silently adjusting totals.
+const sectorRowsNow = Object.values(curr.sectors||{});
+const sectorSum = key => sectorRowsNow.reduce((a,v)=>a+(Number(v?.[key])||0),0);
+const loanRowsNow = Object.values(res.curr?.loanMap||{});
+const loanSum = key => loanRowsNow.reduce((a,v)=>a+(Number(v?.[key])||0),0);
+const reconcileRows = [
+ {label:'OS portofolio vs agregat sektor',a:Number(curr.os)||0,b:sectorSum('os'),fmt:fmtIDR},
+ {label:'NPL portofolio vs agregat sektor',a:Number(curr.npl)||0,b:sectorSum('npl'),fmt:fmtIDR},
+ {label:'KKR portofolio vs agregat sektor',a:Number(curr.kkr)||0,b:sectorSum('kkr'),fmt:fmtIDR},
+ {label:'NOA portofolio vs agregat sektor',a:Number(curr.noa)||0,b:sectorSum('noa'),fmt:fmtNum},
+ {label:'OS portofolio vs rincian fasilitas',a:Number(curr.os)||0,b:loanSum('os'),fmt:fmtIDR},
+ {label:'Jumlah fasilitas vs rincian fasilitas',a:Number(curr.noa)||0,b:loanRowsNow.length,fmt:fmtNum},
+ {label:'Fasilitas tanpa sektor ekonomi',a:0,b:loanRowsNow.filter(d=>!String(d.sektor||'').trim()||/^(LAINNYA|UMUM|-)$/i.test(String(d.sektor||'').trim())).length,fmt:fmtNum},
+ {label:'Fasilitas tanpa tanggal jatuh tempo',a:0,b:loanRowsNow.filter(d=>!String(d.tgl_akhir||'').trim()||String(d.tgl_akhir).trim()==='-').length,fmt:fmtNum}
+];
+const reconcileMarkup = reconcileRows.map(r=>{const delta=r.a-r.b,ok=Math.abs(delta)<(typeof r.a==='number'&&Number.isInteger(r.a)&&Number.isInteger(r.b)?0.001:1);return `<tr><td>${r.label}</td><td>${r.fmt(r.a)}</td><td>${r.fmt(r.b)}</td><td class="${ok?'recon-ok':'recon-warn'}">${ok?'Sesuai':'Selisih '+r.fmt(delta)}</td></tr>`}).join('');
+const reconIssues = reconcileRows.filter(r=>Math.abs(r.a-r.b)>((Number.isInteger(r.a)&&Number.isInteger(r.b))?0.001:1)).length;
+const priorityItems=[];
+if(prevNplPctGlobal!==null && portfolioNplPct>prevNplPctGlobal) priorityItems.push({level:'Tinggi',title:'Rasio NPL meningkat',detail:`${ppLabel(portfolioNplPct-prevNplPctGlobal)} dibanding pembanding; telaah debitur Kol 3–5 dengan kenaikan baki debet/tunggakan.`});
+if(prevKkrPctGlobal!==null && portfolioKkrPct>prevKkrPctGlobal) priorityItems.push({level:'Pantau',title:'Rasio KKR meningkat',detail:`${ppLabel(portfolioKkrPct-prevKkrPctGlobal)}; periksa migrasi Kol 2–5 dan rencana penanganan.`});
+if(topNplSectorInsight && topNplSectorInsight.npl>0) priorityItems.push({level:'Pantau',title:'Konsentrasi nominal NPL sektor',detail:`${topNplSectorInsight.name}: ${fmtIDR(topNplSectorInsight.npl)}; validasi konsentrasi dan status penanganan.`});
+if(reconIssues) priorityItems.push({level:'Validasi',title:'Ada selisih rekonsiliasi',detail:`${reconIssues} dari ${reconcileRows.length} pemeriksaan perlu ditelaah sebelum laporan disahkan.`});
+if(!priorityItems.length) priorityItems.push({level:'Rutin',title:'Tidak ada sinyal kenaikan dari indikator yang tersedia',detail:'Tetap lakukan pemantauan berkala dan validasi data sumber sebelum menetapkan keputusan.'});
+html += `<div class="report-insight-block" id="rpt-sec-reconciliation"><div class="report-block-heading"><span class="report-icon slate"><i class="fas fa-shield-check"></i></span><div><strong>Rekonsiliasi & Kualitas Data</strong><small>Bandingkan total portofolio, agregat sektor, dan rincian fasilitas</small></div><span class="recon-status ${reconIssues?'warn':'ok'}">${reconIssues?reconIssues+' perlu telaah':'Pemeriksaan sesuai'}</span></div><div class="table-scroll"><table class="reconciliation-table"><thead><tr><th>Pemeriksaan</th><th>Portofolio</th><th>Agregat / detail</th><th>Status</th></tr></thead><tbody>${reconcileMarkup}</tbody></table></div><p class="report-footnote">Selisih tidak dikoreksi otomatis. Perbedaan dapat berasal dari definisi NOA, filter fasilitas, atau aturan agregasi; lakukan rekonsiliasi terhadap sumber data sebelum pengesahan.</p></div>`;
+html += `<div class="report-insight-block" id="rpt-sec-priority"><div class="report-block-heading"><span class="report-icon amber"><i class="fas fa-list-check"></i></span><div><strong>Prioritas Tindak Lanjut</strong><small>Rekomendasi indikatif berdasarkan indikator yang tersedia</small></div></div><div class="priority-list">${priorityItems.map((p,i)=>`<div class="priority-row"><span class="priority-no">${String(i+1).padStart(2,'0')}</span><span class="priority-level ${p.level==='Tinggi'?'high':p.level==='Validasi'?'validate':'watch'}">${p.level}</span><div><b>${p.title}</b><p>${p.detail}</p></div></div>`).join('')}</div></div>`;
+html += `<div class="report-definitions"><strong>Definisi ringkas</strong><span><b>OS:</b> outstanding/baki debet pada snapshot.</span><span><b>NPL:</b> saldo fasilitas KOL 3–5 sesuai logika sumber.</span><span><b>KKR:</b> saldo fasilitas KOL 2–5 sesuai logika sumber.</span><span><b>NOA:</b> jumlah rekening/fasilitas sesuai basis data snapshot.</span><span><b>Δ pp:</b> selisih rasio dalam percentage points, bukan pertumbuhan relatif.</span></div>`;
 
     // 2. SEKTOR EKONOMI — current vs comparator for every metric
     html += `<div class="page-break report-type-break"></div>
@@ -5179,6 +5228,16 @@ html += `<div class="page-break report-type-break"></div>`;
 html += `<span id="rpt-sec-maturity"></span>`;
 html += getHeader('Retention & Maturity Strategy', '08. Monitoring Jatuh Tempo');
 html += `<div class="section-title" id="rpt-sec-maturity-detail">08. Monitoring Jatuh Tempo · Horizon ${rangeBulan * 30} Hari</div>`;
+
+// Maturity horizon buckets: summarize existing maturity rows without fabricating dates.
+const maturityBuckets = [
+  {label:'Lewat jatuh tempo',test:r=>Number(r.sisa_hari)<0,color:'#b91c1c',bg:'#fef2f2'},
+  {label:'0–30 hari',test:r=>Number(r.sisa_hari)>=0&&Number(r.sisa_hari)<=30,color:'#c2410c',bg:'#fff7ed'},
+  {label:'31–60 hari',test:r=>Number(r.sisa_hari)>30&&Number(r.sisa_hari)<=60,color:'#b45309',bg:'#fffbeb'},
+  {label:'61–90 hari',test:r=>Number(r.sisa_hari)>60&&Number(r.sisa_hari)<=90,color:'#1d4ed8',bg:'#eff6ff'},
+  {label:'91–180 hari',test:r=>Number(r.sisa_hari)>90&&Number(r.sisa_hari)<=180,color:'#0f766e',bg:'#f0fdfa'}
+].map(b=>({...b,rows:matList.filter(b.test),os:matList.filter(b.test).reduce((a,r)=>a+(Number(r.os??r.baki_debet)||0),0)}));
+html += `<div class="maturity-bucket-grid">${maturityBuckets.map(b=>`<div class="maturity-bucket" style="--bucket-color:${b.color};--bucket-bg:${b.bg}"><span>${b.label}</span><strong>${fmtNum(b.rows.length)} fasilitas</strong><small>${fmtIDR(b.os)}</small></div>`).join('')}</div>`;
 
 // Informational Alert Box - Executive Design
 html += `
