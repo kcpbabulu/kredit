@@ -40,7 +40,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=92">
+  <link rel="stylesheet" href="style.css?v=93">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1217,19 +1217,20 @@
       <!-- 12. REPORT PREVIEW (PREMIUM PDF WORKSPACE V81) -->
       <div id="view-report" class="tab-view hidden fade-in h-full flex flex-col relative bg-slate-100 dark:bg-slate-950 overflow-hidden dak-report-workspace">
           <div class="absolute top-3 left-0 w-full z-30 pointer-events-none flex justify-center px-4">
-              <div class="glass-card px-4 py-2.5 pointer-events-auto flex items-center gap-3 md:gap-4 rounded-2xl shadow-lg border border-slate-200 bg-white/95 dark:bg-slate-900/95 dark:border-slate-700 w-full max-w-md justify-between">
+              <div class="glass-card px-4 py-2.5 pointer-events-auto flex items-center gap-3 md:gap-4 rounded-2xl shadow-lg border border-slate-200 bg-white/95 dark:bg-slate-900/95 dark:border-slate-700 w-full max-w-2xl justify-between">
                   <div class="text-[8px] font-black text-slate-500 uppercase tracking-widest flex flex-col items-center">
                       <span class="text-blue-600">PRATINJAU LAPORAN</span>
-                      <span class="text-[7px] text-slate-400 font-bold">PDF · A4 LANDSCAPE</span>
+                      <span class="text-[7px] text-slate-400 font-bold">PDF · A4 PORTRAIT</span>
                   </div>
                   <div class="h-5 w-px bg-slate-200"></div>
-                  <button onclick="app.downloadPDF()" class="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white text-[8px] md:text-[9px] font-black tracking-widest py-1.5 px-3 md:px-4 rounded-full shadow-sm active:scale-95 transition-transform shrink-0">
-                      <i class="fas fa-download"></i> UNDUH
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button onclick="app.refreshReport(false)" class="report-action-secondary" title="Muat ulang data laporan"><i class="fas fa-rotate"></i><span>PERBARUI</span></button>
+                    <button onclick="app.downloadPDF()" class="report-action-primary"><i class="fas fa-file-pdf"></i><span>UNDUH PDF</span></button>
+                  </div>
               </div>
           </div>
           <div class="flex-1 overflow-y-auto overflow-x-auto p-3 md:p-8 pt-20 md:pt-24 pb-24 flex justify-center items-start custom-scrollbar dak-report-scroll">
-              <div id="rpt_content_area" class="dak-report-paper bg-white text-slate-800 shadow-xl w-full max-w-[297mm] min-w-[280mm] min-h-[210mm] p-[8mm] relative origin-top rounded-md ring-1 ring-slate-200">
+              <div id="rpt_content_area" class="dak-report-paper bg-white text-slate-800 shadow-xl w-full max-w-[210mm] min-w-[190mm] min-h-[297mm] p-[8mm] relative origin-top rounded-md ring-1 ring-slate-200">
                   <div id="rpt_placeholder" class="flex flex-col items-center justify-center h-full text-slate-300 py-32">
                       <i class="fas fa-print text-4xl mb-3 text-blue-500/20"></i>
                       <p class="text-[9px] font-black tracking-widest uppercase">Pilih filter di header...</p>
@@ -1875,7 +1876,7 @@
   </div>
 
   <!-- App Javascript -->
-  <script src="app.js?v=92"></script>
+  <script src="app.js?v=93"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
