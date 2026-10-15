@@ -4156,8 +4156,8 @@ function downloadNativePDF() {
         // Read authoritative values from the report payload; do not parse presentation text.
         const cards = [
             { label:'TOTAL OUTSTANDING (OS)', value:fmtMoney(currStats.os,0), sub:prevStats.os!=null ? `Perubahan ${compactMoney(Number(currStats.os||0)-Number(prevStats.os||0))}` : 'Posisi portofolio berjalan', color:[37,99,235] },
-            { label:'NPL AMOUNT', value:fmtMoney(currStats.npl,0), sub:`Rasio NPL ${fmtPct(nplRatio)}`, color:[185,28,28] },
-            { label:'WATCHLIST / KKR', value:fmtMoney(currStats.kkr,0), sub:`Rasio KKR ${fmtPct(kkrRatio)}`, color:[13,148,136] },
+            { label:'NPL AMOUNT', value:fmtMoney(currStats.npl,0), sub:`Rasio ${fmtPct(nplRatio)}${prevStats.os>0?` · Δ ${(nplRatio-(Number(prevStats.npl||0)/Number(prevStats.os)*100)).toFixed(2)} pp`:''}`, color:[185,28,28] },
+            { label:'WATCHLIST / KKR', value:fmtMoney(currStats.kkr,0), sub:`Rasio ${fmtPct(kkrRatio)}${prevStats.os>0?` · Δ ${(kkrRatio-(Number(prevStats.kkr||0)/Number(prevStats.os)*100)).toFixed(2)} pp`:''}`, color:[13,148,136] },
             { label:'TOTAL NOA / REKENING', value:fmtNum(currStats.noa), sub:'Jumlah rekening pada posisi data', color:[194,65,12] }
         ];
         const gap=4, count=4, cardW=(pageW-margin.left-margin.right-gap*(count-1))/count, cardH=23;
@@ -4328,7 +4328,7 @@ function downloadNativePDF() {
                 }
                 continue;
             }
-            const rows=Array.from(node.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(cell=>safeText(cell.innerText)));
+            const rows=Array.from(node.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(cell=>{const currentValue=cell.classList.contains('comparison-money-cell')?cell.querySelector('.comparison-value strong')?.innerText:null;return safeText(currentValue||cell.innerText);}));
             if(!rows.length)continue;
             const headerNode=node.querySelector('thead tr')||node.querySelector('tr th');
             let headers=[],body=rows;
@@ -4368,14 +4368,21 @@ function downloadNativePDF() {
                 const originalTotals=explicitTotals.slice();
                 tableBody=body.map((r,i)=>{
                     let loan=val(r,iLoan), pk=val(r,iPk);
-                    // Backward compatibility for source cells that already combine Loan ID and PK.
                     if(iPk<0 && iLoan>=0 && /PK\s*:/i.test(loan)){
                         const parts=loan.split(/\s+PK\s*:\s*/i);loan=parts[0]||'-';pk=parts.slice(1).join(' ')||'-';
                     }
                     const facility=[loan && loan!=='-' ? `Loan ID ${loan}` : '', pk && pk!=='-' ? `No. PK ${pk}` : ''].filter(Boolean).join(' | ') || '-';
                     let identity=val(r,iName);
                     if(iSector>=0 && val(r,iSector)!=='-') identity += `\nSektor: ${val(r,iSector)}`;
-                    return [String(i+1),identity,facility,val(r,iStart),val(r,iMaturity),val(r,iKol),val(r,iPlaf),val(r,iOS),val(r,iTung)];
+                    const priorLoan = reportData.prev?.loanMap?.[String(loan).trim()] || null;
+                    const currentOS = Number(String(val(r,iOS)).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+                    const currentArrears = Number(String(val(r,iTung)).replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.')) || 0;
+                    const moneyLine = (current, priorValue) => {
+                        if (!priorLoan) return `${fmtMoney(current,0)}\nPembanding: tidak ada\nΔ: baru/tidak cocok`;
+                        const priorNum = Number(priorValue)||0, delta=current-priorNum;
+                        return `${fmtMoney(current,0)}\nPembanding: ${fmtMoney(priorNum,0)}\nΔ: ${delta>0?'+':''}${fmtMoney(delta,0)}`;
+                    };
+                    return [String(i+1),identity,facility,val(r,iStart),val(r,iMaturity),val(r,iKol),val(r,iPlaf),moneyLine(currentOS,priorLoan?.os),moneyLine(currentArrears,priorLoan?.tgk)];
                 });
                 explicitTotals=originalTotals.map(r=>{
                     const nonempty=r.map(v=>safeText(v)).filter(Boolean);
@@ -4391,8 +4398,8 @@ function downloadNativePDF() {
                 startY:y,head,body:tableBody,foot:explicitTotals,showFoot:explicitTotals.length?'lastPage':'never',theme:'grid',
                 margin:{left:margin.left,right:margin.right,top:margin.top,bottom:margin.bottom},
                 tableWidth:'auto',showHead:'everyPage',rowPageBreak:'avoid',pageBreak:'auto',
-                styles:{font:'helvetica',fontSize:isDebtor?5.0:6.2,cellPadding:isDebtor?1.1:1.7,overflow:'linebreak',textColor:slate,lineColor:[222,230,240],lineWidth:.15,valign:'middle',minCellHeight:isDebtor?6:0},
-                headStyles:{fillColor:navy,textColor:[255,255,255],fontStyle:'bold',fontSize:isDebtor?4.9:5.8,halign:'left',cellPadding:isDebtor?1.25:2},
+                styles:{font:'helvetica',fontSize:isDebtor?4.8:6.2,cellPadding:isDebtor?1.15:1.7,overflow:'linebreak',textColor:slate,lineColor:[222,230,240],lineWidth:.15,valign:'middle',minCellHeight:isDebtor?8:0},
+                headStyles:{fillColor:navy,textColor:[255,255,255],fontStyle:'bold',fontSize:isDebtor?4.6:5.8,halign:'left',cellPadding:isDebtor?1.35:2},
                 alternateRowStyles:{fillColor:[246,249,253]},
                 footStyles:{fillColor:[226,236,248],textColor:navy,fontStyle:'bold',lineColor:[148,163,184],lineWidth:.25},
                 columnStyles:isDebtor?{0:{cellWidth:6,halign:'center'},1:{cellWidth:34},2:{cellWidth:39},3:{cellWidth:15,halign:'center'},4:{cellWidth:17,halign:'center'},5:{cellWidth:8,halign:'center'},6:{cellWidth:22,halign:'right'},7:{cellWidth:24,halign:'right'},8:{cellWidth:25,halign:'right'}}:Object.fromEntries((head[0]||rows[0]).map((h,i)=>[i,{halign:/outstanding|amount|saldo|plafon|tunggakan|nominal|os\b|kkr|baki debet/i.test(h)?'right':'left'}])),
@@ -4599,7 +4606,23 @@ function generateFullReportHTML(res) {
       .rpt-font .segment-compare-inline .risk-up{color:#b91c1c}
       .rpt-font .segment-compare-inline .risk-down{color:#047857}
       .rpt-font .segment-compare-inline .neutral{color:#64748b}
-      @media(max-width:640px){.rpt-font .segment-kpi-grid{grid-template-columns:minmax(0,1fr)}}
+      .rpt-font .comparison-money-cell{min-width:0!important;white-space:normal!important}
+      .rpt-font .comparison-value{display:flex;flex-direction:column;gap:2px;line-height:1.2;min-width:0;text-align:right;font-variant-numeric:tabular-nums}
+      .rpt-font .comparison-value strong{font-size:8px;color:#142d4d;font-weight:850;overflow-wrap:anywhere}
+      .rpt-font .comparison-value small{font-size:6.8px;color:#64748b;font-weight:600;overflow-wrap:anywhere}
+      .rpt-font .comparison-value em{font-size:6.8px;font-style:normal;font-weight:800;overflow-wrap:anywhere}
+      .rpt-font .comparison-up{color:#b91c1c}.rpt-font .comparison-down{color:#047857}.rpt-font .comparison-flat{color:#64748b}.rpt-font .comparison-new{color:#b45309}
+      .rpt-font .executive-insight-panel{margin:9px 0 13px;border:1px solid #d9e5f3;border-radius:13px;overflow:hidden;background:linear-gradient(135deg,#f8fbff 0%,#fff 75%);box-shadow:0 3px 10px rgba(16,39,70,.04)}
+      .rpt-font .executive-insight-head{display:flex;align-items:center;gap:9px;padding:10px 12px;background:linear-gradient(105deg,#102746,#1d4f80);color:#fff}
+      .rpt-font .executive-insight-icon{width:31px;height:31px;display:grid;place-items:center;border-radius:9px;background:linear-gradient(135deg,#38bdf8,#2563eb);color:#fff;box-shadow:0 3px 8px #0f172a20}
+      .rpt-font .executive-insight-head strong{display:block;font-size:10px;font-weight:850;letter-spacing:.2px}.rpt-font .executive-insight-head small{display:block;margin-top:2px;font-size:7.5px;color:#cfe5ff}
+      .rpt-font .executive-insight-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;padding:3px 10px}
+      .rpt-font .executive-insight-item{display:flex;gap:7px;padding:8px 5px;border-bottom:1px solid #e7eef7;min-width:0}
+      .rpt-font .executive-insight-item:nth-last-child(-n+2){border-bottom:0}.rpt-font .insight-dot{width:8px;height:8px;flex:0 0 8px;margin-top:4px;border-radius:50%;box-shadow:0 0 0 3px #eaf2fb}
+      .rpt-font .insight-dot.risk{background:#dc2626}.rpt-font .insight-dot.teal{background:#0d9488}.rpt-font .insight-dot.blue{background:#2563eb}.rpt-font .insight-dot.amber{background:#d97706}
+      .rpt-font .executive-insight-item>div{min-width:0}.rpt-font .executive-insight-item small{display:block;font-size:7px;color:#64748b;font-weight:700}.rpt-font .executive-insight-item b{display:block;font-size:9px;line-height:1.3;color:#102746;overflow-wrap:anywhere}.rpt-font .executive-insight-item b em{font-style:normal;font-size:7px;color:#64748b;margin-left:3px}.rpt-font .executive-insight-item p{margin:2px 0 0;font-size:7px;line-height:1.35;color:#53657a}
+      .rpt-font .executive-insight-foot{padding:6px 11px;background:#f1f6fc;border-top:1px solid #e0eaf5;color:#64748b;font-size:6.8px}.rpt-font .executive-insight-foot i{color:#2563eb;margin-right:4px}
+      @media(max-width:640px){.rpt-font .segment-kpi-grid{grid-template-columns:minmax(0,1fr)}.rpt-font .executive-insight-grid{grid-template-columns:minmax(0,1fr)}.rpt-font .executive-insight-item:nth-last-child(2){border-bottom:1px solid #e7eef7}.rpt-font .executive-insight-item:last-child{border-bottom:0}}
 
       .rpt-font .report-subsection{margin:14px 0 8px;padding:7px 10px;background:#f4f8fc;border-left:3px solid #93b9e2;color:#294a70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
       .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
@@ -4647,7 +4670,14 @@ function generateFullReportHTML(res) {
 
     // 1. GLOBAL SUMMARY (EXECUTIVE DASHBOARD STYLE)
 html += getHeader('Executive Risk Report', '01. Ringkasan Kualitas Aset');
-html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Laporan ini menyajikan posisi portofolio, kualitas aset, eksposur sektor, segmentasi produktif/KUR/konsumtif, mutasi pencairan dan pelunasan, konsentrasi Top 20 Obligor, serta monitoring jatuh tempo berdasarkan filter yang dipilih. Gunakan angka dan rincian pada setiap bagian sebagai dasar analisis lanjutan.</div>`;
+const topSectorInsight = Object.entries(curr.sectors || {}).map(([name,v])=>({name,os:Number(v?.os)||0,npl:Number(v?.npl)||0,kkr:Number(v?.kkr)||0,noa:Number(v?.noa)||0})).sort((a,b)=>b.os-a.os)[0];
+const topNplSectorInsight = Object.entries(curr.sectors || {}).map(([name,v])=>({name,npl:Number(v?.npl)||0,os:Number(v?.os)||0})).sort((a,b)=>b.npl-a.npl)[0];
+const portfolioNplPct = Number(curr.os)>0 ? Number(curr.npl||0)/Number(curr.os)*100 : 0;
+const portfolioKkrPct = Number(curr.os)>0 ? Number(curr.kkr||0)/Number(curr.os)*100 : 0;
+const prevNplPctGlobal = prev && Number(prev.os)>0 ? Number(prev.npl||0)/Number(prev.os)*100 : null;
+const prevKkrPctGlobal = prev && Number(prev.os)>0 ? Number(prev.kkr||0)/Number(prev.os)*100 : null;
+const ppLabel = v => `${v>0?'+':''}${v.toFixed(2)} pp`;
+html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Posisi portofolio ${fmtIDR(curr.os)} pada ${dateStr}, mencakup ${fmtNum(curr.noa)} rekening. Rasio NPL ${portfolioNplPct.toFixed(2)}% dan rasio KKR ${portfolioKkrPct.toFixed(2)}${prevNplPctGlobal!==null?`; perubahan NPL ${ppLabel(portfolioNplPct-prevNplPctGlobal)} dan KKR ${ppLabel(portfolioKkrPct-prevKkrPctGlobal)} dibanding periode pembanding`:''}. Sorotan ini merupakan indikator awal untuk menentukan prioritas penelaahan.</div>`;
 
 html += `<div class="dak-report-tools no-pdf" role="region" aria-label="Navigasi laporan"><strong style="font-size:10px;color:#173e68;white-space:nowrap">Navigasi laporan</strong><input type="search" aria-label="Cari isi laporan" placeholder="Cari sektor, debitur, atau kata kunci…" oninput="(function(q){document.querySelectorAll('#rpt_content_body .rpt-font tbody tr').forEach(function(r){r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none';});})(this.value.trim().toLowerCase())"><a href="#rpt-sec-sektor">Sektor</a><a href="#rpt-sec-produktif">Produktif</a><a href="#rpt-sec-kur">KUR</a><a href="#rpt-sec-konsumtif">Konsumtif</a><a href="#rpt-sec-mutasi">Mutasi</a><a href="#rpt-sec-top">Top Obligor</a><a href="#rpt-sec-maturity">Jatuh Tempo</a><button type="button" onclick="document.querySelectorAll('#rpt_content_body tbody tr').forEach(function(r){r.style.display='';});document.querySelector('#rpt_content_body .dak-report-tools input').value=''">Reset</button></div>`;
 
@@ -4663,6 +4693,16 @@ html += `
         ${cardBig('Watchlist Ratio', curr.kkr, renderDiff(curr.kkr, prev?.kkr, true), rKkr.toFixed(2), 'orange', true)}
         ${cardBig('Total NOA', curr.noa, renderDiff(curr.noa, prev?.noa, false), fmtNum(curr.noa), 'slate', false, false)}
     </div>
+</div>`;
+html += `<div class="executive-insight-panel" role="region" aria-label="Insight kualitas aset">
+  <div class="executive-insight-head"><span class="executive-insight-icon"><i class="fas fa-chart-line"></i></span><div><strong>Insight Kualitas Aset</strong><small>Indikator otomatis dari data dan tanggal pembanding yang dipilih</small></div></div>
+  <div class="executive-insight-grid">
+    <div class="executive-insight-item"><span class="insight-dot risk"></span><div><small>Rasio NPL</small><b>${portfolioNplPct.toFixed(2)}%${prevNplPctGlobal!==null?` <em>${ppLabel(portfolioNplPct-prevNplPctGlobal)}</em>`:''}</b><p>${prevNplPctGlobal===null?'Data pembanding belum tersedia.':portfolioNplPct>prevNplPctGlobal?'Rasio NPL meningkat; prioritaskan penelaahan debitur Kol 3–5.':portfolioNplPct<prevNplPctGlobal?'Rasio NPL menurun dibanding periode pembanding.':'Rasio NPL stabil dibanding periode pembanding.'}</p></div></div>
+    <div class="executive-insight-item"><span class="insight-dot teal"></span><div><small>Rasio KKR</small><b>${portfolioKkrPct.toFixed(2)}%${prevKkrPctGlobal!==null?` <em>${ppLabel(portfolioKkrPct-prevKkrPctGlobal)}</em>`:''}</b><p>${prevKkrPctGlobal===null?'Belum ada snapshot pembanding untuk mengukur perubahan.':portfolioKkrPct>prevKkrPctGlobal?'Perlu ditinjau apakah debitur Kol 2–5 bertambah.':portfolioKkrPct<prevKkrPctGlobal?'Rasio KKR turun; validasi apakah perbaikan bersifat berkelanjutan.':'Rasio KKR relatif stabil.'}</p></div></div>
+    <div class="executive-insight-item"><span class="insight-dot blue"></span><div><small>Sektor terbesar berdasarkan OS</small><b>${topSectorInsight?topSectorInsight.name:'Tidak tersedia'}</b><p>${topSectorInsight?`${fmtIDR(topSectorInsight.os)} · ${Number(curr.os)>0?(topSectorInsight.os/Number(curr.os)*100).toFixed(1):'0.0'}% dari outstanding portofolio.`:'Data sektor tidak tersedia.'}</p></div></div>
+    <div class="executive-insight-item"><span class="insight-dot amber"></span><div><small>Sektor dengan NPL terbesar</small><b>${topNplSectorInsight && topNplSectorInsight.npl>0?topNplSectorInsight.name:'Tidak ada NPL sektor yang teridentifikasi'}</b><p>${topNplSectorInsight && topNplSectorInsight.npl>0?`${fmtIDR(topNplSectorInsight.npl)} NPL; validasi konsentrasi dan rencana penanganan pada sektor ini.`:'Tetap lakukan pemantauan kualitas aset secara berkala.'}</p></div></div>
+  </div>
+  <div class="executive-insight-foot"><i class="fas fa-circle-info"></i> Insight bersifat indikator awal berbasis snapshot, bukan pengganti analisis kredit dan verifikasi petugas.</div>
 </div>`;
 
     // 2. SEKTOR EKONOMI — current vs comparator for every metric
@@ -4762,7 +4802,16 @@ html += `
 
         const renderList = (subTitle, list, isNpl) => { 
             if(!list || list.length===0) return ''; 
-            let accent = isNpl ? '#b91c1c' : '#c2410c'; // Darker shades for professional look
+            const priorLoanMap = (res.prev && res.prev.loanMap) || {};
+            const priorByLoan = new Map(Object.values(priorLoanMap).map(d => [String(d.loan||'').trim(), d]));
+            const moneyCompareHtml = (current, prior, label) => {
+                const c = Number(current)||0;
+                if (!prior) return `<div class="comparison-value"><strong>${fmtIDR(c)}</strong><small>${label}: tidak ditemukan pada pembanding</small><em class="comparison-new">Baru / tidak cocok</em></div>`;
+                const p = Number(prior)||0, delta = c-p;
+                const cls = delta>0 ? 'comparison-up' : delta<0 ? 'comparison-down' : 'comparison-flat';
+                return `<div class="comparison-value"><strong>${fmtIDR(c)}</strong><small>${label}: ${fmtIDR(p)}</small><em class="${cls}">Δ ${delta>0?'+':''}${fmtIDR(delta)}</em></div>`;
+            };
+            let accent = isNpl ? '#b91c1c' : '#0f766e'; // Distinct risk palette for NPL vs KKR
             let lightAccent = isNpl ? '#fef2f2' : '#fffbe0';
 
             let t = `<div class="avoid-break" style="margin-bottom: 25px;">
@@ -4787,13 +4836,14 @@ html += `
                             <th style="text-align: center; width: 60px; background: ${accent} !important; border: none;">Jatuh Tempo</th>
                             <th style="width: 30px; text-align: center; background: ${accent} !important; border: none;">KOL</th>
                             <th style="text-align: right; background: ${accent} !important; border: none;">Plafond</th>
-                            <th style="text-align: right; background: ${accent} !important; border: none;">Baki Debet</th>
-                            <th style="text-align: right; background: ${accent} !important; border: none;">Tunggakan</th>
+                            <th style="text-align: right; background: ${accent} !important; border: none;">Outstanding · Kini / Pembanding / Δ</th>
+                            <th style="text-align: right; background: ${accent} !important; border: none;">Tunggakan · Kini / Pembanding / Δ</th>
                         </tr>
                     </thead>
                     <tbody style="border: 1px solid #e2e8f0;">`;
             
             list.forEach((r,x) => { 
+                const prior = priorByLoan.get(String(r.loan||'').trim()) || null;
                 t += `<tr style="background: ${x % 2 === 0 ? 'white' : '#fcfcfc'};">
                     <td style="text-align: center; color: #94a3b8; font-weight: 700; font-size: 8px;">${x+1}</td>
                     <td>
@@ -4808,8 +4858,8 @@ html += `
                         <span style="display: inline-block; min-width: 16px; padding: 2px 3px; border-radius: 4px; background: ${isNpl ? '#fee2e2' : '#ffedd5'}; color: ${accent}; font-weight: 900; font-size: 9px; border: 1px solid ${accent}44;">${r.kol}</span>
                     </td>
                     <td class="w-money" style="font-size: 8px; color: #334155;">${fmtIDR(r.plafond)}</td>
-                    <td class="w-money" style="font-size: 8px; color: #0f172a;">${fmtIDR(r.os)}</td>
-                    <td class="w-money" style="color: ${accent}; font-size: 8px; background: ${lightAccent}44;">${r.tgk > 0 ? fmtIDR(r.tgk) : '-'}</td>
+                    <td class="w-money comparison-money-cell">${moneyCompareHtml(r.os, prior ? prior.os : null, res.dates?.prev || 'Pembanding')}</td>
+                    <td class="w-money comparison-money-cell" style="background: ${lightAccent}44;">${moneyCompareHtml(r.tgk, prior ? prior.tgk : null, res.dates?.prev || 'Pembanding')}</td>
                 </tr>`; 
             }); 
             return t + '</tbody></table></div>';
