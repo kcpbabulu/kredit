@@ -4665,40 +4665,68 @@ html += `
     </div>
 </div>`;
 
-    // 2. SEKTOR EKONOMI
-    html += `
-    <div class="report-section-flow" style="margin-top: 10px;">
+    // 2. SEKTOR EKONOMI — current vs comparator for every metric
+    html += `<div class="page-break report-type-break"></div>
+    <div class="report-section-flow sector-report-section" style="margin-top: 0;">
         <div class="section-title" id="rpt-sec-sektor">02. Analisa Eksposur Per Sektor Ekonomi</div>
-        <table>
+        <div class="sector-compare-legend"><span><b>Utama</b> = posisi berjalan</span><span><b>Pembanding</b> = posisi periode sebelumnya</span><span><b>Δ</b> = perubahan terhadap pembanding</span></div>
+        <table class="sector-comparison-table">
+            <colgroup>
+              <col style="width:4%"><col style="width:21%"><col style="width:9%"><col style="width:16%"><col style="width:16%"><col style="width:10%"><col style="width:16%"><col style="width:8%">
+            </colgroup>
             <thead>
                 <tr>
-                    <th style="width: 30px; text-align: center;">No</th>
-                    <th>Sektor Ekonomi</th>
-                    <th style="text-align: center; width: 40px;">NOA</th>
-                    <th style="text-align: right;">Outstanding</th>
-                    <th style="text-align: right; color: #ef4444;">NPL Amount</th>
-                    <th style="text-align: right; width: 50px;">NPL%</th>
-                    <th style="text-align: right; color: #f59e0b;">KKR Amount</th>
+                    <th class="sector-no">No</th><th>Sektor Ekonomi</th><th class="sector-count">NOA</th><th>Outstanding</th><th>NPL Amount</th><th>NPL %</th><th>KKR Amount</th><th>KKR %</th>
                 </tr>
-            </thead>
-            <tbody>`;
+            </thead><tbody>`;
 
-    let secKeys = Object.keys(curr.sectors).sort((a,b) => curr.sectors[b].os - curr.sectors[a].os);
-    secKeys.forEach((key, i) => {
-        let s = curr.sectors[key];
-        let pNpl = s.os > 0 ? (s.npl/s.os)*100 : 0;
-        let rowStyle = s.npl > 0 ? 'background-color: #fef2f2;' : ''; 
-        html += `
-            <tr style="${rowStyle}">
-                <td style="text-align: center; color: #94a3b8; font-weight: 700;">${i+1}</td>
-                <td style="font-weight: 700;">${key}</td>
-                <td style="text-align: center; font-weight: 600;">${s.noa}</td>
-                <td class="w-money">${fmtIDR(s.os)}</td>
-                <td class="w-money" style="color: #ef4444;">${s.npl > 0 ? fmtIDR(s.npl) : '-'}</td>
-                <td style="text-align: right; font-weight: 800; color: #b91c1c;">${pNpl.toFixed(2)}%</td>
-                <td class="w-money" style="color: #d97706;">${s.kkr > 0 ? fmtIDR(s.kkr) : '-'}</td>
-            </tr>`;
+    const sectorKeys = Object.keys(curr.sectors || {}).sort((a,b) => (Number(curr.sectors[b]?.os)||0) - (Number(curr.sectors[a]?.os)||0));
+    const prevSectors = prev && prev.sectors && typeof prev.sectors === 'object' ? prev.sectors : {};
+    const sectorMetricCell = (current, prior, type='money', currentBase=0, priorBase=0) => {
+        const c = Number(current)||0, p = prior == null ? null : Number(prior)||0;
+        const ratio = type === 'nplRatio' ? (currentBase>0 ? c/currentBase*100 : 0) : type === 'kkrRatio' ? (currentBase>0 ? c/currentBase*100 : 0) : c;
+        const priorRatio = p == null ? null : (type === 'nplRatio' || type === 'kkrRatio') ? (priorBase>0 ? p/priorBase*100 : 0) : p;
+        const shown = type === 'count' ? fmtNum(c) : type.endsWith('Ratio') ? ratio.toFixed(2)+'%' : fmtIDR(c);
+        let sub = 'Pembanding: tidak tersedia';
+        if (p != null) {
+            const priorShown = type === 'count' ? fmtNum(p) : type.endsWith('Ratio') ? priorRatio.toFixed(2)+'%' : fmtIDR(p);
+            const delta = type.endsWith('Ratio') ? ratio-priorRatio : c-p;
+            const deltaShown = type.endsWith('Ratio') ? `${delta>0?'+':''}${delta.toFixed(2)} pp` : type === 'count' ? `${delta>0?'+':''}${fmtNum(delta)}` : `${delta>0?'+':''}${fmtIDR(delta)}`;
+            const cls = delta > 0 ? (type==='nplRatio'||type==='kkrRatio'||type==='money' ? 'sector-delta sector-up' : 'sector-delta') : delta < 0 ? 'sector-delta sector-down' : 'sector-delta sector-neutral';
+            sub = `<span class="sector-prior">vs ${String(res.dates?.prev || 'periode sebelumnya')}: ${priorShown}</span><span class="${cls}">Δ ${deltaShown}</span>`;
+        }
+        return `<div class="sector-current">${shown}</div><div class="sector-comparison">${sub}</div>`;
+    };
+    const sectorTotals = {noa:0,os:0,npl:0,kkr:0};
+    const priorTotals = {noa:0,os:0,npl:0,kkr:0};
+    let hasPriorSector = false;
+    sectorKeys.forEach((key, i) => {
+        const v = curr.sectors[key] || {};
+        const pv = Object.prototype.hasOwnProperty.call(prevSectors,key) ? (prevSectors[key]||{}) : null;
+        if (pv) hasPriorSector = true;
+        ['noa','os','npl','kkr'].forEach(k => { sectorTotals[k] += Number(v[k])||0; if(pv) priorTotals[k] += Number(pv[k])||0; });
+        const nplPct = Number(v.os)>0 ? Number(v.npl||0)/Number(v.os)*100 : 0;
+        const kkrPct = Number(v.os)>0 ? Number(v.kkr||0)/Number(v.os)*100 : 0;
+        const priorOs = pv ? Number(pv.os)||0 : 0;
+        const rowStyle = Number(v.npl)>0 ? 'sector-has-npl' : '';
+        html += `<tr class="${rowStyle}">
+          <td class="sector-no">${i+1}</td><td class="sector-name">${key}</td>
+          <td class="sector-count">${sectorMetricCell(v.noa,pv?pv.noa:null,'count')}</td>
+          <td>${sectorMetricCell(v.os,pv?pv.os:null,'money')}</td>
+          <td>${sectorMetricCell(v.npl,pv?pv.npl:null,'money')}</td>
+          <td>${sectorMetricCell(v.npl,pv?pv.npl:null,'nplRatio',Number(v.os)||0,priorOs)}</td>
+          <td>${sectorMetricCell(v.kkr,pv?pv.kkr:null,'money')}</td>
+          <td>${sectorMetricCell(v.kkr,pv?pv.kkr:null,'kkrRatio',Number(v.os)||0,priorOs)}</td>
+        </tr>`;
     });
+    const totalPriorOs = hasPriorSector ? priorTotals.os : null;
+    html += `<tr class="sector-total-row"><td colspan="2">TOTAL SEKTOR</td>
+      <td>${sectorMetricCell(sectorTotals.noa,hasPriorSector?priorTotals.noa:null,'count')}</td>
+      <td>${sectorMetricCell(sectorTotals.os,totalPriorOs,'money')}</td>
+      <td>${sectorMetricCell(sectorTotals.npl,hasPriorSector?priorTotals.npl:null,'money')}</td>
+      <td>${sectorMetricCell(sectorTotals.npl,hasPriorSector?priorTotals.npl:null,'nplRatio',sectorTotals.os,priorTotals.os)}</td>
+      <td>${sectorMetricCell(sectorTotals.kkr,hasPriorSector?priorTotals.kkr:null,'money')}</td>
+      <td>${sectorMetricCell(sectorTotals.kkr,hasPriorSector?priorTotals.kkr:null,'kkrRatio',sectorTotals.os,priorTotals.os)}</td></tr>`;
     html += `</tbody></table></div>`;
 
     // --- RENDER SEGMEN ANALYST ---
@@ -4708,7 +4736,7 @@ html += `
         let sNpl = cSeg.os > 0 ? (cSeg.npl/cSeg.os)*100 : 0; 
         let sKkr = cSeg.os > 0 ? (cSeg.kkr/cSeg.os)*100 : 0;
 
-        let page = `<div class="page-break"></div>`; 
+        let page = `<div class="page-break report-type-break"></div>`; 
         page += getHeader('Segmental Analysis', `0${numberPrefix}. ${title}`);
         page += `<div class="report-subsection segment-heading segment-${key}" data-segment="${key}"><span class="segment-icon"><i class="fas ${key==='kur'?'fa-hand-holding-dollar':key==='kons'?'fa-house-user':'fa-briefcase'}"></i></span><span><b>0${numberPrefix}. ${title}</b><small>Ringkasan kualitas aset · analisis periode · daftar debitur prioritas</small></span></div>`;
         const segDetails = res.curr.details?.[key] || {};
@@ -4809,7 +4837,7 @@ html += `
         let netIcon = isGrowth ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
         let netLabel = isGrowth ? 'EXPANSION (GROWTH)' : 'CONTRACTION';
 
-        html += `<div class="page-break"></div>`; 
+        html += `<div class="page-break report-type-break"></div>`; 
         html += `<span id="rpt-sec-mutasi"></span>`;
         html += getHeader('Portfolio Movement Dynamics', '06. Analisa Arus Dana (Cair vs Lunas)');
         html += `<div class="section-title" id="rpt-sec-mutasi-detail">06. Mutasi Portofolio · Pencairan dan Pelunasan</div>`;
@@ -4958,7 +4986,7 @@ if(topObligors.length > 0) {
     const accentColor = '#b45309'; // Dark Amber
     const subHeaderBg = '#fffbeb'; // Light Amber
     
-    html += `<div class="page-break"></div>`;
+    html += `<div class="page-break report-type-break"></div>`;
     html += `<span id="rpt-sec-top"></span>`;
     html += getHeader('Concentration Risk Analysis', '07. Top 20 Obligor (Pareto)');
     html += `<div class="section-title" id="rpt-sec-top-detail">07. Analisis Konsentrasi Risiko · Top 20 Obligor</div>`;
@@ -5097,7 +5125,7 @@ if(topObligors.length > 0) {
 // ======================================================
 // 08. MATURITY STRATEGIC WATCHLIST (RETENTION ANALYSIS)
 // ======================================================
-html += `<div class="page-break"></div>`; 
+html += `<div class="page-break report-type-break"></div>`; 
 html += `<span id="rpt-sec-maturity"></span>`;
 html += getHeader('Retention & Maturity Strategy', '08. Monitoring Jatuh Tempo');
 html += `<div class="section-title" id="rpt-sec-maturity-detail">08. Monitoring Jatuh Tempo · Horizon ${rangeBulan * 30} Hari</div>`;
