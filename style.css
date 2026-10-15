@@ -1003,3 +1003,16 @@ html.dark .dak-report-workspace{background:linear-gradient(145deg,#0b1220 0%,#11
   #rpt_content_body .page-break { break-before: auto !important; page-break-before: auto !important; height: 1px !important; min-height: 1px !important; margin: 8px 0 !important; border-top: 1px solid #dbe5f1 !important; }
   a { color: inherit !important; text-decoration: none !important; }
 }
+
+/* V95: compact segment comparison cards — avoid repeating current ratios in a separate strip */
+.segment-compare-inline{margin-top:6px;padding-top:5px;border-top:1px solid #dbe5f0;font-size:8px;line-height:1.45;color:#52647c;position:relative;z-index:1}
+.segment-compare-inline .compare-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.segment-compare-inline .compare-row+.compare-row{margin-top:2px}
+.segment-compare-inline .compare-row>span:first-child{font-weight:600}
+.segment-compare-inline .compare-row>strong{color:#15345b;font-weight:800}
+.segment-compare-inline .compare-label{font-weight:600}
+.segment-compare-inline .compare-delta{font-weight:800;white-space:nowrap}
+.segment-compare-inline .risk-up{color:#b91c1c}
+.segment-compare-inline .risk-down{color:#047857}
+.segment-compare-inline .neutral{color:#64748b}
+@media(max-width:640px){.segment-kpi-grid{grid-template-columns:minmax(0,1fr)!important}}
