@@ -1,7 +1,7 @@
 {
-  "name": "DaKOPen PPU V90",
-  "short_name": "DaKOPen V90",
-  "description": "DaKOPen PPU - Executive Credit Report",
+  "name": "DaKOPen PPU V91",
+  "short_name": "DaKOPen V91",
+  "description": "DaKOPen PPU - Segment Summary and Debtor Table Refinement",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
