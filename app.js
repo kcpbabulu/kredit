@@ -4035,23 +4035,19 @@ function renderMaturityPage(res) {
 // 2. DOWNLOAD PDF (WYSIWYG)
 // ======================================================
 function downloadPDF() {
-    const element = document.getElementById('rpt_content_body');
-    if (!element || element.innerHTML.trim() === "") {
+    const root = document.querySelector('#rpt_content_body .rpt-font');
+    if (!root || !root.innerText.trim()) {
         refreshReport(true);
         return;
     }
-    if (typeof html2pdf !== 'function') {
-        showToast('Library PDF belum tersedia. Periksa koneksi internet lalu coba kembali.', 'error');
+    const JsPDF = window.jspdf && window.jspdf.jsPDF;
+    if (typeof JsPDF !== 'function') {
+        showToast('Mesin PDF belum tersedia. Periksa koneksi internet lalu coba kembali.', 'error');
         return;
     }
 
     const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.display = 'flex';
-        loader.setAttribute('aria-busy', 'true');
-    }
-
-    // Nama file mengikuti unit yang dipilih: "KCP Babulu" -> "KCPBabulu".
+    if (loader) { loader.style.display = 'flex'; loader.setAttribute('aria-busy', 'true'); }
     const rawDate = String(s?.filter?.d || '');
     const fileDateSuffix = /^\d{4}-\d{2}-\d{2}$/.test(rawDate)
         ? rawDate.split('-').reverse().join('')
@@ -4062,81 +4058,163 @@ function downloadPDF() {
         : rawUnit.replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
     const fileName = `Laporan_Kredit_${unitSuffix}_${fileDateSuffix}.pdf`;
 
-    // A4 landscape memiliki area cetak sekitar 279 mm. Gunakan lebar tetap
-    // agar laporan tidak ikut menyusut mengikuti container responsif/HP.
-    const pageWidthPx = 1080; // A4 landscape content width with 5 mm side margins at 96 dpi
-    const opt = {
-        margin: [7, 7, 10, 7],
-        filename: fileName,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-            scale: 1.7,
-            width: pageWidthPx,
-            useCORS: true,
-            logging: false,
-            letterRendering: true,
-            backgroundColor: '#ffffff',
-            scrollX: 0,
-            scrollY: 0,
-            windowWidth: 1280,
-            windowHeight: Math.max(window.innerHeight || 900, 1200)
-        },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape', compress: true },
-        pagebreak: { mode: ['css'], avoid: ['tr', '.avoid-break-card', '.summary-card'] }
-    };
+    // Native PDF renderer: fixed A4 landscape coordinates; independent of viewport and HTML canvas.
+    const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true, putOnlyUsedFonts: true });
+    const pageW = pdf.internal.pageSize.getWidth();
+    const pageH = pdf.internal.pageSize.getHeight();
+    const margin = { left: 10, right: 10, top: 27, bottom: 17 };
+    const navy = [16, 39, 70], blue = [37, 99, 235], cyan = [56, 189, 248];
+    const slate = [51, 65, 85], muted = [100, 116, 139], pale = [239, 246, 255];
+    const safeText = (v) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+    const unitLabel = rawUnit && !/^(ALL|SEMUA UNIT|KONSOLIDASI)$/i.test(rawUnit) ? rawUnit : 'KONSOLIDASI SELURUH UNIT';
+    const positionDate = root.querySelector('.rpt-report-meta')?.innerText || rawDate;
+    const title = safeText(root.querySelector('.rpt-report-masthead h1')?.innerText || 'LAPORAN KREDIT');
+    const today = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
 
-    const staging = document.createElement('div');
-    staging.className = 'dak-pdf-staging';
-    staging.setAttribute('aria-hidden', 'true');
-    staging.style.cssText = `position:fixed;left:-100000px;top:0;width:${pageWidthPx}px;min-width:${pageWidthPx}px;max-width:${pageWidthPx}px;background:#fff;color:#0f172a;z-index:-1;overflow:visible;pointer-events:none;opacity:1;contain:none;`;
-    const clone = element.cloneNode(true);
-    clone.removeAttribute('id');
-    clone.querySelectorAll('.dak-report-tools, .no-pdf').forEach(node => node.remove());
-    clone.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;height:auto!important;max-height:none!important;overflow:visible!important;background:#fff!important;color:#0f172a!important;transform:none!important;zoom:1!important;position:relative!important;left:0!important;`;
-    staging.appendChild(clone);
-    // html2pdf membuat klon internal di luar staging. Karena itu, aturan penting
-    // dipasang inline pada root laporan agar lebar tidak kembali ke ukuran layar HP.
-    const pdfRoot = clone.querySelector('.rpt-font');
-    if (pdfRoot) {
-        pdfRoot.style.cssText += `;display:block!important;width:${pageWidthPx}px!important;min-width:${pageWidthPx}px!important;max-width:${pageWidthPx}px!important;margin:0!important;padding:0!important;height:auto!important;max-height:none!important;overflow:visible!important;transform:none!important;zoom:1!important;background:#fff!important;color:#17243b!important;`;
-        pdfRoot.querySelectorAll('table').forEach(table => {
-            table.style.cssText += `;display:table!important;width:100%!important;min-width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important;`;
-        });
-        pdfRoot.querySelectorAll('.section-title,.rpt-report-masthead,.rpt-report-note,.card-grid').forEach(node => {
-            node.style.maxWidth = '100%';
-        });
+    function drawPageChrome(pageNo, totalPages) {
+        pdf.setFillColor(...navy); pdf.rect(0, 0, pageW, 18, 'F');
+        pdf.setFillColor(...cyan); pdf.rect(0, 18, pageW, 1.2, 'F');
+        pdf.setTextColor(255,255,255); pdf.setFont('helvetica','bold'); pdf.setFontSize(12);
+        pdf.text('DaKOPen PPU', margin.left, 8.2);
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(7.2);
+        pdf.text('CREDIT INTELLIGENCE  |  LAPORAN PORTOFOLIO KREDIT', margin.left, 13.1);
+        pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5);
+        pdf.text(unitLabel.toUpperCase(), pageW - margin.right, 7.8, { align:'right', maxWidth: 115 });
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(7);
+        pdf.text('Posisi data: ' + (rawDate ? rawDate.split('-').reverse().join('/') : '-'), pageW - margin.right, 12.7, { align:'right' });
+        pdf.setDrawColor(218, 226, 237); pdf.setLineWidth(.25); pdf.line(margin.left, pageH - 10, pageW - margin.right, pageH - 10);
+        pdf.setTextColor(muted); pdf.setFontSize(7);
+        pdf.text('Dokumen internal • Gunakan sesuai kewenangan dan ketentuan kerahasiaan data', margin.left, pageH - 5.8);
+        pdf.text(`Halaman ${pageNo} dari ${totalPages}`, pageW - margin.right, pageH - 5.8, { align:'right' });
     }
 
-    // Netralisasi break manual pada versi PDF. Break manual dalam preview
-    // responsif sebelumnya dapat menyisakan halaman kosong saat html2pdf memecah tabel.
-    const pdfFix = document.createElement('style');
-    pdfFix.textContent = `
-      .dak-pdf-staging, .dak-pdf-staging * { box-sizing:border-box !important; }
-      .dak-pdf-staging .rpt-font { display:block !important; width:${pageWidthPx}px !important; min-width:${pageWidthPx}px !important; max-width:${pageWidthPx}px !important; margin:0 !important; padding:0 !important; transform:none !important; }
-      .dak-pdf-staging .avoid-break:has(> table) { break-inside:auto !important; page-break-inside:auto !important; }
-      .dak-pdf-staging .avoid-break:has(> .section-title + table) { break-inside:auto !important; page-break-inside:auto !important; }
-      .dak-pdf-staging .rpt-font td, .dak-pdf-staging .rpt-font th { overflow-wrap:anywhere !important; word-break:normal !important; }
-      .dak-pdf-staging .page-break { height:0 !important; min-height:0 !important; margin:0 !important; padding:0 !important; break-before:auto !important; page-break-before:auto !important; }
-      .dak-pdf-staging table { display:table !important; width:100% !important; min-width:100% !important; max-width:100% !important; table-layout:fixed !important; }
-      .dak-pdf-staging .rpt-report-masthead, .dak-pdf-staging .rpt-report-note, .dak-pdf-staging .section-title, .dak-pdf-staging .card-grid { width:100% !important; max-width:100% !important; }\n      .dak-pdf-staging thead { display:table-header-group !important; }
-      .dak-pdf-staging tr { break-inside:avoid; page-break-inside:avoid; }
-    `;
-    staging.appendChild(pdfFix);
-    document.body.appendChild(staging);
+    function addSectionHeading(text, y) {
+        const label = safeText(text);
+        if (!label) return y;
+        if (y > pageH - margin.bottom - 16) { pdf.addPage(); y = margin.top; }
+        pdf.setFillColor(...pale); pdf.roundedRect(margin.left, y, pageW - margin.left - margin.right, 8, 1.5, 1.5, 'F');
+        pdf.setFillColor(...blue); pdf.rect(margin.left, y, 1.5, 8, 'F');
+        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(9);
+        pdf.text(label.toUpperCase(), margin.left + 5, y + 5.2, { maxWidth: pageW - margin.left - margin.right - 10 });
+        return y + 11;
+    }
 
-    // Tunggu layout clone dihitung sebelum snapshot canvas dibuat.
-    requestAnimationFrame(() => {
-        html2pdf().set(opt).from(clone).save()
-            .then(() => { if (typeof showToast === 'function') showToast(`PDF berhasil dibuat: ${fileName}`, 'success'); })
-            .catch(err => {
-                console.error('PDF export failed:', err);
-                if (typeof showToast === 'function') showToast('PDF gagal dibuat. Periksa koneksi dan coba kembali.', 'error');
-            })
-            .finally(() => {
-                staging.remove();
-                if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
+    function drawMetricCards(y) {
+        const cards = [];
+        root.querySelectorAll('.avoid-break[style*="grid-template-columns"] > div, .avoid-break > div[style*="grid-template-columns"] > div').forEach(card => {
+            const label = safeText(card.querySelector('div div')?.innerText || card.innerText.split('\n')[0]);
+            const lines = card.innerText.split('\n').map(safeText).filter(Boolean);
+            if (lines.length) cards.push({ label: lines[0], value: lines[1] || '', sub: lines.slice(2).join(' · ') });
+        });
+        if (!cards.length) {
+            const stats = window.__DAKOPEN_REPORT_DATA?.curr?.stats;
+            if (stats) {
+                const money = v => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(v)||0);
+                cards.push({label:'TOTAL OUTSTANDING',value:money(stats.os)}, {label:'NPL AMOUNT',value:money(stats.npl)}, {label:'TOTAL DEBITUR',value:new Intl.NumberFormat('id-ID').format(stats.noa)}, {label:'WATCHLIST / KKR',value:money(stats.kkr)});
+            }
+        }
+        const count = Math.min(cards.length, 4);
+        if (!count) return y;
+        const gap = 4, cardW = (pageW - margin.left - margin.right - gap * (count - 1)) / count, cardH = 21;
+        cards.slice(0,count).forEach((c,i) => {
+            const x = margin.left + i * (cardW + gap);
+            const colors = [[37,99,235],[185,28,28],[13,148,136],[194,65,12]];
+            pdf.setFillColor(255,255,255); pdf.setDrawColor(220,229,240); pdf.roundedRect(x,y,cardW,cardH,2,2,'FD');
+            pdf.setFillColor(...colors[i % colors.length]); pdf.roundedRect(x,y,cardW,1.5,1,1,'F');
+            pdf.setTextColor(...muted); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); pdf.text(c.label.toUpperCase().slice(0,48),x+3,y+6,{maxWidth:cardW-6});
+            pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(10); pdf.text(c.value.slice(0,65),x+3,y+12.5,{maxWidth:cardW-6});
+            if (c.sub) { pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.text(c.sub.slice(0,80),x+3,y+17.5,{maxWidth:cardW-6}); }
+        });
+        return y + cardH + 5;
+    }
+
+    try {
+        // Cover / executive summary page. This is a true PDF layout, not a screenshot of HTML.
+        let y = margin.top;
+        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(17);
+        pdf.text(title || 'EXECUTIVE CREDIT REPORT', margin.left, y + 1);
+        y += 6;
+        pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
+        pdf.text('Unit: ' + unitLabel + '   •   Posisi data: ' + (rawDate ? rawDate.split('-').reverse().join('/') : '-'), margin.left, y + 2);
+        pdf.text('Dibuat: ' + today, pageW - margin.right, y + 2, { align:'right' });
+        y += 8;
+        y = addSectionHeading('01. Ringkasan Eksekutif', y);
+        y = drawMetricCards(y);
+        const note = safeText(root.querySelector('.rpt-report-note')?.innerText || 'Ringkasan portofolio kredit berdasarkan unit dan tanggal posisi yang dipilih.');
+        pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(margin.left,y,pageW-margin.left-margin.right,13,1.5,1.5,'FD');
+        pdf.setTextColor(...slate); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
+        pdf.text(pdf.splitTextToSize(note, pageW-margin.left-margin.right-8).slice(0,2), margin.left+4, y+5);
+        y += 18;
+
+        // Structured tables are translated to native PDF tables; layout no longer depends on device viewport.
+        const tables = Array.from(root.querySelectorAll('table'));
+        const titleNodes = Array.from(root.querySelectorAll('.section-title, .report-subsection'));
+        let lastTitle = '02. Rincian Portofolio';
+        let titleIndex = 0;
+        const allNodes = Array.from(root.querySelectorAll('.section-title, .report-subsection, table'));
+        for (const node of allNodes) {
+            if (node.matches('.section-title, .report-subsection')) {
+                lastTitle = safeText(node.innerText) || lastTitle;
+                y = addSectionHeading(lastTitle, y);
+                continue;
+            }
+            const rows = Array.from(node.querySelectorAll('tr')).map(tr => Array.from(tr.querySelectorAll('th,td')).map(cell => safeText(cell.innerText)));
+            if (!rows.length) continue;
+            const hasHeader = node.querySelector('thead tr') || node.querySelector('tr th');
+            let head = [], body = rows;
+            if (hasHeader) {
+                const headerRow = Array.from((node.querySelector('thead tr') || node.querySelector('tr:has(th)')).querySelectorAll('th,td')).map(c => safeText(c.innerText));
+                head = [headerRow];
+                const headerText = new Set([headerRow.join('|')]);
+                body = rows.filter(r => !headerText.has(r.join('|')));
+            }
+            if (y > pageH - margin.bottom - 22) { pdf.addPage(); y = margin.top; }
+            pdf.autoTable({
+                startY: y,
+                head,
+                body,
+                theme: 'grid',
+                margin: { left: margin.left, right: margin.right, top: margin.top, bottom: margin.bottom },
+                tableWidth: 'auto',
+                showHead: 'everyPage',
+                rowPageBreak: 'avoid',
+                pageBreak: 'auto',
+                styles: { font:'helvetica', fontSize:6.6, cellPadding:2.0, overflow:'linebreak', textColor:slate, lineColor:[222,230,240], lineWidth:.15, valign:'middle' },
+                headStyles: { fillColor:navy, textColor:[255,255,255], fontStyle:'bold', fontSize:6.5, halign:'left', cellPadding:2.4 },
+                alternateRowStyles: { fillColor:[246,249,253] },
+                columnStyles: Object.fromEntries((head[0] || rows[0]).map((h,i) => [i, { halign: /outstanding|amount|saldo|plafon|tunggakan|nominal|os\b|kkr/i.test(h) ? 'right' : 'left' }])),
+                didParseCell: data => {
+                    if (data.section === 'body') {
+                        const text = String(data.cell.raw || '');
+                        if (/^\s*\d+[,.]?\d*%\s*$/.test(text) && parseFloat(text.replace(',','.')) >= 5) data.cell.styles.textColor = [185,28,28];
+                    }
+                }
             });
-    });
+            y = (pdf.lastAutoTable?.finalY || y + 10) + 5;
+        }
+
+        // Add controlled closing/signature block without forcing a blank page.
+        if (y > pageH - margin.bottom - 34) { pdf.addPage(); y = margin.top; }
+        y = addSectionHeading('Pengesahan', y + 2);
+        pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
+        pdf.text('Laporan ini disusun berdasarkan data dan filter yang tersedia pada aplikasi DaKOPen PPU.', margin.left, y);
+        const signY = Math.min(y + 8, pageH - margin.bottom - 18);
+        const signW = 55, gap = 18, signX1 = pageW/2 - signW - gap/2, signX2 = pageW/2 + gap/2;
+        pdf.setTextColor(...slate); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5);
+        pdf.text('Disusun oleh,', signX1 + signW/2, signY, {align:'center'}); pdf.text('Diperiksa oleh,', signX2 + signW/2, signY, {align:'center'});
+        pdf.setDrawColor(148,163,184); pdf.line(signX1+8,signY+17,signX1+signW-8,signY+17); pdf.line(signX2+8,signY+17,signX2+signW-8,signY+17);
+        pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.text('Nama / Jabatan',signX1+signW/2,signY+21,{align:'center'}); pdf.text('Nama / Jabatan',signX2+signW/2,signY+21,{align:'center'});
+
+        const totalPages = pdf.getNumberOfPages();
+        for (let i=1; i<=totalPages; i++) { pdf.setPage(i); drawPageChrome(i,totalPages); }
+        pdf.save(fileName);
+        if (typeof showToast === 'function') showToast(`PDF berhasil dibuat: ${fileName}`, 'success');
+    } catch (err) {
+        console.error('Native PDF export failed:', err);
+        if (typeof showToast === 'function') showToast('PDF gagal dibuat. Periksa data laporan dan coba kembali.', 'error');
+    } finally {
+        if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
+    }
 }
 
 // ======================================================
@@ -4165,6 +4243,7 @@ function refreshReport(autoDownload = false) {
 // 4. RENDER PREVIEW (JEMBATAN)
 // ======================================================
 function renderReportPreview(res) {
+    window.__DAKOPEN_REPORT_DATA = res;
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
     
     const container = document.getElementById('rpt_content_body');
