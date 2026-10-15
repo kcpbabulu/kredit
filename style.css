@@ -1016,3 +1016,40 @@ html.dark .dak-report-workspace{background:linear-gradient(145deg,#0b1220 0%,#11
 .segment-compare-inline .risk-down{color:#047857}
 .segment-compare-inline .neutral{color:#64748b}
 @media(max-width:640px){.segment-kpi-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+/* V97 — sector metric comparison and robust report pagination */
+.rpt-font .sector-compare-legend{display:flex;flex-wrap:wrap;gap:5px 14px;padding:6px 9px;margin:0 0 7px;border:1px solid #dbe7f4;border-radius:8px;background:#f7faff;color:#536780;font-size:7.5px;line-height:1.35}
+.rpt-font .sector-comparison-table{table-layout:fixed!important;width:100%!important;max-width:100%!important;font-size:7px!important}
+.rpt-font .sector-comparison-table th{padding:6px 4px!important;text-align:right;vertical-align:middle;white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important}
+.rpt-font .sector-comparison-table th:nth-child(1),.rpt-font .sector-comparison-table th:nth-child(2){text-align:left}
+.rpt-font .sector-comparison-table td{padding:5px 4px!important;vertical-align:top!important;text-align:right;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.25!important}
+.rpt-font .sector-comparison-table .sector-no,.rpt-font .sector-comparison-table .sector-count{text-align:center!important}
+.rpt-font .sector-comparison-table .sector-name{text-align:left!important;font-weight:750;color:#24364d;overflow-wrap:anywhere;word-break:normal;hyphens:auto}
+.rpt-font .sector-current{font-weight:800;color:#172b45;font-size:7.1px;line-height:1.25;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rpt-font .sector-comparison{display:flex;flex-direction:column;gap:2px;margin-top:3px;padding-top:3px;border-top:1px solid #e6edf5;color:#718096;font-size:6.1px;line-height:1.25;font-weight:500;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.rpt-font .sector-prior{color:#667991}
+.rpt-font .sector-delta{font-weight:800;color:#475569}
+.rpt-font .sector-up{color:#b91c1c}
+.rpt-font .sector-down{color:#047857}
+.rpt-font .sector-neutral{color:#64748b}
+.rpt-font .sector-has-npl td{background:#fff8f8}
+.rpt-font .sector-total-row td{background:#eaf2fb!important;border-top:2px solid #244b76!important;font-weight:800;color:#17365d!important}
+.rpt-font .sector-total-row td:first-child{text-align:left!important}
+.rpt-font table:not(.sector-comparison-table){table-layout:fixed!important;width:100%!important;max-width:100%!important}
+.rpt-font table:not(.sector-comparison-table) th,.rpt-font table:not(.sector-comparison-table) td{overflow-wrap:anywhere!important;word-break:normal!important;hyphens:auto;vertical-align:middle}
+.rpt-font td .font-mono,.rpt-font td [style*="Courier New"]{overflow-wrap:anywhere;word-break:break-word}
+@media print {
+  /* A new report type always starts on a fresh A4 page; screen preview remains continuous. */
+  #rpt_content_body .page-break.report-type-break{display:block!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;break-before:page!important;page-break-before:always!important;break-after:auto!important;page-break-after:auto!important}
+  #rpt_content_body .sector-report-section{break-inside:auto!important;page-break-inside:auto!important}
+  #rpt_content_body .sector-comparison-table{font-size:6.5px!important}
+  #rpt_content_body .sector-comparison-table th{font-size:6.3px!important;padding:4px 3px!important;letter-spacing:0!important}
+  #rpt_content_body .sector-comparison-table td{padding:4px 3px!important}
+  #rpt_content_body .sector-current{font-size:6.5px!important}
+  #rpt_content_body .sector-comparison{font-size:5.6px!important;line-height:1.2!important}
+  #rpt_content_body .sector-compare-legend{font-size:6.5px!important;margin-bottom:5px!important;padding:4px 6px!important}
+  #rpt_content_body .report-section-flow,#rpt_content_body .avoid-break{break-inside:auto!important;page-break-inside:auto!important}
+  #rpt_content_body table{break-inside:auto!important;page-break-inside:auto!important}
+  #rpt_content_body tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  #rpt_content_body th,#rpt_content_body td{overflow-wrap:anywhere!important;word-break:normal!important}
+}
