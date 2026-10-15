@@ -4228,10 +4228,14 @@ function downloadPDF() {
         let lastTitle='02. Rincian Portofolio';
         const classifySection=(label,headers,body)=>{
             const t=(label+' '+headers.join(' ')).toLowerCase();
-            if(/top obligor|top exposure|konsentrasi debitur/.test(t))return 'TOP OBLIGOR · KONSENTRASI EKSPOSUR';
+            if(/top obligor|top exposure|konsentrasi debitur|konsentrasi risiko/.test(t))return 'TOP OBLIGOR · KONSENTRASI EKSPOSUR';
             if(/jatuh tempo|maturity|expired|akan jatuh/.test(t))return 'JATUH TEMPO · MONITORING PERJANJIAN';
             if(/pelunasan|penutupan fasilitas|lunas/.test(t))return 'PELUNASAN / PENUTUPAN FASILITAS';
             if(/pencairan|fresh money|kredit baru/.test(t))return 'PENCAIRAN / FRESH MONEY';
+            if(/produktif/.test(t))return 'KREDIT PRODUKTIF · SEGMENTAL ANALYSIS';
+            if(/\bkur\b/.test(t))return 'KREDIT KUR · SEGMENTAL ANALYSIS';
+            if(/konsumtif/.test(t))return 'KREDIT KONSUMTIF · SEGMENTAL ANALYSIS';
+            if(/mutasi portofolio|arus dana|cair vs lunas/.test(t))return 'MUTASI PORTOFOLIO · PENCAIRAN DAN PELUNASAN';
             if(/npl|macet|kolektibilitas 3|kol 3/.test(t)||body.some(r=>r.some(c=>/kol\s*[345]|expired/i.test(c))))return 'NPL · DEBITUR BERMASALAH';
             if(/watchlist|kkr|perhatian khusus/.test(t))return 'WATCHLIST · PEMANTAUAN DINI';
             if(/sektor ekonomi/.test(t))return 'ANALISIS SEKTOR EKONOMI';
@@ -4252,7 +4256,7 @@ function downloadPDF() {
             const isDebtor=/identitas debitur|loan id|jatuh tempo|baki debet|tunggakan|plafond/i.test(headers.join(' '));
             const category=classifySection(lastTitle,headers,body);
             // Every data table receives an explicit classification label for print/PDF readers.
-            if(y>pageH-margin.bottom-20){pdf.addPage();y=margin.top;}
+            if(y>pageH-margin.bottom-42){pdf.addPage();y=margin.top;}
             pdf.setFillColor(...(category.startsWith('NPL')?[254,242,242]:category.startsWith('JATUH')?[255,247,237]:category.startsWith('PELUNASAN')?[236,253,245]:category.startsWith('PENCAIRAN')?[239,246,255]:[239,246,255]));
             pdf.roundedRect(margin.left,y,pageW-margin.left-margin.right,7,1,1,'F');
             pdf.setTextColor(...(category.startsWith('NPL')?[185,28,28]:category.startsWith('JATUH')?[194,65,12]:category.startsWith('PELUNASAN')?[4,120,87]:[30,64,175]));
@@ -4494,7 +4498,7 @@ function generateFullReportHTML(res) {
 
     // 1. GLOBAL SUMMARY (EXECUTIVE DASHBOARD STYLE)
 html += getHeader('Executive Risk Report', '01. Ringkasan Kualitas Aset');
-html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Laporan ini menyajikan posisi portofolio, kualitas aset, eksposur sektor, segmentasi risiko, mutasi kredit, dan konsentrasi debitur berdasarkan filter yang dipilih. Gunakan angka dan rincian pada setiap bagian sebagai dasar analisis lanjutan.</div>`;
+html += `<div class="rpt-report-note"><strong>Ringkasan eksekutif.</strong> Laporan ini menyajikan posisi portofolio, kualitas aset, eksposur sektor, segmentasi produktif/KUR/konsumtif, mutasi pencairan dan pelunasan, konsentrasi Top 20 Obligor, serta monitoring jatuh tempo berdasarkan filter yang dipilih. Gunakan angka dan rincian pada setiap bagian sebagai dasar analisis lanjutan.</div>`;
 
 html += `<div class="dak-report-tools no-pdf" role="region" aria-label="Navigasi laporan"><strong style="font-size:10px;color:#173e68;white-space:nowrap">Navigasi laporan</strong><input type="search" aria-label="Cari isi laporan" placeholder="Cari sektor, debitur, atau kata kunci…" oninput="(function(q){document.querySelectorAll('#rpt_content_body .rpt-font tbody tr').forEach(function(r){r.style.display=!q||r.textContent.toLowerCase().includes(q)?'':'none';});})(this.value.trim().toLowerCase())"><a href="#rpt-sec-sektor">Sektor</a><a href="#rpt-sec-produktif">Produktif</a><a href="#rpt-sec-kur">KUR</a><a href="#rpt-sec-konsumtif">Konsumtif</a><a href="#rpt-sec-mutasi">Mutasi</a><a href="#rpt-sec-top">Top Obligor</a><a href="#rpt-sec-maturity">Jatuh Tempo</a><button type="button" onclick="document.querySelectorAll('#rpt_content_body tbody tr').forEach(function(r){r.style.display='';});document.querySelector('#rpt_content_body .dak-report-tools input').value=''">Reset</button></div>`;
 
@@ -4557,6 +4561,7 @@ html += `
 
         let page = `<div class="page-break"></div>`; 
         page += getHeader('Segmental Analysis', `0${numberPrefix}. ${title}`);
+        page += `<div class="report-subsection">0${numberPrefix}. ${title} · Ringkasan segmen dan daftar debitur prioritas</div>`;
         page += `<div class="card-grid">
             ${cardBig('Outstanding', cSeg.os, renderDiff(cSeg.os, pSeg?.os, false), fmtNum(cSeg.diff), colorBase, false)}
             ${cardBig('NPL (Macet)', cSeg.npl, renderDiff(cSeg.npl, pSeg?.npl, true), sNpl.toFixed(2), 'red', true)}
@@ -4570,7 +4575,7 @@ html += `
 
             let t = `<div class="avoid-break" style="margin-bottom: 25px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 2px solid ${accent};">
-                    <div style="font-size: 11px; font-weight: 800; color: ${accent}; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                    <div class="report-subsection" style="font-size: 11px; font-weight: 800; color: ${accent}; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
                         <i class="fas ${isNpl ? 'fa-biohazard' : 'fa-hand-holding-warning'}"></i>
                         ${subTitle}
                     </div>
@@ -4646,6 +4651,7 @@ html += `
         html += `<div class="page-break"></div>`; 
         html += `<span id="rpt-sec-mutasi"></span>`;
         html += getHeader('Portfolio Movement Dynamics', '06. Analisa Arus Dana (Cair vs Lunas)');
+        html += `<div class="section-title" id="rpt-sec-mutasi-detail">06. Mutasi Portofolio · Pencairan dan Pelunasan</div>`;
         
         // --- 1. KPI TILES (COMPACT FLOW LAYOUT) ---
         html += `
@@ -4794,6 +4800,7 @@ if(topObligors.length > 0) {
     html += `<div class="page-break"></div>`;
     html += `<span id="rpt-sec-top"></span>`;
     html += getHeader('Concentration Risk Analysis', '07. Top 20 Obligor (Pareto)');
+    html += `<div class="section-title" id="rpt-sec-top-detail">07. Analisis Konsentrasi Risiko · Top 20 Obligor</div>`;
     
     // --- 1. KPI TILES (COMPACT PREMIUM STYLE) ---
     html += `
@@ -4932,6 +4939,7 @@ if(topObligors.length > 0) {
 html += `<div class="page-break"></div>`; 
 html += `<span id="rpt-sec-maturity"></span>`;
 html += getHeader('Retention & Maturity Strategy', '08. Monitoring Jatuh Tempo');
+html += `<div class="section-title" id="rpt-sec-maturity-detail">08. Monitoring Jatuh Tempo · Horizon ${rangeBulan * 30} Hari</div>`;
 
 // Informational Alert Box - Executive Design
 html += `
