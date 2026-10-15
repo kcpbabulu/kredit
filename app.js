@@ -4716,16 +4716,34 @@ html += `<div class="executive-insight-panel" role="region" aria-label="Insight 
   <div class="executive-insight-foot"><i class="fas fa-circle-info"></i> Insight bersifat indikator awal berbasis snapshot, bukan pengganti analisis kredit dan verifikasi petugas.</div>
 </div>`;
 
-// Historical trend (up to six available snapshots ending at selected position).
+// Historical trend adaptif: granularitas berasal dari backend (bulanan untuk rentang dekat, tahunan untuk rentang panjang).
 const historyRows = Array.isArray(res.history) ? res.history : [];
-const trendMetric = historyRows.map(h => ({date:String(h.label||h.date||''),os:Number(h.os)||0,npl:Number(h.npl)||0,kkr:Number(h.kkr)||0,nplPct:Number(h.os)>0?(Number(h.npl)||0)/Number(h.os)*100:0,kkrPct:Number(h.os)>0?(Number(h.kkr)||0)/Number(h.os)*100:0}));
-const svgLine = (values, color, label) => {
-  if(values.length<2) return `<div class="trend-empty">Tren historis belum tersedia (minimal dua snapshot).</div>`;
-  const W=520,H=92,pad=10, vals=values.map(v=>Number(v)||0), min=Math.min(...vals), max=Math.max(...vals), span=max-min||1;
-  const pts=vals.map((v,i)=>`${pad+i*(W-2*pad)/(vals.length-1)},${H-pad-((v-min)/span)*(H-2*pad)}`).join(' ');
-  return `<div class="trend-series"><div class="trend-series-title"><span style="background:${color}"></span>${label}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tren ${label}" preserveAspectRatio="none"><line x1="10" y1="${H-10}" x2="${W-10}" y2="${H-10}" stroke="#dbe5f1" stroke-width="1"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>${vals.map((v,i)=>{const x=pad+i*(W-2*pad)/(vals.length-1),y=H-pad-((v-min)/span)*(H-2*pad);return `<circle cx="${x}" cy="${y}" r="3.2" fill="${color}"/>`}).join('')}</svg><div class="trend-axis">${trendMetric.map(v=>`<span>${v.date}</span>`).join('')}</div></div>`;
+const historyGranularity = res.historyGranularity || 'available';
+const trendMetric = historyRows.map(h => ({date:String(h.label||h.date||''),iso:String(h.date||''),os:Number(h.os)||0,noa:Number(h.noa)||0,npl:Number(h.npl)||0,kkr:Number(h.kkr)||0,sectors:h.sectors||{},nplPct:Number(h.os)>0?(Number(h.npl)||0)/Number(h.os)*100:0,kkrPct:Number(h.os)>0?(Number(h.kkr)||0)/Number(h.os)*100:0}));
+const trendMoney = v => v>=1e12 ? `Rp ${(v/1e12).toLocaleString('id-ID',{maximumFractionDigits:2})} T` : v>=1e9 ? `Rp ${(v/1e9).toLocaleString('id-ID',{maximumFractionDigits:2})} M` : v>=1e6 ? `Rp ${(v/1e6).toLocaleString('id-ID',{maximumFractionDigits:1})} jt` : `Rp ${Math.round(v).toLocaleString('id-ID')}`;
+const trendLabelValue = (v,kind) => kind==='money' ? trendMoney(v) : kind==='count' ? Number(v).toLocaleString('id-ID') : `${Number(v).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%`;
+const svgLine = (values, color, label, kind='money', dates=trendMetric.map(v=>v.date)) => {
+  if(values.length<2) return `<div class="trend-empty">Tren ${label.toLowerCase()} belum tersedia (minimal dua snapshot aktual).</div>`;
+  const W=520,H=112,pad=18, vals=values.map(v=>Number(v)||0), min=Math.min(...vals), max=Math.max(...vals), span=max-min||Math.max(1,Math.abs(max)*.04);
+  const xy=vals.map((v,i)=>({x:pad+i*(W-2*pad)/(vals.length-1),y:H-pad-((v-min)/span)*(H-2*pad),v}));
+  const pts=xy.map(p=>`${p.x},${p.y}`).join(' ');
+  const labels=xy.map((p,i)=>{let ly=p.y<27?p.y+12:p.y-7;return `<g><circle cx="${p.x}" cy="${p.y}" r="3.1" fill="${color}" stroke="#fff" stroke-width="1.2"/><text x="${p.x}" y="${ly}" font-size="8" font-weight="700" text-anchor="middle" fill="#334155">${trendLabelValue(p.v,kind)}</text></g>`}).join('');
+  const dateLabels=dates.map((d,i)=>`<span title="${d}">${d}</span>`).join('');
+  return `<div class="trend-series"><div class="trend-series-title"><span style="background:${color}"></span>${label}</div><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Tren ${label} dengan label nilai per snapshot" preserveAspectRatio="xMidYMid meet"><line x1="${pad}" y1="${H-pad}" x2="${W-pad}" y2="${H-pad}" stroke="#dbe5f1" stroke-width="1"/><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>${labels}</svg><div class="trend-axis">${dateLabels}</div></div>`;
 };
-html += `<div class="report-insight-block avoid-break" id="rpt-sec-trend"><div class="report-block-heading"><span class="report-icon blue"><i class="fas fa-chart-line"></i></span><div><strong>Tren Kualitas Aset</strong><small>${trendMetric.length} snapshot tersedia hingga ${dateStr.split(' vs ')[0]||dateStr}; bukan proyeksi</small></div></div><div class="trend-grid">${svgLine(trendMetric.map(v=>v.nplPct),'#dc2626','Rasio NPL')}${svgLine(trendMetric.map(v=>v.kkrPct),'#0d9488','Rasio KKR')}</div><div class="trend-grid">${svgLine(trendMetric.map(v=>v.os),'#2563eb','Outstanding')}${svgLine(trendMetric.map(v=>v.npl),'#b91c1c','Nominal NPL')}</div></div>`;
+const granularityLabel = historyGranularity==='yearly' ? 'snapshot akhir tahun (rentang pembanding panjang)' : historyGranularity==='monthly' ? 'snapshot bulanan (rentang pembanding dekat)' : 'snapshot aktual';
+html += `<div class="report-insight-block" id="rpt-sec-trend"><div class="report-block-heading"><span class="report-icon blue"><i class="fas fa-chart-line"></i></span><div><strong>Tren Kualitas Aset</strong><small>${trendMetric.length} ${granularityLabel}; setiap titik menampilkan nilai aktual, bukan proyeksi</small></div></div><div class="trend-grid">${svgLine(trendMetric.map(v=>v.nplPct),'#dc2626','Rasio NPL','percent')}${svgLine(trendMetric.map(v=>v.kkrPct),'#0d9488','Rasio KKR','percent')}</div><div class="trend-grid">${svgLine(trendMetric.map(v=>v.os),'#2563eb','Outstanding','money')}${svgLine(trendMetric.map(v=>v.npl),'#b91c1c','Nominal NPL','money')}</div></div>`;
+
+// Tren eksposur sektor ekonomi: top 5 sektor berdasarkan OS terkini, dibandingkan pada snapshot historis yang tersedia.
+const sectorTrendNames = Object.entries(curr.sectors||{}).map(([name,v])=>({name,os:Number(v?.os)||0})).sort((a,b)=>b.os-a.os).slice(0,5).map(x=>x.name);
+if(sectorTrendNames.length && trendMetric.length>1){
+  const sectorTrendBlocks = sectorTrendNames.map((name,idx)=>{
+    const colors=['#2563eb','#0d9488','#7c3aed','#d97706','#dc2626'];
+    const values=trendMetric.map(h=>Number(h.sectors?.[name]?.os)||0);
+    return svgLine(values,colors[idx%colors.length],name,'money');
+  }).join('');
+  html += `<div class="report-insight-block" id="rpt-sec-sector-trend"><div class="report-block-heading"><span class="report-icon blue"><i class="fas fa-chart-area"></i></span><div><strong>Tren Eksposur per Sektor Ekonomi</strong><small>Top 5 sektor berdasarkan OS posisi berjalan · nilai tiap titik ditampilkan</small></div></div><div class="trend-grid">${sectorTrendBlocks}</div><p class="report-footnote">Sektor yang tidak tersedia pada snapshot tertentu ditampilkan nol hanya jika snapshot sektor memang ada namun tidak memuat sektor tersebut; snapshot historis yang gagal dimuat tidak digunakan.</p></div>`;
+}
 
 // Reconciliation and data quality: report discrepancies rather than silently adjusting totals.
 const sectorRowsNow = Object.values(curr.sectors||{});
@@ -5071,6 +5089,27 @@ html += `<div class="report-definitions"><strong>Definisi ringkas</strong><span>
 
         // Render Tabel Pelunasan (Warna Rose/Red)
         html += renderTableMutasi('PELUNASAN / PENUTUPAN FASILITAS', move.lunas, '#be123c', 'LUNAS');
+
+        // Komposisi pencairan/pelunasan per sektor beserta pembanding interval sebelumnya.
+        const movementSectorData = res.movementSector || {};
+        const renderMovementSector = (kind,title,accent) => {
+          const nowMap = movementSectorData.current?.[kind] || {};
+          const prevMap = movementSectorData.previous?.[kind] || {};
+          const names = [...new Set([...Object.keys(nowMap),...Object.keys(prevMap)])].sort((a,b)=>(Number(nowMap[b]?.amount)||0)-(Number(nowMap[a]?.amount)||0));
+          const totalNow = Object.values(nowMap).reduce((a,v)=>a+(Number(v.amount)||0),0);
+          const totalPrev = Object.values(prevMap).reduce((a,v)=>a+(Number(v.amount)||0),0);
+          if(!names.length) return `<div class="report-footnote">Data ${title.toLowerCase()} per sektor tidak tersedia.</div>`;
+          const money = n => fmtIDR(Number(n)||0);
+          const pct = n => `${(Number(n)||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%`;
+          const rows = names.map(name=>{
+            const n=nowMap[name]||{amount:0,noa:0,share:0}, p=prevMap[name]||null;
+            const pShare=p?Number(p.share)||0:null, delta=pShare===null?null:Number(n.share||0)-pShare;
+            return `<tr><td>${name}</td><td class="w-money">${money(n.amount)}</td><td class="w-money">${pct(n.share)}</td><td class="w-money">${p?money(p.amount):'—'}</td><td class="w-money">${p?pct(p.share):'—'}</td><td class="w-money" style="font-weight:800;color:${delta===null?'#64748b':delta>0?'#b91c1c':delta<0?'#047857':'#64748b'}">${delta===null?'—':`${delta>0?'+':''}${delta.toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})} pp`}</td><td style="text-align:right">${fmtNum(n.noa)}</td></tr>`;
+          }).join('');
+          return `<div class="report-insight-block movement-sector-block"><div class="report-block-heading"><span class="report-icon ${kind==='cair'?'blue':'amber'}"><i class="fas ${kind==='cair'?'fa-arrow-right-to-bracket':'fa-arrow-right-from-bracket'}"></i></span><div><strong>${title} per Sektor Ekonomi</strong><small>Bagian sektor terhadap total ${title.toLowerCase()} · pembanding: ${movementSectorData.previousDates ? `${movementSectorData.previousDates.current} vs ${movementSectorData.previousDates.previous}` : 'periode sebelumnya tidak tersedia'}</small></div></div><div class="movement-sector-kpis"><span>Total berjalan <b>${money(totalNow)}</b></span><span>Total pembanding <b>${movementSectorData.previous?money(totalPrev):'—'}</b></span></div><div class="table-scroll"><table><thead><tr><th>Sektor Ekonomi</th><th>Nominal Berjalan</th><th>% Berjalan</th><th>Nominal Pembanding</th><th>% Pembanding</th><th>Δ Pangsa</th><th>NOA</th></tr></thead><tbody>${rows}<tr class="sector-total-row"><td>TOTAL</td><td class="w-money">${money(totalNow)}</td><td class="w-money">${pct(totalNow?100:0)}</td><td class="w-money">${movementSectorData.previous?money(totalPrev):'—'}</td><td class="w-money">${movementSectorData.previous?pct(totalPrev?100:0):'—'}</td><td class="w-money">—</td><td style="text-align:right">${fmtNum(Object.values(nowMap).reduce((a,v)=>a+(Number(v.noa)||0),0))}</td></tr></tbody></table></div></div>`;
+        };
+        html += renderMovementSector('cair','Pencairan Kredit','#059669');
+        html += renderMovementSector('lunas','Pelunasan Kredit','#be123c');
     }
 
 // ======================================================
