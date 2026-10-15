@@ -4058,7 +4058,7 @@ function downloadPDF() {
         : rawUnit.replace(/[^a-zA-Z0-9]/g, '').slice(0, 40);
     const fileName = `Laporan_Kredit_${unitSuffix}_${fileDateSuffix}.pdf`;
 
-    // Native PDF renderer: fixed A4 landscape coordinates; independent of viewport and HTML canvas.
+    // Native PDF renderer: fixed coordinates, independent from screen/viewport size.
     const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true, putOnlyUsedFonts: true });
     const pageW = pdf.internal.pageSize.getWidth();
     const pageH = pdf.internal.pageSize.getHeight();
@@ -4067,9 +4067,27 @@ function downloadPDF() {
     const slate = [51, 65, 85], muted = [100, 116, 139], pale = [239, 246, 255];
     const safeText = (v) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
     const unitLabel = rawUnit && !/^(ALL|SEMUA UNIT|KONSOLIDASI)$/i.test(rawUnit) ? rawUnit : 'KONSOLIDASI SELURUH UNIT';
-    const positionDate = root.querySelector('.rpt-report-meta')?.innerText || rawDate;
+    const reportData = window.__DAKOPEN_REPORT_DATA || {};
+    const currStats = reportData.curr?.stats || {};
+    const prevStats = reportData.prev?.stats || {};
+    const positionDate = safeText(root.querySelector('.rpt-report-meta')?.innerText || rawDate);
     const title = safeText(root.querySelector('.rpt-report-masthead h1')?.innerText || 'LAPORAN KREDIT');
     const today = new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' });
+    const fmtMoney = (v, decimals=0) => new Intl.NumberFormat('id-ID', {style:'currency',currency:'IDR',minimumFractionDigits:decimals,maximumFractionDigits:decimals}).format(Number(v)||0);
+    const fmtNum = (v) => new Intl.NumberFormat('id-ID', {maximumFractionDigits:2}).format(Number(v)||0);
+    const fmtPct = (v) => `${(Number(v)||0).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})}%`;
+    const compactMoney = (v) => {
+        const n = Number(v)||0;
+        if (Math.abs(n) >= 1e12) return `Rp ${(n/1e12).toLocaleString('id-ID',{maximumFractionDigits:2})} T`;
+        if (Math.abs(n) >= 1e9) return `Rp ${(n/1e9).toLocaleString('id-ID',{maximumFractionDigits:2})} Miliar`;
+        if (Math.abs(n) >= 1e6) return `Rp ${(n/1e6).toLocaleString('id-ID',{maximumFractionDigits:1})} Juta`;
+        return fmtMoney(n);
+    };
+    const nplRatio = Number(currStats.os) > 0 ? Number(currStats.npl||0)/Number(currStats.os)*100 : 0;
+    const kkrRatio = Number(currStats.os) > 0 ? Number(currStats.kkr||0)/Number(currStats.os)*100 : 0;
+    const sectionIndex = [];
+    let trackSections = false;
+    let tocPage = 0;
 
     function drawPageChrome(pageNo, totalPages) {
         pdf.setFillColor(...navy); pdf.rect(0, 0, pageW, 18, 'F');
@@ -4092,6 +4110,7 @@ function downloadPDF() {
         const label = safeText(text);
         if (!label) return y;
         if (y > pageH - margin.bottom - 16) { pdf.addPage(); y = margin.top; }
+        if (trackSections) sectionIndex.push({ title: label, page: pdf.internal.getCurrentPageInfo().pageNumber, y });
         pdf.setFillColor(...pale); pdf.roundedRect(margin.left, y, pageW - margin.left - margin.right, 8, 1.5, 1.5, 'F');
         pdf.setFillColor(...blue); pdf.rect(margin.left, y, 1.5, 8, 'F');
         pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(9);
@@ -4100,120 +4119,164 @@ function downloadPDF() {
     }
 
     function drawMetricCards(y) {
-        const cards = [];
-        root.querySelectorAll('.avoid-break[style*="grid-template-columns"] > div, .avoid-break > div[style*="grid-template-columns"] > div').forEach(card => {
-            const label = safeText(card.querySelector('div div')?.innerText || card.innerText.split('\n')[0]);
-            const lines = card.innerText.split('\n').map(safeText).filter(Boolean);
-            if (lines.length) cards.push({ label: lines[0], value: lines[1] || '', sub: lines.slice(2).join(' · ') });
-        });
-        if (!cards.length) {
-            const stats = window.__DAKOPEN_REPORT_DATA?.curr?.stats;
-            if (stats) {
-                const money = v => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(Number(v)||0);
-                cards.push({label:'TOTAL OUTSTANDING',value:money(stats.os)}, {label:'NPL AMOUNT',value:money(stats.npl)}, {label:'TOTAL DEBITUR',value:new Intl.NumberFormat('id-ID').format(stats.noa)}, {label:'WATCHLIST / KKR',value:money(stats.kkr)});
-            }
-        }
-        const count = Math.min(cards.length, 4);
-        if (!count) return y;
-        const gap = 4, cardW = (pageW - margin.left - margin.right - gap * (count - 1)) / count, cardH = 21;
-        cards.slice(0,count).forEach((c,i) => {
-            const x = margin.left + i * (cardW + gap);
-            const colors = [[37,99,235],[185,28,28],[13,148,136],[194,65,12]];
+        // Read authoritative values from the report payload; do not parse presentation text.
+        const cards = [
+            { label:'TOTAL OUTSTANDING (OS)', value:fmtMoney(currStats.os,0), sub:prevStats.os!=null ? `Perubahan ${compactMoney(Number(currStats.os||0)-Number(prevStats.os||0))}` : 'Posisi portofolio berjalan', color:[37,99,235] },
+            { label:'NPL AMOUNT', value:fmtMoney(currStats.npl,0), sub:`Rasio NPL ${fmtPct(nplRatio)}`, color:[185,28,28] },
+            { label:'WATCHLIST / KKR', value:fmtMoney(currStats.kkr,0), sub:`Rasio KKR ${fmtPct(kkrRatio)}`, color:[13,148,136] },
+            { label:'TOTAL NOA / REKENING', value:fmtNum(currStats.noa), sub:'Jumlah rekening pada posisi data', color:[194,65,12] }
+        ];
+        const gap=4, count=4, cardW=(pageW-margin.left-margin.right-gap*(count-1))/count, cardH=23;
+        cards.forEach((c,i)=>{
+            const x=margin.left+i*(cardW+gap);
             pdf.setFillColor(255,255,255); pdf.setDrawColor(220,229,240); pdf.roundedRect(x,y,cardW,cardH,2,2,'FD');
-            pdf.setFillColor(...colors[i % colors.length]); pdf.roundedRect(x,y,cardW,1.5,1,1,'F');
-            pdf.setTextColor(...muted); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); pdf.text(c.label.toUpperCase().slice(0,48),x+3,y+6,{maxWidth:cardW-6});
-            pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(10); pdf.text(c.value.slice(0,65),x+3,y+12.5,{maxWidth:cardW-6});
-            if (c.sub) { pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(6); pdf.text(c.sub.slice(0,80),x+3,y+17.5,{maxWidth:cardW-6}); }
+            pdf.setFillColor(...c.color); pdf.roundedRect(x,y,cardW,1.6,1,1,'F');
+            pdf.setTextColor(...muted); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.5); pdf.text(c.label,x+3,y+6,{maxWidth:cardW-6});
+            pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(10); pdf.text(c.value,x+3,y+12.6,{maxWidth:cardW-6});
+            pdf.setTextColor(...(c.color)); pdf.setFont('helvetica','normal'); pdf.setFontSize(6.5); pdf.text(c.sub,x+3,y+18.3,{maxWidth:cardW-6});
         });
-        return y + cardH + 5;
+        return y+cardH+5;
+    }
+
+    function drawExecutiveInsights(y) {
+        const sectorsObj = currStats.sectors && typeof currStats.sectors === 'object' ? currStats.sectors : {};
+        const sectors = Object.entries(sectorsObj).map(([name,v])=>({name, ...(v||{}), os:Number(v?.os)||0, npl:Number(v?.npl)||0, kkr:Number(v?.kkr)||0, noa:Number(v?.noa)||0}))
+            .sort((a,b)=>b.os-a.os);
+        const topOs = sectors.slice(0,5);
+        const topNpl = [...sectors].sort((a,b)=>b.npl-a.npl)[0];
+        const sectorsWithNpl = sectors.filter(v=>v.npl>0).length;
+        const topOsSum = topOs.reduce((sum,v)=>sum+v.os,0);
+        const concentration = Number(currStats.os)>0 ? topOsSum/Number(currStats.os)*100 : 0;
+        y = addSectionHeading('Sorotan Portofolio & Konsentrasi Risiko',y);
+        const chartX=margin.left, chartW=145, insightX=margin.left+151, insightW=pageW-margin.right-insightX;
+        pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(chartX,y,chartW,53,2,2,'FD');
+        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.text('TOP 5 SEKTOR BERDASARKAN OUTSTANDING',chartX+4,y+6);
+        const maxOS=Math.max(1,...topOs.map(v=>v.os));
+        topOs.forEach((v,i)=>{
+            const yy=y+12+i*7.3;
+            const label=v.name.length>26?v.name.slice(0,25)+'…':v.name;
+            pdf.setTextColor(...slate); pdf.setFont('helvetica','normal'); pdf.setFontSize(6.2); pdf.text(label,chartX+4,yy,{maxWidth:62});
+            const bx=chartX+68, bw=43;
+            pdf.setFillColor(226,232,240); pdf.roundedRect(bx,yy-3.2,bw,3.4,1,1,'F');
+            pdf.setFillColor(...(i===0?blue:[56,189,248])); pdf.roundedRect(bx,yy-3.2,Math.max(1,bw*v.os/maxOS),3.4,1,1,'F');
+            pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.1); pdf.text(compactMoney(v.os),chartX+chartW-3,yy,{align:'right'});
+        });
+        pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(insightX,y,insightW,53,2,2,'FD');
+        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.text('INDIKATOR PERHATIAN',insightX+4,y+6);
+        const items=[
+            {label:'NPL ratio portofolio',value:fmtPct(nplRatio),color:nplRatio>=5?[185,28,28]:[13,148,136]},
+            {label:'Sektor dengan NPL tercatat',value:`${sectorsWithNpl} dari ${sectors.length} sektor`,color:[37,99,235]},
+            {label:'Kontribusi top 5 sektor terhadap OS',value:fmtPct(concentration),color:[194,65,12]},
+            {label:'Sektor dengan NPL nominal tertinggi',value:topNpl?`${topNpl.name} · ${compactMoney(topNpl.npl)}`:'Tidak tersedia',color:[185,28,28]}
+        ];
+        items.forEach((it,i)=>{
+            const yy=y+13+i*9.1;
+            pdf.setFillColor(...it.color); pdf.circle(insightX+5,yy-1.1,1.2,'F');
+            pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(6.6); pdf.text(it.label,insightX+9,yy,{maxWidth:65});
+            pdf.setTextColor(...it.color); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.6); pdf.text(it.value,insightX+insightW-4,yy,{align:'right',maxWidth:insightW-78});
+        });
+        pdf.setTextColor(...muted); pdf.setFont('helvetica','italic'); pdf.setFontSize(6.2);
+        pdf.text('Sorotan dihitung dari data yang tersedia pada laporan ini; indikator bukan pengganti penilaian kredit dan validasi petugas.',margin.left,y+59,{maxWidth:pageW-margin.left-margin.right});
+        return y+64;
+    }
+
+    function drawContentsPage() {
+        pdf.setPage(tocPage);
+        let y=margin.top;
+        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(16); pdf.text('PANDUAN ISI LAPORAN',margin.left,y+2);
+        pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(8); pdf.text('Pilih judul bagian untuk menuju halaman terkait pada pembaca PDF yang mendukung tautan internal.',margin.left,y+8);
+        y+=17;
+        const unique=[]; const seen=new Set();
+        sectionIndex.forEach(s=>{const key=s.title.toLowerCase();if(!seen.has(key)){seen.add(key);unique.push(s);}});
+        unique.forEach((sec,i)=>{
+            if(y>pageH-margin.bottom-8){return;}
+            pdf.setFillColor(i%2===0?248:255,i%2===0?250:255,i%2===0?252:255); pdf.roundedRect(margin.left,y-4,pageW-margin.left-margin.right,8,1,1,'F');
+            pdf.setTextColor(...blue); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.6); pdf.text(sec.title,margin.left+3,y+1,{maxWidth:pageW-margin.left-margin.right-20});
+            pdf.setTextColor(...muted); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.2); pdf.text(String(sec.page),pageW-margin.right-4,y+1,{align:'right'});
+            try { pdf.link(margin.left,y-4,pageW-margin.left-margin.right,8,{pageNumber:sec.page,top:sec.y}); } catch(e) { /* Some PDF viewers may ignore internal links; content remains readable. */ }
+            y+=9;
+        });
+        pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(7);
+        pdf.text('Catatan: angka dan daftar detail mengikuti filter unit serta posisi data yang dipilih saat laporan dibuat.',margin.left,pageH-margin.bottom-3,{maxWidth:pageW-margin.left-margin.right});
     }
 
     try {
-        // Cover / executive summary page. This is a true PDF layout, not a screenshot of HTML.
-        let y = margin.top;
-        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(17);
-        pdf.text(title || 'EXECUTIVE CREDIT REPORT', margin.left, y + 1);
-        y += 6;
+        // Page 1: executive summary with metrics sourced directly from data, not scraped from card HTML.
+        let y=margin.top;
+        pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(17); pdf.text(title||'EXECUTIVE CREDIT REPORT',margin.left,y+1); y+=6;
         pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(8);
-        pdf.text('Unit: ' + unitLabel + '   •   Posisi data: ' + (rawDate ? rawDate.split('-').reverse().join('/') : '-'), margin.left, y + 2);
-        pdf.text('Dibuat: ' + today, pageW - margin.right, y + 2, { align:'right' });
-        y += 8;
-        y = addSectionHeading('01. Ringkasan Eksekutif', y);
-        y = drawMetricCards(y);
-        const note = safeText(root.querySelector('.rpt-report-note')?.innerText || 'Ringkasan portofolio kredit berdasarkan unit dan tanggal posisi yang dipilih.');
+        pdf.text('Unit: '+unitLabel+'   •   Posisi data: '+(rawDate?rawDate.split('-').reverse().join('/'):'-'),margin.left,y+2);
+        pdf.text('Dibuat: '+today,pageW-margin.right,y+2,{align:'right'}); y+=8;
+        y=addSectionHeading('01. Ringkasan Eksekutif',y);
+        y=drawMetricCards(y);
+        const note=safeText(root.querySelector('.rpt-report-note')?.innerText||'Ringkasan portofolio kredit berdasarkan unit dan tanggal posisi yang dipilih.');
         pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(margin.left,y,pageW-margin.left-margin.right,13,1.5,1.5,'FD');
-        pdf.setTextColor(...slate); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
-        pdf.text(pdf.splitTextToSize(note, pageW-margin.left-margin.right-8).slice(0,2), margin.left+4, y+5);
-        y += 18;
+        pdf.setTextColor(...slate); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5); pdf.text(pdf.splitTextToSize(note,pageW-margin.left-margin.right-8).slice(0,2),margin.left+4,y+5); y+=18;
+        y=drawExecutiveInsights(y);
 
-        // Structured tables are translated to native PDF tables; layout no longer depends on device viewport.
-        const tables = Array.from(root.querySelectorAll('table'));
-        const titleNodes = Array.from(root.querySelectorAll('.section-title, .report-subsection'));
-        let lastTitle = '02. Rincian Portofolio';
-        let titleIndex = 0;
-        const allNodes = Array.from(root.querySelectorAll('.section-title, .report-subsection, table'));
-        for (const node of allNodes) {
-            if (node.matches('.section-title, .report-subsection')) {
-                lastTitle = safeText(node.innerText) || lastTitle;
-                y = addSectionHeading(lastTitle, y);
+        // Reserve page 2 for a clickable table of contents. Detailed data begins on page 3.
+        pdf.addPage(); tocPage=pdf.internal.getCurrentPageInfo().pageNumber;
+        pdf.addPage(); y=margin.top; trackSections=true;
+        const allNodes=Array.from(root.querySelectorAll('.section-title, .report-subsection, table'));
+        let lastTitle='02. Rincian Portofolio';
+        for(const node of allNodes){
+            if(node.matches('.section-title, .report-subsection')){
+                lastTitle=safeText(node.innerText)||lastTitle;
+                y=addSectionHeading(lastTitle,y);
                 continue;
             }
-            const rows = Array.from(node.querySelectorAll('tr')).map(tr => Array.from(tr.querySelectorAll('th,td')).map(cell => safeText(cell.innerText)));
-            if (!rows.length) continue;
-            const hasHeader = node.querySelector('thead tr') || node.querySelector('tr th');
-            let head = [], body = rows;
-            if (hasHeader) {
-                const headerRow = Array.from((node.querySelector('thead tr') || node.querySelector('tr:has(th)')).querySelectorAll('th,td')).map(c => safeText(c.innerText));
-                head = [headerRow];
-                const headerText = new Set([headerRow.join('|')]);
-                body = rows.filter(r => !headerText.has(r.join('|')));
+            const rows=Array.from(node.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(cell=>safeText(cell.innerText)));
+            if(!rows.length)continue;
+            const headerNode=node.querySelector('thead tr')||node.querySelector('tr th');
+            let head=[],body=rows;
+            if(headerNode){
+                const headerRow=Array.from(headerNode.querySelectorAll('th,td')).map(c=>safeText(c.innerText));
+                head=[headerRow];
+                const headerKey=headerRow.join('|');
+                body=rows.filter(r=>r.join('|')!==headerKey);
             }
-            if (y > pageH - margin.bottom - 22) { pdf.addPage(); y = margin.top; }
+            if(y>pageH-margin.bottom-22){pdf.addPage();y=margin.top;}
             pdf.autoTable({
-                startY: y,
-                head,
-                body,
-                theme: 'grid',
-                margin: { left: margin.left, right: margin.right, top: margin.top, bottom: margin.bottom },
-                tableWidth: 'auto',
-                showHead: 'everyPage',
-                rowPageBreak: 'avoid',
-                pageBreak: 'auto',
-                styles: { font:'helvetica', fontSize:6.6, cellPadding:2.0, overflow:'linebreak', textColor:slate, lineColor:[222,230,240], lineWidth:.15, valign:'middle' },
-                headStyles: { fillColor:navy, textColor:[255,255,255], fontStyle:'bold', fontSize:6.5, halign:'left', cellPadding:2.4 },
-                alternateRowStyles: { fillColor:[246,249,253] },
-                columnStyles: Object.fromEntries((head[0] || rows[0]).map((h,i) => [i, { halign: /outstanding|amount|saldo|plafon|tunggakan|nominal|os\b|kkr/i.test(h) ? 'right' : 'left' }])),
-                didParseCell: data => {
-                    if (data.section === 'body') {
-                        const text = String(data.cell.raw || '');
-                        if (/^\s*\d+[,.]?\d*%\s*$/.test(text) && parseFloat(text.replace(',','.')) >= 5) data.cell.styles.textColor = [185,28,28];
+                startY:y,head,body,theme:'grid',
+                margin:{left:margin.left,right:margin.right,top:margin.top,bottom:margin.bottom},
+                tableWidth:'auto',showHead:'everyPage',rowPageBreak:'avoid',pageBreak:'auto',
+                styles:{font:'helvetica',fontSize:6.8,cellPadding:2.1,overflow:'linebreak',textColor:slate,lineColor:[222,230,240],lineWidth:.15,valign:'middle'},
+                headStyles:{fillColor:navy,textColor:[255,255,255],fontStyle:'bold',fontSize:6.5,halign:'left',cellPadding:2.5},
+                alternateRowStyles:{fillColor:[246,249,253]},
+                columnStyles:Object.fromEntries((head[0]||rows[0]).map((h,i)=>[i,{halign:/outstanding|amount|saldo|plafon|tunggakan|nominal|os\b|kkr|baki debet/i.test(h)?'right':'left'}])),
+                didParseCell:data=>{
+                    if(data.section==='body'){
+                        const text=String(data.cell.raw||'');
+                        if(/^\s*\d+[,.]?\d*%\s*$/.test(text)&&parseFloat(text.replace(',','.'))>=5)data.cell.styles.textColor=[185,28,28];
+                        if(/\bEXPIRED\b|\bKOL\s*[345]\b/i.test(text))data.cell.styles.textColor=[185,28,28];
                     }
                 }
             });
-            y = (pdf.lastAutoTable?.finalY || y + 10) + 5;
+            y=(pdf.lastAutoTable?.finalY||y+10)+5;
         }
 
-        // Add controlled closing/signature block without forcing a blank page.
-        if (y > pageH - margin.bottom - 34) { pdf.addPage(); y = margin.top; }
-        y = addSectionHeading('Pengesahan', y + 2);
-        pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(7.5);
-        pdf.text('Laporan ini disusun berdasarkan data dan filter yang tersedia pada aplikasi DaKOPen PPU.', margin.left, y);
-        const signY = Math.min(y + 8, pageH - margin.bottom - 18);
-        const signW = 55, gap = 18, signX1 = pageW/2 - signW - gap/2, signX2 = pageW/2 + gap/2;
-        pdf.setTextColor(...slate); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5);
-        pdf.text('Disusun oleh,', signX1 + signW/2, signY, {align:'center'}); pdf.text('Diperiksa oleh,', signX2 + signW/2, signY, {align:'center'});
-        pdf.setDrawColor(148,163,184); pdf.line(signX1+8,signY+17,signX1+signW-8,signY+17); pdf.line(signX2+8,signY+17,signX2+signW-8,signY+17);
-        pdf.setFont('helvetica','normal'); pdf.setFontSize(7); pdf.text('Nama / Jabatan',signX1+signW/2,signY+21,{align:'center'}); pdf.text('Nama / Jabatan',signX2+signW/2,signY+21,{align:'center'});
+        // Closing block only when enough room remains; never place labels below the footer.
+        if(y>pageH-margin.bottom-34){pdf.addPage();y=margin.top;}
+        y=addSectionHeading('Pengesahan',y+2);
+        pdf.setTextColor(...muted);pdf.setFont('helvetica','normal');pdf.setFontSize(7.5);
+        pdf.text('Laporan ini disusun berdasarkan data dan filter yang tersedia pada aplikasi DaKOPen PPU.',margin.left,y);
+        const signY=Math.min(y+8,pageH-margin.bottom-18),signW=55,gap=18;
+        const signX1=pageW/2-signW-gap/2,signX2=pageW/2+gap/2;
+        pdf.setTextColor(...slate);pdf.setFont('helvetica','bold');pdf.setFontSize(7.5);
+        pdf.text('Disusun oleh,',signX1+signW/2,signY,{align:'center'});pdf.text('Diperiksa oleh,',signX2+signW/2,signY,{align:'center'});
+        pdf.setDrawColor(148,163,184);pdf.line(signX1+8,signY+17,signX1+signW-8,signY+17);pdf.line(signX2+8,signY+17,signX2+signW-8,signY+17);
+        pdf.setFont('helvetica','normal');pdf.setFontSize(7);pdf.text('Nama / Jabatan',signX1+signW/2,signY+21,{align:'center'});pdf.text('Nama / Jabatan',signX2+signW/2,signY+21,{align:'center'});
 
-        const totalPages = pdf.getNumberOfPages();
-        for (let i=1; i<=totalPages; i++) { pdf.setPage(i); drawPageChrome(i,totalPages); }
+        drawContentsPage();
+        const totalPages=pdf.getNumberOfPages();
+        for(let i=1;i<=totalPages;i++){pdf.setPage(i);drawPageChrome(i,totalPages);}
         pdf.save(fileName);
-        if (typeof showToast === 'function') showToast(`PDF berhasil dibuat: ${fileName}`, 'success');
-    } catch (err) {
-        console.error('Native PDF export failed:', err);
-        if (typeof showToast === 'function') showToast('PDF gagal dibuat. Periksa data laporan dan coba kembali.', 'error');
-    } finally {
-        if (loader) { loader.style.display = 'none'; loader.removeAttribute('aria-busy'); }
+        if(typeof showToast==='function')showToast(`PDF berhasil dibuat: ${fileName}`,'success');
+    }catch(err){
+        console.error('Native PDF export failed:',err);
+        if(typeof showToast==='function')showToast('PDF gagal dibuat. Periksa data laporan dan coba kembali.','error');
+    }finally{
+        if(loader){loader.style.display='none';loader.removeAttribute('aria-busy');}
     }
 }
 
