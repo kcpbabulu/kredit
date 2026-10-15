@@ -4059,7 +4059,7 @@ function downloadPDF() {
     const fileName = `Laporan_Kredit_${unitSuffix}_${fileDateSuffix}.pdf`;
 
     // Native PDF renderer: fixed coordinates, independent from screen/viewport size.
-    const pdf = new JsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', compress: true, putOnlyUsedFonts: true });
+    const pdf = new JsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true, putOnlyUsedFonts: true });
     const pageW = pdf.internal.pageSize.getWidth();
     const pageH = pdf.internal.pageSize.getHeight();
     const margin = { left: 10, right: 10, top: 27, bottom: 17 };
@@ -4148,18 +4148,18 @@ function downloadPDF() {
         const topOsSum = topOs.reduce((sum,v)=>sum+v.os,0);
         const concentration = Number(currStats.os)>0 ? topOsSum/Number(currStats.os)*100 : 0;
         y = addSectionHeading('Sorotan Portofolio & Konsentrasi Risiko',y);
-        const chartX=margin.left, chartW=145, insightX=margin.left+151, insightW=pageW-margin.right-insightX;
+        const chartX=margin.left, chartW=91, insightX=margin.left+96, insightW=pageW-margin.right-insightX;
         pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(chartX,y,chartW,53,2,2,'FD');
         pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.text('TOP 5 SEKTOR BERDASARKAN OUTSTANDING',chartX+4,y+6);
         const maxOS=Math.max(1,...topOs.map(v=>v.os));
         topOs.forEach((v,i)=>{
             const yy=y+12+i*7.3;
-            const label=v.name.length>26?v.name.slice(0,25)+'…':v.name;
-            pdf.setTextColor(...slate); pdf.setFont('helvetica','normal'); pdf.setFontSize(6.2); pdf.text(label,chartX+4,yy,{maxWidth:62});
-            const bx=chartX+68, bw=43;
+            const label=v.name.length>23?v.name.slice(0,22)+'…':v.name;
+            pdf.setTextColor(...slate); pdf.setFont('helvetica','normal'); pdf.setFontSize(5.7); pdf.text(label,chartX+3,yy,{maxWidth:43});
+            const bx=chartX+47, bw=22;
             pdf.setFillColor(226,232,240); pdf.roundedRect(bx,yy-3.2,bw,3.4,1,1,'F');
             pdf.setFillColor(...(i===0?blue:[56,189,248])); pdf.roundedRect(bx,yy-3.2,Math.max(1,bw*v.os/maxOS),3.4,1,1,'F');
-            pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.1); pdf.text(compactMoney(v.os),chartX+chartW-3,yy,{align:'right'});
+            pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(5.2); pdf.text(compactMoney(v.os),chartX+chartW-3,yy,{align:'right',maxWidth:20});
         });
         pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(insightX,y,insightW,53,2,2,'FD');
         pdf.setTextColor(...navy); pdf.setFont('helvetica','bold'); pdf.setFontSize(7.5); pdf.text('INDIKATOR PERHATIAN',insightX+4,y+6);
@@ -4172,12 +4172,19 @@ function downloadPDF() {
         items.forEach((it,i)=>{
             const yy=y+13+i*9.1;
             pdf.setFillColor(...it.color); pdf.circle(insightX+5,yy-1.1,1.2,'F');
-            pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(6.6); pdf.text(it.label,insightX+9,yy,{maxWidth:65});
-            pdf.setTextColor(...it.color); pdf.setFont('helvetica','bold'); pdf.setFontSize(6.6); pdf.text(it.value,insightX+insightW-4,yy,{align:'right',maxWidth:insightW-78});
+            pdf.setTextColor(...muted); pdf.setFont('helvetica','normal'); pdf.setFontSize(5.8); pdf.text(it.label,insightX+8,yy,{maxWidth:38});
+            pdf.setTextColor(...it.color); pdf.setFont('helvetica','bold'); pdf.setFontSize(5.6); pdf.text(it.value,insightX+insightW-3,yy,{align:'right',maxWidth:insightW-49});
         });
         pdf.setTextColor(...muted); pdf.setFont('helvetica','italic'); pdf.setFontSize(6.2);
         pdf.text('Sorotan dihitung dari data yang tersedia pada laporan ini; indikator bukan pengganti penilaian kredit dan validasi petugas.',margin.left,y+59,{maxWidth:pageW-margin.left-margin.right});
-        return y+64;
+        // Portrait-friendly native chart: OS vs NPL vs watchlist (amounts are comparable as exposure indicators, not additive buckets).
+        const chartY=y+66, chartH=28, chartFullW=pageW-margin.left-margin.right;
+        pdf.setFillColor(248,250,252); pdf.setDrawColor(226,232,240); pdf.roundedRect(margin.left,chartY,chartFullW,chartH,2,2,'FD');
+        pdf.setTextColor(...navy);pdf.setFont('helvetica','bold');pdf.setFontSize(7);pdf.text('INDIKATOR NILAI PORTOFOLIO',margin.left+4,chartY+5);
+        const measures=[{label:'Outstanding',v:Number(currStats.os)||0,c:blue},{label:'NPL',v:Number(currStats.npl)||0,c:[185,28,28]},{label:'Watchlist / KKR',v:Number(currStats.kkr)||0,c:[13,148,136]}];
+        const maxV=Math.max(1,...measures.map(m=>m.v));
+        measures.forEach((m,i)=>{const yy=chartY+11+i*5.1;pdf.setTextColor(...slate);pdf.setFont('helvetica','normal');pdf.setFontSize(5.8);pdf.text(m.label,margin.left+4,yy);const bx=margin.left+35,bw=chartFullW-70;pdf.setFillColor(226,232,240);pdf.roundedRect(bx,yy-2.2,bw,2.5,1,1,'F');pdf.setFillColor(...m.c);pdf.roundedRect(bx,yy-2.2,Math.max(1,bw*m.v/maxV),2.5,1,1,'F');pdf.setTextColor(...m.c);pdf.setFont('helvetica','bold');pdf.setFontSize(5.8);pdf.text(compactMoney(m.v),pageW-margin.right-3,yy,{align:'right',maxWidth:30});});
+        return chartY+chartH+5;
     }
 
     function drawContentsPage() {
@@ -4219,6 +4226,17 @@ function downloadPDF() {
         pdf.addPage(); y=margin.top; trackSections=true;
         const allNodes=Array.from(root.querySelectorAll('.section-title, .report-subsection, table'));
         let lastTitle='02. Rincian Portofolio';
+        const classifySection=(label,headers,body)=>{
+            const t=(label+' '+headers.join(' ')).toLowerCase();
+            if(/top obligor|top exposure|konsentrasi debitur/.test(t))return 'TOP OBLIGOR · KONSENTRASI EKSPOSUR';
+            if(/jatuh tempo|maturity|expired|akan jatuh/.test(t))return 'JATUH TEMPO · MONITORING PERJANJIAN';
+            if(/pelunasan|penutupan fasilitas|lunas/.test(t))return 'PELUNASAN / PENUTUPAN FASILITAS';
+            if(/pencairan|fresh money|kredit baru/.test(t))return 'PENCAIRAN / FRESH MONEY';
+            if(/npl|macet|kolektibilitas 3|kol 3/.test(t)||body.some(r=>r.some(c=>/kol\s*[345]|expired/i.test(c))))return 'NPL · DEBITUR BERMASALAH';
+            if(/watchlist|kkr|perhatian khusus/.test(t))return 'WATCHLIST · PEMANTAUAN DINI';
+            if(/sektor ekonomi/.test(t))return 'ANALISIS SEKTOR EKONOMI';
+            return 'RINCIAN DEBITUR / PORTOFOLIO';
+        };
         for(const node of allNodes){
             if(node.matches('.section-title, .report-subsection')){
                 lastTitle=safeText(node.innerText)||lastTitle;
@@ -4228,31 +4246,43 @@ function downloadPDF() {
             const rows=Array.from(node.querySelectorAll('tr')).map(tr=>Array.from(tr.querySelectorAll('th,td')).map(cell=>safeText(cell.innerText)));
             if(!rows.length)continue;
             const headerNode=node.querySelector('thead tr')||node.querySelector('tr th');
-            let head=[],body=rows;
-            if(headerNode){
-                const headerRow=Array.from(headerNode.querySelectorAll('th,td')).map(c=>safeText(c.innerText));
-                head=[headerRow];
-                const headerKey=headerRow.join('|');
-                body=rows.filter(r=>r.join('|')!==headerKey);
+            let headers=[],body=rows;
+            if(headerNode){headers=Array.from(headerNode.querySelectorAll('th,td')).map(c=>safeText(c.innerText));body=rows.filter(r=>r.join('|')!==headers.join('|'));}
+            if(!body.length)continue;
+            const isDebtor=/identitas debitur|loan id|jatuh tempo|baki debet|tunggakan|plafond/i.test(headers.join(' '));
+            const category=classifySection(lastTitle,headers,body);
+            // Every data table receives an explicit classification label for print/PDF readers.
+            if(y>pageH-margin.bottom-20){pdf.addPage();y=margin.top;}
+            pdf.setFillColor(...(category.startsWith('NPL')?[254,242,242]:category.startsWith('JATUH')?[255,247,237]:category.startsWith('PELUNASAN')?[236,253,245]:category.startsWith('PENCAIRAN')?[239,246,255]:[239,246,255]));
+            pdf.roundedRect(margin.left,y,pageW-margin.left-margin.right,7,1,1,'F');
+            pdf.setTextColor(...(category.startsWith('NPL')?[185,28,28]:category.startsWith('JATUH')?[194,65,12]:category.startsWith('PELUNASAN')?[4,120,87]:[30,64,175]));
+            pdf.setFont('helvetica','bold');pdf.setFontSize(6.4);pdf.text(category,margin.left+3,y+4.7,{maxWidth:pageW-margin.left-margin.right-6});y+=9;
+            let head=[headers], tableBody=body;
+            if(isDebtor && headers.length>4){
+                const idx=(re)=>headers.findIndex(h=>re.test(h));
+                const iName=idx(/identitas debitur|nama debitur|debitur/i), iLoan=idx(/loan id|no.? pk|perjanjian|fasilitas/i), iDate=idx(/jatuh tempo|tgl mulai|tanggal/i), iKol=idx(/kol|kolektibilitas|status/i), iOS=idx(/baki debet|outstanding|saldo/i), iTung=idx(/tunggakan/i), iPlaf=idx(/plafond/i);
+                const used=new Set([iName,iLoan,iDate,iKol,iOS,iTung,iPlaf].filter(i=>i>=0));
+                const extra=headers.map((h,i)=>({h,i})).filter(x=>!used.has(x.i));
+                tableBody=body.map((r,i)=>{
+                    const val=j=>j>=0?(r[j]||'-'):'-';
+                    const details=[iLoan>=0?`${headers[iLoan]}: ${val(iLoan)}`:'',iDate>=0?`${headers[iDate]}: ${val(iDate)}`:'',...extra.map(x=>`${x.h}: ${val(x.i)}`)].filter(Boolean).join(' | ');
+                    const status=[iKol>=0?`${headers[iKol]}: ${val(iKol)}`:'',iPlaf>=0?`${headers[iPlaf]}: ${val(iPlaf)}`:''].filter(Boolean).join(' | ')||category;
+                    const amount=[iOS>=0?`${headers[iOS]}: ${val(iOS)}`:'',iTung>=0?`${headers[iTung]}: ${val(iTung)}`:''].filter(Boolean).join(' | ');
+                    return [String(i+1),val(iName),details||'-',status,amount||'-'];
+                });
+                head=[['NO','IDENTITAS DEBITUR','DETAIL FASILITAS / TANGGAL','STATUS / PLAFOND','BAKI DEBET / TUNGGAKAN']];
             }
-            if(y>pageH-margin.bottom-22){pdf.addPage();y=margin.top;}
             pdf.autoTable({
-                startY:y,head,body,theme:'grid',
+                startY:y,head,body:tableBody,theme:'grid',
                 margin:{left:margin.left,right:margin.right,top:margin.top,bottom:margin.bottom},
                 tableWidth:'auto',showHead:'everyPage',rowPageBreak:'avoid',pageBreak:'auto',
-                styles:{font:'helvetica',fontSize:6.8,cellPadding:2.1,overflow:'linebreak',textColor:slate,lineColor:[222,230,240],lineWidth:.15,valign:'middle'},
-                headStyles:{fillColor:navy,textColor:[255,255,255],fontStyle:'bold',fontSize:6.5,halign:'left',cellPadding:2.5},
+                styles:{font:'helvetica',fontSize:isDebtor?5.8:6.2,cellPadding:isDebtor?1.5:1.7,overflow:'linebreak',textColor:slate,lineColor:[222,230,240],lineWidth:.15,valign:'middle'},
+                headStyles:{fillColor:navy,textColor:[255,255,255],fontStyle:'bold',fontSize:5.8,halign:'left',cellPadding:2},
                 alternateRowStyles:{fillColor:[246,249,253]},
                 columnStyles:Object.fromEntries((head[0]||rows[0]).map((h,i)=>[i,{halign:/outstanding|amount|saldo|plafon|tunggakan|nominal|os\b|kkr|baki debet/i.test(h)?'right':'left'}])),
-                didParseCell:data=>{
-                    if(data.section==='body'){
-                        const text=String(data.cell.raw||'');
-                        if(/^\s*\d+[,.]?\d*%\s*$/.test(text)&&parseFloat(text.replace(',','.'))>=5)data.cell.styles.textColor=[185,28,28];
-                        if(/\bEXPIRED\b|\bKOL\s*[345]\b/i.test(text))data.cell.styles.textColor=[185,28,28];
-                    }
-                }
+                didParseCell:data=>{if(data.section==='body'){const text=String(data.cell.raw||'');if(/^\s*\d+[,.]?\d*%\s*$/.test(text)&&parseFloat(text.replace(',','.'))>=5)data.cell.styles.textColor=[185,28,28];if(/\bEXPIRED\b|\bKOL\s*[345]\b/i.test(text))data.cell.styles.textColor=[185,28,28];}}
             });
-            y=(pdf.lastAutoTable?.finalY||y+10)+5;
+            y=(pdf.lastAutoTable?.finalY||y+10)+6;
         }
 
         // Closing block only when enough room remains; never place labels below the footer.
