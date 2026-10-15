@@ -4521,7 +4521,7 @@ function generateFullReportHTML(res) {
                 </div>`;
     };
 
-    const cardBig = (label, nominal, diffHtml, ratioVal, colorBase, isRatio=true, isMoney=true) => {
+    const cardBig = (label, nominal, diffHtml, ratioVal, colorBase, isRatio=true, isMoney=true, detailHtml='') => {
         const config = {
             blue:    { hex: '#1e40af', bg: '#eff6ff', icon: 'fa-vault' },
             emerald: { hex: '#047857', bg: '#ecfdf5', icon: 'fa-briefcase' },
@@ -4535,7 +4535,7 @@ function generateFullReportHTML(res) {
         let mainValue = isMoney ? fmtIDR(nominal) : fmtNum(nominal);
 
         return `
-        <div class="avoid-break" style="background: ${theme.bg}; border: 1px solid #e2e8f0; border-top: 3px solid ${theme.hex}; border-radius: 8px; padding: 10px; position: relative; overflow: hidden; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);">
+        <div class="avoid-break card-big card-big-${colorBase}" style="background: ${theme.bg}; border: 1px solid #e2e8f0; border-top: 3px solid ${theme.hex}; border-radius: 8px; padding: 10px; position: relative; overflow: hidden; box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.05);">
             <i class="fas ${theme.icon}" style="position: absolute; right: -5px; bottom: -5px; font-size: 35px; color: ${theme.hex}; opacity: 0.05; transform: rotate(-15deg);"></i>
             
             <div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 1;">
@@ -4547,6 +4547,7 @@ function generateFullReportHTML(res) {
                     <div style="margin-top: 3px; display: flex; align-items: center; gap: 4px; transform: scale(0.9); transform-origin: left;">
                         ${diffHtml}
                     </div>
+                    ${detailHtml ? `<div class="segment-compare-inline">${detailHtml}</div>` : ''}
                 </div>
                 
                 <div style="text-align: right; background: #ffffff; padding: 6px 10px; border-radius: 8px; border: 2px solid ${theme.hex}15; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-left: 8px; min-width: 60px;">
@@ -4588,6 +4589,18 @@ function generateFullReportHTML(res) {
       .rpt-font .segment-kpi-grid>*{min-width:0}
       .rpt-font .segment-kpi-grid .card-big{min-width:0}
       .rpt-font .segment-kpi-grid .card-big .card-value{overflow-wrap:anywhere}
+      .rpt-font .segment-kpi-grid .segment-compare-inline{margin-top:6px;padding-top:5px;border-top:1px solid #dbe5f0;font-size:8px;line-height:1.45;color:#52647c;position:relative;z-index:1}
+      .rpt-font .segment-compare-inline .compare-row{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+      .rpt-font .segment-compare-inline .compare-row+ .compare-row{margin-top:2px}
+      .rpt-font .segment-compare-inline .compare-row>span:first-child{font-weight:600}
+      .rpt-font .segment-compare-inline .compare-row>strong{color:#15345b;font-weight:800}
+      .rpt-font .segment-compare-inline .compare-label{font-weight:600}
+      .rpt-font .segment-compare-inline .compare-delta{font-weight:800;white-space:nowrap}
+      .rpt-font .segment-compare-inline .risk-up{color:#b91c1c}
+      .rpt-font .segment-compare-inline .risk-down{color:#047857}
+      .rpt-font .segment-compare-inline .neutral{color:#64748b}
+      @media(max-width:640px){.rpt-font .segment-kpi-grid{grid-template-columns:minmax(0,1fr)}}
+
       .rpt-font .report-subsection{margin:14px 0 8px;padding:7px 10px;background:#f4f8fc;border-left:3px solid #93b9e2;color:#294a70;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px}
       .rpt-font .section-title{page-break-after:avoid;break-after:avoid}
       .rpt-report-masthead{display:flex;justify-content:space-between;align-items:center;gap:22px;padding:18px 22px;margin:0 0 16px;background:linear-gradient(115deg,#102746 0%,#173e68 72%,#1d5685 100%);color:#fff;border-bottom:4px solid #38bdf8;border-radius:0 0 10px 10px;width:100%;min-height:94px}
@@ -4687,18 +4700,19 @@ html += `
             ? kol2Rows.filter(r => Number(String(r.kol).match(/\d+/)?.[0]) === 2).length
             : kol2Rows.length;
         const nplCount = Array.isArray(segDetails.npl) ? segDetails.npl.length : 0;
+        const prevNplRatio = pSeg && Number(pSeg.os) > 0 ? Number(pSeg.npl||0)/Number(pSeg.os)*100 : null;
+        const prevKkrRatio = pSeg && Number(pSeg.os) > 0 ? Number(pSeg.kkr||0)/Number(pSeg.os)*100 : null;
+        const nplDeltaPp = prevNplRatio == null ? null : sNpl - prevNplRatio;
+        const kkrDeltaPp = prevKkrRatio == null ? null : sKkr - prevKkrRatio;
+        const ppText = v => `${v>0?'+':''}${v.toFixed(2)} pp`;
+        const comparisonLine = (label, prev, delta) => `<span class="compare-label">${label}</span><b>${prev==null?'Tidak tersedia':prev.toFixed(2)+'%'}</b><span class="compare-delta ${delta==null?'neutral':delta>0?'risk-up':delta<0?'risk-down':'neutral'}">${delta==null?'':ppText(delta)}</span>`;
         page += `<div class="card-grid segment-kpi-grid">
             ${cardBig('TOTAL OUTSTANDING (OS)', cSeg.os, renderDiff(cSeg.os, pSeg?.os, false), fmtNum(cSeg.diff), colorBase, false)}
-            ${cardBig(`NPL · KOL 3–5 · ${fmtNum(nplCount)} DEBITUR`, cSeg.npl, renderDiff(cSeg.npl, pSeg?.npl, true), sNpl.toFixed(2), 'red', true)}
+            ${cardBig(`NPL · KOL 3–5 · ${fmtNum(nplCount)} DEBITUR`, cSeg.npl, renderDiff(cSeg.npl, pSeg?.npl, true), sNpl.toFixed(2), 'red', true, true,
+                `<div class="compare-row">${comparisonLine('vs '+(res.dates?.prev || 'periode sebelumnya'),prevNplRatio,nplDeltaPp)}</div>`)}
             ${cardBig('DEBITUR KOL 2', kol2Count, 'Watchlist Kol 2', `${fmtNum(kol2Count)} debitur`, 'orange', false, false)}
-            ${cardBig('WATCHLIST / KKR', cSeg.kkr, renderDiff(cSeg.kkr, pSeg?.kkr, true), sKkr.toFixed(2), 'teal', true)}
-            <div class="segment-compare-strip" role="note">
-              <div><span>NPL ratio · ${res.dates?.current || 'Periode ini'}</span><strong>${sNpl.toFixed(2)}%</strong></div>
-              <div><span>NPL ratio · ${res.dates?.prev || 'Pembanding'}</span><strong>${pSeg && Number(pSeg.os)>0 ? (Number(pSeg.npl||0)/Number(pSeg.os)*100).toFixed(2)+'%' : '—'}</strong></div>
-              <div><span>Perubahan NPL</span><strong>${pSeg && Number(pSeg.os)>0 ? ((sNpl-(Number(pSeg.npl||0)/Number(pSeg.os)*100))>=0?'+':'')+(sNpl-(Number(pSeg.npl||0)/Number(pSeg.os)*100)).toFixed(2)+' pp' : 'Tidak ada pembanding'}</strong></div>
-              <div><span>KKR ratio · ${res.dates?.prev || 'Pembanding'}</span><strong>${pSeg && Number(pSeg.os)>0 ? (Number(pSeg.kkr||0)/Number(pSeg.os)*100).toFixed(2)+'%' : '—'}</strong></div>
-              <div><span>Perubahan KKR</span><strong>${pSeg && Number(pSeg.os)>0 ? ((sKkr-(Number(pSeg.kkr||0)/Number(pSeg.os)*100))>=0?'+':'')+(sKkr-(Number(pSeg.kkr||0)/Number(pSeg.os)*100)).toFixed(2)+' pp' : 'Tidak ada pembanding'}</strong></div>
-            </div>
+            ${cardBig('WATCHLIST / KKR', cSeg.kkr, renderDiff(cSeg.kkr, pSeg?.kkr, true), sKkr.toFixed(2), 'teal', true, true,
+                `<div class="compare-row">${comparisonLine('vs '+(res.dates?.prev || 'periode sebelumnya'),prevKkrRatio,kkrDeltaPp)}</div>`)}
         </div>`;
 
         const renderList = (subTitle, list, isNpl) => { 
