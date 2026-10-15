@@ -4200,24 +4200,32 @@ function downloadPDF() {
         const explicitKol2 = kkrRows.filter(r => Number(String(r?.kol ?? '').match(/\d+/)?.[0]) === 2).length;
         const kol2Debtors = kkrRows.some(r => r && r.kol != null && String(r.kol).trim() !== '') ? explicitKol2 : kkrRows.length;
         const nplDebtors = nplRows.length;
-        const nplPct = os > 0 ? npl / os * 100 : 0;
-        const kkrPct = os > 0 ? kkr / os * 100 : 0;
+        const prevStats = reportData.prev?.stats?.seg?.[segmentKey] || {};
+        const prevOS = Number(prevStats.os) || 0, prevNpl = Number(prevStats.npl) || 0, prevKkr = Number(prevStats.kkr) || 0;
+        const nplPct = os > 0 ? npl / os * 100 : 0, kkrPct = os > 0 ? kkr / os * 100 : 0;
+        const prevNplPct = prevOS > 0 ? prevNpl / prevOS * 100 : 0, prevKkrPct = prevOS > 0 ? prevKkr / prevOS * 100 : 0;
+        const ppDelta = (a,b) => `${a-b>=0?'+':''}${(a-b).toLocaleString('id-ID',{minimumFractionDigits:2,maximumFractionDigits:2})} pp`;
+        const segmentColors = {prod_all:[5,150,105],kur:[79,70,229],kons:[37,99,235]};
+        const segmentColor = segmentColors[segmentKey] || blue;
+        const previousDateLabel = safeText(reportData.dates?.prev || 'Tanggal pembanding');
+        const compareText = (current, previous) => reportData.prev ? `${previousDateLabel}: ${fmtPct(previous)} · ${ppDelta(current,previous)}` : 'Tanggal pembanding tidak tersedia';
         const cards = [
-            {label:'TOTAL OUTSTANDING (OS)',value:compactMoney(os),sub:`${fmtNum(totalDebtors)} debitur / rekening`,color:blue},
-            {label:'NPL · KOL 3–5',value:compactMoney(npl),sub:`${fmtPct(nplPct)} · ${fmtNum(nplDebtors)} debitur Kol 3–5`,color:[185,28,28]},
-            {label:'JUMLAH DEBITUR KOL 2',value:fmtNum(kol2Debtors),sub:'Debitur dalam perhatian khusus',color:[194,65,12]},
-            {label:'WATCHLIST / KKR',value:compactMoney(kkr),sub:`${fmtPct(kkrPct)} dari OS · Kol 2–5`,color:[13,148,136]}
+            {label:'TOTAL OUTSTANDING (OS)',value:compactMoney(os),sub:`${fmtNum(totalDebtors)} debitur / rekening${reportData.prev?` · ${compactMoney(os-prevOS)} vs pembanding`:''}`,color:segmentColor},
+            {label:'NPL · KOL 3–5',value:compactMoney(npl),sub:`${fmtPct(nplPct)} · ${fmtNum(nplDebtors)} debitur`,compare:compareText(nplPct,prevNplPct),color:[185,28,28]},
+            {label:'DEBITUR KOL 2',value:fmtNum(kol2Debtors),sub:'Debitur dalam perhatian khusus',color:[194,65,12]},
+            {label:'WATCHLIST / KKR',value:compactMoney(kkr),sub:`${fmtPct(kkrPct)} dari OS · Kol 2–5`,compare:compareText(kkrPct,prevKkrPct),color:[13,148,136]}
         ];
-        const gap=3, w=(pageW-margin.left-margin.right-gap*3)/4, h=23;
+        const gap=3, w=(pageW-margin.left-margin.right-gap)/2, h=27;
         cards.forEach((c,i)=>{
-            const x=margin.left+i*(w+gap);
-            pdf.setFillColor(255,255,255);pdf.setDrawColor(220,229,240);pdf.roundedRect(x,y,w,h,1.5,1.5,'FD');
-            pdf.setFillColor(...c.color);pdf.roundedRect(x,y,w,1.4,.8,.8,'F');
-            pdf.setTextColor(...muted);pdf.setFont('helvetica','bold');pdf.setFontSize(5.3);pdf.text(c.label,x+2.2,y+5.2,{maxWidth:w-4.4});
-            pdf.setTextColor(...c.color);pdf.setFont('helvetica','bold');pdf.setFontSize(7.4);pdf.text(c.value,x+2.2,y+11.2,{maxWidth:w-4.4});
-            pdf.setTextColor(...slate);pdf.setFont('helvetica','normal');pdf.setFontSize(4.9);pdf.text(c.sub,x+2.2,y+17.2,{maxWidth:w-4.4});
+            const x=margin.left+(i%2)*(w+gap), yy=y+Math.floor(i/2)*(h+2);
+            pdf.setFillColor(255,255,255);pdf.setDrawColor(220,229,240);pdf.roundedRect(x,yy,w,h,1.5,1.5,'FD');
+            pdf.setFillColor(...c.color);pdf.roundedRect(x,yy,1.5,h,.8,.8,'F');
+            pdf.setTextColor(...muted);pdf.setFont('helvetica','bold');pdf.setFontSize(6);pdf.text(c.label,x+3.2,yy+5.2,{maxWidth:w-6.4});
+            pdf.setTextColor(...c.color);pdf.setFont('helvetica','bold');pdf.setFontSize(9);pdf.text(c.value,x+3.2,yy+12.2,{maxWidth:w-6.4});
+            pdf.setTextColor(...slate);pdf.setFont('helvetica','normal');pdf.setFontSize(5.4);pdf.text(c.sub,x+3.2,yy+18.2,{maxWidth:w-6.4});
+            if(c.compare){pdf.setTextColor(...muted);pdf.setFont('helvetica','bold');pdf.setFontSize(5.2);pdf.text(c.compare,x+3.2,yy+23.2,{maxWidth:w-6.4});}
         });
-        return y+h+4;
+        return y+(h*2)+6;
     }
 
     function drawContentsPage() {
@@ -4294,6 +4302,15 @@ function downloadPDF() {
             if(!body.length)continue;
             const isDebtor=/identitas debitur|loan id|jatuh tempo|baki debet|tunggakan|plafond/i.test(headers.join(' '));
             const category=classifySection(lastTitle,headers,body);
+            // Move explicit totals to the table footer so they remain after detail rows.
+            let explicitTotals=[];
+            body = body.filter(row => {
+                const first = safeText(row.find(v => safeText(v)) || '');
+                const isTotal = /^(total|subtotal|jumlah keseluruhan|grand total)\b/i.test(first) || /\b(total|subtotal|grand total)\s*:?$/i.test(safeText(row.join(' ')));
+                if (isTotal) explicitTotals.push(row);
+                return !isTotal;
+            });
+            if(!body.length && !explicitTotals.length)continue;
             // Every data table receives an explicit classification label for print/PDF readers.
             if(y>pageH-margin.bottom-42){pdf.addPage();y=margin.top;}
             pdf.setFillColor(...(category.startsWith('NPL')?[254,242,242]:category.startsWith('JATUH')?[255,247,237]:category.startsWith('PELUNASAN')?[236,253,245]:category.startsWith('PENCAIRAN')?[239,246,255]:[239,246,255]));
@@ -4314,6 +4331,7 @@ function downloadPDF() {
                 const iPlaf=idx(/plafond|plafon/i);
                 const iSector=idx(/sektor/i);
                 const val=(r,j)=>j>=0?(r[j]||'-'):'-';
+                const originalTotals=explicitTotals.slice();
                 tableBody=body.map((r,i)=>{
                     let loan=val(r,iLoan), pk=val(r,iPk);
                     // Backward compatibility for source cells that already combine Loan ID and PK.
@@ -4325,17 +4343,26 @@ function downloadPDF() {
                     if(iSector>=0 && val(r,iSector)!=='-') identity += `\nSektor: ${val(r,iSector)}`;
                     return [String(i+1),identity,facility,val(r,iStart),val(r,iMaturity),val(r,iKol),val(r,iPlaf),val(r,iOS),val(r,iTung)];
                 });
+                explicitTotals=originalTotals.map(r=>{
+                    const nonempty=r.map(v=>safeText(v)).filter(Boolean);
+                    const shortTotal=r.length < headers.length;
+                    const osTotal=val(r,iOS)!=='-'?val(r,iOS):(shortTotal&&nonempty.length>1?nonempty[nonempty.length-2]:'-');
+                    const arrearsTotal=val(r,iTung)!=='-'?val(r,iTung):(shortTotal&&nonempty.length>1?nonempty[nonempty.length-1]:'-');
+                    const plafondTotal=val(r,iPlaf)!=='-'?val(r,iPlaf):'-';
+                    return ['','TOTAL','','','','',plafondTotal,osTotal,arrearsTotal];
+                });
                 head=[['NO','IDENTITAS DEBITUR / SEKTOR','DETAIL FASILITAS','TGL MULAI','JATUH TEMPO','KOL','PLAFOND','BAKI DEBET','TUNGGAKAN']];
             }
             pdf.autoTable({
-                startY:y,head,body:tableBody,theme:'grid',
+                startY:y,head,body:tableBody,foot:explicitTotals,showFoot:explicitTotals.length?'lastPage':'never',theme:'grid',
                 margin:{left:margin.left,right:margin.right,top:margin.top,bottom:margin.bottom},
                 tableWidth:'auto',showHead:'everyPage',rowPageBreak:'avoid',pageBreak:'auto',
                 styles:{font:'helvetica',fontSize:isDebtor?5.0:6.2,cellPadding:isDebtor?1.1:1.7,overflow:'linebreak',textColor:slate,lineColor:[222,230,240],lineWidth:.15,valign:'middle',minCellHeight:isDebtor?6:0},
                 headStyles:{fillColor:navy,textColor:[255,255,255],fontStyle:'bold',fontSize:isDebtor?4.9:5.8,halign:'left',cellPadding:isDebtor?1.25:2},
                 alternateRowStyles:{fillColor:[246,249,253]},
+                footStyles:{fillColor:[226,236,248],textColor:navy,fontStyle:'bold',lineColor:[148,163,184],lineWidth:.25},
                 columnStyles:isDebtor?{0:{cellWidth:6,halign:'center'},1:{cellWidth:34},2:{cellWidth:39},3:{cellWidth:15,halign:'center'},4:{cellWidth:17,halign:'center'},5:{cellWidth:8,halign:'center'},6:{cellWidth:22,halign:'right'},7:{cellWidth:24,halign:'right'},8:{cellWidth:25,halign:'right'}}:Object.fromEntries((head[0]||rows[0]).map((h,i)=>[i,{halign:/outstanding|amount|saldo|plafon|tunggakan|nominal|os\b|kkr|baki debet/i.test(h)?'right':'left'}])),
-                didParseCell:data=>{if(data.section==='body'){const text=String(data.cell.raw||'');if(/^\s*\d+[,.]?\d*%\s*$/.test(text)&&parseFloat(text.replace(',','.'))>=5)data.cell.styles.textColor=[185,28,28];if(/\bEXPIRED\b|\bKOL\s*[345]\b/i.test(text))data.cell.styles.textColor=[185,28,28];}}
+                didParseCell:data=>{if(data.section==='body'){const text=String(data.cell.raw||'');if(/^\s*\d+[,.]?\d*%\s*$/.test(text)&&parseFloat(text.replace(',','.'))>=5)data.cell.styles.textColor=[185,28,28];if(/\bEXPIRED\b|\bKOL\s*[345]\b/i.test(text))data.cell.styles.textColor=[185,28,28];}if(data.section==='foot'){data.cell.styles.fontStyle='bold';data.cell.styles.fillColor=[226,236,248];}}
             });
             y=(pdf.lastAutoTable?.finalY||y+10)+6;
         }
@@ -4463,8 +4490,11 @@ function generateFullReportHTML(res) {
     const cardBig = (label, nominal, diffHtml, ratioVal, colorBase, isRatio=true, isMoney=true) => {
         const config = {
             blue:    { hex: '#1e40af', bg: '#eff6ff', icon: 'fa-vault' },
+            emerald: { hex: '#047857', bg: '#ecfdf5', icon: 'fa-briefcase' },
+            indigo:  { hex: '#4338ca', bg: '#eef2ff', icon: 'fa-hand-holding-dollar' },
             red:     { hex: '#b91c1c', bg: '#fef2f2', icon: 'fa-triangle-exclamation' },
             orange:  { hex: '#c2410c', bg: '#fff7ed', icon: 'fa-eye' },
+            teal:    { hex: '#0f766e', bg: '#f0fdfa', icon: 'fa-shield-heart' },
             slate:   { hex: '#334155', bg: '#f8fafc', icon: 'fa-users' }
         };
         const theme = config[colorBase] || config.slate;
@@ -4534,7 +4564,7 @@ function generateFullReportHTML(res) {
       .dak-report-error{margin:24px;padding:28px;border:1px solid #fecaca;border-radius:18px;background:#fff7f7;color:#991b1b;display:flex;flex-direction:column;gap:10px;text-align:center}.dak-report-error strong{font-size:18px}.dak-report-error button{align-self:center;background:#1d4ed8;color:white;border-radius:10px;padding:10px 18px;font-weight:700}
       .rpt-font .avoid-break[style*="grid-template-columns"]{width:100%!important}
       .rpt-font .rpt-report-masthead h1{overflow-wrap:anywhere}
-      @page{size:A4 landscape;margin:8mm}
+      @page{size:A4 portrait;margin:9mm}
       @media screen{.rpt-font{background:#fff;padding:0;width:100%!important}.rpt-font .page-break{height:1px!important;margin:12px 0!important}}
       @media print{.rpt-font{width:100%!important;max-width:none!important}.rpt-font table{overflow:visible;width:100%!important}.rpt-font th{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
     </style>
@@ -4616,7 +4646,7 @@ html += `
 
         let page = `<div class="page-break"></div>`; 
         page += getHeader('Segmental Analysis', `0${numberPrefix}. ${title}`);
-        page += `<div class="report-subsection">0${numberPrefix}. ${title} · Ringkasan segmen dan daftar debitur prioritas</div>`;
+        page += `<div class="report-subsection segment-heading segment-${key}" data-segment="${key}"><span class="segment-icon"><i class="fas ${key==='kur'?'fa-hand-holding-dollar':key==='kons'?'fa-house-user':'fa-briefcase'}"></i></span><span><b>0${numberPrefix}. ${title}</b><small>Ringkasan kualitas aset · analisis periode · daftar debitur prioritas</small></span></div>`;
         const segDetails = res.curr.details?.[key] || {};
         const kol2Rows = Array.isArray(segDetails.kkr) ? segDetails.kkr : [];
         const kol2Count = kol2Rows.some(r => r && r.kol != null && String(r.kol).trim() !== '')
@@ -4625,9 +4655,16 @@ html += `
         const nplCount = Array.isArray(segDetails.npl) ? segDetails.npl.length : 0;
         page += `<div class="card-grid segment-kpi-grid">
             ${cardBig('TOTAL OUTSTANDING (OS)', cSeg.os, renderDiff(cSeg.os, pSeg?.os, false), fmtNum(cSeg.diff), colorBase, false)}
-            ${cardBig('NPL · KOL 3–5', cSeg.npl, renderDiff(cSeg.npl, pSeg?.npl, true), `${sNpl.toFixed(2)}% · ${fmtNum(nplCount)} debitur`, 'red', true)}
+            ${cardBig(`NPL · KOL 3–5 · ${fmtNum(nplCount)} DEBITUR`, cSeg.npl, renderDiff(cSeg.npl, pSeg?.npl, true), sNpl.toFixed(2), 'red', true)}
             ${cardBig('DEBITUR KOL 2', kol2Count, 'Watchlist Kol 2', `${fmtNum(kol2Count)} debitur`, 'orange', false, false)}
-            ${cardBig('WATCHLIST / KKR', cSeg.kkr, renderDiff(cSeg.kkr, pSeg?.kkr, true), `${sKkr.toFixed(2)}% dari OS`, 'orange', true)}
+            ${cardBig('WATCHLIST / KKR', cSeg.kkr, renderDiff(cSeg.kkr, pSeg?.kkr, true), sKkr.toFixed(2), 'teal', true)}
+            <div class="segment-compare-strip" role="note">
+              <div><span>NPL ratio · ${res.dates?.current || 'Periode ini'}</span><strong>${sNpl.toFixed(2)}%</strong></div>
+              <div><span>NPL ratio · ${res.dates?.prev || 'Pembanding'}</span><strong>${pSeg && Number(pSeg.os)>0 ? (Number(pSeg.npl||0)/Number(pSeg.os)*100).toFixed(2)+'%' : '—'}</strong></div>
+              <div><span>Perubahan NPL</span><strong>${pSeg && Number(pSeg.os)>0 ? ((sNpl-(Number(pSeg.npl||0)/Number(pSeg.os)*100))>=0?'+':'')+(sNpl-(Number(pSeg.npl||0)/Number(pSeg.os)*100)).toFixed(2)+' pp' : 'Tidak ada pembanding'}</strong></div>
+              <div><span>KKR ratio · ${res.dates?.prev || 'Pembanding'}</span><strong>${pSeg && Number(pSeg.os)>0 ? (Number(pSeg.kkr||0)/Number(pSeg.os)*100).toFixed(2)+'%' : '—'}</strong></div>
+              <div><span>Perubahan KKR</span><strong>${pSeg && Number(pSeg.os)>0 ? ((sKkr-(Number(pSeg.kkr||0)/Number(pSeg.os)*100))>=0?'+':'')+(sKkr-(Number(pSeg.kkr||0)/Number(pSeg.os)*100)).toFixed(2)+' pp' : 'Tidak ada pembanding'}</strong></div>
+            </div>
         </div>`;
 
         const renderList = (subTitle, list, isNpl) => { 
