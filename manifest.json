@@ -1,7 +1,7 @@
 {
-  "name": "DaKOPen PPU V91",
-  "short_name": "DaKOPen V91",
-  "description": "DaKOPen PPU - Segment Summary and Debtor Table Refinement",
+  "name": "DaKOPen PPU V101",
+  "short_name": "DaKOPen V101",
+  "description": "DaKOPen PPU - Historical Extremes and 12-Month Trend Projection",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
