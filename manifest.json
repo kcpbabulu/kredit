@@ -1,6 +1,6 @@
 {
-  "name": "DaKOPen PPU V103",
-  "short_name": "DaKOPen V103",
+  "name": "DaKOPen PPU V105",
+  "short_name": "DaKOPen V105",
   "description": "DaKOPen PPU - Persistent Historical Snapshot Archive and Fast Reports",
   "start_url": "./index.html",
   "scope": "./",
