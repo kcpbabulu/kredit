@@ -6279,7 +6279,9 @@ function exportJourneyResume(loanId) {
     if(elTindak) elTindak.value = "Mengambil riwayat..."; // Tampilkan loading dulu
 
     // 5. BUKA MODAL
-    document.getElementById('modal-resume-config').classList.remove('hidden');
+    const resumeConfigModal = document.getElementById('modal-resume-config');
+    if (!resumeConfigModal) { alert('Form konfigurasi resume tidak tersedia. Muat ulang aplikasi dan pastikan aset V108 terpasang lengkap.'); return; }
+    resumeConfigModal.classList.remove('hidden');
 
     // 6. LOAD DATA DARI SERVER
     const container = document.getElementById('list-dasar-container');
@@ -6448,9 +6450,10 @@ function generateResumeFinal() {
     if (htmlDasar === "") htmlDasar = "-";
 
     // --- 3. AMBIL DATA INPUT NARASI ---
-    const valSolusi = document.getElementById('cfg-solusi').value;
-    const valKeuangan = document.getElementById('cfg-keuangan').value;
-    const valTindak = document.getElementById('cfg-tindak-lanjut').value;
+    const getVal = (id) => { const el = document.getElementById(id); if (!el) throw new Error('Elemen resume tidak ditemukan: #' + id); return el.value || ''; };
+    let valSolusi, valKeuangan, valTindak;
+    try { valSolusi = getVal('cfg-solusi'); valKeuangan = getVal('cfg-keuangan'); valTindak = getVal('cfg-tindak-lanjut'); }
+    catch (e) { alert(e.message + '. Pastikan index.html dan app.js satu versi.'); return; }
 
     google.script.run.saveDebtorResumeData(loanId, valSolusi, valKeuangan, valTindak);
 
@@ -6467,7 +6470,8 @@ function generateResumeFinal() {
         tindakLanjut: document.getElementById('cfg-tindak-lanjut').value 
     };
 
-    document.getElementById('modal-resume-config').classList.add('hidden');
+    const resumeConfigModal = document.getElementById('modal-resume-config');
+    if (resumeConfigModal) resumeConfigModal.classList.add('hidden');
     const loader = document.getElementById('loader');
     if (loader) loader.style.display = 'flex';
 
@@ -6516,6 +6520,7 @@ function generateResumeFinal() {
         // --- RENDER HTML PREVIEW ---
         const resumeArea = document.getElementById('resume-preview-content');
         const modalPreview = document.getElementById('modal-resume-preview');
+        if (!resumeArea || !modalPreview) { alert('Komponen pratinjau resume tidak ditemukan. Pastikan index.html dan app.js berasal dari versi yang sama.'); return; }
 
         const finalFilename = `RESUME_${d.loan}_${tglFile}`;
         const btnPrint = document.getElementById('btn-print-resume');
