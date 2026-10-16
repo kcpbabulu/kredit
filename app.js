@@ -22,7 +22,9 @@ function createGasProxy(successHandler, failureHandler) {
             return function(...args) {
                 // Eksekusi Fetch ke Google Apps Script
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                // Laporan historis membaca banyak snapshot; beri waktu lebih panjang.
+                const requestTimeoutMs = propName === 'getFullReportData' ? 180000 : 45000;
+                const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
                 fetch(GAS_URL, {
                     method: 'POST',
                     signal: controller.signal,
@@ -36,6 +38,8 @@ function createGasProxy(successHandler, failureHandler) {
                     document.querySelectorAll('.tab-view').forEach(el => {
                         el.classList.remove('opacity-50', 'pointer-events-none');
                     });
+                    const globalLoader = document.getElementById('loader');
+                    if (globalLoader && propName !== 'authLogin') globalLoader.style.display = 'none';
                     // -----------------
                     clearTimeout(timeoutId);
                     if (res.status === 'success') {
@@ -51,8 +55,11 @@ function createGasProxy(successHandler, failureHandler) {
                 .catch(err => {
                     clearTimeout(timeoutId);
                     console.error("Fetch Error:", err);
+                    const globalLoader = document.getElementById('loader');
+                    if (globalLoader) globalLoader.style.display = 'none';
+                    if (err && err.name === 'AbortError') console.warn('Permintaan ' + propName + ' dihentikan karena timeout atau pembatalan jaringan; cek endpoint dan waktu proses backend.');
                     if (failureHandler) failureHandler(err);
-                    else showAppNotice(err.name === 'AbortError' ? 'Server terlalu lama merespons. Coba lagi.' : 'Koneksi ke server gagal. Periksa internet Anda.', 'error');
+                    else showAppNotice(err.name === 'AbortError' ? 'Permintaan laporan dihentikan karena melewati batas waktu atau koneksi dibatalkan. Coba kembali setelah sinkronisasi snapshot selesai.' : 'Koneksi ke server gagal. Periksa internet Anda.', 'error');
                 });
             };
         }
