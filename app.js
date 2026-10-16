@@ -6074,9 +6074,18 @@ function openMitigationForm(loanId) {
     
     // Fallback jika data tidak ketemu
     if(!d) {
-        console.warn("Data debitur tidak ditemukan, mode manual.");
-        document.getElementById('mitigasi-loan-id').value = loanId;
-        document.getElementById('modal-mitigasi').classList.remove('hidden');
+        console.warn("Data debitur tidak ditemukan di npl_list; membuka formulir secara aman.");
+        const loanInput = document.getElementById('mitigasi-loan-id');
+        const modal = document.getElementById('modal-mitigasi');
+        if (loanInput) loanInput.value = loanId == null ? '' : String(loanId);
+        if (modal) {
+            modal.classList.remove('hidden');
+            if (modal.firstElementChild) modal.firstElementChild.classList.add('animate-pop-in');
+        } else {
+            console.error("Form Linimasa Debitur tidak ditemukan: elemen #modal-mitigasi tidak ada. Periksa kesesuaian index.html dan app.js.");
+            if (typeof showToast === 'function') showToast('Form linimasa tidak tersedia. Muat ulang aplikasi atau perbarui index.html dan app.js secara bersamaan.', 'error');
+            else alert('Form linimasa tidak tersedia. Muat ulang aplikasi atau perbarui index.html dan app.js secara bersamaan.');
+        }
         return;
     }
 
@@ -6127,7 +6136,8 @@ function closeMitigasiModal() {
     if(modal) modal.classList.add('hidden');
     if(form) {
         form.reset();
-        document.getElementById('mitigasi-log-id').value = "";
+        const logIdInput = document.getElementById('mitigasi-log-id');
+        if (logIdInput) logIdInput.value = "";
         
         // Reset Tanggal ke Default (Hari Ini) lagi supaya bersih
         const elTglManual = document.getElementById('mitigasi-tgl-manual');
