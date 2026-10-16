@@ -1,7 +1,7 @@
 {
-  "name": "DaKOPen PPU V106",
-  "short_name": "DaKOPen V106",
-  "description": "DaKOPen PPU - Persistent Historical Snapshot Archive and Fast Reports",
+  "name": "DaKOPen PPU V107",
+  "short_name": "DaKOPen V107",
+  "description": "DaKOPen PPU - Debtor Timeline Update Log Modal Fix",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
