@@ -6141,6 +6141,8 @@ function closeMitigasiModal() {
 
         const submitBtn = form.querySelector('button[type="submit"]');
         if(submitBtn) submitBtn.innerHTML = 'SIMPAN PENANGANAN <i class="fas fa-paper-plane ml-1"></i>';
+        const title = document.getElementById('mitigasi-modal-title');
+        if (title) title.textContent = 'Update Log Penanganan';
     }
 }
 
@@ -6212,14 +6214,18 @@ function submitMitigasi(e) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
-        
+        // Backend kadang mengembalikan {error: ...} tanpa melempar exception.
+        if (!res || res.error || res.success === false) {
+            alert('Gagal menyimpan log: ' + ((res && res.error) || (res && res.message) || 'Respons server tidak valid.'));
+            return;
+        }
         closeMitigasiModal();
-        
         if (typeof showJourneyDetail === 'function') {
             showJourneyDetail(data.loanId);
-        } else {
+        } else if (typeof app !== 'undefined' && app.showJourneyDetail) {
             app.showJourneyDetail(data.loanId);
         }
+        alert(data.logId ? 'Log penanganan berhasil diperbarui.' : 'Log penanganan berhasil ditambahkan.');
 
     }).withFailureHandler((err) => {
         if(submitBtn) {
@@ -6902,7 +6908,7 @@ function showJourneyDetail(loanId) {
                     }
                 }
 
-                return `<div class="relative pl-10 py-3 group animate-fade-in" style="animation-delay: ${index * 50}ms"><div class="absolute left-3 top-4 w-9 h-9 rounded-full ${theme.bg} ${theme.color} border-2 border-white shadow-sm flex items-center justify-center z-10 ring-1 ring-slate-100 group-hover:scale-110 transition-transform duration-200"><i class="fas ${theme.icon} text-sm"></i></div><div class="bg-white rounded-xl border border-slate-100 shadow-sm p-3.5 hover:shadow-md hover:border-emerald-100 transition-all duration-200"><div class="flex justify-between items-start mb-2 border-b border-dashed border-slate-100 pb-2"><div class="flex flex-col"><span class="text-[11px] font-black text-slate-700 uppercase tracking-tight">${h.aksi} <span class="text-slate-400 font-normal mx-1">•</span> ${h.media}</span><span class="text-[10px] text-slate-400 mt-0.5 font-mono">${h.timestamp || '-'}</span></div><div class="flex items-center gap-2"><div class="text-[9px] font-bold px-2 py-1 rounded bg-slate-50 text-slate-500 uppercase tracking-wider">${h.petugas ? h.petugas.split('@')[0] : 'System'}</div>${h.logId ? `<button onclick="app.editLog('${h.logId}', '${h.aksi}', '${h.media}', '${h.nominal}', '${h.tglKomitmen}', '${debtor.loan}', this)" data-catatan="${h.catatan}" class="text-slate-300 hover:text-blue-500 transition px-1"><i class="fas fa-pencil-alt text-[10px]"></i></button><button onclick="app.deleteLog('${h.logId}', '${debtor.loan}')" class="text-slate-300 hover:text-red-500 transition px-1"><i class="fas fa-trash text-[10px]"></i></button>` : ''}</div></div><div class="text-xs text-slate-600 leading-relaxed mb-1 font-medium italic">"${h.catatan || ''}"</div>${h.nominal > 0 ? `<div class="mt-3 flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 shrink-0"><i class="fas fa-money-bill-wave"></i></div><div class="flex-1 min-w-0"><div class="text-[9px] text-slate-400 uppercase font-bold">Komitmen Bayar</div><div class="text-sm font-black text-emerald-700">Rp ${Number(h.nominal).toLocaleString('id-ID')}</div><div class="text-[9px] text-slate-400 mt-0.5">Jatuh Tempo: <span class="font-bold text-slate-600">${h.tglKomitmen || '-'}</span></div></div>${statusButtons}</div>` : ''}</div></div>`;
+                return `<div class="relative pl-10 py-3 group animate-fade-in" style="animation-delay: ${index * 50}ms"><div class="absolute left-3 top-4 w-9 h-9 rounded-full ${theme.bg} ${theme.color} border-2 border-white shadow-sm flex items-center justify-center z-10 ring-1 ring-slate-100 group-hover:scale-110 transition-transform duration-200"><i class="fas ${theme.icon} text-sm"></i></div><div class="bg-white rounded-xl border border-slate-100 shadow-sm p-3.5 hover:shadow-md hover:border-emerald-100 transition-all duration-200"><div class="flex justify-between items-start mb-2 border-b border-dashed border-slate-100 pb-2"><div class="flex flex-col"><span class="text-[11px] font-black text-slate-700 uppercase tracking-tight">${h.aksi} <span class="text-slate-400 font-normal mx-1">•</span> ${h.media}</span><span class="text-[10px] text-slate-400 mt-0.5 font-mono">${h.timestamp || '-'}</span></div><div class="flex items-center gap-2"><div class="text-[9px] font-bold px-2 py-1 rounded bg-slate-50 text-slate-500 uppercase tracking-wider">${h.petugas ? h.petugas.split('@')[0] : 'System'}</div>${h.logId ? `<button onclick="app.editLog('${h.logId}', '${h.aksi}', '${h.media}', '${h.nominal}', '${h.tglKomitmen}', '${debtor.loan}', this)" data-catatan="${window.escapeHTML(h.catatan || '')}" class="text-slate-300 hover:text-blue-500 transition px-1"><i class="fas fa-pencil-alt text-[10px]"></i></button><button onclick="app.deleteLog('${h.logId}', '${debtor.loan}')" class="text-slate-300 hover:text-red-500 transition px-1"><i class="fas fa-trash text-[10px]"></i></button>` : ''}</div></div><div class="text-xs text-slate-600 leading-relaxed mb-1 font-medium italic">"${h.catatan || ''}"</div>${h.nominal > 0 ? `<div class="mt-3 flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 shrink-0"><i class="fas fa-money-bill-wave"></i></div><div class="flex-1 min-w-0"><div class="text-[9px] text-slate-400 uppercase font-bold">Komitmen Bayar</div><div class="text-sm font-black text-emerald-700">Rp ${Number(h.nominal).toLocaleString('id-ID')}</div><div class="text-[9px] text-slate-400 mt-0.5">Jatuh Tempo: <span class="font-bold text-slate-600">${h.tglKomitmen || '-'}</span></div></div>${statusButtons}</div>` : ''}</div></div>`;
             }).join('');
             historyHtml += `</div>`;
         }
@@ -7009,36 +7015,33 @@ function formatRupiahInput(input) {
 
 // Perhatikan penambahan parameter 'loanId' sebelum 'btnElement'
 function editLog(logId, aksi, media, nominal, tgl, loanId, btnElement) {
-    const catatan = btnElement.getAttribute('data-catatan');
-    
-    // 1. Buka Modal menggunakan Loan ID yang valid dari parameter
+    // Catatan dibaca dari data-attribute; decode tidak diperlukan karena dibaca langsung dari DOM.
+    const catatan = btnElement ? (btnElement.getAttribute('data-catatan') || '') : '';
     openMitigationForm(loanId);
-    
-    // 2. Isi Form dengan Data Lama
-    // Tunggu sebentar agar modal siap, atau langsung isi
-    const elLogId = document.getElementById('mitigasi-log-id');
-    const elAksi = document.getElementById('mitigasi-aksi');
-    const elMedia = document.getElementById('mitigasi-media');
-    const elCatatan = document.getElementById('mitigasi-catatan');
-    const elNominal = document.getElementById('mitigasi-nominal');
-    const elTgl = document.getElementById('mitigasi-tgl');
 
-    if(elLogId) elLogId.value = logId;
-    if(elAksi) elAksi.value = aksi;
-    if(elMedia) elMedia.value = media;
-    if(elCatatan) elCatatan.value = catatan; // Ambil dari atribut data
-    if(elNominal) elNominal.value = (nominal && nominal != 0) ? nominal : '';
-    
-    // Parsing Tanggal (YYYY-MM-DD)
-    if(tgl && tgl !== '-' && tgl !== 'null') {
-       // Cek format tanggal, jika sudah YYYY-MM-DD langsung pakai
-       // Jika format DD/MM/YYYY, perlu dibalik (biasanya dari input date HTML butuh YYYY-MM-DD)
-       if(elTgl) elTgl.value = tgl; 
-    }
+    const byId = (id) => document.getElementById(id);
+    const setValue = (id, value) => { const el = byId(id); if (el) el.value = value == null ? '' : String(value); };
+    setValue('mitigasi-log-id', logId);
+    setValue('mitigasi-loan-id', loanId);
+    setValue('mitigasi-aksi', aksi);
+    setValue('mitigasi-media', media);
+    setValue('mitigasi-catatan', catatan);
+    setValue('mitigasi-nominal', (Number(nominal) > 0) ? new Intl.NumberFormat('id-ID').format(Number(nominal)) : '');
 
-    // Ubah Teks Tombol
-    const submitBtn = document.querySelector('#formMitigasi button[type="button"]');
-    if(submitBtn) submitBtn.innerHTML = "UPDATE PERUBAHAN";
+    // Form date input hanya menerima YYYY-MM-DD. Terima juga DD/MM/YYYY dan tanggal ISO.
+    let dateValue = String(tgl || '').trim();
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateValue)) {
+        const parts = dateValue.split('/'); dateValue = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    } else if (dateValue && dateValue !== '-' && dateValue !== 'null') {
+        dateValue = dateValue.slice(0, 10);
+    } else dateValue = '';
+    setValue('mitigasi-tgl-komitmen', dateValue);
+
+    // Update tombol submit yang benar (sebelumnya selector mencari type=button, padahal form memakai submit).
+    const submitBtn = document.querySelector('#formMitigasi button[type="submit"]');
+    if (submitBtn) submitBtn.innerHTML = 'UPDATE PERUBAHAN <i class="fas fa-save ml-1"></i>';
+    const title = document.getElementById('mitigasi-modal-title');
+    if (title) title.textContent = 'Edit Log Penanganan';
 }
 
 function deleteLog(logId, loanId) {
