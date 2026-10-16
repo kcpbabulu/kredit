@@ -40,7 +40,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=106">
+  <link rel="stylesheet" href="style.css?v=107">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1875,8 +1875,42 @@
       </div>
   </div>
 
+
+  <!-- MODAL LINIMASA DEBITUR / UPDATE LOG: V107 -->
+  <div id="modal-mitigasi" class="hidden fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-5 bg-slate-950/60 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="mitigasi-modal-title" onclick="if(event.target===this) app.closeMitigasiModal()">
+    <div class="w-full max-w-2xl max-h-[92dvh] overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl flex flex-col">
+      <div class="flex items-start justify-between gap-3 p-4 sm:p-5 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-900">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0"><i class="fas fa-clipboard-check"></i></div>
+          <div><h2 id="mitigasi-modal-title" class="text-base sm:text-lg font-black text-slate-800 dark:text-white">Update Log Penanganan</h2><p id="mitigasi-target-name" class="text-xs text-slate-500 dark:text-slate-400 mt-1">Catat tindak lanjut debitur secara terstruktur.</p></div>
+        </div>
+        <button type="button" class="w-9 h-9 rounded-lg text-slate-500 hover:bg-rose-100 hover:text-rose-600" aria-label="Tutup formulir" onclick="app.closeMitigasiModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <form id="formMitigasi" class="p-4 sm:p-5 overflow-y-auto custom-scrollbar space-y-4" onsubmit="app.submitMitigasi(event)">
+        <input type="hidden" id="mitigasi-log-id" value="">
+        <input type="hidden" id="mitigasi-loan-id" value="">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div><label for="mitigasi-nama" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Nama Debitur</label><input id="mitigasi-nama" type="text" readonly class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-2.5 text-sm font-semibold" placeholder="Nama debitur"></div>
+          <div><label for="mitigasi-kol" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Kolektibilitas</label><input id="mitigasi-kol" type="text" readonly class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-3 py-2.5 text-sm font-semibold" placeholder="Kol"></div>
+          <div><label for="mitigasi-tgl-manual" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Tanggal Penanganan <span class="text-rose-500">*</span></label><input id="mitigasi-tgl-manual" type="date" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm"></div>
+          <div><label for="mitigasi-petugas" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Petugas <span class="text-rose-500">*</span></label><input id="mitigasi-petugas" type="text" required maxlength="100" autocomplete="name" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm" placeholder="Nama petugas"></div>
+          <div><label for="mitigasi-aksi" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Jenis Penanganan <span class="text-rose-500">*</span></label><select id="mitigasi-aksi" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm"><option value="">Pilih tindakan</option><option>Telepon / Reminder</option><option>WhatsApp</option><option>Kunjungan</option><option>Surat Penagihan</option><option>Negosiasi / Komitmen Bayar</option><option>Restrukturisasi</option><option>Pembayaran / Pelunasan</option><option>Koordinasi Internal</option><option>Lainnya</option></select></div>
+          <div><label for="mitigasi-media" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Media Penanganan <span class="text-rose-500">*</span></label><select id="mitigasi-media" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm"><option value="">Pilih media</option><option>Telepon</option><option>WhatsApp</option><option>Kunjungan langsung</option><option>Surat</option><option>Email</option><option>Internal / Sistem</option><option>Lainnya</option></select></div>
+          <div><label for="mitigasi-nominal" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Nominal Janji Bayar (Rp)</label><input id="mitigasi-nominal" type="text" inputmode="numeric" oninput="app.formatRupiahInput(this)" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm" placeholder="0"></div>
+          <div><label for="mitigasi-tgl-komitmen" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Tanggal Janji Bayar</label><input id="mitigasi-tgl-komitmen" type="date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm"></div>
+        </div>
+        <div><label for="mitigasi-catatan" class="block text-xs font-bold mb-1.5 text-slate-600 dark:text-slate-300">Catatan Hasil Penanganan <span class="text-rose-500">*</span></label><textarea id="mitigasi-catatan" required rows="4" maxlength="5000" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2.5 text-sm resize-y" placeholder="Tuliskan hasil komunikasi, kondisi debitur, komitmen, kendala, dan tindak lanjut berikutnya..."></textarea><p class="text-[10px] text-slate-400 mt-1">Hindari memasukkan data sensitif yang tidak diperlukan.</p></div>
+        <div class="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="app.closeMitigasiModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800">Batal</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-black shadow-lg shadow-emerald-600/20"><i class="fas fa-paper-plane mr-2"></i>SIMPAN PENANGANAN</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- END MODAL LINIMASA DEBITUR -->
+
   <!-- App Javascript -->
-  <script src="app.js?v=106"></script>
+  <script src="app.js?v=107"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
