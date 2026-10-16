@@ -1,7 +1,7 @@
 {
-  "name": "DaKOPen PPU V101",
-  "short_name": "DaKOPen V101",
-  "description": "DaKOPen PPU - Historical Extremes and 12-Month Trend Projection",
+  "name": "DaKOPen PPU V103",
+  "short_name": "DaKOPen V103",
+  "description": "DaKOPen PPU - Persistent Historical Snapshot Archive and Fast Reports",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
