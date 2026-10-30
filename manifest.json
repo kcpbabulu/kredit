@@ -1,7 +1,7 @@
 {
-  "name": "DaKOPen V108 PPU",
-  "short_name": "DaKOPen V108",
-  "description": "DaKOPen PPU - Debtor Timeline Update Log Modal Fix",
+  "name": "DaKOPen V109 PPU",
+  "short_name": "DaKOPen V109",
+  "description": "DaKOPen PPU - Telegram PDF Configuration & Delivery",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
