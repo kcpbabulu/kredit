@@ -1064,3 +1064,41 @@ html.dark .dak-report-workspace{background:linear-gradient(145deg,#0b1220 0%,#11
 .dak-tg-unavailable{opacity:.55}.dak-tg-unavailable small{display:block;font-size:10px;color:#b45309;margin-left:22px}
 
 .dak-tg-layout>aside>#dak-tg-delete{width:100%;margin-top:7px;border-color:#fecaca;color:#b91c1c}
+
+
+/* V112 - Upload modal responsive spacious layout */
+#modalUpload > div {
+  width: min(100%, 56rem);
+  max-height: min(92dvh, 58rem);
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+#modalUpload .custom-scrollbar {
+  scrollbar-width: thin;
+}
+#uploadProgressPanel {
+  scroll-margin-block: 1rem;
+}
+@media (max-width: 640px) {
+  #modalUpload {
+    padding: .625rem !important;
+    align-items: center;
+  }
+  #modalUpload > div {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 1.25rem;
+    padding: 1.125rem;
+  }
+  #modalUpload #sheetManagerList {
+    max-height: 11rem;
+  }
+}
+@media (min-width: 768px) {
+  #modalUpload > div {
+    padding: 2rem;
+  }
+  #modalUpload #sheetManagerList {
+    max-height: 15rem;
+  }
+}
