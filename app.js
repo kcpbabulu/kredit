@@ -3730,10 +3730,15 @@ function renderTrend(res) {
         // PANGGIL BACKEND UNTUK MEMBERSIHKAN CACHE (DIBUAT OLEH FUNGSI FINALIZEUPLOAD)
         // Kita kirim 'date' (variabel tanggal yang dipilih user saat upload)
         google.script.run.withSuccessHandler(() => {
+            finishUploadUI(true, "Upload selesai. Menyegarkan data aplikasi...");
             setTimeout(() => {
                 alert("Sukses! Data Strategic V60 telah diupdate.");
                 location.reload();
             }, 1000);
+        }).withFailureHandler(err => {
+            finishUploadUI(false, 'Finalisasi gagal: ' + (err && err.message ? err.message : err));
+            const uploadBtn = document.querySelector('#modalUpload button[onclick="app.doUpload(this)"]');
+            if (uploadBtn) uploadBtn.disabled = false;
         }).finalizeUpload(date); // <--- INI ADALAH PANGGILAN KUNCI
         
         return;
@@ -3766,58 +3771,64 @@ function renderTrend(res) {
         updateUploadUI(pct, "Mengirim " + processed + " data...");
         
         uploadNextChunk(targetSheetName);
+    }).withFailureHandler(err => {
+        finishUploadUI(false, 'Upload gagal: ' + (err && err.message ? err.message : err));
+        const uploadBtn = document.querySelector('#modalUpload button[onclick="app.doUpload(this)"]');
+        if (uploadBtn) uploadBtn.disabled = false;
     }).doUploadBatch(targetSheetName, chunk);
 }
 
         google.script.run.withSuccessHandler(sn => {
             updateUploadUI(5, "Inisialisasi Server...");
             uploadNextChunk(sn);
+        }).withFailureHandler(err => {
+            finishUploadUI(false, 'Inisialisasi gagal: ' + (err && err.message ? err.message : err));
+            const uploadBtn = document.querySelector('#modalUpload button[onclick="app.doUpload(this)"]');
+            if (uploadBtn) uploadBtn.disabled = false;
         }).initUpload(date);
+    };
+    reader.onerror = function() {
+        finishUploadUI(false, 'File tidak dapat dibaca. Silakan pilih ulang file Excel/CSV.');
+        btn.disabled = false;
     };
     reader.readAsArrayBuffer(file);
 }
 
 // --- FUNGSI UI ANIMASI BARU ---
 function showUploadOverlay() {
-    let overlay = document.createElement('div');
-    overlay.id = 'uploadOverlay';
-    overlay.className = 'fixed inset-0 z-[200] bg-slate-900/80 backdrop-blur-md flex flex-col items-center justify-center text-white';
-    overlay.innerHTML = `
-        <div class="relative w-48 h-48 flex items-center justify-center">
-            <svg class="w-full h-full transform -rotate-90">
-                <circle cx="96" cy="96" r="80" stroke="currentColor" stroke-width="8" fill="transparent" class="text-slate-700" />
-                <circle id="uploadCircle" cx="96" cy="96" r="80" stroke="url(#grad1)" stroke-width="10" fill="transparent" 
-                    stroke-dasharray="502.6" stroke-dashoffset="502.6" stroke-linecap="round" class="transition-all duration-500 ease-out" />
-                <defs>
-                    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
-                        <stop offset="100%" style="stop-color:#6366f1;stop-opacity:1" />
-                    </linearGradient>
-                </defs>
-            </svg>
-            <div class="absolute flex flex-col items-center">
-                <span id="uploadPct" class="text-4xl font-black italic">0%</span>
-                <span class="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Syncing</span>
-            </div>
-        </div>
-        <div id="uploadStatus" class="mt-8 text-sm font-medium text-blue-300 animate-pulse">Menyiapkan File...</div>
-    `;
-    document.body.appendChild(overlay);
+    const panel = document.getElementById('uploadProgressPanel');
+    if (panel) {
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    const bar = document.getElementById('uploadBar');
+    if (bar) bar.style.width = '0%';
+    updateUploadUI(0, 'Menyiapkan file...');
 }
 
 function updateUploadUI(pct, status) {
-    const circle = document.getElementById('uploadCircle');
+    const bar = document.getElementById('uploadBar');
     const text = document.getElementById('uploadPct');
     const statusText = document.getElementById('uploadStatus');
-    
-    if (circle) {
-        const radius = 80;
-        const circumference = 2 * Math.PI * radius;
-        const offset = circumference - (pct / 100) * circumference;
-        circle.style.strokeDashoffset = offset;
+    const value = Math.max(0, Math.min(100, Number(pct) || 0));
+    if (bar) bar.style.width = value + '%';
+    if (text) text.innerText = value + '%';
+    if (statusText) statusText.innerText = status || 'Memproses...';
+}
+
+function finishUploadUI(success, message) {
+    const panel = document.getElementById('uploadProgressPanel');
+    const status = document.getElementById('uploadStatus');
+    const pct = document.getElementById('uploadPct');
+    const bar = document.getElementById('uploadBar');
+    if (status && message) status.innerText = message;
+    if (success) {
+        if (pct) pct.innerText = '100%';
+        if (bar) bar.style.width = '100%';
+    } else if (panel) {
+        panel.classList.remove('hidden');
+        panel.classList.add('border-red-200', 'bg-red-50', 'dark:bg-red-950/30');
     }
-    if (text) text.innerText = pct + "%";
-    if (statusText) statusText.innerText = status;
 }
 
   function toggleNativeMenu() {
