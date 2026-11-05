@@ -1289,7 +1289,7 @@
               </div>
               <div class="flex gap-2 w-full xl:w-auto">
                   <div class="relative flex-1 xl:w-64">
-                      <input id="searchCreditInput" type="text" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik Nama / No. PK..." class="w-full pl-8 pr-3 py-2 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] md:text-xs font-bold outline-none focus:border-blue-500 transition-all shadow-inner">
+                      <input id="searchCreditInput" type="search" autocomplete="off" oninput="app.handleCreditLiveSearch(event)" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik 1–2 huruf: nama, No. PK, rekening..." class="w-full pl-8 pr-3 py-2 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] md:text-xs font-bold outline-none focus:border-blue-500 transition-all shadow-inner">
                       <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] md:text-xs"></i>
                   </div>
                   <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 shrink-0">Cari</button>
