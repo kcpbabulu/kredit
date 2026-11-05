@@ -1,6 +1,6 @@
 {
-  "name": "DaKOPen V110 PPU",
-  "short_name": "DaKOPen V110",
+  "name": "DaKOPen V112 PPU",
+  "short_name": "DaKOPen V112",
   "description": "DaKOPen PPU - Telegram PDF Configuration & Delivery",
   "start_url": "./index.html",
   "scope": "./",
