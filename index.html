@@ -40,7 +40,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=110">
+  <link rel="stylesheet" href="style.css?v=112">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1702,7 +1702,7 @@
   
   <!-- 2. Modal Upload Data -->
   <div id="modalUpload" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[100] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[1.5rem] p-5 md:p-6 w-full max-w-sm shadow-2xl border border-white/30 dark:border-slate-700/50 transform transition-transform duration-300 max-h-[80vh] md:max-h-[90vh] mb-24 md:mb-0 overflow-y-auto custom-scrollbar animate-pop-in">
+    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[1.5rem] p-5 sm:p-7 lg:p-8 w-full max-w-4xl shadow-2xl border border-white/30 dark:border-slate-700/50 transform transition-transform duration-300 max-h-[92dvh] overflow-y-auto custom-scrollbar animate-pop-in">
         
         <!-- Header Upload -->
         <div class="flex items-center gap-3.5 mb-5">
@@ -1747,6 +1747,21 @@
             <button onclick="app.closeModal('modalUpload')" class="w-full py-2.5 text-[10px] font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:bg-slate-200 rounded-xl active:scale-95 transition-colors">BATAL</button>
         </div>
 
+        <!-- Progress upload ditampilkan di dalam modal, tepat di bawah tombol aksi -->
+        <section id="uploadProgressPanel" class="hidden mt-5 rounded-2xl border border-blue-100 dark:border-blue-900/60 bg-blue-50/80 dark:bg-slate-900/70 p-4 sm:p-5" aria-live="polite">
+            <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="min-w-0">
+                    <p class="text-xs sm:text-sm font-black text-slate-800 dark:text-white">Proses upload sedang berjalan</p>
+                    <p id="uploadStatus" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1">Menyiapkan file...</p>
+                </div>
+                <span id="uploadPct" class="text-xl sm:text-2xl font-black text-blue-600 tabular-nums shrink-0">0%</span>
+            </div>
+            <div class="h-2.5 w-full rounded-full bg-blue-100 dark:bg-slate-700 overflow-hidden">
+                <div id="uploadBar" class="h-full w-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 transition-all duration-300"></div>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2">Mohon jangan tutup jendela atau muat ulang aplikasi sampai proses selesai.</p>
+        </section>
+
         <!-- Manajemen DB -->
         <div class="mt-6 border-t border-dashed border-slate-200 dark:border-slate-700 pt-5">
             <div class="flex justify-between items-end mb-3">
@@ -1757,7 +1772,7 @@
                     <i class="fas fa-sync-alt"></i> Load
                 </button>
             </div>
-            <div id="sheetManagerList" class="max-h-24 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50/80 dark:bg-slate-900/50 p-1.5 custom-scrollbar">
+            <div id="sheetManagerList" class="max-h-44 sm:max-h-56 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50/80 dark:bg-slate-900/50 p-1.5 custom-scrollbar">
                 <div class="p-3 text-center text-[9px] font-bold text-slate-400">Klik "Load" memuat DB.</div>
             </div>
             <button onclick="app.executeDeleteSheets()" class="mt-2.5 w-full bg-red-50 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-[9px] font-black transition-all hidden active:scale-95 uppercase tracking-widest shadow-sm" id="btnDeleteSheets">
@@ -1910,7 +1925,7 @@
   <!-- END MODAL LINIMASA DEBITUR -->
 
   <!-- App Javascript -->
-  <script src="app.js?v=110"></script>
+  <script src="app.js?v=112"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
