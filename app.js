@@ -3105,10 +3105,10 @@ function renderKreditPage() {
             </div>
             <div class="flex gap-2 w-full xl:w-auto">
                 <div class="relative flex-1 xl:w-64">
-                    <input id="searchCreditInput" type="text" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik Nama / No. PK..." class="w-full pl-8 pr-3 py-2 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] md:text-xs font-bold outline-none focus:border-blue-500 transition-all shadow-inner">
+                    <input id="searchCreditInput" type="search" autocomplete="off" oninput="app.handleCreditLiveSearch(event)" onkeydown="app.handleSearchEnter(event)" placeholder="Ketik 1–2 huruf: nama, No. PK, rekening..." aria-label="Cari data kredit secara langsung" class="w-full pl-10 pr-10 py-3 md:py-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm md:text-base font-semibold outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all shadow-inner">
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] md:text-xs"></i>
                 </div>
-                <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 shrink-0">Cari</button>
+                <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-xs md:text-sm font-black uppercase tracking-wider transition-all shadow-md active:scale-95 shrink-0">Cari</button>
                 <button id="btnResetSearch" onclick="app.resetSearchCredit()" class="hidden bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 px-3 py-2 rounded-full text-[10px] md:text-xs transition-all active:scale-95 shrink-0"><i class="fas fa-times"></i></button>
             </div>
         </div>
@@ -3135,19 +3135,23 @@ function renderKreditPage() {
 
             <!-- Charts Kanan -->
             <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[220px] md:h-[280px] shadow-sm">
-                    <div class="text-[8px] md:text-[9px] font-black mb-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 uppercase tracking-widest shrink-0">
-                        <div class="w-6 h-6 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-xs"><i class="fas fa-chart-pie"></i></div> Komposisi Kredit
+                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[270px] sm:h-[290px] md:h-[320px] shadow-sm">
+                    <div class="text-[10px] md:text-xs font-black mb-2 flex items-center gap-2 text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
+                        <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-chart-pie"></i></div><span>Komposisi Kredit</span><span class="ml-auto text-[9px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik irisan</span>
                     </div>
                     <div class="flex-1 relative w-full h-full"><canvas id="chKr1"></canvas></div>
                 </div>
-                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[220px] md:h-[280px] shadow-sm">
-                    <div class="text-[8px] md:text-[9px] font-black mb-2 flex items-center gap-1.5 text-slate-600 dark:text-slate-300 uppercase tracking-widest shrink-0">
-                        <div class="w-6 h-6 rounded bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-xs"><i class="fas fa-chart-bar"></i></div> Sektor Ekonomi
+                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[270px] sm:h-[290px] md:h-[320px] shadow-sm">
+                    <div class="text-[10px] md:text-xs font-black mb-2 flex items-center gap-2 text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
+                        <div class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-sm"><i class="fas fa-chart-bar"></i></div><span>Sektor Ekonomi</span><span class="ml-auto text-[9px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik batang</span>
                     </div>
                     <div class="flex-1 relative w-full h-full"><canvas id="chKr2"></canvas></div>
                 </div>
             </div>
+        </div>
+        <div id="creditChartInsight" class="hidden rounded-2xl border border-blue-200 dark:border-blue-900 bg-blue-50/80 dark:bg-blue-950/30 px-4 py-3 flex flex-wrap items-center justify-between gap-3" aria-live="polite">
+            <div class="min-w-0"><div class="text-[10px] font-black uppercase tracking-wider text-blue-700 dark:text-blue-300">Filter diagram aktif</div><div id="creditChartFilterLabel" class="text-sm font-bold text-slate-800 dark:text-white truncate"></div></div>
+            <button type="button" onclick="app.clearCreditChartFilter()" class="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 text-blue-700 dark:text-blue-300 text-xs font-black shadow-sm border border-blue-100 dark:border-blue-900"><i class="fas fa-times mr-1"></i>Hapus filter</button>
         </div>
 
         <!-- Table Daftar Debitur -->
@@ -3172,6 +3176,9 @@ function renderKreditPage() {
     </div>`;
 
     container.innerHTML = html;
+    window.creditLiveSearchTimer = null;
+    window.creditSearchSequence = 0;
+    window.creditChartFilter = null;
 
     var branchVal = document.getElementById('selBranch')?.value || 'ALL';
     var dateVal = document.getElementById('selDate')?.value || '';
@@ -3215,79 +3222,49 @@ function renderKreditPage() {
 
 // V63: Grafik Data Kredit dirender eksplisit setelah data berhasil dimuat.
 function updateCreditCharts(rows) {
-    const list = Array.isArray(rows) ? rows : [];
-    const norm = v => String(v ?? '').trim() || 'Tidak Diklasifikasikan';
-    const sumBy = (key, max=8) => {
-        const totals = new Map();
-        list.forEach(r => { const label=norm(r[key]); const os=Number(r.os ?? r.baki_debet ?? r.outstanding ?? 0) || 0; totals.set(label,(totals.get(label)||0)+os); });
-        return [...totals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,max);
-    };
-    const fmt = v => new Intl.NumberFormat('id-ID',{notation:'compact',maximumFractionDigits:1}).format(v);
-    const paintEmpty = (id, message) => { const canvas=document.getElementById(id); if(!canvas) return; const wrap=canvas.parentElement; if(wrap) { let note=wrap.querySelector('.chart-empty-state'); if(!note){note=document.createElement('div');note.className='chart-empty-state absolute inset-0 flex items-center justify-center text-center text-xs font-semibold text-slate-400 p-4';wrap.appendChild(note);} note.textContent=message; } };
-    const paintChart = (id,type,entries,title) => {
-        const canvas=document.getElementById(id); if(!canvas) return;
-        const old=charts[id]; if(old){old.destroy();delete charts[id];}
-        const oldEmpty=canvas.parentElement?.querySelector('.chart-empty-state'); if(oldEmpty) oldEmpty.remove();
-        if(!entries.length || entries.every(x=>!Number.isFinite(x[1]) || x[1]===0)){paintEmpty(id,'Belum ada data yang dapat divisualisasikan untuk filter ini.');return;}
-        if(typeof Chart==='undefined'){paintEmpty(id,'Komponen grafik gagal dimuat. Periksa koneksi lalu muat ulang.');return;}
-        const labels=entries.map(x=>x[0]); const values=entries.map(x=>x[1]);
-        charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels,datasets:[{label:title,data:values,backgroundColor:['#7c3aed','#2563eb','#0d9488','#f59e0b','#e11d48','#64748b','#0891b2','#9333ea'],borderColor:'#ffffff',borderWidth:2,borderRadius:type==='bar'?5:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:type==='bar'?'y':'x',plugins:{legend:{display:type!=='bar',position:'bottom',labels:{boxWidth:10,padding:10,font:{size:10}}},tooltip:{callbacks:{label:c=>' '+fmt(c.parsed.y ?? c.parsed)}}},scales:type==='bar'?{x:{beginAtZero:true,ticks:{callback:v=>fmt(v),font:{size:9}},grid:{color:'rgba(148,163,184,.15)'}},y:{ticks:{font:{size:9}},grid:{display:false}}}:{}}});
-    };
-    // Komposisi berdasarkan jenis/fasilitas kredit jika tersedia; fallback berdasarkan KOL.
-    const compositionKey = list.some(r=>r.jenis_kredit||r.jenis||r.type||r.produk) ? (r=>norm(r.jenis_kredit||r.jenis||r.type||r.produk)) : (r=>'KOL '+(r.kol??r.kolektibilitas??'Tidak diketahui'));
-    const compositionMap=new Map(); list.forEach(r=>{const k=compositionKey(r);const v=Number(r.os??r.baki_debet??r.outstanding??0)||0;compositionMap.set(k,(compositionMap.get(k)||0)+v);});
-    paintChart('chKr1','doughnut',[...compositionMap.entries()].sort((a,b)=>b[1]-a[1]).slice(0,7),'Komposisi Kredit');
-    paintChart('chKr2','bar',sumBy('sektor',8),'Outstanding per Sektor');
+    window.creditChartSourceRows = Array.isArray(rows) ? rows : [];
+    const branch=document.getElementById('selBranch')?.value||'ALL';
+    const date=document.getElementById('selDate')?.value||'';
+    const status=document.getElementById('creditInfoStatus');
+    if(status) status.textContent='Menghitung komposisi seluruh portofolio…';
+    google.script.run.withSuccessHandler(res=>{
+        if(!res||res.error) { if(status)status.textContent=res?.error||'Agregasi portofolio gagal'; return; }
+        window.creditPortfolioAnalytics=res;
+        const fmt=v=>new Intl.NumberFormat('id-ID',{notation:'compact',maximumFractionDigits:1}).format(v||0);
+        const money=v=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(v||0);
+        const draw=(id,type,items,label,field)=>{
+            const canvas=document.getElementById(id); if(!canvas)return;
+            if(charts[id]){charts[id].destroy();delete charts[id];}
+            const old=canvas.parentElement?.querySelector('.chart-empty-state');if(old)old.remove();
+            if(!items?.length){const n=document.createElement('div');n.className='chart-empty-state absolute inset-0 flex items-center justify-center text-center text-xs text-slate-400 p-4';n.textContent='Tidak ada data untuk divisualisasikan';canvas.parentElement?.appendChild(n);return;}
+            const labels=items.map(x=>x.label), values=items.map(x=>x.os);
+            charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels,datasets:[{label,data:values,backgroundColor:['#7c3aed','#2563eb','#0d9488','#f59e0b','#e11d48','#64748b','#0891b2','#9333ea','#14b8a6','#f97316','#64748b','#0ea5e9'],borderColor:'#fff',borderWidth:2,borderRadius:type==='bar'?7:0,hoverOffset:type==='doughnut'?12:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:type==='bar'?'y':'x',onClick:(evt,active)=>{if(!active?.length)return;const item=items[active[0].index];window.loadCreditPortfolioDrilldown(field,item.label,item);},onHover:(evt,active)=>{canvas.style.cursor=active?.length?'pointer':'default';},plugins:{legend:{display:type!=='bar',position:'bottom',onClick:(evt,item,legend)=>{const d=items[item.index];window.loadCreditPortfolioDrilldown(field,d.label,d);},labels:{boxWidth:11,padding:12,font:{size:10},usePointStyle:true}},tooltip:{callbacks:{label:c=>`${fmt(c.parsed.y??c.parsed)} · ${money(c.parsed.y??c.parsed)}`}}},scales:type==='bar'?{x:{beginAtZero:true,ticks:{callback:v=>fmt(v)}},y:{ticks:{font:{size:10}}}}:{}}});
+        };
+        draw('chKr1','doughnut',res.composition||[],'Outstanding','composition');
+        draw('chKr2','bar',res.sectors||[],'Outstanding','sektor');
+        if(status)status.innerHTML=`<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded">Portofolio penuh</span> ${Number(res.totalNOA||0).toLocaleString('id-ID')} rekening · ${money(res.totalOS)}`;
+    }).withFailureHandler(err=>{if(status)status.textContent='Gagal memuat agregasi: '+(err?.message||err);}).getCreditPortfolioAnalytics(branch,date,'','',0,0);
 }
-
+window.loadCreditPortfolioDrilldown=function(field,label,meta){
+    const branch=document.getElementById('selBranch')?.value||'ALL',date=document.getElementById('selDate')?.value||'';
+    const tbody=document.getElementById('creditTableBody');if(tbody)tbody.innerHTML='<tr><td colspan="5" class="p-10 text-center text-blue-600"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat seluruh rekening kategori…</td></tr>';
+    const caption=(field==='sektor'?'Sektor ekonomi: ':'Komposisi kredit: ')+label;
+    google.script.run.withSuccessHandler(res=>{
+        if(!res||res.error){if(tbody)tbody.innerHTML=`<tr><td colspan="5" class="p-8 text-center text-rose-600">${res?.error||'Gagal mengambil detail'}</td></tr>`;return;}
+        window.creditChartFilter={field,label};renderCreditRows(res.list||[]);
+        const panel=document.getElementById('creditChartInsight'),text=document.getElementById('creditChartFilterLabel');if(panel)panel.classList.remove('hidden');
+        if(text)text.textContent=`${caption} · ${Number(res.totalNOA||0).toLocaleString('id-ID')} rekening · ${new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(res.totalOS||0)} · menampilkan ${res.list?.length||0} pertama`;
+        const info=document.getElementById('creditInfoStatus');if(info)info.textContent='Drill-down portofolio penuh';
+    }).withFailureHandler(err=>{if(tbody)tbody.innerHTML=`<tr><td colspan="5" class="p-8 text-center text-rose-600">${err?.message||err}</td></tr>`;}).getCreditPortfolioAnalytics(branch,date,field,label,0,100);
+};
+window.applyCreditChartFilter=function(field,label,caption){window.loadCreditPortfolioDrilldown(field,label,{label});};
+window.clearCreditChartFilter=function(){window.creditChartFilter=null;const panel=document.getElementById('creditChartInsight');if(panel)panel.classList.add('hidden');const q=document.getElementById('searchCreditInput')?.value?.trim();if(q)window.runCreditLiveSearch(q);else{const branch=document.getElementById('selBranch')?.value||'ALL',date=document.getElementById('selDate')?.value||'';google.script.run.withSuccessHandler(res=>{if(res&&!res.error){renderCreditRows(res.list||[]);const i=document.getElementById('creditInfoStatus');if(i)i.textContent=`Portofolio penuh · ${Number(res.totalNOA||0).toLocaleString('id-ID')} rekening`;}}).searchCreditGlobal(branch,date,'');}};
 // =================================================================
 // 2. HANDLER SEARCH & UTILITIES
 // =================================================================
-window.handleSearchEnter = function(e) {
-    if (e.key === 'Enter') {
-        // [KUNCI FIX]: Cek dulu apakah preventDefault itu fungsi asli (saat ketik keyboard)
-        // atau sekadar trigger manual dari klik tombol (objek palsu)
-        if (typeof e.preventDefault === 'function') {
-            e.preventDefault();
-        }
-        
-        if (isSearching) return; 
-
-        var inputEl = document.getElementById('searchCreditInput');
-        var keyword = inputEl.value;
-
-        if (keyword.length > 2) {
-            isSearching = true; 
-            inputEl.disabled = true; 
-            inputEl.classList.add('opacity-50');
-
-            var tbody = document.getElementById('creditTableBody');
-            if(tbody) tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" class="p-16 md:p-24 text-center">
-                        <div class="relative inline-flex w-16 h-16 md:w-20 md:h-20 bg-blue-50 dark:bg-slate-800 rounded-2xl shadow-inner items-center justify-center mb-4 mx-auto border border-slate-100 dark:border-slate-700">
-                             <i class="fas fa-database text-2xl md:text-3xl text-blue-300 dark:text-slate-600"></i>
-                             <i class="fas fa-search absolute -bottom-2 -right-2 text-xl text-blue-500 animate-bounce drop-shadow-md"></i>
-                        </div>
-                        <div class="text-blue-500 text-[9px] md:text-[10px] font-black tracking-[0.2em] uppercase animate-pulse">Memindai Database...</div>
-                    </td>
-                </tr>`;
-            
-            var branchVal = document.getElementById('selBranch')?.value || 'ALL';
-            var dateVal = document.getElementById('selDate')?.value || '';
-            
-            google.script.run
-                .withSuccessHandler(onSearchResult)
-                .withFailureHandler(onSearchFail)
-                .searchCreditGlobal(branchVal, dateVal, keyword);
-
-        } else if (keyword.length === 0) {
-            window.resetSearchCredit();
-        } else {
-             alert("Ketik minimal 3 huruf untuk mencari.");
-        }
-    }
-}
+window.handleCreditLiveSearch=function(e){const input=e?.target?.id==='searchCreditInput'?e.target:document.getElementById('searchCreditInput');if(!input)return;const keyword=String(input.value||'').trim();clearTimeout(window.creditLiveSearchTimer);if(!keyword){window.resetSearchCredit();return;}window.creditLiveSearchTimer=setTimeout(()=>window.runCreditLiveSearch(keyword),280);};
+window.runCreditLiveSearch=function(keyword){keyword=String(keyword||'').trim();if(!keyword){window.resetSearchCredit();return;}const seq=window.creditSearchSequence=(window.creditSearchSequence||0)+1;isSearching=true;const input=document.getElementById('searchCreditInput');if(input)input.classList.add('ring-2','ring-blue-500/20');const info=document.getElementById('creditInfoStatus');if(info)info.textContent='Mencari "'+keyword+'"…';const tbody=document.getElementById('creditTableBody');if(tbody)tbody.innerHTML='<tr><td colspan="5" class="p-10 md:p-16 text-center"><div class="inline-flex items-center gap-3 text-blue-600 font-bold"><i class="fas fa-circle-notch fa-spin text-xl"></i><span>Mencari data kredit…</span></div></td></tr>';const branch=document.getElementById('selBranch')?.value||'ALL',date=document.getElementById('selDate')?.value||'';google.script.run.withSuccessHandler(res=>{if(seq!==window.creditSearchSequence)return;window.onSearchResult(res);}).withFailureHandler(err=>{if(seq!==window.creditSearchSequence)return;window.onSearchFail(err);}).searchCreditGlobal(branch,date,keyword);};
+window.handleSearchEnter=function(e){if(e?.key!=='Enter')return;if(typeof e.preventDefault==='function')e.preventDefault();clearTimeout(window.creditLiveSearchTimer);const keyword=document.getElementById('searchCreditInput')?.value?.trim()||'';if(keyword)window.runCreditLiveSearch(keyword);else window.resetSearchCredit();};
 
 window.onSearchResult = function(res) {
     window.unlockSearch(); 
@@ -3318,10 +3295,7 @@ window.onSearchResult = function(res) {
     var btnReset = document.getElementById('btnResetSearch');
     if (btnReset) btnReset.classList.remove('hidden');
     
-    setTimeout(() => { 
-        var inp = document.getElementById('searchCreditInput');
-        if(inp && !inp.disabled) inp.focus(); 
-    }, 100);
+    window.isServerSearchMode = true;
 }
 
 window.onSearchFail = function(err) {
@@ -3335,19 +3309,24 @@ window.unlockSearch = function() {
     var inputEl = document.getElementById('searchCreditInput');
     if(inputEl) {
         inputEl.disabled = false;
-        inputEl.classList.remove('opacity-50'); 
+        inputEl.classList.remove('opacity-50','ring-2','ring-blue-500/20');
     }
 }
 
 window.resetSearchCredit = function() {
-    if(isSearching) return; 
-    document.getElementById('searchCreditInput').value = '';
+    clearTimeout(window.creditLiveSearchTimer);
+    window.creditSearchSequence=(window.creditSearchSequence||0)+1;
+    isSearching=false;
+    const searchInput=document.getElementById('searchCreditInput');
+    if(searchInput) searchInput.value = '';
+    window.creditChartFilter=null;
+    const chartPanel=document.getElementById('creditChartInsight'); if(chartPanel) chartPanel.classList.add('hidden');
     if(window.allCreditData) {
         renderCreditRows(window.allCreditData);
         var infoEl = document.getElementById('creditInfoStatus');
         if(infoEl) infoEl.innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> Menampilkan 50 data teratas`;
     }
-    document.getElementById('btnResetSearch').classList.add('hidden');
+    document.getElementById('btnResetSearch')?.classList.add('hidden');
     window.isServerSearchMode = false;
 }
 
@@ -9737,6 +9716,9 @@ window.renderTableRaw = function(tableId, rows) {
     exportBranchWA: exportBranchWA,        
     exportBranchPDF: exportBranchPDF,
     handleSearchEnter: window.handleSearchEnter,
+    handleCreditLiveSearch: window.handleCreditLiveSearch,
+    runCreditLiveSearch: window.runCreditLiveSearch,
+    clearCreditChartFilter: window.clearCreditChartFilter,
     resetSearchCredit: window.resetSearchCredit,
     sortKredit: window.sortKredit,
     closeModal: function(id) {
