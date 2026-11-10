@@ -2102,3 +2102,50 @@ html.dark :where(.tab-view) :where(th,td,label){color:inherit}
   main>div:first-child>header .dak-unified-header{column-gap:8px!important}
   main>div:first-child>header .dak-unified-tab{padding:0 8px!important;font-size:9px!important}
 }
+
+
+/* ==========================================================
+   DaKOPen V132 · Single Navigation System
+   Sidebar = primary navigation; header = global command bar.
+   ========================================================== */
+
+/* The workspace switcher/module tabs duplicated the sidebar.
+   Keep its mount for legacy renderer compatibility, but never display it. */
+#dak-unified-global-nav{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;overflow:hidden!important}
+header .dak-unified-header,header .dak-center-switcher,header .dak-unified-heading,
+header .dak-unified-tabs,header .dak-quick-access{display:none!important}
+
+/* Desktop sidebar collapse control */
+.dak-sidebar-collapse-btn{
+  display:none;align-items:center;justify-content:center;flex:0 0 30px;
+  width:30px;height:30px;border:1px solid rgba(148,163,184,.22);
+  border-radius:9px;background:rgba(255,255,255,.62);color:#64748b;
+  transition:all .18s ease;cursor:pointer
+}
+.dak-sidebar-collapse-btn:hover{background:rgba(219,234,254,.85);color:#2563eb;transform:translateY(-1px)}
+html.dark .dak-sidebar-collapse-btn{background:rgba(30,41,59,.7);color:#cbd5e1;border-color:rgba(148,163,184,.18)}
+@media(min-width:768px){
+  .dak-sidebar-collapse-btn{display:inline-flex}
+  #sidebar{flex:0 0 248px;width:248px;max-width:248px;min-width:248px;transition:width .22s ease,flex-basis .22s ease,min-width .22s ease}
+  body.dak-sidebar-collapsed #sidebar{flex-basis:76px!important;width:76px!important;max-width:76px!important;min-width:76px!important}
+  body.dak-sidebar-collapsed #sidebar .sidebar-brand-row{padding:0 12px!important;justify-content:center!important}
+  body.dak-sidebar-collapsed #sidebar .sidebar-brand-title{display:none!important}
+  body.dak-sidebar-collapsed #sidebar .dak-sidebar-collapse-btn{margin:0 auto}
+  body.dak-sidebar-collapsed #sidebar nav{padding:14px 9px!important}
+  body.dak-sidebar-collapsed #sidebar .nav-btn{justify-content:center!important;padding:12px 0!important;font-size:0!important;gap:0!important}
+  body.dak-sidebar-collapsed #sidebar .nav-btn i{width:auto!important;margin:0!important;font-size:16px!important}
+  body.dak-sidebar-collapsed #sidebar nav>div[class*="pt-4"]{font-size:0!important;height:12px!important;padding:0!important;overflow:hidden!important}
+  body.dak-sidebar-collapsed #sidebar>.p-4.border-t{padding:10px 8px!important}
+  body.dak-sidebar-collapsed #sidebar>.p-4.border-t button{font-size:0!important;gap:0!important;padding:12px 0!important}
+  body.dak-sidebar-collapsed #sidebar>.p-4.border-t button i{font-size:17px!important}
+}
+/* Mobile dock is a shortcut bar, not a second copy of the sidebar. */
+@media(max-width:767px){
+  .dak-mobile-dock{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .dak-mobile-dock .dak-dock-item{min-width:0!important}
+}
+/* Compact command bar: keep global actions visually grouped. */
+@media(min-width:768px){
+  main>div:first-child>header{gap:12px!important}
+  main>div:first-child>header #dak-unified-global-nav{display:none!important}
+}
