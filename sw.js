@@ -1,6 +1,6 @@
 /* DaKOPen V110 PWA - static asset cache; API and non-GET requests bypass cache. */
-const CACHE_VERSION = 'dakopen-static-v121';
-const APP_SHELL = ['./','./index.html','./style.css?v=121','./app.js?v=121','./manifest.json'];
+const CACHE_VERSION = 'dakopen-static-v122';
+const APP_SHELL = ['./','./index.html','./style.css?v=122','./app.js?v=122','./manifest.json'];
 self.addEventListener('install', event => {
   event.waitUntil((async()=>{
     const cache=await caches.open(CACHE_VERSION);
