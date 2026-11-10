@@ -89,6 +89,28 @@ document.addEventListener('DOMContentLoaded',updateNetworkStatus);
 
 // ================= BATAS BRIDGE PROXY =================
 
+
+// V120 · Unified Work Centers. Existing view IDs/renderers/endpoints remain the source of truth.
+const DAK_UNIFIED_CENTERS = {
+  ops:{title:'Credit Operations Center',subtitle:'Ruang kerja terpadu untuk pemantauan dan tindak lanjut kredit.',tabs:[['Penagihan','view-collection','fa-phone'],['Early Warning','view-watchlist','fa-eye'],['Perubahan Kualitas','view-freshdrop','fa-arrow-trend-down'],['Jatuh Tempo','view-maturity','fa-calendar-days'],['Hapus Buku','view-writeoff','fa-file-circle-xmark']]},
+  executive:{title:'Portfolio Intelligence Center',subtitle:'Analisis konsentrasi, kualitas, dan proyeksi risiko portofolio.',tabs:[['Konsentrasi Debitur','view-top','fa-ranking-star'],['Peta Risiko','view-risk','fa-border-all'],['Kualitas Vintage','view-vintage','fa-chart-line'],['Simulasi Risiko','view-stress','fa-gauge-high'],['Proyeksi CKPN','view-ckpn','fa-calculator']]},
+  data:{title:'Debtor & Portfolio Data Center',subtitle:'Pencarian, mutasi, arsip, dan riwayat fasilitas dalam satu ruang kerja.',tabs:[['Master Kredit','view-kredit','fa-database'],['Mutasi Kredit','view-mutasi','fa-arrow-right-arrow-left'],['Arsip Kredit','view-archive','fa-box-archive'],['Riwayat Debitur','view-journey','fa-route']]}
+};
+function dakUnifiedCenterForView(viewId){return Object.keys(DAK_UNIFIED_CENTERS).find(k=>DAK_UNIFIED_CENTERS[k].tabs.some(t=>t[1]===viewId))||null;}
+function dakRenderUnifiedNav(viewId){
+ const group=dakUnifiedCenterForView(viewId); if(!group)return;
+ const view=document.getElementById(viewId); if(!view)return;
+ let host=view.querySelector(':scope > .dak-unified-header');
+ if(!host){host=document.createElement('section');host.className='dak-unified-header';host.setAttribute('aria-label','Navigasi pusat kerja');view.insertBefore(host,view.firstChild);}
+ const cfg=DAK_UNIFIED_CENTERS[group];
+ const permMap={'view-collection':'collection','view-watchlist':'watchlist','view-freshdrop':'freshdrop','view-maturity':'maturity','view-writeoff':'writeoff','view-top':'top','view-risk':'risk','view-vintage':'vintage','view-stress':'stress','view-ckpn':'ckpn','view-kredit':'kredit','view-mutasi':'mutasi','view-archive':'archive','view-journey':'journey'};
+ const user=window.DAK_AUTH&&window.DAK_AUTH.user; const tabs=cfg.tabs.filter(t=>!user||user.role==='admin'||(user.permissions&&user.permissions[permMap[t[1]]]));
+ host.innerHTML=`<div class="dak-unified-heading"><div><span class="dak-unified-eyebrow">UNIFIED WORKSPACE</span><h2>${cfg.title}</h2><p>${cfg.subtitle}</p></div><span class="dak-unified-count"><i class="fas fa-layer-group"></i> ${tabs.length} modul</span></div><div class="dak-unified-tabs" role="tablist" aria-label="${cfg.title}">${tabs.map(([label,id,icon])=>`<button type="button" role="tab" aria-selected="${id===viewId?'true':'false'}" class="dak-unified-tab ${id===viewId?'is-active':''}" data-unified-view="${id}"><i class="fas ${icon}"></i><span>${label}</span></button>`).join('')}</div>`;
+ host.querySelectorAll('[data-unified-view]').forEach(btn=>btn.addEventListener('click',()=>{const v=btn.dataset.unifiedView;if(v==='view-archive'){window.app.loadArchiveData();return;}window.app.switchTab(v);if(v==='view-journey'&&window.app.state&&window.app.state.data&&window.app.state.data.npl_list)window.app.renderJourneyPage();}));
+ document.querySelectorAll('[data-center-nav]').forEach(b=>b.classList.toggle('is-center-active',b.dataset.centerNav===group));
+}
+function dakOpenUnifiedCenter(group,initialView){const cfg=DAK_UNIFIED_CENTERS[group];if(!cfg)return;const permMap={'view-collection':'collection','view-watchlist':'watchlist','view-freshdrop':'freshdrop','view-maturity':'maturity','view-writeoff':'writeoff','view-top':'top','view-risk':'risk','view-vintage':'vintage','view-stress':'stress','view-ckpn':'ckpn','view-kredit':'kredit','view-mutasi':'mutasi','view-archive':'archive','view-journey':'journey'};const u=window.DAK_AUTH&&window.DAK_AUTH.user;const allowed=cfg.tabs.filter(t=>!u||u.role==='admin'||(u.permissions&&u.permissions[permMap[t[1]]]));if(!allowed.length){window.showAppNotice('Akun Anda tidak memiliki akses ke pusat kerja ini.','error');return;}const target=allowed.some(t=>t[1]===initialView)?initialView:allowed[0][1];if(group==='data'&&target==='view-archive'){window.app.loadArchiveData();return;}if(group==='data'&&target==='view-journey'){window.app.switchTab(target);if(window.app.state&&window.app.state.data&&window.app.state.data.npl_list)window.app.renderJourneyPage();return;}window.app.switchTab(target);}
+
 window.app = (function() {
   var s = { 
     data: null, snaps: [], filter: { d:'', b:'ALL', c:'' }, 
@@ -8032,7 +8054,7 @@ const ITEMS_PER_PAGE = 9;
 function loadArchiveData() {
     document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
     const viewArc = document.getElementById('view-archive');
-    if(viewArc) viewArc.classList.remove('hidden');
+    if(viewArc) { viewArc.classList.remove('hidden'); if(typeof dakRenderUnifiedNav==='function') dakRenderUnifiedNav('view-archive'); }
     
     selectedLabels.clear();
     updatePrintButton();
@@ -9726,6 +9748,7 @@ window.renderTableRaw = function(tableId, rows) {
       },
 
     // FIX 2: Perbaikan fungsi switchTab (Tutup laci SEBELUM pindah halaman)
+    openUnifiedCenter: dakOpenUnifiedCenter,
     switchTab: function(id) {
         this.closeAllSheets(); // Membersihkan menu yang menumpuk
 
@@ -9736,6 +9759,7 @@ window.renderTableRaw = function(tableId, rows) {
         if(target) target.classList.remove('hidden');
 
         this.refresh(id);
+        if (typeof dakRenderUnifiedNav === 'function') dakRenderUnifiedNav(id);
         if (typeof syncNPLCategoryNav === 'function') syncNPLCategoryNav();
     },
 
@@ -9921,7 +9945,9 @@ window.dakShowLogin = function() {
 window.dakApplyPermissions = function() {
   const user=window.DAK_AUTH.user; if(!user) return;
   const ids={'view-dash':'dashboard','view-journey':'journey','view-archive':'archive','view-report':'report','view-map':'map','view-nplall':'nplall','view-nplkur':'nplkur','view-nplkonsumtif':'nplkonsumtif','view-nplprod':'nplprod','view-collection':'collection','view-watchlist':'watchlist','view-freshdrop':'freshdrop','view-maturity':'maturity','view-writeoff':'writeoff','view-top':'top','view-risk':'risk','view-vintage':'vintage','view-stress':'stress','view-ckpn':'ckpn','view-kredit':'kredit','view-mutasi':'mutasi'};
-  document.querySelectorAll('#sidebar .nav-btn').forEach(btn=>{const m=btn.getAttribute('onclick')||'';const match=m.match(/view-[a-z0-9-]+/);if(!match)return;const key=ids[match[0]];if(key && user.role!=='admin' && !(user.permissions&&user.permissions[key]))btn.classList.add('hidden');else btn.classList.remove('hidden');});
+  document.querySelectorAll('#sidebar .nav-btn').forEach(btn=>{if(btn.dataset.centerNav)return;const m=btn.getAttribute('onclick')||'';const match=m.match(/view-[a-z0-9-]+/);if(!match)return;const key=ids[match[0]];if(key && user.role!=='admin' && !(user.permissions&&user.permissions[key]))btn.classList.add('hidden');else btn.classList.remove('hidden');});
+  const centerPerms={ops:['collection','watchlist','freshdrop','maturity','writeoff'],executive:['top','risk','vintage','stress','ckpn'],data:['kredit','mutasi','archive','journey']};
+  document.querySelectorAll('[data-center-nav]').forEach(btn=>{const keys=centerPerms[btn.dataset.centerNav]||[];btn.classList.toggle('hidden',user.role!=='admin'&&!keys.some(k=>user.permissions&&user.permissions[k]));});
   const upload=document.querySelector('#sidebar button[onclick*="openUploadModal"]'); if(upload) upload.classList.toggle('hidden',user.role!=='admin' && !(user.permissions&&user.permissions.upload));
   const ensureAdminButton=(id,host,extraClass)=>{
     if(!host)return;
