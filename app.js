@@ -1938,7 +1938,7 @@ window.actionWA = function(nama, hp, pk, tgk, os, tgl) {
 // =================================================================
 // DAKOPEN V117 — UNIFIED MODERN DIALOG SYSTEM
 // =================================================================
-(function installDakDialogSystem(){
+;(function installDakDialogSystem(){
   if (window.__dakDialogSystemV117) return;
   window.__dakDialogSystemV117 = true;
   let activeDialog = null;
