@@ -2275,3 +2275,25 @@ html.dark #dak-unified-global-nav .dak-unified-tab.is-active{background:linear-g
 .dark .dak-tg-found{background:rgba(15,23,42,.75)}
 .dak-tg-found>div{min-width:0}.dak-tg-found b,.dak-tg-found small{display:block;overflow-wrap:anywhere}.dak-tg-found b{font-size:12px;color:#1e293b}.dark .dak-tg-found b{color:#e2e8f0}.dak-tg-found small{font-size:10px;line-height:1.45;color:#64748b;margin-top:3px}.dak-tg-found button{flex:0 0 auto;border:1px solid #bfdbfe;border-radius:9px;padding:7px 11px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:800}
 @media(max-width:760px){.dak-tg-found{align-items:flex-start;flex-direction:column}.dak-tg-found button{width:100%}}
+
+/* V136 — Telegram discovery panel is separated from the form grid; no overlap. */
+.dak-tg-card{display:flex;flex-direction:column;max-height:min(94dvh,980px);overflow:hidden}
+.dak-tg-card>header{flex:0 0 auto}
+.dak-tg-discovery-panel{flex:0 0 auto;margin:14px 18px 0;padding:14px 16px;position:relative;z-index:1;overflow:visible}
+.dak-tg-discovery-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.dak-tg-discovery-heading h3{font-size:13px;font-weight:900;margin:0 0 4px;color:#1e3a8a}
+.dak-tg-discovery-heading p{font-size:11px;color:#64748b;margin:0;line-height:1.5}
+.dak-tg-discovery-token{display:block;max-width:520px;margin-top:10px;font-size:11px;font-weight:800;color:#334155}
+.dak-tg-discovery-token input{display:block;width:100%;margin-top:5px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;background:rgba(255,255,255,.9);color:#0f172a}
+.dark .dak-tg-discovery-heading h3,.dark .dak-tg-discovery-token{color:#bfdbfe}
+.dark .dak-tg-discovery-token input{background:#0f172a;border-color:#475569;color:#f8fafc}
+.dak-tg-discovery-panel>#dak-tg-discovery-note{margin:9px 0 0;font-size:11px;line-height:1.5;color:#64748b}
+#dak-tg-discovery-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:190px;overflow:auto;overscroll-behavior:contain;margin-top:8px}
+#dak-tg-discovery-results:empty{display:none}
+.dak-tg-found{min-width:0;margin:0}
+.dak-tg-discovery-panel .dak-admin-actions{margin:0}
+.dak-tg-discovery-panel button{white-space:nowrap;min-height:38px;padding:9px 13px;border-radius:10px;font-size:11px;font-weight:800}
+.dak-tg-discovery-panel button.is-loading{opacity:.65;cursor:progress}
+.dak-tg-layout{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+.dak-tg-token-help{grid-column:1/-1;margin:0;padding:8px 10px;border-radius:9px;background:#f8fafc;color:#64748b;font-size:11px}
+@media(max-width:760px){.dak-tg-card{width:100vw;max-height:100dvh;max-height:100svh;border-radius:0}.dak-tg-discovery-panel{margin:10px 10px 0;padding:12px}.dak-tg-discovery-heading{flex-direction:column;align-items:stretch;gap:10px}.dak-tg-discovery-heading button{width:100%}#dak-tg-discovery-results{grid-template-columns:1fr;max-height:150px}.dak-tg-layout{padding:10px;overflow:visible}.dak-tg-card{overflow-y:auto}.dak-tg-layout>aside{order:2}.dak-tg-layout form{order:1}}
