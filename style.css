@@ -1811,3 +1811,18 @@ html.dark :where(.tab-view) :where(th,td,label){color:inherit}
   .dak-mobile-dock{display:grid!important}
   #sidebar>.p-4.border-t{flex:0 0 auto!important;display:block!important;min-height:82px!important}
 }
+
+
+/* DaKOPen V129 · mobile admin dialogs and touch-safe controls */
+@media (max-width:767px), (hover:none) and (pointer:coarse){
+  .dak-admin-backdrop{padding: max(8px,env(safe-area-inset-top)) 8px max(8px,env(safe-area-inset-bottom))!important;align-items:center!important}
+  .dak-admin-card{width:100%!important;max-height:calc(100dvh - 20px)!important;max-height:calc(100vh - 20px)!important;border-radius:18px!important;overflow:auto!important}
+  .dak-admin-card>header{padding:16px!important;gap:10px!important}
+  .dak-admin-card h2{font-size:19px!important;line-height:1.25!important}
+  .dak-admin-layout{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;padding:14px!important}
+  .dak-admin-layout>aside{max-height:180px!important;overflow:auto!important}
+  .dak-admin-fields{grid-template-columns:minmax(0,1fr)!important}
+  .dak-admin-card input,.dak-admin-card select,.dak-admin-card textarea{min-height:42px!important;max-width:100%!important}
+  .dak-settings-shell{width:calc(100vw - 16px)!important;max-height:calc(100dvh - 20px)!important;max-height:calc(100vh - 20px)!important;padding:16px!important;border-radius:18px!important}
+  .dak-settings-grid{grid-template-columns:minmax(0,1fr)!important;gap:10px!important}
+}
