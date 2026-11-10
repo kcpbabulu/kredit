@@ -1544,3 +1544,69 @@ html.dark .dak-favorite-current.is-saved{color:#fcd34d;background:rgba(245,158,1
   .dak-unified-tab{padding:6px 8px!important;font-size:8.5px!important}
   .dak-unified-eyebrow{font-size:9px!important}
 }
+
+/* =========================================================
+   DaKOPen V126 · Compact desktop header + readable contrast
+   Keep existing navigation and application behavior unchanged.
+   ========================================================= */
+@media (min-width:768px){
+  main>div:first-child{padding:6px clamp(8px,1vw,16px) 3px!important}
+  main>div:first-child>header{
+    min-height:56px!important;padding:7px 12px!important;gap:6px 10px!important;
+    border-radius:17px!important;align-items:center!important;
+  }
+  main>div:first-child>header>div:first-child{
+    flex:0 1 330px!important;min-width:245px!important;gap:8px!important;
+  }
+  main>div:first-child>header>div:nth-child(2){
+    flex:1 1 390px!important;min-width:340px!important;gap:6px!important;
+  }
+  main>div:first-child>header .no-print>div:first-child{min-height:34px!important;padding:2px 6px!important;border-radius:12px!important}
+  main>div:first-child>header .no-print select{font-size:10px!important;min-height:28px!important;padding-top:3px!important;padding-bottom:3px!important}
+  main>div:first-child>header button[data-theme-toggle],
+  main>div:first-child>header button[onclick*="print"]{width:32px!important;height:32px!important;flex:0 0 32px!important}
+  .dak-session-toolbar{top:6px!important;right:10px!important;max-width:min(300px,20vw)!important;padding:4px 7px!important;min-height:38px!important}
+  main>div:first-child>header{padding-right:clamp(190px,19vw,310px)!important}
+  .dak-unified-global-nav{padding-top:4px!important}
+  .dak-unified-heading{min-height:17px!important;margin-bottom:3px!important}
+  .dak-unified-eyebrow{font-size:10px!important}
+  .dak-unified-tab{min-height:31px!important;padding:6px 10px!important;font-size:10px!important}
+}
+
+/* Restore the intended dark hero surface: generic glass selectors must not
+   wash out the white hero typography on the light theme. */
+.dak-dashboard-hero{
+  color:#fff!important;
+  background:
+    radial-gradient(ellipse at 85% 0%,rgba(45,212,191,.30),transparent 32%),
+    radial-gradient(ellipse at 100% 100%,rgba(59,130,246,.42),transparent 38%),
+    linear-gradient(118deg,#101f3e 0%,#173b70 52%,#176c86 100%)!important;
+  border:1px solid rgba(255,255,255,.22)!important;
+  box-shadow:0 18px 45px rgba(23,59,112,.18),inset 0 1px 0 rgba(255,255,255,.12)!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.dak-dashboard-hero h1{color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.16)!important}
+.dak-dashboard-hero p{color:#e5efff!important;opacity:1!important}
+.dak-dashboard-hero .dak-hero-eyebrow{color:#a7f3e8!important}
+.dak-dashboard-hero .dak-hero-action{color:#fff!important;background:rgba(255,255,255,.13)!important;border-color:rgba(255,255,255,.32)!important}
+.dak-dashboard-hero .dak-hero-action-primary{color:#173b70!important;background:#fff!important;border-color:#fff!important}
+html.dark .dak-dashboard-hero{background:linear-gradient(118deg,#09162d 0%,#102d55 52%,#0e5368 100%)!important}
+
+/* Legibility baseline for secondary copy and helper labels on glass panels. */
+:where(#view-dash,.tab-view) :where(.text-slate-400,.text-slate-500,.text-gray-400,.text-gray-500,.text-zinc-400,.text-zinc-500){color:#58677d!important}
+html.dark :where(#view-dash,.tab-view) :where(.text-slate-400,.text-slate-500,.text-gray-400,.text-gray-500,.text-zinc-400,.text-zinc-500){color:#b3c1d4!important}
+.dak-section-hint{color:#58677d!important;font-weight:700!important}
+html.dark .dak-section-hint{color:#b3c1d4!important}
+.dak-section-kicker{color:#52647d!important}
+html.dark .dak-section-kicker{color:#a9bad0!important}
+.dak-quick-caption,.dak-quick-empty{color:#596b83!important}
+html.dark .dak-quick-caption,html.dark .dak-quick-empty{color:#adbed2!important}
+.tab-view label,.tab-view th{color:#334155}
+html.dark .tab-view label,html.dark .tab-view th{color:#d1dbea}
+.tab-view input::placeholder,.tab-view textarea::placeholder{color:#718096!important;opacity:1!important}
+html.dark .tab-view input::placeholder,html.dark .tab-view textarea::placeholder{color:#9aacc3!important}
+@media(max-width:767px){
+  .dak-dashboard-hero{background:linear-gradient(118deg,#101f3e 0%,#173b70 52%,#176c86 100%)!important}
+  .dak-dashboard-hero p{color:#e5efff!important}
+}
+@media(prefers-reduced-transparency:reduce){.dak-dashboard-hero{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
