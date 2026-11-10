@@ -1778,3 +1778,36 @@ html.dark :where(.tab-view) :where(th,td,label){color:inherit}
   #sidebarOverlay.hidden{display:none!important}
   body>main{width:100%!important;min-width:0!important;margin-left:0!important}
 }
+
+
+/* DaKOPen V128 — mobile upload access + historical date readability */
+.dak-history-warning{min-width:0}
+.dak-history-date{display:inline-flex;align-items:center;justify-content:center;white-space:normal;line-height:1.35;text-align:center;max-width:58%;overflow-wrap:anywhere}
+@media(max-width:767px), (hover:none) and (pointer:coarse){
+  /* Drawer must reserve a real, always-visible footer for Upload Data. */
+  #sidebar{height:100dvh!important;height:100vh!important;max-height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;padding-bottom:0!important}
+  #sidebar nav{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding-bottom:20px!important}
+  #sidebar>.p-4.border-t{position:relative!important;display:block!important;flex:0 0 auto!important;min-height:82px!important;margin:0!important;padding:10px 12px calc(12px + env(safe-area-inset-bottom))!important;z-index:3!important;border-top:1px solid rgba(148,163,184,.22)!important;background:rgba(255,255,255,.98)!important;box-shadow:0 -8px 24px rgba(15,35,70,.07)!important}
+  html.dark #sidebar>.p-4.border-t{background:rgba(15,23,42,.99)!important}
+  #sidebar>.p-4.border-t button[onclick*="openUploadModal"]{display:flex!important;width:100%!important;min-height:50px!important;height:50px!important;padding:12px!important;border-radius:14px!important;font-size:13px!important;letter-spacing:.02em!important;visibility:visible!important;opacity:1!important}
+  #sidebar>.p-4.border-t button[onclick*="openUploadModal"].hidden{display:none!important}
+  #modalUpload{align-items:flex-end!important;padding:8px!important;padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+  #modalUpload>div{width:100%!important;max-width:100%!important;max-height:calc(94dvh - env(safe-area-inset-bottom))!important;overflow-y:auto!important;border-radius:22px 22px 16px 16px!important;padding:18px!important}
+  #modalUpload input[type=file]{min-height:64px!important}
+  #modalUpload input[type=date]{min-height:46px!important;font-size:14px!important}
+  #detailContent .dak-history-warning{align-items:flex-start!important;flex-wrap:wrap!important;gap:7px!important}
+  #detailContent .dak-history-warning>div{flex:1 1 150px!important}
+  #detailContent .dak-history-date{flex:1 1 100%!important;max-width:100%!important;justify-content:flex-start!important;text-align:left!important;font-size:11px!important;padding:7px 9px!important;overflow-wrap:anywhere!important}
+}
+
+/* Smart touch-device fallback when Android requests a desktop viewport. */
+@media (hover:none) and (pointer:coarse){
+  #sidebar{position:fixed!important;inset:0 auto 0 0!important;width:min(86vw,340px)!important;max-width:340px!important;height:100dvh!important;height:100vh!important;transform:translateX(-105%);z-index:100!important}
+  #sidebar.-translate-x-full{transform:translateX(-105%)!important;pointer-events:none!important}
+  body.sidebar-open #sidebar{transform:translateX(0)!important;pointer-events:auto!important}
+  #sidebarOverlay{display:block!important}
+  #sidebarOverlay.hidden{display:none!important}
+  body>main,body>main.flex-1{width:100%!important;min-width:0!important;margin-left:0!important}
+  .dak-mobile-dock{display:grid!important}
+  #sidebar>.p-4.border-t{flex:0 0 auto!important;display:block!important;min-height:82px!important}
+}
