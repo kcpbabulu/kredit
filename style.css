@@ -1122,3 +1122,14 @@ html.dark .dak-report-workspace{background:linear-gradient(145deg,#0b1220 0%,#11
 .tab-view[aria-busy="true"]{cursor:progress}
 @media(max-width:640px){.dak-dialog-backdrop{padding:12px;align-items:flex-end}.dak-dialog-card{width:100%;border-radius:24px 24px 18px 18px;padding:21px;max-height:82dvh}.dak-dialog-actions{display:grid;grid-template-columns:1fr 1fr}.dak-dialog-actions button{width:100%}}
 @media(prefers-reduced-motion:reduce){.dak-dialog-backdrop,.dak-dialog-card,.tab-view{transition:none!important}}
+
+
+/* V119 Unified NPL Intelligence Center */
+.npl-unified-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;padding:8px;background:rgba(148,163,184,.10);border:1px solid rgba(148,163,184,.18);border-radius:16px;position:sticky;top:var(--header-height,64px);z-index:18;backdrop-filter:blur(14px)}
+.npl-unified-nav button{display:flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 12px;border:1px solid transparent;border-radius:11px;background:transparent;color:#64748b;font-size:12px;font-weight:800;transition:background .18s ease,color .18s ease,box-shadow .18s ease;cursor:pointer}
+.npl-unified-nav button:hover{background:rgba(59,130,246,.09);color:#2563eb}
+.npl-unified-nav button.active{background:#245fe8;color:#fff;box-shadow:0 5px 16px rgba(37,99,235,.20)}
+.dark .npl-unified-nav{background:rgba(30,41,59,.72);border-color:rgba(148,163,184,.15)}
+.dark .npl-unified-nav button{color:#cbd5e1}
+.dark .npl-unified-nav button.active{background:#2563eb;color:#fff}
+@media(max-width:560px){.npl-unified-nav{gap:5px;padding:5px;border-radius:13px;top:56px}.npl-unified-nav button{min-height:42px;padding:8px 4px;gap:4px;flex-direction:column;font-size:9px}.npl-unified-nav button i{font-size:13px}}
