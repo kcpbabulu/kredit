@@ -1338,3 +1338,97 @@ html.dark .tab-view thead{background:rgba(24,42,65,.72)!important}
 }
 @media(max-width:360px){.npl-unified-nav button{font-size:8px!important}.npl-unified-nav button i{font-size:11px!important}}
 @media(prefers-reduced-transparency:reduce){.npl-unified-nav,.tab-view .glass-card,.tab-view section[class*="rounded"],.tab-view article[class*="rounded"]{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background-color:#f8fafc!important}}
+
+/* =========================================================
+   DaKOPen V124 · Credit Intelligence SuperApp interaction layer
+   Responsive work-center switcher, thumb-friendly mobile dock,
+   consistent glass material and dense-data ergonomics.
+   ========================================================= */
+:root{
+ --dak-glass-panel:rgba(255,255,255,.64);
+ --dak-glass-panel-strong:rgba(255,255,255,.82);
+ --dak-glass-line:rgba(255,255,255,.76);
+ --dak-glass-depth:0 12px 34px rgba(24,48,82,.07),inset 0 1px 0 rgba(255,255,255,.78);
+ --dak-blue:#2864ed;
+}
+html.dark{
+ --dak-glass-panel:rgba(13,27,46,.72);
+ --dak-glass-panel-strong:rgba(12,24,42,.9);
+ --dak-glass-line:rgba(148,163,184,.2);
+ --dak-glass-depth:0 14px 38px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.055);
+}
+/* Three work-center switcher */
+.dak-center-switcher{display:flex;align-items:center;gap:5px;overflow-x:auto;scrollbar-width:none;padding:1px 0 7px;overscroll-behavior-x:contain}
+.dak-center-switcher::-webkit-scrollbar{display:none}
+.dak-center-chip{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;min-height:30px;padding:6px 11px;border-radius:999px;border:1px solid rgba(148,163,184,.2);background:rgba(255,255,255,.42);color:#64748b;font-size:11px;font-weight:800;transition:background .18s,border-color .18s,color .18s,transform .18s}
+.dak-center-chip i{font-size:11px}
+.dak-center-chip.is-current{background:rgba(37,99,235,.11);border-color:rgba(37,99,235,.26);color:#2459d7;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+html.dark .dak-center-chip{background:rgba(30,45,68,.55);border-color:rgba(148,163,184,.17);color:#bdcce0}
+html.dark .dak-center-chip.is-current{background:rgba(37,99,235,.22);color:#a9c7ff;border-color:rgba(96,165,250,.35)}
+.dak-unified-heading{align-items:center;gap:10px}
+.dak-workspace-title{display:flex;flex-direction:column;gap:1px;min-width:0}
+.dak-workspace-subtitle{font-size:10px;line-height:1.35;color:#8290a5;font-weight:550;max-width:760px}
+html.dark .dak-workspace-subtitle{color:#91a4bd}
+.dak-unified-tabs{padding-top:2px!important}
+.dak-unified-tab{min-height:37px!important}
+/* A single bottom dock on phones; no central floating action that obscures content. */
+.dak-mobile-dock{display:none}
+@media(max-width:767px){
+ .dak-mobile-dock{position:fixed;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));left:10px;right:10px;bottom:max(8px,env(safe-area-inset-bottom));z-index:90;min-height:62px;padding:6px 7px calc(6px + env(safe-area-inset-bottom));border:1px solid rgba(255,255,255,.78);border-radius:21px;background:rgba(248,251,255,.78);backdrop-filter:blur(26px) saturate(175%);-webkit-backdrop-filter:blur(26px) saturate(175%);box-shadow:0 12px 34px rgba(22,42,74,.16),inset 0 1px 0 rgba(255,255,255,.88)}
+ html.dark .dak-mobile-dock{background:rgba(11,23,40,.84);border-color:rgba(148,163,184,.2);box-shadow:0 12px 34px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.07)}
+ .dak-dock-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:48px;border:0;border-radius:14px;background:transparent;color:#718198;font-size:9px;font-weight:800;letter-spacing:.01em;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+ .dak-dock-item i{font-size:17px;line-height:1}
+ .dak-dock-item.is-active{color:#245ee5;background:rgba(37,99,235,.09)}
+ html.dark .dak-dock-item{color:#9aabc1}
+ html.dark .dak-dock-item.is-active{color:#a9c7ff;background:rgba(59,130,246,.18)}
+ main .mobile-scroll{padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+ main>div:first-child{position:relative!important;top:auto!important;z-index:40!important}
+ main>div:first-child>header{border-radius:17px!important}
+ .dak-unified-global-nav{border-top:1px solid rgba(148,163,184,.15)!important;margin-top:5px!important;padding-top:6px!important}
+ .dak-center-switcher{margin-bottom:2px}
+ .dak-center-chip{min-height:29px;padding:5px 9px;font-size:10px}
+ .dak-workspace-subtitle{display:none}
+ .dak-unified-heading{margin-bottom:5px!important}
+ .dak-unified-tabs{display:flex!important;gap:5px!important;overflow-x:auto!important;scrollbar-width:none!important;padding:2px 1px 5px!important}
+ .dak-unified-tab{flex:0 0 auto!important;min-height:36px!important;padding:7px 10px!important;font-size:10px!important}
+ .tab-view{scroll-margin-top:12px!important}
+ #sidebar{z-index:100!important}
+}
+@media(max-width:380px){.dak-center-chip{padding:5px 8px;font-size:9px}.dak-center-chip i{display:none}.dak-unified-tab{padding:7px 9px!important;font-size:9px!important}}
+/* Shared tactile states and glass finish for all functional surfaces. */
+.tab-view .glass-card,.tab-view .dak-intel-tile,.tab-view .dak-kpi-card,
+.tab-view .chart-container,.tab-view .chart-card,.tab-view .stat-card,
+.tab-view .mobile-menu-card,.tab-view .bg-white,.tab-view .bg-white\/80,
+.tab-view .bg-white\/90,.tab-view .bg-slate-50,.tab-view .bg-gray-50,
+.dak-dashboard-hero,.dak-settings-shell,.dak-admin-card,.dak-dialog-card,
+.dak-login-card,.custom-bottom-sheet,.mobile-menu-sheet{
+ background:var(--dak-glass-panel)!important;border:1px solid var(--dak-glass-line)!important;
+ box-shadow:var(--dak-glass-depth)!important;backdrop-filter:blur(19px) saturate(160%)!important;-webkit-backdrop-filter:blur(19px) saturate(160%)!important;
+}
+html.dark .tab-view .glass-card,html.dark .tab-view .dak-intel-tile,html.dark .tab-view .dak-kpi-card,
+html.dark .tab-view .chart-container,html.dark .tab-view .chart-card,html.dark .tab-view .stat-card,
+html.dark .tab-view .mobile-menu-card,html.dark .dak-dashboard-hero,html.dark .dak-settings-shell,
+html.dark .dak-admin-card,html.dark .dak-dialog-card,html.dark .dak-login-card{
+ background:var(--dak-glass-panel)!important;border-color:var(--dak-glass-line)!important;box-shadow:var(--dak-glass-depth)!important;
+}
+.tab-view input:not([type=checkbox]):not([type=radio]),.tab-view select,.tab-view textarea,
+#sidebar input:not([type=checkbox]):not([type=radio]){border-radius:12px!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.tab-view table{border-collapse:separate!important;border-spacing:0!important}
+.tab-view .overflow-x-auto,.tab-view .overflow-auto{border-radius:15px;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.tab-view th{white-space:nowrap}
+.tab-view button:not(:disabled),.dak-center-chip,.dak-dock-item{touch-action:manipulation}
+@media(hover:hover) and (pointer:fine){.dak-center-chip:hover,.dak-dock-item:hover{transform:translateY(-1px);border-color:rgba(37,99,235,.3)}}
+@media(prefers-reduced-motion:reduce){.dak-center-chip,.dak-dock-item,.dak-unified-tab{transition:none!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-transparency:reduce){.dak-mobile-dock,.dak-center-chip,.tab-view .glass-card,.tab-view .dak-intel-tile,.tab-view .chart-card,.dak-dashboard-hero{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:#f7faff!important}}
+.dak-quick-access{display:flex;align-items:center;gap:6px;min-width:0;overflow-x:auto;scrollbar-width:none;padding:5px 0 1px;border-top:1px solid rgba(148,163,184,.13)}
+.dak-quick-access::-webkit-scrollbar{display:none}
+.dak-quick-caption{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;color:#8794a8;font-size:9px;font-weight:850}
+.dak-quick-access>[data-quick-view]{flex:0 0 auto;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:4px 8px;border:1px solid rgba(148,163,184,.17);border-radius:999px;background:rgba(255,255,255,.38);color:#52627a;font-size:9px;font-weight:750}
+.dak-quick-separator{width:1px;height:15px;background:rgba(148,163,184,.25);flex:0 0 1px}
+.dak-quick-empty{color:#a0aabd;font-size:9px;white-space:nowrap}
+.dak-favorite-current{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;margin-left:auto;padding:4px 8px;border:1px solid rgba(148,163,184,.2);border-radius:999px;background:rgba(255,255,255,.42);color:#718096;font-size:9px;font-weight:800}
+.dak-favorite-current.is-saved{color:#b7791f;background:rgba(251,191,36,.13);border-color:rgba(245,158,11,.25)}
+html.dark .dak-quick-caption{color:#8fa2bc}
+html.dark .dak-quick-access>[data-quick-view],html.dark .dak-favorite-current{background:rgba(30,45,68,.52);color:#c2d0e2;border-color:rgba(148,163,184,.17)}
+html.dark .dak-favorite-current.is-saved{color:#fcd34d;background:rgba(245,158,11,.12)}
+@media(max-width:767px){.dak-quick-access{gap:5px;padding-top:5px}.dak-quick-caption{font-size:8px}.dak-quick-access>[data-quick-view]{font-size:8px;padding:4px 7px;max-width:115px}.dak-favorite-current{font-size:8px;padding:4px 7px}.dak-favorite-current span{display:none}}
