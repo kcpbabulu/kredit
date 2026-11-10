@@ -2265,3 +2265,13 @@ html.dark #dak-unified-global-nav .dak-unified-tab.is-active{background:linear-g
   main>div:first-child>header>div:nth-child(2){width:100%!important;margin:0!important}
   main>div:first-child>header>#dak-unified-global-nav:not(.hidden){display:block!important;width:100%!important}
 }
+
+
+/* V135 — Telegram discovery UI */
+.dak-tg-discovery{margin:10px 0 16px;padding:13px;border:1px solid rgba(59,130,246,.2);border-radius:14px;background:linear-gradient(135deg,rgba(239,246,255,.8),rgba(240,253,250,.75));}
+.dark .dak-tg-discovery{background:linear-gradient(135deg,rgba(30,41,59,.85),rgba(15,45,53,.75));border-color:rgba(96,165,250,.25)}
+.dak-tg-discovery>p{font-size:11px;line-height:1.55;color:#64748b;margin:7px 0}
+.dak-tg-found{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px;margin-top:8px;border:1px solid rgba(148,163,184,.25);border-radius:11px;background:rgba(255,255,255,.8)}
+.dark .dak-tg-found{background:rgba(15,23,42,.75)}
+.dak-tg-found>div{min-width:0}.dak-tg-found b,.dak-tg-found small{display:block;overflow-wrap:anywhere}.dak-tg-found b{font-size:12px;color:#1e293b}.dark .dak-tg-found b{color:#e2e8f0}.dak-tg-found small{font-size:10px;line-height:1.45;color:#64748b;margin-top:3px}.dak-tg-found button{flex:0 0 auto;border:1px solid #bfdbfe;border-radius:9px;padding:7px 11px;background:#eff6ff;color:#1d4ed8;font-size:11px;font-weight:800}
+@media(max-width:760px){.dak-tg-found{align-items:flex-start;flex-direction:column}.dak-tg-found button{width:100%}}
