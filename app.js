@@ -1322,8 +1322,44 @@ function formatNumber(angka) {
                               unlockMenu();}
   function renderKonsumtifPage(res) { renderGenericPage(res, 'Kons'); 
                                     unlockMenu();}
-  function renderProdPage(res) { renderGenericPage(res, 'Prod'); 
-                               unlockMenu();}
+  function renderProdPage(res) {
+      app.state = app.state || {}; app.state.prodSourceRes = res;
+      app.state.prodScope = app.state.prodScope || 'all'; app.state.prodSector = '';
+      renderGenericPage(res, 'Prod');
+      renderProdScope(app.state.prodScope, '');
+      unlockMenu();
+  }
+
+  // V118: Satu sumber data Produktif; KUR adalah subset, bukan penjumlahan baru.
+  function renderProdScope(scope, sector) {
+      const res = app.state && app.state.prodSourceRes; if (!res) return;
+      scope = ['all','nonkur','kur'].includes(scope) ? scope : 'all';
+      app.state.prodScope = scope; app.state.prodSector = sector || '';
+      const all = (res.all_list || []).filter(r => (r.tags || []).includes('Prod'));
+      const scoped = all.filter(r => scope === 'all' ? true : scope === 'kur' ? (r.tags||[]).includes('KUR') : !(r.tags||[]).includes('KUR'));
+      const sum = (rows, fn) => rows.reduce((a,r)=>a+(fn(r)||0),0);
+      const os = sum(scoped,r=>Number(r.os)||0), npl = sum(scoped,r=>r.kol>=3?(Number(r.os)||0):0), kkr = sum(scoped,r=>r.kol>=2?(Number(r.os)||0):0);
+      // Samakan basis simulasi dengan cakupan yang sedang dipilih.
+      s.prod = Object.assign({}, res.curr || {}, {prod_os:os, prod_npl:npl, prod_kkr:kkr, prod_noa:scoped.length});
+      s.simProd = {heal:[],crash:[]};
+      const nplRows = (res.npl_list||[]).filter(r=>(r.tags||[]).includes('Prod') && (scope==='all' || (scope==='kur' ? (r.tags||[]).includes('KUR') : !(r.tags||[]).includes('KUR'))) && (!sector || String(r.sektor||'Lainnya')===sector) && r.kol>=3).sort((a,b)=>(b.os||0)-(a.os||0));
+      const kkrRows = (res.npl_list||[]).filter(r=>(r.tags||[]).includes('Prod') && (scope==='all' || (scope==='kur' ? (r.tags||[]).includes('KUR') : !(r.tags||[]).includes('KUR'))) && (!sector || String(r.sektor||'Lainnya')===sector) && r.kol===2).sort((a,b)=>(b.os||0)-(a.os||0));
+      safeTxt('k_prod_tot', formatRupiah(os)); safeTxt('k_prod_npl', formatRupiah(npl)); safeTxt('k_prod_kkr', formatRupiah(kkr));
+      safeTxt('k_npl_rat_Prod', (os>0?(npl/os*100):0).toFixed(2)+'%');
+      ['bdg_k_prod_tot','bdg_k_prod_npl','bdg_k_prod_kkr'].forEach(id=>{const badge=el(id);if(badge)badge.classList.add('hidden');});
+      if(typeof updateSimStats==='function') updateSimStats('Prod');
+      safeTxt('prodScopeCount', `${scoped.length.toLocaleString('id-ID')} fasilitas · ${scope==='all'?'Semua Produktif':scope==='kur'?'KUR':'Non-KUR'}`);
+      safeTxt('prodScopeExplanation', scope==='all'?'Menampilkan seluruh kredit produktif, termasuk KUR.':scope==='kur'?'Menampilkan subset KUR yang sama dengan cakupan halaman NPL KUR.':'Menampilkan kredit produktif selain KUR.');
+      document.querySelectorAll('[data-prod-scope]').forEach(b=>{const active=b.dataset.prodScope===scope;b.classList.toggle('active',active);b.classList.toggle('bg-emerald-600',active);b.classList.toggle('text-white',active);b.classList.toggle('border-emerald-500',active);});
+      if(typeof renderSimTableHTML==='function') { renderSimTableHTML('tblProdNpl',nplRows.slice(0,50),'Prod',true,'NPL'); renderSimTableHTML('tblProdKkr',kkrRows.slice(0,50),'Prod',true,'KKR'); }
+      const sectors={}; scoped.filter(r=>r.kol>=3).forEach(r=>{const k=String(r.sektor||'Lainnya').trim()||'Lainnya';sectors[k]=(sectors[k]||0)+(Number(r.os)||0);});
+      const sorted=Object.entries(sectors).sort((a,b)=>b[1]-a[1]).slice(0,6); const host=el('prodSectorBreakdown');
+      if(host) host.innerHTML=sorted.length?sorted.map(([name,value])=>`<button type="button" onclick="app.setProdSector(decodeURIComponent('${encodeURIComponent(name)}'))" class="text-left rounded-xl border ${app.state.prodSector===name?'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20':'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60'} p-2"><div class="flex justify-between gap-2 text-[10px] font-bold"><span class="truncate">${escapeProdText(name)}</span><span>${formatRupiah(value)}</span></div><div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 mt-2 overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:${Math.max(2,value/(sorted[0][1]||1)*100)}%"></div></div></button>`).join(''):'<div class="text-xs text-slate-400">Tidak ada data sektor pada cakupan ini.</div>';
+      safeTxt('prodScopeCount', `${scoped.length.toLocaleString('id-ID')} fasilitas · ${scope==='all'?'Semua Produktif':scope==='kur'?'KUR':'Non-KUR'}${sector?' · '+sector:''}`);
+  }
+  function escapeProdText(value){return String(value==null?'':value).replace(/[&<>\"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch]));}
+  function setProdScope(scope){renderProdScope(scope, app.state.prodSector||'');}
+  function setProdSector(sector){renderProdScope(app.state.prodScope||'all',sector||'');}
   function render4SPage(res) { renderGenericPage(res, '4S'); 
                              unlockMenu();}
 
@@ -9714,6 +9750,8 @@ window.renderTableRaw = function(tableId, rows) {
     updateStress: updateStress, 
     initStressTest: initStressTest, 
     toggleSim: toggleSim,
+    setProdScope: setProdScope,
+    setProdSector: setProdSector,
     
     // 5. WhatsApp Helpers
     getWA: getWA,      
