@@ -625,6 +625,7 @@ function refresh(viewId) {
     // Menggunakan fallback aman jika querySelector null
     var activeTab = document.querySelector('.tab-view:not(.hidden)');
     var id = viewId || (activeTab ? activeTab.id : 'view-dashboard');
+    window.__dakNavPerfStart = { view: id, startedAt: (window.performance && performance.now) ? performance.now() : Date.now() };
 
     // 3. Update Filter State dari DOM
     if(document.getElementById('selDate')) s.filter.d = document.getElementById('selDate').value;
@@ -636,48 +637,27 @@ function refresh(viewId) {
 
     // Tampilkan Loader Utama
     var loader = document.getElementById('loader');
-    if(loader) loader.style.display = 'flex';
+    if(loader) loader.style.display = 'none'; // V117: non-blocking navigation
     
-    // --- FITUR BARU: MENU LOCK (UI DEBOUNCE) ---
+    // --- V117: navigation remains available during data loading ---
     // Mengunci sidebar dan navigasi bawah agar user tidak memencet menu lain saat loading
     const navMenu = document.getElementById('sidebar');
     const bottomNav = document.getElementById('bottom-nav');
     
     if (navMenu) {
-        navMenu.classList.add('pointer-events-none', 'opacity-70', 'transition-all');
+        navMenu.classList.remove('pointer-events-none', 'opacity-70');
     }
     if (bottomNav) {
-        bottomNav.classList.add('pointer-events-none', 'opacity-70', 'transition-all');
+        bottomNav.classList.remove('pointer-events-none', 'opacity-70');
     }
     // ------------------------------------------
 
-    // --- BLOK SKELETON (SHIMMER EFFECT) ---
-    // 1. Redupkan area yang sedang loading
-    const activeView = document.querySelector('.tab-view:not(.hidden)');
-    if (activeView) {
-        activeView.classList.add('opacity-50', 'pointer-events-none', 'transition-opacity', 'duration-300');
-    }
-
-    // 2. Suntikkan efek Shimmering (Garis Berdenyut) ke dalam tabel yang aktif
-    const activeTableBodies = document.querySelectorAll('.tab-view:not(.hidden) tbody');
-    activeTableBodies.forEach(tbody => {
-        tbody.innerHTML = `
-            <tr><td colspan="10" class="p-8">
-                <div class="animate-pulse space-y-5 w-full">
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-3/4"></div>
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-1/2"></div>
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-5/6"></div>
-                    <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-2/3"></div>
-                </div>
-            </td></tr>
-        `;
-    });
-
-    // Bersihkan Chart Lama (Memory Management)
-    if(typeof charts !== 'undefined') {
-        Object.keys(charts).forEach(function(k) { 
-            if(charts[k]) { charts[k].destroy(); delete charts[k]; } 
-        });
+    // V117: pertahankan konten terakhir saat refresh, jangan kosongkan tabel.
+    const activeViewV117 = document.getElementById(id);
+    if (activeViewV117) {
+      activeViewV117.classList.remove('opacity-50','pointer-events-none');
+      activeViewV117.setAttribute('aria-busy','true');
+      window.setTimeout(()=>{ if(activeViewV117) activeViewV117.removeAttribute('aria-busy'); }, 12000);
     }
 
     // --- ROUTING LOGIC ---
@@ -773,6 +753,16 @@ function refresh(viewId) {
 
 // Fungsi untuk membuka kunci menu setelah loading selesai
 function unlockMenu() {
+    if (window.__dakNavPerfStart) {
+        const t = window.__dakNavPerfStart;
+        const ended = (window.performance && performance.now) ? performance.now() : Date.now();
+        const elapsed = Math.max(0, ended - t.startedAt);
+        window.__dakNavigationMetrics = window.__dakNavigationMetrics || [];
+        window.__dakNavigationMetrics.push({view:t.view, elapsedMs:Math.round(elapsed), at:new Date().toISOString()});
+        if (window.__dakNavigationMetrics.length > 50) window.__dakNavigationMetrics.shift();
+        console.debug('[DaKOPen] navigation render completed', t.view, Math.round(elapsed) + 'ms');
+        window.__dakNavPerfStart = null;
+    }
     const navMenu = document.getElementById('sidebar');
     const bottomNav = document.getElementById('bottom-nav');
     
@@ -1944,6 +1934,49 @@ window.actionWA = function(nama, hp, pk, tgk, os, tgl) {
 
 
 
+
+// =================================================================
+// DAKOPEN V117 — UNIFIED MODERN DIALOG SYSTEM
+// =================================================================
+(function installDakDialogSystem(){
+  if (window.__dakDialogSystemV117) return;
+  window.__dakDialogSystemV117 = true;
+  let activeDialog = null;
+  const esc = v => String(v == null ? '' : v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function closeDialog(value){
+    if (!activeDialog) return;
+    const d=activeDialog; activeDialog=null;
+    document.removeEventListener('keydown',d.keyHandler);
+    d.wrap.classList.add('dak-dialog-leave');
+    setTimeout(()=>{if(d.wrap.parentNode)d.wrap.remove();},150);
+    d.resolve(value);
+  }
+  function openDialog(opts){
+    return new Promise(resolve=>{
+      if(activeDialog) closeDialog(opts.type==='confirm'?false:null);
+      const wrap=document.createElement('div');
+      wrap.className='dak-dialog-backdrop';
+      wrap.innerHTML=`<section class="dak-dialog-card" role="dialog" aria-modal="true" aria-labelledby="dak-dialog-title">
+        <div class="dak-dialog-head"><span class="dak-dialog-icon ${esc(opts.kind||'info')}"><i class="fas ${opts.icon||'fa-circle-info'}"></i></span><button type="button" class="dak-dialog-x" aria-label="Tutup"><i class="fas fa-times"></i></button></div>
+        <h3 id="dak-dialog-title">${esc(opts.title||'Informasi')}</h3><p class="dak-dialog-message">${esc(opts.message||'')}</p>
+        ${opts.type==='prompt'?`<input class="dak-dialog-input" type="${opts.inputType==='number'?'number':'text'}" aria-label="${esc(opts.placeholder||'Masukkan nilai')}" placeholder="${esc(opts.placeholder||'Masukkan nilai')}" value="${esc(opts.value??'')}">`:''}
+        <div class="dak-dialog-actions">${opts.type==='confirm'||opts.type==='prompt'?'<button type="button" class="dak-dialog-cancel">Batal</button>':''}<button type="button" class="dak-dialog-ok">${esc(opts.okText||'Mengerti')}</button></div></section>`;
+      document.body.appendChild(wrap);
+      const ok=wrap.querySelector('.dak-dialog-ok'), cancel=wrap.querySelector('.dak-dialog-cancel'), input=wrap.querySelector('.dak-dialog-input');
+      const keyHandler=e=>{if(e.key==='Escape'){e.preventDefault();closeDialog(opts.type==='confirm'?false:null);}if(e.key==='Enter'&&opts.type==='prompt'&&document.activeElement===input){e.preventDefault();closeDialog(input.value);}};
+      activeDialog={wrap,resolve,keyHandler}; document.addEventListener('keydown',keyHandler);
+      wrap.addEventListener('click',e=>{if(e.target===wrap)closeDialog(opts.type==='confirm'?false:null);});
+      wrap.querySelector('.dak-dialog-x').onclick=()=>closeDialog(opts.type==='confirm'?false:null);
+      if(cancel)cancel.onclick=()=>closeDialog(opts.type==='confirm'?false:null);
+      ok.onclick=()=>closeDialog(opts.type==='prompt'?input.value:true);
+      requestAnimationFrame(()=>{wrap.classList.add('dak-dialog-visible');if(input){input.focus();input.select();}else ok.focus();});
+    });
+  }
+  window.dakDialog=(message,options={})=>openDialog({type:'alert',message,...options});
+  window.dakConfirm=(message,options={})=>openDialog({type:'confirm',message,title:'Konfirmasi tindakan',okText:'Ya, lanjutkan',kind:'warning',icon:'fa-triangle-exclamation',...options});
+  window.dakPrompt=(message,value='',options={})=>openDialog({type:'prompt',message,value,title:'Masukkan informasi',okText:'Simpan',kind:'info',icon:'fa-pen-to-square',...options});
+  window.alert=(message)=>{window.dakDialog(message,{title:'Informasi',okText:'Mengerti'});};
+})();
 // =================================================================
 // FUNGSI NOTIFIKASI (TOAST) - VERSI SAFE
 // =================================================================
@@ -3929,10 +3962,10 @@ function finishUploadUI(success, message) {
 // FRONTEND: LOGIKA CETAK & FORMAT NAMA FILE
 // ======================================================
 
-function printPDF() {
+async function printPDF() {
     // 1. Validasi Pembanding
     if (!s.filter.c) {
-        let confirmNoComp = confirm("⚠️ PERHATIAN:\nAnda belum memilih Tanggal Pembanding (vs).\nLaporan tidak akan menampilkan % kenaikan/penurunan.\n\nLanjutkan?");
+        let confirmNoComp = await dakConfirm("⚠️ PERHATIAN:\nAnda belum memilih Tanggal Pembanding (vs).\nLaporan tidak akan menampilkan % kenaikan/penurunan.\n\nLanjutkan?");
         if (!confirmNoComp) return;
     }
 
@@ -6411,8 +6444,8 @@ function addNewDasarItem() {
     saveCurrentDocsToServer();
 }
 
-function removeDasarItem(index) {
-    if(!confirm("Hapus dokumen ini dari riwayat?")) return;
+async function removeDasarItem(index) {
+    if(!await dakConfirm("Hapus dokumen ini dari riwayat?")) return;
     currentDasarList.splice(index, 1);
     renderDasarList();
     saveCurrentDocsToServer();
@@ -7092,8 +7125,8 @@ function editLog(logId, aksi, media, nominal, tgl, loanId, btnElement) {
     if (title) title.textContent = 'Edit Log Penanganan';
 }
 
-function deleteLog(logId, loanId) {
-    if(!confirm("⚠️ Apakah Anda yakin ingin menghapus log penanganan ini?\nTindakan ini tidak bisa dibatalkan.")) return;
+async function deleteLog(logId, loanId) {
+    if(!await dakConfirm("⚠️ Apakah Anda yakin ingin menghapus log penanganan ini?\nTindakan ini tidak bisa dibatalkan.")) return;
 
     const loader = document.getElementById('loader');
     if(loader) loader.style.display = 'flex';
@@ -7108,14 +7141,14 @@ function deleteLog(logId, loanId) {
 }
 
 // FUNGSI SMART: HANDLE STATUS, EDIT NOMINAL, & RESET
-function updateStatusKomitmen(logId, action, loanId, nominalJanji, currentRealisasi) {
+async function updateStatusKomitmen(logId, action, loanId, nominalJanji, currentRealisasi) {
     let statusFinal = action;
     let realisasiFinal = 0;
 
     // --- A. JIKA KLIK BADGE YANG SUDAH ADA (EDIT/RESET) ---
     if (action === 'RESET') {
         // Tawarkan opsi: Edit Nominal atau Hapus Status
-        let choice = prompt(
+        let choice = await dakPrompt(
             "Opsi Perubahan Status:\n" +
             "1. Ketik angka baru untuk EDIT nominal bayar.\n" +
             "2. Ketik '0' untuk ubah jadi BATAL/INGKAR.\n" +
@@ -7128,7 +7161,7 @@ function updateStatusKomitmen(logId, action, loanId, nominalJanji, currentRealis
 
         if (choice.trim() === "") {
             // Jika dikosongkan -> RESET
-            if(!confirm("⚠️ Yakin ingin MENGHAPUS status? Data akan kembali menjadi 'Pending'.")) return;
+            if(!await dakConfirm("⚠️ Yakin ingin MENGHAPUS status? Data akan kembali menjadi 'Pending'.")) return;
             statusFinal = 'RESET';
         } else {
             // Jika diisi angka -> EDIT NOMINAL
@@ -7148,7 +7181,7 @@ function updateStatusKomitmen(logId, action, loanId, nominalJanji, currentRealis
     
     // --- B. JIKA KLIK TOMBOL BARU (LUNAS) ---
     else if (action === 'LUNAS') {
-        let input = prompt("Masukkan jumlah yang dibayarkan (Rupiah):", nominalJanji);
+        let input = await dakPrompt("Masukkan jumlah yang dibayarkan (Rupiah):", nominalJanji);
         if (input === null) return;
         
         let bayar = parseFloat(input.replace(/[^0-9]/g, '')) || 0;
@@ -7168,7 +7201,7 @@ function updateStatusKomitmen(logId, action, loanId, nominalJanji, currentRealis
     
     // --- C. JIKA KLIK TOMBOL BARU (BATAL) ---
     else if (action === 'BATAL') {
-        if(!confirm("Yakin tandai nasabah ini INGKAR JANJI (Tidak Bayar)?")) return;
+        if(!await dakConfirm("Yakin tandai nasabah ini INGKAR JANJI (Tidak Bayar)?")) return;
         statusFinal = 'BATAL';
         realisasiFinal = 0;
     }
@@ -8662,8 +8695,8 @@ window.resetSyncButton = function(btnEl) {
 
     
 // --- FUNGSI UBAH STATUS ---
-function changeStatus(loanId, newStatus) {
-    if(!confirm(`Pindahkan berkas ini ke Rak ${newStatus.replace('_', ' ')}?`)) return;
+async function changeStatus(loanId, newStatus) {
+    if(!await dakConfirm(`Pindahkan berkas ini ke Rak ${newStatus.replace('_', ' ')}?`)) return;
     
     const itemIdx = archiveCache.findIndex(x => x.loan === loanId);
     if(itemIdx > -1) {
@@ -8769,14 +8802,14 @@ function updateDeleteCount() {
 }
 
 // 3. Mengeksekusi Penghapusan ke Server
-function executeDeleteSheets() {
+async function executeDeleteSheets() {
     const checked = document.querySelectorAll('.sheet-delete-cb:checked');
     if(checked.length === 0) return;
 
     let sheetNames = Array.from(checked).map(cb => cb.value);
     
     // Keamanan Ganda (Konfirmasi)
-    let konfirmasi = confirm(`⚠️ PERINGATAN BAHAYA!\n\nAnda akan menghapus ${sheetNames.length} sheet database PERMANEN.\nData yang dihapus tidak akan dapat dikembalikan.\n\nApakah Anda benar-benar yakin ingin melanjutkan?`);
+    let konfirmasi = await dakConfirm(`⚠️ PERINGATAN BAHAYA!\n\nAnda akan menghapus ${sheetNames.length} sheet database PERMANEN.\nData yang dihapus tidak akan dapat dikembalikan.\n\nApakah Anda benar-benar yakin ingin melanjutkan?`);
     
     if(!konfirmasi) return;
 
@@ -9857,12 +9890,12 @@ window.dakOpenTelegramConfig = function() {
   function reset(){ $('dak-tg-id').value='';$('dak-tg-name').value='';$('dak-tg-label').value='Bot Telegram';$('dak-tg-token').value='';$('dak-tg-token').placeholder='Token bot wajib untuk konfigurasi baru';$('dak-tg-chat').value='';$('dak-tg-topic').value='';$('dak-tg-active').checked=true;$('dak-tg-schedule-enabled').checked=false;$('dak-tg-schedule').value='manual';$('dak-tg-hour').value='7';document.querySelectorAll('[data-tg-report]').forEach(x=>x.checked=x.dataset.tgReport==='credit');document.querySelectorAll('[name="dak-tg-mode"]').forEach(x=>x.checked=x.value==='current');document.querySelectorAll('[data-tg-branch]').forEach(x=>x.checked=false);message(''); }
   function form(c){reset();if(!c)return;$('dak-tg-id').value=c.id;$('dak-tg-name').value=c.name||'';$('dak-tg-label').value=c.botLabel||'';$('dak-tg-chat').value=c.chatId||'';$('dak-tg-topic').value=c.topicId||'';$('dak-tg-active').checked=c.active!==false;$('dak-tg-schedule-enabled').checked=!!c.scheduleEnabled;$('dak-tg-schedule').value=c.schedule||'manual';$('dak-tg-hour').value=String(c.scheduleHour??7);$('dak-tg-token').placeholder=c.hasToken?'Token tersimpan; isi hanya untuk mengganti':'Token bot wajib diisi';document.querySelectorAll('[data-tg-report]').forEach(x=>x.checked=(c.reportTypes||[]).includes(x.dataset.tgReport));document.querySelectorAll('[name="dak-tg-mode"]').forEach(x=>x.checked=x.value===(c.branchMode||'current'));document.querySelectorAll('[data-tg-branch]').forEach(x=>x.checked=(c.branches||[]).includes(x.dataset.tgBranch)); }
   function renderList(){ $('dak-tg-list').innerHTML=configs.length?configs.map(c=>`<button type="button" class="dak-tg-config-item" data-tg-id="${esc(c.id)}"><b>${esc(c.name)}</b><small>${esc(c.botLabel||'Bot')} · ${esc(c.chatId)}${c.topicId?' · Topik '+esc(c.topicId):''} · ${c.active?'Aktif':'Nonaktif'}</small><span>${(c.reportTypes||[]).map(t=>({credit:'PDF Kredit',morning:'Risiko Pagi',movement:'Mutasi',maturity:'Jatuh Tempo'}[t]||t)).map(esc).join(' · ')}<br>${c.scheduleEnabled?(c.schedule==='daily'?'Setiap hari · deteksi data baru 15 menit':('Jadwal '+esc(c.schedule)+' pukul '+String(c.scheduleHour??7).padStart(2,'0')+':00')):'Manual'}</span></button>`).join(''):'<p>Belum ada konfigurasi.</p>'; $('dak-tg-list').querySelectorAll('[data-tg-id]').forEach(b=>b.onclick=()=>form(configs.find(c=>c.id===b.dataset.tgId))); }
-  function reload(){window.google.script.run.withSuccessHandler(r=>{configs=r||[];renderList();}).withFailureHandler(e=>message(e.message,true)).telegramAdminListConfigs();window.google.script.run.withSuccessHandler(r=>{branches=r||[];$('dak-tg-branches').innerHTML=branches.map(b=>`<label><input type="checkbox" data-tg-branch="${esc(b)}"><span>${esc(b)}</span></label>`).join('')||'<span>Daftar cabang tidak tersedia.</span>';}).withFailureHandler(()=>{$('dak-tg-branches').textContent='Daftar cabang belum dapat dimuat.';}).adminListBranches();window.google.script.run.withSuccessHandler(r=>{$('dak-tg-logs').innerHTML=(r||[]).slice(0,20).map(x=>`<div class="dak-tg-log"><b>${esc(x.action||'')}</b> · ${esc(x.status||'')}<small>${esc(x.name||x.fileName||x.configId||'')}<br>${esc(x.at||'')}<br>${esc(x.branch||'')} ${esc(x.detail||'')}</small></div>`).join('')||'Belum ada riwayat.';}).withFailureHandler(()=>{$('dak-tg-logs').textContent='Riwayat belum dapat dimuat.';}).telegramAdminListLogs();}
-  $('dak-tg-close').onclick=()=>wrap.remove();$('dak-tg-new').onclick=reset;$('dak-tg-delete').onclick=()=>{const id=$('dak-tg-id').value;if(!id){message('Pilih konfigurasi yang akan dihapus.',true);return;}if(!confirm('Hapus konfigurasi Telegram ini?'))return;window.google.script.run.withSuccessHandler(()=>{message('Konfigurasi dihapus.');reset();reload();}).withFailureHandler(err=>message(err.message,true)).telegramAdminDeleteConfig(id);};
+  async function reload(){window.google.script.run.withSuccessHandler(r=>{configs=r||[];renderList();}).withFailureHandler(e=>message(e.message,true)).telegramAdminListConfigs();window.google.script.run.withSuccessHandler(r=>{branches=r||[];$('dak-tg-branches').innerHTML=branches.map(b=>`<label><input type="checkbox" data-tg-branch="${esc(b)}"><span>${esc(b)}</span></label>`).join('')||'<span>Daftar cabang tidak tersedia.</span>';}).withFailureHandler(()=>{$('dak-tg-branches').textContent='Daftar cabang belum dapat dimuat.';}).adminListBranches();window.google.script.run.withSuccessHandler(r=>{$('dak-tg-logs').innerHTML=(r||[]).slice(0,20).map(x=>`<div class="dak-tg-log"><b>${esc(x.action||'')}</b> · ${esc(x.status||'')}<small>${esc(x.name||x.fileName||x.configId||'')}<br>${esc(x.at||'')}<br>${esc(x.branch||'')} ${esc(x.detail||'')}</small></div>`).join('')||'Belum ada riwayat.';}).withFailureHandler(()=>{$('dak-tg-logs').textContent='Riwayat belum dapat dimuat.';}).telegramAdminListLogs();}
+  $('dak-tg-close').onclick=()=>wrap.remove();$('dak-tg-new').onclick=reset;$('dak-tg-delete').onclick=async()=>{const id=$('dak-tg-id').value;if(!id){message('Pilih konfigurasi yang akan dihapus.',true);return;}if(!await dakConfirm('Hapus konfigurasi Telegram ini?'))return;window.google.script.run.withSuccessHandler(()=>{message('Konfigurasi dihapus.');reset();reload();}).withFailureHandler(err=>message(err.message,true)).telegramAdminDeleteConfig(id);};
   $('dak-tg-form').onsubmit=e=>{e.preventDefault();const data={id:$('dak-tg-id').value,name:$('dak-tg-name').value,botLabel:$('dak-tg-label').value,token:$('dak-tg-token').value,chatId:$('dak-tg-chat').value,topicId:$('dak-tg-topic').value,active:$('dak-tg-active').checked,reportTypes:Array.from(document.querySelectorAll('[data-tg-report]:checked')).map(x=>x.dataset.tgReport),branchMode:document.querySelector('[name="dak-tg-mode"]:checked')?.value||'current',branches:Array.from(document.querySelectorAll('[data-tg-branch]:checked')).map(x=>x.dataset.tgBranch),schedule:$('dak-tg-schedule').value,scheduleHour:Number($('dak-tg-hour').value),scheduleEnabled:$('dak-tg-schedule-enabled').checked};message('Menyimpan konfigurasi…');window.google.script.run.withSuccessHandler(c=>{message('Konfigurasi tersimpan.');$('dak-tg-id').value=c.id;$('dak-tg-token').value='';$('dak-tg-token').placeholder='Token tersimpan; isi hanya untuk mengganti';reload();}).withFailureHandler(err=>message(err.message,true)).telegramAdminSaveConfig(data);};
-  $('dak-tg-test').onclick=()=>{const id=$('dak-tg-id').value;if(!id){message('Simpan konfigurasi terlebih dahulu sebelum menguji bot.',true);return;}message('Memvalidasi token, bot, Chat ID, dan Topic ID…');window.google.script.run.withSuccessHandler(r=>message('Uji berhasil: '+(r.bot?'@'+r.bot:'bot terhubung')+'. Pesan uji terkirim ke tujuan.')).withFailureHandler(e=>message(e.message,true)).telegramAdminTestConfig(id);};
-  wrap.querySelectorAll('[data-tg-run]').forEach(btn=>btn.onclick=()=>{const id=$('dak-tg-id').value;const c=configs.find(x=>x.id===id);const type=btn.dataset.tgRun;if(!c||!c.active){message('Pilih dan simpan konfigurasi aktif terlebih dahulu.',true);return;}if(!(c.reportTypes||[]).includes(type)){message('Jenis laporan ini belum diizinkan pada konfigurasi. Centang jenis laporan lalu simpan.',true);return;}if(!confirm('Jalankan laporan backend sekarang? Pesan akan dikirim ke semua konfigurasi aktif yang mengizinkan jenis laporan ini.'))return;message('Menjalankan laporan backend…');window.google.script.run.withSuccessHandler(r=>{message(r.label+' selesai diproses. Tujuan yang cocok: '+r.destinations+'. Periksa riwayat pengiriman untuk status setiap pesan.');reload();}).withFailureHandler(e=>message(e.message,true)).telegramAdminRunReport(type);});
-  $('dak-tg-send').onclick=()=>{const id=$('dak-tg-id').value;if(!id){message('Pilih atau simpan konfigurasi terlebih dahulu.',true);return;}const c=configs.find(x=>x.id===id);if(!c||!c.active){message('Konfigurasi harus aktif.',true);return;}if(!(c.reportTypes||[]).includes('credit')){message('Konfigurasi ini tidak mengizinkan PDF Kredit Utama. Centang jenis laporan lalu simpan.',true);return;}const currentBranch=(window.app&&window.app.state&&window.app.state.filter&&window.app.state.filter.b)||'ALL';if(c.branchMode==='selected'&&currentBranch!=='ALL'&&!(c.branches||[]).includes(currentBranch)){message('Filter cabang saat ini tidak termasuk cabang yang dipilih pada konfigurasi.',true);return;}if(c.branchMode==='selected'&&currentBranch==='ALL'){message('PDF saat ini mencakup seluruh cabang, sedangkan konfigurasi membatasi cabang tertentu. Pilih satu cabang pada filter laporan terlebih dahulu.',true);return;}message('Membuat PDF asli DaKOPen…');if(typeof window.app.downloadNativePDF!=='function'){message('Fungsi ekspor PDF tidak tersedia.',true);return;}window.app.downloadNativePDF({onPdfReady:pdf=>{message('Mengirim PDF ke Telegram…');window.google.script.run.withSuccessHandler(r=>{message('Berhasil dikirim: '+r.fileName+' ('+Math.round(r.bytes/1024)+' KB).');reload();}).withFailureHandler(err=>message(err.message,true)).telegramSendPdf({configId:id,fileName:pdf.fileName,base64:pdf.base64,caption:'DaKOPen PPU • '+pdf.fileName+' • Posisi '+(pdf.date||'-')});}});};
+  $('dak-tg-test').onclick=async()=>{const id=$('dak-tg-id').value;if(!id){message('Simpan konfigurasi terlebih dahulu sebelum menguji bot.',true);return;}message('Memvalidasi token, bot, Chat ID, dan Topic ID…');window.google.script.run.withSuccessHandler(r=>message('Uji berhasil: '+(r.bot?'@'+r.bot:'bot terhubung')+'. Pesan uji terkirim ke tujuan.')).withFailureHandler(e=>message(e.message,true)).telegramAdminTestConfig(id);};
+  wrap.querySelectorAll('[data-tg-run]').forEach(btn=>btn.onclick=async()=>{const id=$('dak-tg-id').value;const c=configs.find(x=>x.id===id);const type=btn.dataset.tgRun;if(!c||!c.active){message('Pilih dan simpan konfigurasi aktif terlebih dahulu.',true);return;}if(!(c.reportTypes||[]).includes(type)){message('Jenis laporan ini belum diizinkan pada konfigurasi. Centang jenis laporan lalu simpan.',true);return;}if(!await dakConfirm('Jalankan laporan backend sekarang? Pesan akan dikirim ke semua konfigurasi aktif yang mengizinkan jenis laporan ini.'))return;message('Menjalankan laporan backend…');window.google.script.run.withSuccessHandler(r=>{message(r.label+' selesai diproses. Tujuan yang cocok: '+r.destinations+'. Periksa riwayat pengiriman untuk status setiap pesan.');reload();}).withFailureHandler(e=>message(e.message,true)).telegramAdminRunReport(type);});
+  $('dak-tg-send').onclick=async()=>{const id=$('dak-tg-id').value;if(!id){message('Pilih atau simpan konfigurasi terlebih dahulu.',true);return;}const c=configs.find(x=>x.id===id);if(!c||!c.active){message('Konfigurasi harus aktif.',true);return;}if(!(c.reportTypes||[]).includes('credit')){message('Konfigurasi ini tidak mengizinkan PDF Kredit Utama. Centang jenis laporan lalu simpan.',true);return;}const currentBranch=(window.app&&window.app.state&&window.app.state.filter&&window.app.state.filter.b)||'ALL';if(c.branchMode==='selected'&&currentBranch!=='ALL'&&!(c.branches||[]).includes(currentBranch)){message('Filter cabang saat ini tidak termasuk cabang yang dipilih pada konfigurasi.',true);return;}if(c.branchMode==='selected'&&currentBranch==='ALL'){message('PDF saat ini mencakup seluruh cabang, sedangkan konfigurasi membatasi cabang tertentu. Pilih satu cabang pada filter laporan terlebih dahulu.',true);return;}message('Membuat PDF asli DaKOPen…');if(typeof window.app.downloadNativePDF!=='function'){message('Fungsi ekspor PDF tidak tersedia.',true);return;}window.app.downloadNativePDF({onPdfReady:pdf=>{message('Mengirim PDF ke Telegram…');window.google.script.run.withSuccessHandler(r=>{message('Berhasil dikirim: '+r.fileName+' ('+Math.round(r.bytes/1024)+' KB).');reload();}).withFailureHandler(err=>message(err.message,true)).telegramSendPdf({configId:id,fileName:pdf.fileName,base64:pdf.base64,caption:'DaKOPen PPU • '+pdf.fileName+' • Posisi '+(pdf.date||'-')});}});};
   reload();
 };
 window.dakOpenAdmin = function(){
