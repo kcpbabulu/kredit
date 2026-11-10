@@ -3548,18 +3548,56 @@ function renderTrend(res) {
 }
 
     
-  function fetchDetail(loanId) { 
-    if(el('loader')) el('loader').style.display = 'flex'; 
-    // PERBAIKAN 1: Syntax google.script.run dibersihkan
-    google.script.run.withSuccessHandler(showDetailModal).getDebtorDetailFull(loanId, s.filter.d);
+  let detailRequestSequence = 0;
+  function renderDetailSkeleton() {
+      const modal = el('modalDetail');
+      const content = el('detailContent');
+      if (!modal || !content) return;
+      modal.classList.remove('hidden');
+      modal.style.zIndex = '10050';
+      modal.setAttribute('aria-hidden', 'false');
+      content.innerHTML = `
+        <div class="animate-pulse space-y-4 p-1" aria-live="polite" aria-label="Memuat detail debitur">
+          <div class="rounded-2xl border border-blue-100 dark:border-slate-700 bg-blue-50/70 dark:bg-slate-900/60 p-4 space-y-3">
+            <div class="h-4 w-2/3 rounded bg-blue-200/80 dark:bg-slate-700"></div><div class="h-3 w-1/3 rounded bg-blue-100 dark:bg-slate-700"></div>
+            <div class="flex gap-2"><div class="h-6 w-28 rounded-lg bg-white dark:bg-slate-700"></div><div class="h-6 w-12 rounded-lg bg-white dark:bg-slate-700"></div></div>
+          </div>
+          ${Array.from({length:6},()=>`<div class="flex justify-between gap-4 py-2 border-b border-slate-100 dark:border-slate-700"><div class="h-3 w-1/3 rounded bg-slate-200 dark:bg-slate-700"></div><div class="h-3 w-1/2 rounded bg-slate-200 dark:bg-slate-700"></div></div>`).join('')}
+          <div class="h-24 rounded-2xl bg-rose-100/70 dark:bg-slate-700"></div><div class="h-16 rounded-2xl bg-amber-100/70 dark:bg-slate-700"></div>
+          <div class="text-center text-xs font-semibold text-slate-400 pt-1">Mengambil informasi debitur…</div>
+        </div>`;
+  }
+
+  function fetchDetail(loanId) {
+    const requestId = ++detailRequestSequence;
+    const dateSnapshot = s.filter.d;
+    renderDetailSkeleton();
+    google.script.run
+      .withSuccessHandler(function(result) {
+        if (requestId !== detailRequestSequence) return;
+        if (!result) {
+          const content = el('detailContent');
+          if (content) content.innerHTML = `<div class="p-8 text-center"><div class="mx-auto mb-3 w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center"><i class="fas fa-search text-xl"></i></div><div class="font-bold text-slate-700 dark:text-white">Data debitur tidak ditemukan</div><p class="text-xs text-slate-400 mt-1">Periksa tanggal snapshot atau nomor fasilitas.</p></div>`;
+          return;
+        }
+        showDetailModal(result);
+      })
+      .withFailureHandler(function(error) {
+        if (requestId !== detailRequestSequence) return;
+        const content = el('detailContent');
+        if (content) content.innerHTML = `<div class="p-8 text-center"><div class="mx-auto mb-3 w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center"><i class="fas fa-triangle-exclamation text-xl"></i></div><div class="font-bold text-slate-700 dark:text-white">Gagal memuat detail</div><p class="text-xs text-slate-400 mt-1">${String(error && error.message ? error.message : error).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</p><button onclick="app.closeModal('modalDetail')" class="mt-4 px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 text-xs font-bold">Tutup</button></div>`;
+      })
+      .getDebtorDetailFull(loanId, dateSnapshot);
   }
 
   function showDetailModal(r) {
-      if(el('loader')) el('loader').style.display = 'none'; 
-      if(!r) { alert("Data Detail tidak ditemukan."); return; } 
-      el('modalDetail').classList.remove('hidden');
-      el('modalDetail').style.zIndex = '10050'; // Detail selalu di atas modal sektor/overlay lain
-      el('modalDetail').setAttribute('aria-hidden', 'false');
+      if(el('loader')) el('loader').style.display = 'none';
+      if(!r) return;
+      const modal = el('modalDetail');
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      modal.style.zIndex = '10050';
+      modal.setAttribute('aria-hidden', 'false');
 
       // Helper row yang lebih compact (text-xs)
       const row = (l, v, m, b) => `<div class="flex justify-between py-1.5 border-b border-dashed border-slate-100 dark:border-slate-700/50"><span class="text-xs text-slate-500">${l}</span><span class="text-xs ${m?'font-mono':''} ${b?'font-black text-slate-800 dark:text-white':'font-bold text-slate-600 dark:text-slate-300'} text-right">${v}</span></div>`;
@@ -9722,6 +9760,7 @@ window.renderTableRaw = function(tableId, rows) {
     resetSearchCredit: window.resetSearchCredit,
     sortKredit: window.sortKredit,
     closeModal: function(id) {
+        if (id === 'modalDetail') detailRequestSequence++;
         const modal = document.getElementById(id);
         if (modal) {
             modal.classList.add('hidden');
