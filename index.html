@@ -40,7 +40,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=119">
+  <link rel="stylesheet" href="style.css?v=120">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -132,37 +132,17 @@
       <button onclick="app.switchTab('view-dash')" class="nav-btn w-full flex items-center px-4 py-3 rounded-lg bg-brand-50 text-brand-700 dark:bg-slate-700 dark:text-white font-medium transition">
           <i class="fas fa-home w-6 mr-3 grad-icon grad-blue"></i> Dashboard
       </button>
-      <button onclick="if(app.state.data && app.state.data.npl_list) { app.switchTab('view-journey'); app.renderJourneyPage(); } else { alert('Mohon tunggu, data sedang disinkronkan...'); }" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
-          <i class="fas fa-map-signs w-6 mr-3 grad-icon grad-emerald"></i> Linimasa Debitur
-      </button>
-      <button onclick="app.loadArchiveData()" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
-          <i class="fas fa-archive w-6 mr-3 grad-icon grad-purple"></i> Arsip Kredit
-      </button>
-      <button onclick="app.switchTab('view-report')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition">
-          <i class="fas fa-print w-6 mr-3 grad-icon grad-blue"></i> Cetak Laporan
-      </button>
+      <button onclick="app.openUnifiedCenter('data','view-journey')" data-center-nav="data" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-database w-6 mr-3 grad-icon grad-emerald"></i> Debtor & Portfolio Data</button>
+      <button onclick="app.switchTab('view-report')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-print w-6 mr-3 grad-icon grad-blue"></i> Cetak Laporan</button>
       
       <div class="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">Analisa & Peta</div>
       <button onclick="app.switchTab('view-map')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-map-marked-alt w-6 mr-3 grad-icon grad-emerald"></i> Peta Sebaran NPL</button>
       <button onclick="app.openNPLCenter()" data-npl-main-nav="1" class="nav-btn w-full flex items-center px-4 py-3 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-chart-pie w-6 mr-3 grad-icon grad-red"></i> NPL Intelligence Center</button>
 
-      <div class="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">Operasional</div>
-      <button onclick="app.switchTab('view-collection')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fab fa-whatsapp w-6 mr-3 grad-icon grad-emerald"></i> Collection Center</button>
-      <button onclick="app.switchTab('view-watchlist')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-eye w-6 mr-3 grad-icon grad-red"></i> Watchlist (EWS)</button>
-      <button onclick="app.switchTab('view-freshdrop')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-arrow-down-wide-short w-6 mr-3 grad-icon grad-orange"></i> Fresh Drop</button>
-      <button onclick="app.switchTab('view-maturity')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-hourglass-half w-6 mr-3 grad-icon grad-blue"></i> Jatuh Tempo</button>
-      <button onclick="app.switchTab('view-writeoff')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-skull-crossbones w-6 mr-3 grad-icon grad-purple"></i> Hapus Buku (WO)</button>
+      <div class="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">Pusat Kerja</div>
+      <button onclick="app.openUnifiedCenter('ops','view-collection')" data-center-nav="ops" class="nav-btn w-full flex items-center px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-briefcase w-6 mr-3 grad-icon grad-emerald"></i> Credit Operations Center</button>
+      <button onclick="app.openUnifiedCenter('executive','view-top')" data-center-nav="executive" class="nav-btn w-full flex items-center px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-brain w-6 mr-3 grad-icon grad-purple"></i> Portfolio Intelligence</button>
 
-      <div class="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">Executive</div>
-      <button onclick="app.switchTab('view-top')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-crown w-6 mr-3 grad-icon grad-gold"></i> Top Obligor</button>
-      <button onclick="app.switchTab('view-risk')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-chess-board w-6 mr-3 grad-icon grad-purple"></i> Risk Matrix</button>
-      <button onclick="app.switchTab('view-vintage')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-history w-6 mr-3 grad-icon grad-blue"></i> Vintage Analysis</button>
-      <button onclick="app.switchTab('view-stress')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-tachometer-alt w-6 mr-3 grad-icon grad-red"></i> Stress Test</button>
-      <button onclick="app.switchTab('view-ckpn')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-shield-alt w-6 mr-3 grad-icon grad-blue"></i> CKPN Forecast</button>
-
-      <div class="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">Data</div>
-      <button onclick="app.switchTab('view-kredit')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-users w-6 mr-3 grad-icon grad-emerald"></i> Data Kredit</button>
-      <button onclick="app.switchTab('view-mutasi')" class="nav-btn w-full flex items-center px-4 py-2.5 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition"><i class="fas fa-exchange-alt w-6 mr-3 grad-icon grad-orange"></i> Cair & Lunas</button>
     </nav>
     
     <div class="p-4 border-t border-gray-200 dark:border-slate-700 shrink-0">
@@ -1685,21 +1665,11 @@
 
   <!-- 2. Laci Menu Operasional -->
   <div id="sheet-ops" class="custom-bottom-sheet">
-      <div class="sheet-header" onclick="app.closeAllSheets()"></div>
-      <div class="p-4 md:p-6 grid grid-cols-2 gap-3 md:gap-4">
-          <div onclick="app.switchTab('view-collection')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-emerald-300">
-              <i class="fab fa-whatsapp text-3xl md:text-4xl grad-icon grad-emerald mb-1"></i> Collection
-          </div>
-          <div onclick="app.switchTab('view-watchlist')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-red-300">
-              <i class="fas fa-eye text-3xl md:text-4xl grad-icon grad-red mb-1"></i> Watchlist
-          </div>
-          <div onclick="app.switchTab('view-freshdrop')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-orange-300">
-              <i class="fas fa-arrow-down-wide-short text-3xl md:text-4xl grad-icon grad-orange mb-1"></i> Fresh Drop
-          </div>
-          <div onclick="app.switchTab('view-maturity')" class="mobile-menu-card bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-700 hover:border-blue-300">
-              <i class="fas fa-hourglass-half text-3xl md:text-4xl grad-icon grad-blue mb-1"></i> Jatuh Tempo
-          </div>
-      </div>
+      <div class="sheet-header" onclick="app.closeAllSheets()"></div><div class="p-4 md:p-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button onclick="app.openUnifiedCenter('ops','view-collection')" class="mobile-menu-card"><i class="fas fa-briefcase text-3xl grad-icon grad-emerald"></i><b>Credit Operations Center</b><small>Penagihan, EWS, Fresh Drop, Jatuh Tempo, Hapus Buku</small></button>
+          <button onclick="app.openUnifiedCenter('executive','view-top')" class="mobile-menu-card"><i class="fas fa-brain text-3xl grad-icon grad-purple"></i><b>Portfolio Intelligence</b><small>Obligor, Risk Matrix, Vintage, Stress Test, CKPN</small></button>
+          <button onclick="app.openUnifiedCenter('data','view-journey')" class="mobile-menu-card"><i class="fas fa-database text-3xl grad-icon grad-blue"></i><b>Debtor & Portfolio Data</b><small>Master, Mutasi, Arsip, Riwayat Debitur</small></button>
+      </div></div>
   </div>
 
   <!-- 3. Laci Menu Utilitas -->
@@ -1963,7 +1933,7 @@
   <!-- END MODAL LINIMASA DEBITUR -->
 
   <!-- App Javascript -->
-  <script src="app.js?v=119"></script>
+  <script src="app.js?v=120"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
