@@ -3751,18 +3751,36 @@ function renderTrend(res) {
       let waBtn = `<button onclick="app.sendWA('${r.hp}','${r.nama}','${r.total_tgk}',${r.kol},'${r.loan}','${r.tgl_bayar}','${r.pk}','${r.mulai}',${tenor},${r.plafond},'${r.rek}')" class="w-full mt-4 ${btnColor} text-white py-3 rounded-xl text-xs font-black shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all"><i class="fab fa-whatsapp text-base"></i> ${btnText}</button>`;
 
       // --- LOGIKA BADGE RIWAYAT TERBURUK (HISTORICAL RISK) ---
+      // Normalisasi tanggal dari Date object, ISO, format lokal, atau string Date() Apps Script.
+      const formatHistoricalDate = (value) => {
+          if (value === null || value === undefined || value === '') return 'Tanggal tidak tersedia';
+          if (typeof value === 'number' && Number.isFinite(value)) {
+              // Dukungan serial tanggal Excel/Sheets.
+              const d = new Date(Math.round((value - 25569) * 86400000));
+              if (!Number.isNaN(d.getTime())) return new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'short',year:'numeric'}).format(d);
+          }
+          const raw = String(value).trim();
+          const local = raw.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+          if (local) {
+              const d = new Date(Number(local[3]), Number(local[2])-1, Number(local[1]), 12);
+              if (!Number.isNaN(d.getTime())) return new Intl.DateTimeFormat('id-ID',{day:'2-digit',month:'short',year:'numeric'}).format(d);
+          }
+          const d = new Date(raw);
+          if (!Number.isNaN(d.getTime())) return new Intl.DateTimeFormat('id-ID',{timeZone:'Asia/Jakarta',day:'2-digit',month:'short',year:'numeric'}).format(d);
+          return raw.length > 24 ? raw.slice(0,21) + '…' : raw;
+      };
       let historyBadge = '';
       if (r.worst_kol && r.worst_kol > r.kol) {
           let badgeColor = r.worst_kol >= 3 ? 'bg-red-100 dark:bg-red-900/30 text-red-600 border-red-200 dark:border-red-800' : 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 border-orange-200 dark:border-orange-800';
           let icon = r.worst_kol >= 3 ? 'fa-exclamation-triangle' : 'fa-exclamation-circle';
-          
+          const historicalDateLabel = formatHistoricalDate(r.worst_date);
           historyBadge = `
-          <div class="mt-2.5 flex items-center justify-between p-2 rounded-lg border ${badgeColor} shadow-sm animate-pulse-slow">
-              <div class="flex items-center gap-2">
-                  <i class="fas ${icon} text-sm"></i>
+          <div class="dak-history-warning mt-2.5 flex items-center justify-between gap-2 p-2 rounded-lg border ${badgeColor} shadow-sm">
+              <div class="flex items-center gap-2 min-w-0">
+                  <i class="fas ${icon} text-sm shrink-0"></i>
                   <span class="text-[9px] font-black uppercase tracking-widest leading-tight">PERHATIAN!<br>Pernah KOL ${r.worst_kol}</span>
               </div>
-              <span class="text-[8px] font-bold bg-white/80 dark:bg-slate-800/80 px-2 py-0.5 rounded shadow-sm border border-black/5">(${r.worst_date})</span>
+              <span class="dak-history-date text-[9px] font-bold bg-white/80 dark:bg-slate-800/80 px-2 py-1 rounded shadow-sm border border-black/5">${historicalDateLabel}</span>
           </div>`;
       }
 
@@ -4036,7 +4054,7 @@ function finishUploadUI(success, message) {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
     if (!sidebar) return;
-    const isMobile = window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse) and (max-width: 1100px)').matches;
+    const isMobile = window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse)').matches;
     const isOpen = !sidebar.classList.contains('-translate-x-full');
     const shouldClose = forceClose === true || (forceClose !== false && isOpen);
     if (shouldClose) {
@@ -9784,6 +9802,8 @@ window.renderTableRaw = function(tableId, rows) {
     // FIX 3: Fungsi pembuka Upload Modal dengan delay (Anti-Tumpuk & Z-Index Safety)
     openUploadModal: function() {
         this.closeAllSheets(); // Bersihkan laci utilitas dulu
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar && !sidebar.classList.contains('-translate-x-full')) toggleSidebar(true);
         
         // Jeda agar laci turun sempurna, baru modal muncul di atas
         setTimeout(() => {
