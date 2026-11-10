@@ -40,7 +40,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css?v=115">
+  <link rel="stylesheet" href="style.css?v=116">
 
   <!-- Tailwind Configuration Baru -->
   <script>
@@ -1684,10 +1684,10 @@
   <!-- ======================================================= -->
 
   <!-- 1. Modal Detail Debitur -->
-  <div id="modalDetail" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[10050] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
-    <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl w-full max-w-md shadow-2xl relative flex flex-col max-h-[75vh] md:max-h-[85vh] mb-24 md:mb-0 overflow-hidden border border-white/30 dark:border-slate-700/50 transform transition-all animate-pop-in">
+  <div id="modalDetail" role="dialog" aria-modal="true" aria-hidden="true" class="fixed inset-0 z-[10050] hidden bg-slate-950/55 flex items-end sm:items-center justify-center p-0 sm:p-4 backdrop-blur-sm transition-opacity duration-300">
+    <div class="bg-white dark:bg-slate-800 backdrop-blur-xl rounded-t-[1.6rem] sm:rounded-2xl w-full max-w-xl shadow-2xl relative flex flex-col h-[min(92dvh,820px)] sm:h-auto sm:max-h-[88dvh] mb-0 overflow-hidden border border-white/40 dark:border-slate-700/60 transform transition-all animate-pop-in">
         <!-- Header -->
-        <div class="p-3.5 sm:p-4 border-b border-slate-200/60 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-slate-50/50 dark:bg-slate-800/30">
+        <div class="px-4 py-4 sm:px-5 border-b border-slate-200/60 dark:border-slate-700/50 flex justify-between items-center shrink-0 bg-white/90 dark:bg-slate-800/90">
             <h3 class="font-black text-sm sm:text-base dark:text-white flex items-center gap-2">
                 <i class="fas fa-id-card text-blue-500 text-lg"></i> Detail Debitur
             </h3>
@@ -1696,7 +1696,7 @@
             </button>
         </div>
         <!-- Body -->
-        <div id="detailContent" class="p-4 overflow-y-auto custom-scrollbar pb-6 text-xs sm:text-sm"></div>
+        <div id="detailContent" class="px-4 py-4 sm:px-5 sm:py-5 overflow-y-auto overscroll-contain custom-scrollbar pb-[max(1.5rem,env(safe-area-inset-bottom))] text-xs sm:text-sm"></div>
     </div>
   </div>
   
@@ -1925,7 +1925,7 @@
   <!-- END MODAL LINIMASA DEBITUR -->
 
   <!-- App Javascript -->
-  <script src="app.js?v=115"></script>
+  <script src="app.js?v=116"></script>
   
   <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
   <script>
