@@ -4044,8 +4044,8 @@ function finishUploadUI(success, message) {
     if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
 
     // --- TAMBAHAN BARIS INI UNTUK MENUTUP SIDEBAR HP ---
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar) sidebar.classList.add('-translate-x-full');
+    const mobileNav = window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse)').matches;
+    if (mobileNav) toggleSidebar(true);
     // --------------------------------------------------
   }
 
@@ -9774,12 +9774,12 @@ window.renderTableRaw = function(tableId, rows) {
           const sideOverlay = document.getElementById('sidebarOverlay');
           if (sideOverlay) sideOverlay.classList.add('hidden');
 
-          // --- KUNCI PERBAIKAN: TUTUP SIDEBAR KIRI DI HP ---
-          // Ini akan menggeser sidebar kembali ke kiri (-translate-x-full) 
-          // setiap kali sebuah menu diklik, namun tetap aman di tampilan PC.
-          const sidebar = document.getElementById('sidebar');
-          if (sidebar) {
-              sidebar.classList.add('-translate-x-full');
+          // Tutup drawer hanya pada perangkat/viewport sentuh; jangan mengubah sidebar desktop.
+          const mobileNav = window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse)').matches;
+          if (mobileNav) {
+              toggleSidebar(true);
+          } else {
+              document.body.classList.remove('sidebar-open');
           }
       },
 
@@ -10032,7 +10032,7 @@ window.dakOpenTelegramConfig = function() {
   reload();
 };
 window.dakOpenAdmin = function(){
- if(window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse) and (max-width: 1100px)').matches) toggleSidebar(true);
+ if(window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse)').matches) window.app?.toggleSidebar(true);
  const old=document.getElementById('dak-admin-modal');if(old)old.remove();const wrap=document.createElement('div');wrap.id='dak-admin-modal';wrap.className='dak-admin-backdrop';wrap.innerHTML=`<section class="dak-admin-card"><header><div><span class="text-xs font-black text-blue-600 uppercase">Kontrol akses</span><h2>Pengaturan Administrator</h2><p>Atur pengguna, menu yang terlihat, dan izin upload.</p></div><button id="dak-admin-close" aria-label="Tutup">×</button></header><div class="dak-admin-layout"><aside id="dak-user-list"><p>Memuat pengguna…</p></aside><form id="dak-user-form"><div class="dak-admin-fields"><label>Username<input id="dak-u-username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+"></label><label>Nama tampilan<input id="dak-u-name" required maxlength="100"></label><label>Password baru <small>(kosongkan saat mengedit agar tidak berubah)</small><input id="dak-u-password" type="password" minlength="10" autocomplete="new-password"></label><label class="dak-active-label"><input id="dak-u-active" type="checkbox" checked> Akun aktif</label></div><h3>Jangkauan cabang</h3><div class="dak-branch-scope"><label><input type="radio" name="dak-branch-scope" value="all" checked> Seluruh cabang</label><label><input type="radio" name="dak-branch-scope" value="selected"> Cabang tertentu</label></div><div id="dak-branch-grid" class="dak-branch-grid"><span class="dak-muted">Memuat daftar cabang…</span></div><h3>Hak akses per menu</h3><div id="dak-permission-grid" class="dak-permission-grid"></div><div class="dak-admin-actions"><button type="button" id="dak-user-new" class="secondary">Pengguna baru</button><button type="submit" class="primary">Simpan pengguna</button></div><div id="dak-admin-message" role="status"></div></form></div></section>`;document.body.appendChild(wrap);
  const menuLabels={dashboard:'Dashboard',journey:'Data Center · Riwayat Debitur',archive:'Data Center · Arsip Kredit',report:'Cetak Laporan',map:'Peta Sebaran NPL',nplall:'NPL Center · Total',nplkur:'NPL Center · KUR',nplkonsumtif:'NPL Center · Konsumtif',nplprod:'NPL Center · Produktif',collection:'Operasional · Penagihan',watchlist:'Operasional · Early Warning',freshdrop:'Operasional · Perubahan Kualitas',maturity:'Operasional · Jatuh Tempo',writeoff:'Operasional · Hapus Buku',top:'Executive · Konsentrasi Debitur',risk:'Executive · Peta Risiko',vintage:'Executive · Kualitas Vintage',stress:'Executive · Simulasi Risiko',ckpn:'Executive · Proyeksi CKPN',kredit:'Data Center · Master Kredit',mutasi:'Data Center · Mutasi Kredit',upload:'Upload Data'};
  const grid=document.getElementById('dak-permission-grid');const branchGrid=document.getElementById('dak-branch-grid');let availableBranches=[];window.google.script.run.withSuccessHandler(list=>{availableBranches=list||[];branchGrid.innerHTML=availableBranches.map(b=>`<label><input type="checkbox" data-branch="${String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><span>${String(b).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span></label>`).join('')||'<span class="dak-muted">Tidak ada daftar cabang pada snapshot terbaru.</span>';if(selected)formUser(selected);}).withFailureHandler(()=>{branchGrid.innerHTML='<span class="dak-muted">Daftar cabang belum dapat dimuat.</span>';}).adminListBranches();Object.entries(menuLabels).forEach(([k,v])=>{grid.insertAdjacentHTML('beforeend',`<label><input type="checkbox" data-permission="${k}" checked> <span>${v}</span></label>`)});
@@ -10041,3 +10041,26 @@ window.dakOpenAdmin = function(){
  function load(){window.google.script.run.withSuccessHandler(r=>{users=r||[];renderList();if(!selected)formUser(null);}).withFailureHandler(e=>{list.textContent=e.message;}) .adminListUsers();}
  document.querySelectorAll('[name="dak-branch-scope"]').forEach(r=>r.addEventListener('change',()=>branchGrid.classList.toggle('is-disabled',r.value!=='selected'||!r.checked)));document.getElementById('dak-admin-close').onclick=()=>wrap.remove();document.getElementById('dak-user-new').onclick=()=>{formUser(null);document.getElementById('dak-u-username').readOnly=false;renderList();};document.getElementById('dak-user-form').onsubmit=e=>{e.preventDefault();const data={username:document.getElementById('dak-u-username').value,name:document.getElementById('dak-u-name').value,password:document.getElementById('dak-u-password').value,active:document.getElementById('dak-u-active').checked,role:document.getElementById('dak-u-username').value.toLowerCase()==='admin'?'admin':'user',permissions:{}};grid.querySelectorAll('[data-permission]').forEach(c=>data.permissions[c.dataset.permission]=c.checked);data.branchScope=document.querySelector('[name="dak-branch-scope"]:checked')?.value||'all';data.branches=Array.from(branchGrid.querySelectorAll('[data-branch]:checked')).map(c=>c.dataset.branch);if(data.branchScope==='selected'&&!data.branches.length){document.getElementById('dak-admin-message').textContent='Pilih minimal satu cabang untuk mode Cabang tertentu.';return;}window.google.script.run.withSuccessHandler(()=>{document.getElementById('dak-admin-message').textContent='Pengguna berhasil disimpan.';selected=null;load();}).withFailureHandler(err=>document.getElementById('dak-admin-message').textContent=err.message).adminSaveUser(data);};load();
 };
+
+
+// V129 · Reliable mobile navigation + drawer lifecycle.
+(function installDakMobileNavigationV129(){
+  if (window.__dakMobileNavV129Installed) return;
+  window.__dakMobileNavV129Installed = true;
+  const isTouchDrawer = () => window.matchMedia('(max-width: 767px), (hover: none) and (pointer: coarse)').matches;
+  document.addEventListener('click', function(event){
+    const navButton = event.target && event.target.closest ? event.target.closest('#sidebar nav button') : null;
+    if (!navButton || !isTouchDrawer()) return;
+    // Let the selected menu action run first, then close the drawer cleanly.
+    window.setTimeout(function(){
+      if (window.app && typeof window.app.toggleSidebar === 'function') {
+        window.app.toggleSidebar(true);
+      }
+    }, 0);
+  }, true);
+  document.addEventListener('keydown', function(event){
+    if (event.key === 'Escape' && isTouchDrawer() && document.body.classList.contains('sidebar-open')) {
+      window.app?.toggleSidebar(true);
+    }
+  });
+})();
