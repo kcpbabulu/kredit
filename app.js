@@ -1316,6 +1316,26 @@ function formatNumber(angka) {
 
 
 
+  const NPL_CATEGORY_VIEWS = { total:'view-nplall', konsumtif:'view-nplkonsumtif', produktif:'view-nplprod', kur:'view-nplkur' };
+  function setNPLCategory(category) {
+      const key = Object.prototype.hasOwnProperty.call(NPL_CATEGORY_VIEWS, category) ? category : 'total';
+      app.state = app.state || {}; app.state.nplCategory = key;
+      const target = NPL_CATEGORY_VIEWS[key];
+      // Navigasi kategori memakai mekanisme tab yang sudah ada agar hak akses dan pemuatan backend tetap terjaga.
+      app.switchTab(target);
+      document.querySelectorAll('[data-npl-category]').forEach(btn => {
+          const active = btn.dataset.nplCategory === key; btn.classList.toggle('active', active); btn.setAttribute('aria-current', active ? 'page' : 'false');
+      });
+      return key;
+  }
+  function openNPLCenter() { return setNPLCategory(app.state && app.state.nplCategory || 'total'); }
+  function syncNPLCategoryNav() {
+      const id = document.querySelector('.tab-view:not(.hidden)')?.id;
+      const key = Object.keys(NPL_CATEGORY_VIEWS).find(k => NPL_CATEGORY_VIEWS[k] === id) || (app.state && app.state.nplCategory) || 'total';
+      app.state = app.state || {}; app.state.nplCategory = key;
+      document.querySelectorAll('[data-npl-category]').forEach(btn => { const active=btn.dataset.nplCategory===key; btn.classList.toggle('active',active); btn.setAttribute('aria-current',active?'page':'false'); });
+  }
+
   function renderAllNPLPage(res) { renderGenericPage(res, 'ALL');
                                  unlockMenu();}
   function renderKURPage(res) { renderGenericPage(res, 'KUR'); 
@@ -1327,6 +1347,7 @@ function formatNumber(angka) {
       app.state.prodScope = app.state.prodScope || 'all'; app.state.prodSector = '';
       renderGenericPage(res, 'Prod');
       renderProdScope(app.state.prodScope, '');
+      syncNPLCategoryNav();
       unlockMenu();
   }
 
@@ -9715,6 +9736,7 @@ window.renderTableRaw = function(tableId, rows) {
         if(target) target.classList.remove('hidden');
 
         this.refresh(id);
+        if (typeof syncNPLCategoryNav === 'function') syncNPLCategoryNav();
     },
 
     // FIX 3: Fungsi pembuka Upload Modal dengan delay (Anti-Tumpuk & Z-Index Safety)
@@ -9752,6 +9774,8 @@ window.renderTableRaw = function(tableId, rows) {
     toggleSim: toggleSim,
     setProdScope: setProdScope,
     setProdSector: setProdSector,
+    setNPLCategory: setNPLCategory,
+    openNPLCenter: openNPLCenter,
     
     // 5. WhatsApp Helpers
     getWA: getWA,      
