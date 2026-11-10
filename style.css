@@ -1140,3 +1140,34 @@ html.dark .dak-report-workspace{background:linear-gradient(145deg,#0b1220 0%,#11
 .dark .dak-unified-header{background:linear-gradient(120deg,rgba(15,23,42,.96),rgba(30,41,59,.94));border-color:rgba(100,116,139,.3)}
 .dak-unified-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:.85rem}.dak-unified-eyebrow{font-size:.62rem;font-weight:900;letter-spacing:.16em;color:#2563eb}.dak-unified-heading h2{font-size:clamp(1.05rem,2vw,1.4rem);font-weight:900;letter-spacing:-.035em;color:#0f172a;margin:.15rem 0}.dark .dak-unified-heading h2{color:#f8fafc}.dak-unified-heading p{font-size:.76rem;color:#64748b;margin:0}.dark .dak-unified-heading p{color:#94a3b8}.dak-unified-count{white-space:nowrap;padding:.45rem .7rem;border-radius:999px;background:#eff6ff;color:#1d4ed8;font-size:.68rem;font-weight:800}.dak-unified-tabs{display:flex;gap:.45rem;overflow-x:auto;padding:.15rem .05rem .35rem;scrollbar-width:thin;overscroll-behavior-x:contain}.dak-unified-tab{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:.48rem;min-height:40px;padding:.58rem .85rem;border:1px solid #e2e8f0;border-radius:.8rem;background:#fff;color:#475569;font-size:.74rem;font-weight:800;white-space:nowrap;transition:background .18s,border-color .18s,color .18s,transform .18s}.dak-unified-tab:hover{border-color:#93c5fd;color:#1d4ed8;transform:translateY(-1px)}.dak-unified-tab.is-active{background:#1d4ed8;border-color:#1d4ed8;color:white;box-shadow:0 5px 14px rgba(37,99,235,.2)}.dark .dak-unified-tab{background:#1e293b;border-color:#334155;color:#cbd5e1}.dark .dak-unified-tab.is-active{background:#2563eb;border-color:#2563eb;color:#fff}.is-center-active{background:#eff6ff!important;color:#1d4ed8!important;border:1px solid #bfdbfe!important}.dark .is-center-active{background:#1e3a8a!important;color:#dbeafe!important;border-color:#1d4ed8!important}.mobile-menu-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;min-height:125px;padding:1rem;border:1px solid #e2e8f0;border-radius:1rem;font-size:.82rem;font-weight:800;text-align:center}.mobile-menu-card small{font-size:.68rem;font-weight:500;color:#64748b;line-height:1.4}.dark .mobile-menu-card{border-color:#334155}
 @media(max-width:640px){.dak-unified-header{margin-bottom:.7rem;padding:.85rem;border-radius:1rem}.dak-unified-heading{align-items:flex-start}.dak-unified-heading p{max-width:230px;font-size:.7rem}.dak-unified-count{font-size:.62rem;padding:.35rem .5rem}.dak-unified-tabs{gap:.35rem}.dak-unified-tab{min-height:38px;padding:.55rem .7rem;font-size:.68rem}.dak-unified-tab i{font-size:.72rem}}
+
+/* V121 · Persistent unified navigation + consolidated settings center */
+.dak-unified-global-nav{position:sticky;top:0;z-index:35;padding:.45rem .75rem .2rem;background:linear-gradient(180deg,rgba(248,250,252,.97),rgba(248,250,252,.88));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.dark .dak-unified-global-nav{background:linear-gradient(180deg,rgba(15,23,42,.97),rgba(15,23,42,.88))}
+.dak-unified-global-nav.hidden{display:none!important}
+.dak-unified-global-nav .dak-unified-header{margin:0 auto .5rem;max-width:1800px;box-shadow:0 8px 22px rgba(15,23,42,.07)}
+.dak-unified-global-nav .dak-unified-tabs{scroll-snap-type:x proximity;scroll-padding-inline:.5rem}
+.dak-unified-global-nav .dak-unified-tab{scroll-snap-align:start;touch-action:pan-x; -webkit-tap-highlight-color:transparent}
+.dak-settings-shell{width:min(760px,calc(100vw - 28px));max-height:min(86dvh,820px);overflow:auto;background:#fff;color:#0f172a;border:1px solid #e2e8f0;border-radius:24px;box-shadow:0 28px 90px rgba(15,23,42,.28);padding:clamp(18px,3vw,28px)}
+.dark .dak-settings-shell{background:#0f172a;color:#f8fafc;border-color:#334155}
+.dak-settings-shell>header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.dak-settings-shell>header h2{font-size:clamp(1.25rem,3vw,1.7rem);font-weight:900;letter-spacing:-.04em;margin:.25rem 0}
+.dak-settings-shell>header p{font-size:.82rem;color:#64748b;margin:0;max-width:520px}
+.dark .dak-settings-shell>header p{color:#94a3b8}
+.dak-settings-shell>header button{width:38px;height:38px;border-radius:12px;background:#f1f5f9;color:#475569;font-size:24px;line-height:1}
+.dark .dak-settings-shell>header button{background:#1e293b;color:#cbd5e1}
+.dak-settings-eyebrow{font-size:.62rem;font-weight:900;letter-spacing:.16em;color:#2563eb}
+.dak-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.dak-settings-grid>button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:220px;padding:20px;border:1px solid #e2e8f0;border-radius:18px;background:linear-gradient(145deg,#fff,#f8fafc);transition:transform .18s,border-color .18s,box-shadow .18s}
+.dak-settings-grid>button:hover{transform:translateY(-2px);border-color:#93c5fd;box-shadow:0 12px 28px rgba(37,99,235,.1)}
+.dark .dak-settings-grid>button{background:linear-gradient(145deg,#1e293b,#0f172a);border-color:#334155}
+.dak-settings-grid b{font-size:.95rem;font-weight:900;margin:14px 0 7px}
+.dak-settings-grid small{font-size:.75rem;line-height:1.55;color:#64748b}
+.dark .dak-settings-grid small{color:#94a3b8}
+.dak-settings-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;font-size:19px}
+.dak-settings-icon.users{background:#eff6ff;color:#2563eb}.dak-settings-icon.telegram{background:#e0f2fe;color:#0284c7}
+.dak-settings-link{margin-top:auto;padding-top:16px;font-size:.72rem;font-weight:900;color:#2563eb}
+.dak-settings-foot{display:flex;gap:9px;align-items:center;margin-top:18px;padding:12px 14px;border-radius:12px;background:#f8fafc;color:#64748b;font-size:.7rem}
+.dark .dak-settings-foot{background:#1e293b;color:#94a3b8}
+@media(max-width:620px){.dak-unified-global-nav{padding:.3rem .45rem .1rem}.dak-unified-global-nav .dak-unified-header{padding:.7rem;margin-bottom:.35rem}.dak-unified-global-nav .dak-unified-heading{gap:.5rem}.dak-unified-global-nav .dak-unified-heading p{max-width:205px}.dak-unified-global-nav .dak-unified-tabs{overflow-x:auto;scrollbar-width:none;padding-bottom:.35rem}.dak-unified-global-nav .dak-unified-tabs::-webkit-scrollbar{display:none}.dak-settings-grid{grid-template-columns:1fr}.dak-settings-grid>button{min-height:175px;padding:16px}.dak-settings-shell{border-radius:20px}}
+@media(prefers-reduced-motion:reduce){.dak-settings-grid>button,.dak-unified-tab{transition:none!important}}
