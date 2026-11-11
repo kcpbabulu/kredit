@@ -2297,3 +2297,8 @@ html.dark #dak-unified-global-nav .dak-unified-tab.is-active{background:linear-g
 .dak-tg-layout{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
 .dak-tg-token-help{grid-column:1/-1;margin:0;padding:8px 10px;border-radius:9px;background:#f8fafc;color:#64748b;font-size:11px}
 @media(max-width:760px){.dak-tg-card{width:100vw;max-height:100dvh;max-height:100svh;border-radius:0}.dak-tg-discovery-panel{margin:10px 10px 0;padding:12px}.dak-tg-discovery-heading{flex-direction:column;align-items:stretch;gap:10px}.dak-tg-discovery-heading button{width:100%}#dak-tg-discovery-results{grid-template-columns:1fr;max-height:150px}.dak-tg-layout{padding:10px;overflow:visible}.dak-tg-card{overflow-y:auto}.dak-tg-layout>aside{order:2}.dak-tg-layout form{order:1}}
+/* V137 Telegram Report Center controls */
+.dak-tg-run-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.dak-tg-run-grid button{min-width:0;white-space:normal;line-height:1.25;padding:10px 12px}
+.dak-tg-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+@media(max-width:767px){.dak-tg-run-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dak-tg-checks{grid-template-columns:1fr}}
