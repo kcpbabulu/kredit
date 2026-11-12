@@ -1,7 +1,7 @@
 {
-  "name": "DaKOPen V112 PPU",
-  "short_name": "DaKOPen V112",
-  "description": "DaKOPen PPU - Telegram PDF Configuration & Delivery",
+  "name": "DaKOPen V143 PPU",
+  "short_name": "DaKOPen V143",
+  "description": "DaKOPen PPU - Telegram Interactive Bot, Event & Scheduled Reports",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
