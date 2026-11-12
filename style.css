@@ -2314,3 +2314,16 @@ html,body{width:100%;min-width:320px;min-height:100%;overscroll-behavior-x:none}
 @media(max-width:420px){main>div:first-child{padding-left:7px!important;padding-right:7px!important}.tab-view{padding:9px!important}.tab-view .grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.tab-view .grid.grid-cols-1{grid-template-columns:minmax(0,1fr)!important}.tab-view h1{font-size:clamp(18px,5vw,23px)}.dak-mobile-dock{left:6px!important;right:6px!important}}
 @media(max-width:900px) and (orientation:landscape){.dak-mobile-dock{min-height:48px!important;bottom:max(4px,env(safe-area-inset-bottom))!important}.dak-mobile-dock .dak-dock-item{padding:3px!important}#sidebar{max-height:100dvh;overflow-y:auto}}
 .dak-admin-backdrop,.modal-backdrop,.dak-modal-backdrop{max-height:100dvh;overflow-y:auto;overscroll-behavior:contain}.dak-admin-card,.dak-modal-card,[role=dialog]{max-height:calc(100dvh - 16px);overflow-y:auto;overscroll-behavior:contain}.tab-view table{max-width:100%;border-collapse:separate;border-spacing:0}.tab-view td,.tab-view th{overflow-wrap:anywhere}@media(hover:none){.tab-view button:hover,.nav-btn:hover,.dak-hero-action:hover{transform:none!important}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+/* DaKOPen V143 — Global overlay stack (loader > dialog > toast > SweetAlert > admin modal) */
+:root{--dak-z-admin:2147481000;--dak-z-swal:2147482000;--dak-z-toast:2147482500;--dak-z-dialog:2147482700;--dak-z-loader:2147483000}
+.dak-admin-backdrop{z-index:var(--dak-z-admin)!important}
+#dak-overlay-root{position:fixed;inset:0;z-index:var(--dak-z-dialog);pointer-events:none;isolation:isolate}
+#dak-overlay-root>.dak-dialog-backdrop{z-index:1!important;pointer-events:auto}
+.dak-dialog-backdrop{z-index:var(--dak-z-dialog)!important}
+.dak-toast-stack{z-index:var(--dak-z-toast)!important}
+.swal2-container{z-index:var(--dak-z-swal)!important}
+#loader.dak-loader{z-index:var(--dak-z-loader)!important}
+.dak-tg-menu-permissions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.dak-tg-menu-permissions label{min-width:0}
+@media(max-width:640px){.dak-tg-menu-permissions{grid-template-columns:1fr}.dak-dialog-backdrop{padding-bottom:calc(12px + env(safe-area-inset-bottom))}}
