@@ -1,5 +1,5 @@
 /* DaKOPen V110 PWA - static asset cache; API and non-GET requests bypass cache. */
-const CACHE_VERSION = 'dakopen-static-v143-miniapp-1';
+const CACHE_VERSION = 'dakopen-static-v144-telegram-menu-1';
 const APP_SHELL = ['./','./index.html','./style.css?v=143p1','./app.js?v=143p1','./manifest.json'];
 self.addEventListener('install', event => {
   event.waitUntil((async()=>{
