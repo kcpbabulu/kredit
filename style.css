@@ -2398,3 +2398,9 @@ html,body{width:100%;min-width:320px;min-height:100%;overscroll-behavior-x:none}
 .dak-tg-personal-checks label{display:flex;align-items:center;gap:6px;font-size:12px}
 .dak-tg-personal-checks input{width:auto;min-height:auto}
 @media(max-width:640px){.dak-tg-personal-checks{grid-template-columns:1fr}}
+
+/* V150.6 — Telegram Smart Auto Cleanup diagnostics */
+.dak-tg-cleanup-diagnostics{margin-top:14px;padding:14px;border:1px solid var(--border-color,#d7e0ea);border-radius:14px;background:rgba(255,255,255,.72)}
+.dak-tg-cleanup-diagnostics h3{margin:0 0 4px;font-size:15px}
+.dak-tg-cleanup-diagnostics p{margin:0;color:var(--muted,#64748b);font-size:12px}
+.dak-tg-cleanup-diagnostics #dak-tg-cleanup-last{display:block;margin-top:8px;color:var(--muted,#64748b)}
