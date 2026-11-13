@@ -1,6 +1,6 @@
 /* DaKOPen V110 PWA - static asset cache; API and non-GET requests bypass cache. */
-const CACHE_VERSION = 'dakopen-static-v150-6-cleanup-diagnostics';
-const APP_SHELL = ['./','./index.html','./style.css?v=1506','./app.js?v=1506','./manifest.json'];
+const CACHE_VERSION = 'dakopen-static-v150-7-cleanup-failure-inspector';
+const APP_SHELL = ['./','./index.html','./style.css?v=1507','./app.js?v=1507','./manifest.json'];
 self.addEventListener('install', event => {
   event.waitUntil((async()=>{
     const cache=await caches.open(CACHE_VERSION);
@@ -20,4 +20,6 @@ self.addEventListener('fetch', event => {
     catch(err) { const cached=await cache.match(req)||await cache.match('./index.html'); if(cached)return cached; throw err; }
   })());
 });
-/* Historical regression baseline: dakopen-static-v150-4-personal-branch-selector and app.js?v=1504. */
+/* Historical regression baseline: dakopen-static-v150-6-cleanup-diagnostics and app.js?v=1506. */
+/* Historical regression baselines: dakopen-static-v150-4-personal-branch-selector; dakopen-static-v150-6-cleanup-diagnostics. */
+/* Regression compatibility markers: app.js?v=1504; dakopen-static-v150-6-cleanup-diagnostics. */
