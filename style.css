@@ -2404,3 +2404,12 @@ html,body{width:100%;min-width:320px;min-height:100%;overscroll-behavior-x:none}
 .dak-tg-cleanup-diagnostics h3{margin:0 0 4px;font-size:15px}
 .dak-tg-cleanup-diagnostics p{margin:0;color:var(--muted,#64748b);font-size:12px}
 .dak-tg-cleanup-diagnostics #dak-tg-cleanup-last{display:block;margin-top:8px;color:var(--muted,#64748b)}
+
+/* V150.7 — Cleanup Failure Inspector */
+.dak-tg-cleanup-failures{margin-top:14px;padding-top:12px;border-top:1px solid var(--border-color,#d7e0ea)}
+.dak-tg-cleanup-failures h4{margin:0 0 4px;font-size:14px}
+.dak-tg-cleanup-failures>p{margin:0 0 10px;color:var(--muted,#64748b);font-size:12px}
+.dak-tg-cleanup-failure{padding:10px 12px;margin:8px 0;border:1px solid var(--border-color,#d7e0ea);border-radius:10px;background:rgba(255,255,255,.82);overflow-wrap:anywhere}
+.dak-tg-cleanup-failure b{display:block;font-size:13px}
+.dak-tg-cleanup-failure small{display:block;color:var(--muted,#64748b);font-size:11px;margin-top:4px}
+.dak-tg-cleanup-failure p{margin:6px 0 0;font-size:12px}
