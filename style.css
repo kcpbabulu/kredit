@@ -2376,3 +2376,25 @@ html,body{width:100%;min-width:320px;min-height:100%;overscroll-behavior-x:none}
   #dak-tg-modal .dak-tg-layout>form{order:1!important;min-width:0!important}
 }
 @media(hover:none){#dak-tg-modal>.dak-tg-card{-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important}}
+
+/* V150.1 Personal User Management panel */
+#dak-tg-modal .dak-tg-personal-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:14px}
+#dak-tg-modal .dak-tg-personal-columns>div{min-width:0;padding:12px;border:1px solid var(--dak-border,#dbe3ee);border-radius:12px;background:var(--dak-surface,#fff)}
+#dak-tg-modal .dak-tg-personal-columns h4{font-weight:800;margin:0 0 10px}
+#dak-tg-modal .dak-tg-personal-row{align-items:flex-start;flex-wrap:wrap;margin-bottom:8px}
+#dak-tg-modal .dak-tg-personal-row>div:first-child{flex:1 1 240px;min-width:0}
+#dak-tg-modal .dak-tg-personal-row label{display:block;margin-top:9px;font-weight:700}
+#dak-tg-modal .dak-tg-personal-row select{display:block;width:100%;max-width:100%;margin-top:5px;padding:8px;border:1px solid var(--dak-border,#cbd5e1);border-radius:8px;background:var(--dak-surface,#fff);color:inherit}
+#dak-tg-modal .dak-tg-personal-actions{display:flex;gap:6px;flex-wrap:wrap}
+#dak-tg-modal .dak-tg-personal-actions button{white-space:nowrap}
+@media(max-width:760px){#dak-tg-modal .dak-tg-personal-columns{grid-template-columns:minmax(0,1fr)}}
+
+/* V150.2 — per-user Telegram access editor */
+.dak-tg-personal-access{flex-basis:100%;margin-top:10px;padding:10px;border:1px solid var(--line,#d7dee8);border-radius:10px;background:var(--surface-soft,#f7f9fc)}
+.dak-tg-personal-access summary{cursor:pointer;font-weight:700;margin-bottom:10px}
+.dak-tg-personal-access>label{display:grid;gap:5px;margin:8px 0}
+.dak-tg-personal-access select{max-width:320px;min-height:36px}
+.dak-tg-personal-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0 12px}
+.dak-tg-personal-checks label{display:flex;align-items:center;gap:6px;font-size:12px}
+.dak-tg-personal-checks input{width:auto;min-height:auto}
+@media(max-width:640px){.dak-tg-personal-checks{grid-template-columns:1fr}}
