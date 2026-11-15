@@ -14,7 +14,7 @@ function createGasProxy(successHandler, failureHandler) {
                 return function(cb) { return createGasProxy(cb, failureHandler); };
             }
             // Jika memanggil .withFailureHandler
-            if (propName === 'withFailureHandler') {
+            if (propName === 'withFailureHandler') { 
                 return function(cb) { return createGasProxy(successHandler, cb); };
             }
             
@@ -23,7 +23,7 @@ function createGasProxy(successHandler, failureHandler) {
                 // Eksekusi Fetch ke Google Apps Script
                 const controller = new AbortController();
                 // Laporan historis membaca banyak snapshot; beri waktu lebih panjang.
-                const requestTimeoutMs = propName === 'getFullReportData' ? 180000 : 45000;
+                const requestTimeoutMs = (propName === 'getFullReportData' || propName === 'manualTriggerSync') ? 180000 : 45000;
                 const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
                 fetch(GAS_URL, {
                     method: 'POST',
