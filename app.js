@@ -14,7 +14,7 @@ function createGasProxy(successHandler, failureHandler) {
                 return function(cb) { return createGasProxy(cb, failureHandler); };
             }
             // Jika memanggil .withFailureHandler
-            if (propName === 'withFailureHandler') { 
+            if (propName === 'withFailureHandler') {
                 return function(cb) { return createGasProxy(successHandler, cb); };
             }
             
