@@ -2413,3 +2413,15 @@ html,body{width:100%;min-width:320px;min-height:100%;overscroll-behavior-x:none}
 .dak-tg-cleanup-failure b{display:block;font-size:13px}
 .dak-tg-cleanup-failure small{display:block;color:var(--muted,#64748b);font-size:11px;margin-top:4px}
 .dak-tg-cleanup-failure p{margin:6px 0 0;font-size:12px}
+
+/* NPL Intelligence drill-down cards */
+#view-nplall [role="button"], #view-nplprod [role="button"],
+#view-nplkonsumtif [role="button"], #view-nplkur [role="button"] {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#modalSector table { min-width: 760px; }
+#modalSector input:focus, #modalSector select:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(167,139,250,.15);
+}
