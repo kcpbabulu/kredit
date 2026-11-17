@@ -23,7 +23,7 @@ function createGasProxy(successHandler, failureHandler) {
                 // Eksekusi Fetch ke Google Apps Script
                 const controller = new AbortController();
                 // Laporan historis membaca banyak snapshot; beri waktu lebih panjang.
-                const requestTimeoutMs = (propName === 'getFullReportData' || propName === 'manualTriggerSync') ? 180000 : 45000;
+                const requestTimeoutMs = propName === 'getFullReportData' ? 180000 : 45000;
                 const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
                 fetch(GAS_URL, {
                     method: 'POST',
@@ -9083,145 +9083,197 @@ async function executeDeleteSheets() {
 
 
 // =================================================================
-// MESIN MODAL SEKTOR EKONOMI (KALKULASI, SORTING, RENDERING)
-// =================================================================
+// ================================================================
+// PORTFOLIO DRILL-DOWN CENTER — NPL INTELLIGENCE
+// Semua KPI membuka daftar debitur sesuai kategori, lengkap sektor ekonomi.
+// ================================================================
+window.openPortfolioDrilldown = function(modeKey) {
+  const modal=document.getElementById('modalSector');
+  const title=document.getElementById('modalSectorTitle');
+  const eyebrow=document.getElementById('modalSectorEyebrow');
+  if(!modal||!title)return;
 
-// 1. Fungsi Utama Pembuka Modal
-window.openSectorModal = function(sectorName) {
-    const modal = document.getElementById('modalSector');
-    const titleEl = document.getElementById('modalSectorTitle');
-    if (!modal || !titleEl) return;
+  const all=(window.app&&app.state&&app.state.data&&Array.isArray(app.state.data.all_list))
+    ? app.state.data.all_list : (Array.isArray(window.allCreditData)?window.allCreditData:[]);
+  const defs={
+    all:{title:'SELURUH PORTOFOLIO',label:'Seluruh fasilitas aktif',test:r=>true},
+    all_npl:{title:'NPL TOTAL',label:'Kolektibilitas 3–5',test:r=>Number(r.kol)>=3},
+    all_kkr:{title:'KKR TOTAL',label:'Kolektibilitas 2–5',test:r=>Number(r.kol)>=2&&Number(r.kol)<=5},
+    prod:{title:'PRODUKTIF',label:'Seluruh fasilitas produktif',test:r=>(r.tags||[]).includes('Prod')},
+    prod_npl:{title:'NPL PRODUKTIF',label:'Produktif · KOL 3–5',test:r=>(r.tags||[]).includes('Prod')&&Number(r.kol)>=3},
+    prod_kkr:{title:'KKR PRODUKTIF',label:'Produktif · KOL 2–5',test:r=>(r.tags||[]).includes('Prod')&&Number(r.kol)>=2&&Number(r.kol)<=5},
+    kons:{title:'KONSUMTIF',label:'Seluruh fasilitas konsumtif',test:r=>(r.tags||[]).includes('Kons')},
+    kons_npl:{title:'NPL KONSUMTIF',label:'Konsumtif · KOL 3–5',test:r=>(r.tags||[]).includes('Kons')&&Number(r.kol)>=3},
+    kons_kkr:{title:'KKR KONSUMTIF',label:'Konsumtif · KOL 2–5',test:r=>(r.tags||[]).includes('Kons')&&Number(r.kol)>=2&&Number(r.kol)<=5},
+    kur_mikro:{title:'KUR MIKRO',label:'KUR Mikro · seluruh KOL',test:r=>(r.tags||[]).includes('KUR_MIKRO')},
+    kur_kecil:{title:'KUR KECIL',label:'KUR Kecil · seluruh KOL',test:r=>(r.tags||[]).includes('KUR_KECIL')},
+    kur_npl:{title:'NPL KUR',label:'KUR · KOL 3–5',test:r=>(r.tags||[]).includes('KUR')&&Number(r.kol)>=3},
+    kur_kkr:{title:'KKR KUR',label:'KUR · KOL 2–5',test:r=>(r.tags||[]).includes('KUR')&&Number(r.kol)>=2&&Number(r.kol)<=5}
+  };
+  const def=typeof modeKey==='object'&&modeKey?modeKey:(defs[modeKey]||defs.all);
+  const base=all.filter(r=>{
+    if(def.test&&!def.test(r))return false;
+    if(def.sector&&String(r.sektor||'').trim().toUpperCase()!==String(def.sector).trim().toUpperCase())return false;
+    return true;
+  }).map(r=>Object.assign({},r));
 
-    titleEl.innerText = sectorName.toUpperCase();
+  window.appState=window.appState||{};
+  window.appState.drillMode=def;
+  window.appState.drillBaseData=base;
+  window.appState.currentSectorData=base.slice();
+  window.appState.sectorSort={key:'os',asc:false};
+  window.appState.drillPage=1;
 
-    // Mengambil master data
-    const allData = (app.state && app.state.data && app.state.data.all_list) ? app.state.data.all_list : (window.allCreditData || []);
-    const searchTarget = sectorName.toLowerCase().trim();
+  title.textContent=def.title||'RINCIAN DEBITUR';
+  if(eyebrow)eyebrow.textContent=def.sector?'Sektor Ekonomi':(def.label||'Rincian Portofolio');
 
-    // Filter Sektor
-    const filtered = allData.filter(r => {
-        if (r.sektor) return String(r.sektor).toLowerCase().trim() === searchTarget;
-        return false;
-    });
-
-    // Simpan ke memori global untuk fitur Sorting
-    if (!window.appState) window.appState = {};
-    window.appState.currentSectorData = filtered;
-    window.appState.sectorSort = { key: 'os', asc: false }; // Urutan awal: OS terbesar
-
-    // Hitung KPI 
-    let tOS = 0, tKKR = 0, tNPL = 0;
-    filtered.forEach(r => {
-        let os = Number(r.os || 0);
-        let kol = parseInt(r.kol) || 1;
-        tOS += os;
-        if(kol == 2) tKKR += os; // Hanya Kolom 2 untuk KKR murni
-        if(kol >= 3) tNPL += os; // Kolom 3-5 untuk NPL
-    });
-
-    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
-    
-    // Suntikkan Angka ke Bento Card HTML
-    const sumOS = document.getElementById('sec-sum-os');
-    const sumKKR = document.getElementById('sec-sum-kkr');
-    const sumNPL = document.getElementById('sec-sum-npl');
-    
-    if(sumOS) sumOS.innerText = fmtIDR(tOS);
-    if(sumKKR) sumKKR.innerText = fmtIDR(tKKR);
-    if(sumNPL) sumNPL.innerText = fmtIDR(tNPL);
-
-    // Render tabel untuk pertama kali dengan sorting bawaan (Baki Debet Besar)
-    window.sortSector('os', true);
-
-    // Tampilkan Animasi
-    modal.classList.remove('hidden');
-    modal.setAttribute('aria-hidden', 'false');
+  const search=document.getElementById('drillSearch');
+  const kol=document.getElementById('drillKolFilter');
+  const sector=document.getElementById('drillSectorFilter');
+  if(search)search.value='';
+  if(kol)kol.value='';
+  if(sector){
+    const sectors=Array.from(new Set(base.map(r=>String(r.sektor||'LAINNYA').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'id'));
+    sector.innerHTML='<option value="">Semua sektor ekonomi</option>'+sectors.map(s=>'<option value="'+window.escapeDrillHtml_(s)+'">'+window.escapeDrillHtml_(s)+'</option>').join('');
+    sector.value=def.sector||'';
+  }
+  window.applyPortfolioDrilldownFilters();
+  modal.classList.remove('hidden');
+  modal.setAttribute('aria-hidden','false');
 };
 
-// 2. Fungsi Engine Sorting Tabel (Dipicu saat klik Header Tabel HTML)
-window.sortSector = function(key, isInit = false) {
-    if (!window.appState || !window.appState.currentSectorData) return;
+window.escapeDrillHtml_=function(value){
+  return String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+};
 
-    if (!isInit) {
-        // Balikkan urutan jika klik judul yang sama
-        if (window.appState.sectorSort.key === key) {
-            window.appState.sectorSort.asc = !window.appState.sectorSort.asc;
-        } else {
-            window.appState.sectorSort.key = key;
-            window.appState.sectorSort.asc = false; // Jika ganti kategori, jadikan besar -> kecil dulu
-        }
+window.openSectorModal=function(sectorName){
+  return window.openPortfolioDrilldown({
+    title:String(sectorName||'SEKTOR').toUpperCase(),
+    label:'Debitur pada sektor ekonomi',
+    sector:String(sectorName||'').trim(),
+    test:r=>true
+  });
+};
+
+window.resetPortfolioDrilldownFilters=function(){
+  const s=document.getElementById('drillSearch'),k=document.getElementById('drillKolFilter'),e=document.getElementById('drillSectorFilter');
+  if(s)s.value='';
+  if(k)k.value='';
+  if(e)e.value=window.appState&&window.appState.drillMode&&window.appState.drillMode.sector||'';
+  window.applyPortfolioDrilldownFilters();
+};
+
+window.applyPortfolioDrilldownFilters=function(){
+  if(!window.appState)return;
+  const base=window.appState.drillBaseData||[];
+  const q=(document.getElementById('drillSearch')?.value||'').trim().toLowerCase();
+  const sector=document.getElementById('drillSectorFilter')?.value||'';
+  const kol=document.getElementById('drillKolFilter')?.value||'';
+  const data=base.filter(r=>{
+    if(sector&&String(r.sektor||'').trim()!==sector)return false;
+    if(kol&&String(parseInt(r.kol)||1)!==kol)return false;
+    if(q){
+      const hay=[r.nama,r.loan,r.pk,r.br,r.sektor,r.gol].join(' ').toLowerCase();
+      if(!hay.includes(q))return false;
     }
-
-    const asc = window.appState.sectorSort.asc;
-
-    window.appState.currentSectorData.sort((a, b) => {
-        if (key === 'os') {
-            return asc ? a.os - b.os : b.os - a.os;
-        } else if (key === 'kol') {
-            return asc ? a.kol - b.kol : b.kol - a.kol;
-        } else if (key === 'nama') {
-            let nA = String(a.nama || '').toLowerCase();
-            let nB = String(b.nama || '').toLowerCase();
-            return asc ? nA.localeCompare(nB) : nB.localeCompare(nA);
-        }
-        return 0;
-    });
-
-    // Perintahkan render ulang setelah array diurutkan
-    window.renderSectorRows(window.appState.currentSectorData);
+    return true;
+  });
+  window.appState.currentSectorData=data;
+  window.appState.drillPage=1;
+  window.updatePortfolioDrilldownSummary_(data);
+  window.renderPortfolioDrilldownPage_();
 };
 
-// 3. Fungsi Render Baris HTML (Menjadi sangat cepat dan ringan)
-window.renderSectorRows = function(data) {
-    const tbody = document.getElementById('modalSectorContent');
-    if (!tbody) return;
-
-    const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v || 0);
-    let html = '';
-
-    if(data.length === 0) {
-        html = `<tr><td colspan="4" class="p-12 text-center text-slate-400 font-bold uppercase tracking-widest text-[10px]">
-                    <i class="fas fa-folder-open text-3xl mb-3 block opacity-50"></i>
-                    Tidak ada rincian debitur
-                </td></tr>`;
-    } else {
-        data.forEach((r, i) => {
-            const bakiDebet = Number(r.os || 0);
-            const kol = parseInt(r.kol) || 1;
-            
-            // Kolor Badge
-            let kolColor = 'bg-emerald-100 text-emerald-600 border-emerald-200';
-            if(kol == 5) kolColor = 'bg-red-500 text-white border-red-600 animate-pulse-slow shadow-lg shadow-red-500/40';
-            else if(kol == 4) kolColor = 'bg-rose-100 text-rose-600 border-rose-200';
-            else if(kol == 3) kolColor = 'bg-orange-100 text-orange-600 border-orange-200';
-            else if(kol == 2) kolColor = 'bg-amber-100 text-amber-600 border-amber-200';
-
-            const safeNama = String(r.nama || 'Tanpa Nama').replace(/'/g, "\\'");
-            const noRekening = r.loan || r.pk || '-';
-            const unitCabang = r.br || '-';
-
-            // Z-Index fix via HTML sudah diatasi, klik fetchDetail akan memunculkan popup z-[200]
-            html += `
-            <tr class="hover:bg-violet-50/50 dark:hover:bg-slate-800/50 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50 animate-fade-in" style="animation-delay: ${Math.min(i * 10, 300)}ms" onclick="if(window.app && window.app.fetchDetail) window.app.fetchDetail('${noRekening}')">
-                <td class="p-2.5 md:p-3 rounded-l-md align-middle">
-                    <div class="font-black text-[10px] md:text-xs text-slate-700 dark:text-white group-hover:text-violet-600 transition-colors truncate max-w-[140px] md:max-w-[220px]">${safeNama}</div>
-                    <div class="text-[8px] md:text-[9px] font-bold text-slate-400 font-mono mt-0.5 flex items-center gap-1"><i class="fas fa-fingerprint opacity-50 text-violet-400"></i> ${noRekening}</div>
-                </td>
-                <td class="p-2.5 md:p-3 hidden sm:table-cell text-center align-middle">
-                    <span class="text-[8px] font-bold text-slate-500 uppercase tracking-widest bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-200/50 dark:border-slate-700 shadow-sm">${unitCabang}</span>
-                </td>
-                <td class="p-2.5 md:p-3 text-center align-middle">
-                    <span class="px-2 py-0.5 text-[8px] md:text-[9px] font-black rounded shadow-sm border ${kolColor}">KOL ${kol}</span>
-                </td>
-                <td class="p-2.5 md:p-3 text-right rounded-r-md align-middle">
-                    <div class="font-mono font-black text-slate-700 dark:text-slate-200 group-hover:scale-105 origin-right transition-transform text-[11px] md:text-sm tracking-tighter">${fmtIDR(bakiDebet)}</div>
-                </td>
-            </tr>`;
-        });
-    }
-
-    tbody.innerHTML = html;
+window.updatePortfolioDrilldownSummary_=function(data){
+  const fmt=v=>'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(v||0);
+  let os=0,kkr=0,npl=0;const bySector={};
+  data.forEach(r=>{
+    const v=Number(r.os)||0,k=Number(r.kol)||1,s=String(r.sektor||'LAINNYA');
+    os+=v;if(k>=2&&k<=5)kkr+=v;if(k>=3&&k<=5)npl+=v;
+    bySector[s]=(bySector[s]||0)+v;
+  });
+  const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  put('sec-sum-os',fmt(os));put('sec-sum-kkr',fmt(kkr));put('sec-sum-npl',fmt(npl));
+  put('drillResultCount',data.length.toLocaleString('id-ID')+' debitur');
+  put('drillResultScope',(window.appState.drillMode&&window.appState.drillMode.label)||'Hasil pencarian');
+  const chips=document.getElementById('drillSectorSummary');
+  if(chips){
+    const top=Object.entries(bySector).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    chips.innerHTML=top.map(([s,v])=>`<button type="button" onclick="window.setPortfolioSectorFilter('${encodeURIComponent(s)}')" class="px-2 py-1 rounded-full bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-bold">${window.escapeDrillHtml_(s)} · ${fmt(v)}</button>`).join('');
+  }
 };
+
+window.setPortfolioSectorFilter=function(encoded){
+  const select=document.getElementById('drillSectorFilter');
+  if(select){select.value=decodeURIComponent(encoded||'');window.applyPortfolioDrilldownFilters();}
+};
+
+window.changePortfolioDrilldownPage=function(delta){
+  if(!window.appState)return;
+  const data=window.appState.currentSectorData||[];
+  const pages=Math.max(1,Math.ceil(data.length/40));
+  window.appState.drillPage=Math.max(1,Math.min(pages,(window.appState.drillPage||1)+delta));
+  window.renderPortfolioDrilldownPage_();
+};
+
+window.renderPortfolioDrilldownPage_=function(){
+  const data=window.appState&&window.appState.currentSectorData||[];
+  const page=window.appState.drillPage||1,perPage=40,pages=Math.max(1,Math.ceil(data.length/perPage));
+  const pageData=data.slice((page-1)*perPage,page*perPage);
+  window.renderSectorRows(pageData);
+  const info=document.getElementById('drillPageInfo');
+  if(info)info.textContent='Halaman '+page+' / '+pages+' · '+data.length.toLocaleString('id-ID')+' debitur';
+};
+
+window.sortSector=function(key,isInit=false){
+  if(!window.appState||!window.appState.currentSectorData)return;
+  const state=window.appState.sectorSort||{key:'os',asc:false};
+  if(!isInit){
+    if(state.key===key)state.asc=!state.asc;
+    else{state.key=key;state.asc=false;}
+  }
+  window.appState.sectorSort=state;
+  const data=window.appState.currentSectorData;
+  data.sort((a,b)=>{
+    let result=0;
+    if(key==='os')result=(Number(a.os)||0)-(Number(b.os)||0);
+    else if(key==='kol')result=(Number(a.kol)||1)-(Number(b.kol)||1);
+    else result=String(a.nama||'').localeCompare(String(b.nama||''),'id');
+    return state.asc?result:-result;
+  });
+  window.appState.drillPage=1;
+  window.renderPortfolioDrilldownPage_();
+};
+
+window.renderSectorRows=function(data){
+  const tbody=document.getElementById('modalSectorContent');
+  if(!tbody)return;
+  const esc=window.escapeDrillHtml_;
+  const fmt=v=>'Rp '+new Intl.NumberFormat('id-ID',{maximumFractionDigits:0}).format(Number(v)||0);
+  if(!data.length){
+    tbody.innerHTML='<tr><td colspan="6" class="p-12 text-center text-slate-400 font-bold text-xs"><i class="fas fa-folder-open text-3xl mb-3 block opacity-50"></i>Tidak ada debitur sesuai filter</td></tr>';
+    return;
+  }
+  tbody.innerHTML=data.map((r,i)=>{
+    const kol=parseInt(r.kol)||1,loan=String(r.loan||r.pk||'-'),safeLoan=encodeURIComponent(loan);
+    let color='bg-emerald-100 text-emerald-700 border-emerald-200';
+    if(kol===5)color='bg-red-500 text-white border-red-600';
+    else if(kol===4)color='bg-rose-100 text-rose-700 border-rose-200';
+    else if(kol===3)color='bg-orange-100 text-orange-700 border-orange-200';
+    else if(kol===2)color='bg-amber-100 text-amber-700 border-amber-200';
+    return `<tr class="hover:bg-violet-50/70 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50" onclick="if(window.app&&window.app.fetchDetail)window.app.fetchDetail(decodeURIComponent('${safeLoan}'))">
+      <td class="p-2.5 md:p-3"><div class="font-black text-[10px] md:text-xs text-slate-700 dark:text-white truncate max-w-[150px] md:max-w-[230px]">${esc(r.nama||'Tanpa Nama')}</div><div class="text-[8px] md:text-[9px] font-bold text-slate-400 font-mono mt-0.5">${esc(loan)}</div></td>
+      <td class="p-2.5 md:p-3 text-center hidden md:table-cell"><span class="text-[8px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">${esc(r.br||'-')}</span></td>
+      <td class="p-2.5 md:p-3 hidden sm:table-cell"><span class="text-[8px] md:text-[9px] font-bold text-violet-700 dark:text-violet-300 whitespace-normal">${esc(r.sektor||'LAINNYA')}</span></td>
+      <td class="p-2.5 md:p-3 text-center"><span class="px-2 py-0.5 text-[8px] md:text-[9px] font-black rounded border ${color}">KOL ${kol}</span></td>
+      <td class="p-2.5 md:p-3 text-right hidden lg:table-cell font-mono text-[10px]">${fmt(r.plafond)}</td>
+      <td class="p-2.5 md:p-3 text-right font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] md:text-xs">${fmt(r.os)}</td>
+    </tr>`;
+  }).join('');
+};
+
+// Backward-compatible alias used by the older sector chart.
+window.renderSectorRows = window.renderSectorRows;
 
 // --- FUNGSI MODAL KOMPARASI CABANG (SUPER BENTO COMPACT) ---
 function openBranchModal() {
