@@ -22,9 +22,20 @@ function createGasProxy(successHandler, failureHandler) {
             return function(...args) {
                 // Eksekusi Fetch ke Google Apps Script
                 const controller = new AbortController();
-                // Laporan historis membaca banyak snapshot; beri waktu lebih panjang.
-                const requestTimeoutMs = propName === 'getFullReportData' ? 180000 : 45000;
-                const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+                // Timeout khusus berdasarkan beban proses backend.
+                // manualTriggerSync menjalankan update harian, deduplikasi, dan update status arsip.
+                // Beri waktu 4,5 menit, masih di bawah batas eksekusi Apps Script 6 menit.
+                const REQUEST_TIMEOUTS = {
+                    getFullReportData: 180000,
+                    manualTriggerSync: 270000,
+                    getArchiveList: 90000
+                };
+                const requestTimeoutMs = REQUEST_TIMEOUTS[propName] || 45000;
+                let requestTimedOut = false;
+                const timeoutId = setTimeout(() => {
+                    requestTimedOut = true;
+                    controller.abort();
+                }, requestTimeoutMs);
                 fetch(GAS_URL, {
                     method: 'POST',
                     signal: controller.signal,
@@ -57,9 +68,20 @@ function createGasProxy(successHandler, failureHandler) {
                     console.error("Fetch Error:", err);
                     const globalLoader = document.getElementById('loader');
                     if (globalLoader) globalLoader.style.display = 'none';
-                    if (err && err.name === 'AbortError') console.warn('Permintaan ' + propName + ' dihentikan karena timeout atau pembatalan jaringan; cek endpoint dan waktu proses backend.');
+                    if (err && err.name === 'AbortError') {
+                        const reason = requestTimedOut
+                            ? 'melewati batas waktu ' + Math.round(requestTimeoutMs / 1000) + ' detik'
+                            : 'dibatalkan oleh browser atau jaringan';
+                        console.warn('Permintaan ' + propName + ' dihentikan: ' + reason + '.');
+                        const timeoutError = new Error('Permintaan ' + propName + ' ' + reason + '. Proses server mungkin masih berjalan; periksa status arsip sebelum mencoba Sync kembali.');
+                        timeoutError.name = requestTimedOut ? 'RequestTimeoutError' : 'AbortError';
+                        timeoutError.action = propName;
+                        if (failureHandler) failureHandler(timeoutError);
+                        else showAppNotice(timeoutError.message, 'error');
+                        return;
+                    }
                     if (failureHandler) failureHandler(err);
-                    else showAppNotice(err.name === 'AbortError' ? 'Permintaan laporan dihentikan karena melewati batas waktu atau koneksi dibatalkan. Coba kembali setelah sinkronisasi snapshot selesai.' : 'Koneksi ke server gagal. Periksa internet Anda.', 'error');
+                    else showAppNotice('Koneksi ke server gagal. Periksa internet Anda.', 'error');
                 });
             };
         }
