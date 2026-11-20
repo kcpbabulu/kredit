@@ -265,3 +265,87 @@
     new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
   });
 })();
+
+/* ==========================================================================
+   v1540 — Polish: waktu setempat, fokus keyboard vs mouse, strip kolektibilitas,
+   filter Penagihan, istilah Telegram Center dalam bahasa Indonesia.
+   ========================================================================== */
+(function () {
+  'use strict';
+  const fmt = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false });
+  window.dakFmtTime = function (v) {
+    if (!v) return '-';
+    const d = new Date(v); if (isNaN(d)) return String(v);
+    return fmt.format(d).replace(/\./g, ':').replace(',', '');
+  };
+
+  // Cincin fokus hanya untuk keyboard
+  document.addEventListener('pointerdown', () => document.body && document.body.classList.add('using-mouse'), true);
+  document.addEventListener('keydown', e => { if (e.key === 'Tab' && document.body) document.body.classList.remove('using-mouse'); }, true);
+
+  // Filter tahap penagihan (client-side)
+  window.dakCollFilter = function (b) {
+    const w = document.getElementById('collection_list_wrapper'); if (!w) return;
+    w.querySelectorAll('.bk-crow').forEach(r => { r.hidden = (b !== 'ALL' && r.dataset.bucket !== b); });
+    document.querySelectorAll('.bk-filter').forEach(x => x.classList.toggle('is-on', x.dataset.bucket === b));
+  };
+
+  // Strip kolektibilitas dari res.all_list (tanpa perubahan backend)
+  const KOL = ['1', '2', '3', '4', '5'];
+  const rupiahShort = n => {
+    const a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' jt';
+    return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+  };
+  const TARGET = { 1: 'view-kredit', 2: 'view-watchlist', 3: 'view-nplall', 4: 'view-nplall', 5: 'view-nplall' };
+  window.dakKolStrip = function (res) {
+    const box = document.getElementById('bk-kolstrip'); if (!box) return;
+    const rows = (res && res.all_list) || [];
+    if (!rows.length) { box.hidden = true; return; }
+    const sum = {}, cnt = {}; KOL.forEach(k => { sum[k] = 0; cnt[k] = 0; });
+    let total = 0;
+    rows.forEach(r => { const k = String(Math.round(Number(r.kol))); if (!(k in sum)) return; const o = Number(r.os) || 0; sum[k] += o; cnt[k]++; total += o; });
+    if (total <= 0) { box.hidden = true; return; }
+    const bar = document.getElementById('bk-kolbar'), leg = document.getElementById('bk-kollegend');
+    bar.innerHTML = KOL.map(k => {
+      const p = sum[k] / total * 100;
+      return `<button type="button" class="bk-kolseg" style="--c:var(--kol-${k});flex-grow:${Math.max(p, 0.6)}" data-k="${k}" aria-label="Kol ${k}: ${p.toFixed(1)} persen dari baki debet, ${cnt[k]} debitur"></button>`;
+    }).join('');
+    leg.innerHTML = KOL.map(k => {
+      const p = sum[k] / total * 100;
+      return `<li><button type="button" data-k="${k}"><span class="k"><i style="--c:var(--kol-${k})"></i>Kol ${k}</span><span class="v">${p.toFixed(p < 10 ? 2 : 1).replace('.', ',')}%</span><span class="s">${rupiahShort(sum[k])} · ${cnt[k].toLocaleString('id-ID')} debitur</span></button></li>`;
+    }).join('');
+    box.querySelectorAll('[data-k]').forEach(b => b.addEventListener('click', () => {
+      if (window.app && app.switchTab) app.switchTab(TARGET[b.dataset.k]);
+    }));
+    const np = (sum['3'] + sum['4'] + sum['5']) / total * 100;
+    document.getElementById('bk-kolstrip-note').textContent = 'Klik segmen untuk membuka daftar terkait · NPL (Kol 3–5) ' + np.toFixed(2).replace('.', ',') + '%';
+    box.hidden = false;
+  };
+
+  // Telegram Center: waktu setempat + istilah Indonesia (hanya di dalam komponen dak-tg)
+  const ISO = /\b(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z)\b/g;
+  const TERMS = [
+    [/Pending updates/g, 'Update tertunda'],
+    [/Cleanup Failure Inspector/g, 'Rincian kegagalan penghapusan'],
+    [/Failure Inspector/g, 'rincian kegagalan'],
+    [/Bad Request: message to delete not found/g, 'Pesan yang akan dihapus sudah tidak ditemukan'],
+    [/Read timeout expired/g, 'Waktu tunggu habis']
+  ];
+  let tgTimer = null;
+  function localizeTg() {
+    document.querySelectorAll('[class*="dak-tg"], [id^="dak-tg"]').forEach(root => {
+      const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+      let n; while ((n = w.nextNode())) {
+        let t = n.nodeValue, o = t;
+        t = t.replace(ISO, (_, iso) => window.dakFmtTime(iso));
+        TERMS.forEach(([re, to]) => { t = t.replace(re, to); });
+        if (t !== o) n.nodeValue = t;
+      }
+    });
+  }
+  new MutationObserver(() => { clearTimeout(tgTimer); tgTimer = setTimeout(localizeTg, 120); })
+    .observe(document.documentElement, { childList: true, subtree: true });
+})();
