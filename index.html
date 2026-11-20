@@ -38,8 +38,8 @@
 <!-- Custom CSS -->
 <link href="style.css?v=1509" rel="stylesheet">
 <link href="dak-banking.css?v=1520" rel="stylesheet">
-<link href="dak-interact.css?v=1540" rel="stylesheet">
-<link href="dak-polish.css?v=1540" rel="stylesheet">
+<link href="dak-interact.css?v=1550" rel="stylesheet">
+<link href="dak-polish.css?v=1550" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -144,15 +144,16 @@
 </aside>
 <!-- MOBILE QUICK DOCK · shortcuts only; full navigation stays in sidebar/command palette -->
 <nav aria-label="Akses cepat" class="dak-mobile-dock">
-<button class="dak-dock-item" data-dock="home" onclick="app.switchTab('view-dash')" type="button"><i class="fas fa-house"></i><span>Beranda</span></button>
+<button class="dak-dock-item" data-dock="view-dash" onclick="app.switchTab('view-dash')" type="button"><i class="fas fa-house"></i><span>Beranda</span></button>
+<button class="dak-dock-item" data-dock="view-nplall" onclick="app.switchTab('view-nplall')" type="button"><i class="fas fa-triangle-exclamation"></i><span>NPL</span></button>
+<button class="dak-dock-item" data-dock="view-collection" onclick="app.switchTab('view-collection')" type="button"><i class="fas fa-phone"></i><span>Penagihan</span></button>
 <button class="dak-dock-item" data-dock="search" onclick="dakOpenCommandPalette()" type="button"><i class="fas fa-magnifying-glass"></i><span>Cari</span></button>
-<button class="dak-dock-item" data-dock="upload" onclick="app.openUploadModal()" type="button"><i class="fas fa-cloud-arrow-up"></i><span>Upload</span></button>
 <button class="dak-dock-item" data-dock="more" onclick="app.toggleSidebar()" type="button"><i class="fas fa-grid-2"></i><span>Menu</span></button>
 </nav>
 <!-- MAIN CONTENT AREA -->
 <main id="bk-main" tabindex="-1" class="flex-1 flex flex-col md:ml-0 h-full relative w-full overflow-hidden bg-transparent transition-all duration-300">
 <!-- HEADER ATAS MELAYANG (COMPACT & MODERN) -->
-<div class="px-3 py-2 md:px-5 md:pt-4 shrink-0 z-40">
+<div class="px-3 py-2 md:px-5 md:pt-4 shrink-0 z-40" id="bk-hdr">
 <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-2xl border border-white/50 dark:border-slate-700/50 rounded-[1.5rem] flex flex-col xl:flex-row items-center justify-between px-4 py-2 shadow-sm transition-all duration-300">
 <!-- Kiri: Judul & Sync -->
 <div class="w-full xl:w-auto flex items-center justify-between md:justify-start mb-2.5 xl:mb-0 gap-3">
@@ -174,12 +175,13 @@
 </div>
 <!-- Tombol Tema Mobile -->
 <button aria-label="Cari menu dan debitur" class="dak-command-trigger" onclick="dakOpenCommandPalette()" type="button"><i class="fas fa-magnifying-glass"></i><span>Cari menu / debitur</span><kbd>Ctrl K</kbd></button>
+<button id="bk-filterbtn" class="bk-filterbtn" type="button" aria-haspopup="dialog" aria-controls="bk-filterwrap"><i class="fas fa-sliders" aria-hidden="true"></i><span id="bk-filtersum">Filter</span></button>
 <button class="md:hidden w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-yellow-400 hover:shadow-md transition-all flex items-center justify-center active:scale-95" data-theme-toggle="" onclick="app.toggleTheme()">
 <i class="fas fa-moon text-[10px]"></i>
 </button>
 </div>
 <!-- Kanan: Filter Kapsul & Tools PC -->
-<div class="w-full xl:w-auto flex items-center justify-between xl:justify-end gap-2.5 no-print overflow-x-auto custom-scrollbar-hide pb-1 xl:pb-0">
+<div id="bk-filterwrap" class="w-full xl:w-auto flex items-center justify-between xl:justify-end gap-2.5 no-print overflow-x-auto custom-scrollbar-hide pb-1 xl:pb-0">
 <div class="flex items-center p-1 bg-white/60 dark:bg-slate-900/60 rounded-full border border-white/60 dark:border-slate-700 shadow-inner shrink-0">
 <div class="flex items-center pl-2 text-blue-500"><i class="fas fa-building-columns text-[9px]"></i></div>
 <select class="bg-transparent border-none text-[10px] font-black py-1 pr-4 focus:ring-0 text-slate-700 dark:text-slate-200 min-w-[90px] outline-none cursor-pointer appearance-none" id="selBranch" onchange="app.refresh()"></select>
@@ -203,7 +205,7 @@
 </div>
 <!-- AREA KONTEN (TABS) -->
 <!-- pb-24: Safe Area agar di HP konten terbawah tidak tertutup bottom nav -->
-<div class="flex-1 overflow-y-auto p-0 pb-24 md:pb-6 space-y-0 mobile-scroll custom-scrollbar">
+<div id="bk-scroll" class="flex-1 overflow-y-auto p-0 pb-24 md:pb-6 space-y-0 mobile-scroll custom-scrollbar">
 <!-- 1. DASHBOARD UTAMA -->
 <div class="tab-view fade-in p-3 md:p-5 space-y-3 md:space-y-4 bg-transparent" id="view-dash">
 <!-- V71 DASHBOARD HERO -->
@@ -1742,8 +1744,8 @@
 </div>
 <!-- END MODAL LINIMASA DEBITUR -->
 <!-- App Javascript -->
-<script defer src="dak-interact.js?v=1540"></script>
-<script defer src="app.js?v=1540"></script>
+<script defer src="dak-interact.js?v=1550"></script>
+<script defer src="app.js?v=1550"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {
