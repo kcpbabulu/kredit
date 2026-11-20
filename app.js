@@ -3682,6 +3682,7 @@ function renderTrend(res) {
       modal.classList.remove('hidden');
       modal.style.zIndex = '10050';
       modal.setAttribute('aria-hidden', 'false');
+      if (window.dakDetailRender && window.dakDetailRender(r)) return;
 
       // Helper row yang lebih compact (text-xs)
       const row = (l, v, m, b) => `<div class="flex justify-between py-1.5 border-b border-dashed border-slate-100 dark:border-slate-700/50"><span class="text-xs text-slate-500">${l}</span><span class="text-xs ${m?'font-mono':''} ${b?'font-black text-slate-800 dark:text-white':'font-bold text-slate-600 dark:text-slate-300'} text-right">${v}</span></div>`;
