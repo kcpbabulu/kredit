@@ -38,7 +38,8 @@
 <!-- Custom CSS -->
 <link href="style.css?v=1509" rel="stylesheet">
 <link href="dak-banking.css?v=1520" rel="stylesheet">
-<link href="dak-interact.css?v=1530" rel="stylesheet">
+<link href="dak-interact.css?v=1540" rel="stylesheet">
+<link href="dak-polish.css?v=1540" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -217,6 +218,11 @@
 <button class="dak-hero-action dak-hero-action-primary" onclick="app.switchTab('view-nplall')" type="button"><i class="fas fa-shield-halved"></i><span>Analisis risiko</span><i class="fas fa-arrow-up-right-from-square dak-action-arrow"></i></button>
 </div>
 </section>
+<section class="bk-kolstrip" id="bk-kolstrip" aria-labelledby="bk-kolstrip-title" hidden>
+<div class="bk-kolstrip-head"><h2 id="bk-kolstrip-title">Komposisi kolektibilitas</h2><span id="bk-kolstrip-note"></span></div>
+<div class="bk-kolbar" id="bk-kolbar"></div>
+<ul class="bk-kollegend" id="bk-kollegend"></ul>
+</section>
 <div class="dak-section-caption"><div><span class="dak-section-kicker">Portofolio</span><h2>Indikator utama</h2></div><span class="dak-section-hint">Pilih kartu untuk melihat detail</span></div>
 <div class="bk-grid bk-grid--4 bk-grid--wide">
 <article class="bk-kpi is-loading" role="link" tabindex="0" onclick="app.switchTab('view-kredit')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}">
@@ -277,7 +283,7 @@
 </div>
 <div class="dak-intel-bottom"><div class="flex items-start gap-2"><i class="fas fa-circle-info mt-0.5 text-blue-500"></i><p class="text-xs leading-relaxed text-slate-600 dark:text-slate-300" id="dak-intel-insight">Ringkasan akan dihitung setelah data dashboard berhasil dimuat. Indikator ini membantu prioritas, bukan pengganti analisis kredit.</p></div><span class="dak-source-note">Sumber: data dashboard aktif</span></div>
 </section>
-<div class="dak-section-caption dak-section-caption-secondary"><div><span class="dak-section-kicker">04 / EKSPLORASI</span><h2>Sektor &amp; debitur berisiko</h2></div><span class="dak-section-hint">Pilih item untuk membuka detail</span></div>
+<div class="dak-section-caption dak-section-caption-secondary"><div><span class="dak-section-kicker">Eksplorasi</span><h2>Sektor &amp; debitur berisiko</h2></div><span class="dak-section-hint">Pilih item untuk membuka detail</span></div>
 <!-- Baris 3: Sebaran Sektor & Top NPL -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4">
 <!-- KARTU SEBARAN SEKTOR -->
@@ -539,7 +545,9 @@
 <tr class="bg-white/90 text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden backdrop-blur-md">
 <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
 <th class="p-2">Identitas</th>
+<th class="p-2 text-center hidden sm:table-cell">Unit</th>
 <th class="p-2 text-center">Kol</th>
+<th class="p-2 text-right hidden lg:table-cell">Plafond</th>
 <th class="p-2 text-right">Baki Debet</th>
 <th class="p-2 text-right rounded-r-md">Tgk</th>
 </tr>
@@ -563,7 +571,9 @@
 <tr class="bg-white/90 text-[8px] uppercase font-black text-slate-500 shadow-sm rounded-md overflow-hidden backdrop-blur-md">
 <th class="p-2 text-center rounded-l-md w-8"><i class="fas fa-check"></i></th>
 <th class="p-2">Identitas</th>
+<th class="p-2 text-center hidden sm:table-cell">Unit</th>
 <th class="p-2 text-center">Kol</th>
+<th class="p-2 text-right hidden lg:table-cell">Plafond</th>
 <th class="p-2 text-right">Baki Debet</th>
 <th class="p-2 text-right rounded-r-md">Tgk</th>
 </tr>
@@ -1732,8 +1742,8 @@
 </div>
 <!-- END MODAL LINIMASA DEBITUR -->
 <!-- App Javascript -->
-<script defer src="dak-interact.js?v=1530"></script>
-<script defer src="app.js?v=1530"></script>
+<script defer src="dak-interact.js?v=1540"></script>
+<script defer src="app.js?v=1540"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {
