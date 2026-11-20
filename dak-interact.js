@@ -11,7 +11,7 @@
         0–2 mnt: langsung dari cache. 2–15 mnt: tampil dari cache, lalu
         diperbarui di latar belakang. Aksi tulis/login/upload: cache dikosongkan.
      --------------------------------------------------------------------- */
-  const READ = new Set(['getAvailableSnapshots','getBranchList','getDashboardData','getKURChartData',
+  const READ = new Set(['getDebtorTimeline','getAvailableSnapshots','getBranchList','getDashboardData','getKURChartData',
     'getKonsumtifData','get4SData','getAllNPLData','getWatchlistData','getCollectionCandidates',
     'getTopObligors','getCKPNEstimate','getRiskMatrixData','getVintageData','getTrendAnalysis',
     'getMapData','getWriteOffData','getMovementExtended','getMaturityDashboard','getFreshDropData',
