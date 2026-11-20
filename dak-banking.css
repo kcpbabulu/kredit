@@ -1,0 +1,95 @@
+/* ==========================================================================
+   DaKOPen — Banking Design Layer (v1520)
+   Dimuat SETELAH style.css. Satu set token + komponen KPI + skeleton.
+   Token baru berawalan --bk-. Komponen lama tidak dihapus agar aman;
+   migrasikan view lain satu per satu ke komponen .bk-*.
+   ========================================================================== */
+:root{
+  --bk-navy:#0f2a4a;          /* identitas: judul, angka utama */
+  --bk-blue:#1457c5;          /* satu-satunya aksen interaktif */
+  --bk-surface:#ffffff;
+  --bk-page:#f3f6fb;
+  --bk-line:#dfe7f1;
+  --bk-text:#1d2b42;
+  --bk-muted:#64748b;
+  /* warna semantik: hanya untuk makna, bukan dekorasi */
+  --bk-good:#0f8a5f;  --bk-good-bg:#e7f6ef;
+  --bk-bad:#c62839;   --bk-bad-bg:#fdecee;
+  --bk-warn:#b86a00;  --bk-warn-bg:#fff3e0;
+  --bk-neutral-bg:#eef2f7;
+  --bk-radius:12px;
+  --bk-shadow:0 1px 2px rgba(15,42,74,.06);
+  --bk-shadow-hover:0 6px 18px rgba(15,42,74,.10);
+  --bk-focus:0 0 0 3px rgba(20,87,197,.35);
+}
+html.dark{
+  --bk-navy:#e6edf7; --bk-blue:#6aa4ff;
+  --bk-surface:#16233a; --bk-page:#0d1626;
+  --bk-line:#2a3b57; --bk-text:#e6edf7; --bk-muted:#93a4bd;
+  --bk-good:#4cd09a;  --bk-good-bg:rgba(76,208,154,.12);
+  --bk-bad:#ff7a88;   --bk-bad-bg:rgba(255,122,136,.12);
+  --bk-warn:#ffb454;  --bk-warn-bg:rgba(255,180,84,.12);
+  --bk-neutral-bg:rgba(147,164,189,.14);
+  --bk-shadow:none; --bk-shadow-hover:0 6px 18px rgba(0,0,0,.35);
+}
+
+/* ---------- Grid KPI ---------- */
+.bk-grid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (min-width:1280px){.bk-grid--4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:768px){.bk-grid{gap:16px}}
+@media (max-width:479px){.bk-grid--wide{grid-template-columns:1fr}} /* nominal penuh butuh lebar */
+
+/* ---------- Kartu KPI ---------- */
+.bk-kpi{
+  position:relative;display:flex;flex-direction:column;gap:6px;min-width:0;
+  padding:14px 16px;background:var(--bk-surface);color:var(--bk-text);
+  border:1px solid var(--bk-line);border-radius:var(--bk-radius);
+  box-shadow:var(--bk-shadow);cursor:pointer;text-align:left;
+  transition:box-shadow .18s ease,border-color .18s ease;
+  container-type:inline-size; /* angka menyesuaikan lebar kartu: nominal penuh tidak terpotong */
+}
+.bk-kpi:hover{box-shadow:var(--bk-shadow-hover);border-color:color-mix(in srgb,var(--bk-blue) 35%,var(--bk-line))}
+.bk-kpi:focus-visible{outline:none;box-shadow:var(--bk-focus)}
+.bk-kpi-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bk-kpi-label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--bk-muted);min-width:0}
+.bk-kpi-label span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-dot{width:8px;height:8px;border-radius:50%;flex:none;background:var(--bk-blue)}
+.bk-dot--risk{background:var(--bk-bad)} .bk-dot--warn{background:var(--bk-warn)} .bk-dot--ok{background:var(--bk-good)}
+.bk-kpi-icon{color:var(--bk-muted);font-size:13px;opacity:.7}
+.bk-kpi-value{
+  font-size:clamp(15px,7.1cqw,26px);font-weight:700;line-height:1.15;color:var(--bk-navy);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.bk-kpi-foot{min-height:22px;font-size:11px;color:var(--bk-muted);display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.bk-kpi--sm{padding:10px 14px;gap:4px}
+.bk-kpi--sm .bk-kpi-value{font-size:clamp(12px,5.2cqw,19px)}
+.bk-kpi--sm .bk-kpi-foot{min-height:0}
+
+/* Status risiko: tenang, tanpa denyut. Aktif bila NPL melewati ambang. */
+.bk-kpi.bk-alert{border-color:var(--bk-bad)}
+.bk-kpi.bk-alert .bk-kpi-value{color:var(--bk-bad)}
+
+/* Badge delta bawaan app.js: selaraskan dengan token (tanpa mengubah JS-nya) */
+.bk-kpi .bk-kpi-foot [class*="rounded"]{border-radius:999px!important;font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ---------- Skeleton ---------- */
+.bk-kpi.is-loading .bk-kpi-value,
+.bk-kpi.is-loading .bk-kpi-foot{
+  color:transparent!important;border-radius:6px;user-select:none;
+  background:linear-gradient(90deg,var(--bk-neutral-bg) 25%,color-mix(in srgb,var(--bk-neutral-bg) 55%,var(--bk-surface)) 50%,var(--bk-neutral-bg) 75%);
+  background-size:200% 100%;animation:bk-shimmer 1.4s linear infinite;
+}
+.bk-kpi.is-loading .bk-kpi-value{width:62%;min-height:1.15em}
+.bk-kpi.is-loading .bk-kpi-foot{width:40%;min-height:16px}
+@keyframes bk-shimmer{to{background-position:-200% 0}}
+
+/* ---------- Judul seksi (tanpa penomoran & huruf kapital) ---------- */
+#view-dash .dak-section-kicker{text-transform:none;letter-spacing:0;font-weight:600;color:var(--bk-muted);font-size:12px}
+#view-dash .dak-section-caption h2{color:var(--bk-navy)}
+
+/* ---------- Aksesibilitas ---------- */
+@media (prefers-reduced-motion:reduce){
+  .bk-kpi,.bk-kpi *{transition:none!important;animation:none!important}
+}
+@media (pointer:coarse){.bk-kpi{min-height:var(--dak-touch-target,44px)}}
