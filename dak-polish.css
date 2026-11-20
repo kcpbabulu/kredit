@@ -166,3 +166,141 @@ html.dark .dak-admin-card{background:#111c2e!important}
   .bk-kolseg,.bk-filter,.bk-btn-ghost,.bk-crow-act{transition:none}
 }
 @media(hover:none){.bk-kolbar:hover .bk-kolseg:not(:hover){opacity:1}}
+
+/* ==========================================================================
+   v1550 — MOBILE
+   ========================================================================== */
+.bk-filterbtn,.bk-fl,.bk-sheet-head,#bk-scrim{display:none}
+#bk-pill{position:fixed;left:50%;bottom:calc(86px + env(safe-area-inset-bottom,0px));z-index:9999;transform:translate(-50%,8px);opacity:0;pointer-events:none;
+  padding:8px 14px;border-radius:999px;background:var(--bk-navy,#0f2a4a);color:#fff;font-size:12px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.25);
+  transition:opacity .2s var(--ease-out),transform .2s var(--ease-out);white-space:nowrap}
+#bk-pill.is-on{opacity:1;transform:translate(-50%,0)}
+html.dark #bk-pill{background:#e6edf7;color:#0d1626}
+#bk-ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 4px);z-index:9998;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;
+  background:var(--bk-surface,#fff);color:var(--bk-muted,#64748b);box-shadow:0 4px 14px rgba(15,42,74,.2);opacity:0;transform:translate(-50%,-48px);pointer-events:none}
+#bk-ptr.is-ready{color:var(--bk-blue,#1457c5)}
+
+@media(max-width:767px){
+  /* --- Header ringkas: satu baris. Filter pindah ke lembar bawah --- */
+  #bk-hdr{transition:margin-top .2s var(--ease-out),opacity .2s var(--ease-out)}
+  body.bk-hdr-hide #bk-hdr{margin-top:calc(var(--bk-hdr-h,100px)*-1);opacity:0;pointer-events:none}
+  #bk-hdr header{padding:6px 10px!important;border-radius:16px!important}
+  #bk-hdr header>div:first-child{margin-bottom:0!important}
+  #bk-hdr .dak-command-trigger span,#bk-hdr .dak-command-trigger kbd{display:none}
+  #bk-hdr .dak-command-trigger{min-width:44px;min-height:44px;justify-content:center;padding:0}
+  .bk-filterbtn{display:inline-flex;align-items:center;gap:6px;min-height:44px;max-width:44vw;padding:0 12px;border-radius:12px;border:1px solid var(--bk-line,#dfe7f1);
+    background:var(--bk-surface,#fff);color:var(--bk-text,#1d2b42);font-size:12px;font-weight:600;cursor:pointer;transition:transform .16s var(--ease-out)}
+  .bk-filterbtn:active{transform:scale(.97)}
+  .bk-filterbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #bk-hdr button[data-theme-toggle]{width:44px!important;height:44px!important}
+  #bk-hdr h1{font-size:14px!important}
+  #bk-hdr h1+div,#bk-hdr .dak-unified-global-nav{font-size:10px}
+
+  /* --- Lembar filter --- */
+  #bk-filterwrap{position:fixed!important;left:0;right:0;bottom:0;z-index:10040;display:none!important;flex-direction:column!important;align-items:stretch!important;gap:10px;
+    max-height:80dvh;overflow:auto;padding:8px 16px calc(16px + env(safe-area-inset-bottom,0px))!important;background:var(--bk-surface,#fff);border-radius:20px 20px 0 0;
+    box-shadow:0 -12px 40px rgba(8,19,39,.28)}
+  body.bk-filter-open #bk-filterwrap{display:flex!important;animation:bk-sheet-up .24s var(--ease-drawer) both}
+  #bk-scrim{display:block;position:fixed;inset:0;z-index:10030;background:rgba(8,19,39,.5);opacity:0;pointer-events:none;transition:opacity .2s var(--ease-out)}
+  body.bk-filter-open #bk-scrim{opacity:1;pointer-events:auto}
+  .bk-sheet-head{display:flex;align-items:center;justify-content:space-between;position:relative;padding:18px 0 4px}
+  .bk-sheet-head strong{font-size:16px;color:var(--bk-navy,#0f2a4a)}
+  .bk-sheet-done{min-height:44px;padding:0 14px;border:0;background:transparent;color:var(--bk-blue,#1457c5);font-weight:700;font-size:14px;cursor:pointer}
+  .bk-grab{position:absolute;left:50%;top:6px;width:40px;height:4px;border-radius:99px;background:var(--bk-line,#cfd8e4);transform:translateX(-50%)}
+  #bk-filterwrap>div:not(.bk-sheet-head){display:flex!important;flex-direction:column!important;align-items:stretch!important;background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;gap:6px}
+  #bk-filterwrap>div:not(.bk-sheet-head)>div{display:none!important}
+  .bk-fl{display:block;margin-top:6px;font-size:12px;font-weight:600;color:var(--bk-muted,#64748b)}
+  #bk-filterwrap select{width:100%!important;min-height:48px;padding:0 14px!important;border:1px solid var(--bk-line,#dfe7f1)!important;border-radius:12px;
+    background:var(--bk-surface,#fff)!important;font-size:16px!important;font-weight:500!important;color:var(--bk-text,#1d2b42)!important;appearance:auto!important}
+  #bk-filterwrap>.hidden{display:none!important}
+}
+@keyframes bk-sheet-up{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+
+/* --- Dock bawah: 5 item, status aktif jelas --- */
+@media(max-width:767px){
+  .dak-mobile-dock{grid-template-columns:repeat(var(--n,5),minmax(0,1fr))!important}
+  .dak-dock-item[hidden]{display:none!important}
+  .dak-dock-item{min-height:48px;position:relative;transition:color .15s,transform .16s var(--ease-out)}
+  .dak-dock-item:active{transform:scale(.95)}
+  .dak-dock-item.is-active{color:var(--bk-blue,#1457c5)!important;font-weight:700}
+  .dak-dock-item.is-active::before{content:"";position:absolute;top:2px;left:50%;width:22px;height:3px;border-radius:99px;background:var(--bk-blue,#1457c5);transform:translateX(-50%)}
+  #bk-scroll{overscroll-behavior-y:contain}
+}
+
+/* --- Kartu debitur padat (tinggi ± 90px). Hanya untuk daftar debitur --- */
+@media(max-width:640px){
+  .bk-sortbar select{min-height:40px!important;font-size:16px!important;font-weight:500!important;color:var(--bk-muted,#64748b)!important;padding:0 12px!important}
+  .bk-table.bk-cards.bk-compact tbody tr{grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"chk id kol" "chk os tgk" "more more more";gap:2px 10px;padding:10px 12px;margin:0 0 8px;position:relative}
+  .bk-table.bk-cards.bk-compact td{font-size:13px}
+  .bk-table.bk-cards.bk-compact td::before{display:none!important}
+  .bk-table.bk-cards.bk-compact td[data-label=""]{grid-area:chk;align-self:center}
+  .bk-table.bk-cards.bk-compact td[data-label=""]:empty{display:none!important}
+  .bk-table.bk-cards.bk-compact td[data-label="Identitas"]{grid-area:id;grid-column:auto;font-size:13px}
+  .bk-table.bk-cards.bk-compact td[data-label="Identitas"] .truncate{width:auto!important;max-width:100%}
+  .bk-table.bk-cards.bk-compact td[data-label="Identitas"] .font-mono{font-size:11px!important;font-weight:500!important;white-space:normal}
+  .bk-table.bk-cards.bk-compact td[data-label="Kol"]{grid-area:kol;align-items:flex-end;justify-content:flex-start}
+  .bk-table.bk-cards.bk-compact td[data-label="Baki Debet"]{grid-area:os;font-size:15px;font-weight:700}
+  .bk-table.bk-cards.bk-compact td[data-label="Tgk"]{grid-area:tgk;align-items:flex-end;font-size:13px}
+  /* nominal ringkas (angka lengkap muncul saat kartu dibuka) */
+  .bk-table.bk-cards.bk-compact tr:not(.is-open) td[data-short]{font-size:0!important;line-height:0}
+  .bk-table.bk-cards.bk-compact tr:not(.is-open) td[data-short]>*{display:none!important}
+  .bk-table.bk-cards.bk-compact tr:not(.is-open) td[data-short]::after{content:attr(data-short);white-space:nowrap;font-size:13px;line-height:1.35;font-weight:600}
+  .bk-table.bk-cards.bk-compact tr:not(.is-open) td[data-label="Baki Debet"]::after{font-size:15px;font-weight:700}
+  .bk-table.bk-cards.bk-compact td[data-label="Unit"],.bk-table.bk-cards.bk-compact td[data-label="Plafond"]{display:none!important;grid-column:1/-1;flex-direction:row;justify-content:space-between;font-size:12px;color:var(--bk-muted,#64748b)}
+  .bk-table.bk-cards.bk-compact tr.is-open td[data-label="Unit"],.bk-table.bk-cards.bk-compact tr.is-open td[data-label="Plafond"]{display:flex!important}
+  .bk-table.bk-cards.bk-compact tr.is-open td[data-label="Unit"]::before,.bk-table.bk-cards.bk-compact tr.is-open td[data-label="Plafond"]::before{display:inline!important}
+  .bk-table.bk-cards.bk-compact tbody tr::after{content:"Rincian ▾";grid-area:more;justify-self:end;font-size:11px;color:var(--bk-muted,#64748b)}
+  .bk-table.bk-cards.bk-compact tbody tr.is-open::after{content:"Tutup ▴"}
+  .bk-table.bk-cards.bk-compact tbody tr{cursor:pointer}
+  .tab-view .overflow-x-auto:has(.bk-cards){overflow:visible}
+}
+
+/* --- Tabel analitik (≥5 kolom, bukan daftar debitur): tetap tabel, geser samping, kolom pertama menempel --- */
+@media(max-width:640px){
+  .bk-table.bk-scroll{min-width:560px}
+  .bk-table.bk-scroll th:first-child,.bk-table.bk-scroll td:first-child{position:sticky;left:0;z-index:1;background:var(--bk-surface,#fff);box-shadow:1px 0 0 var(--bk-line,#dfe7f1)}
+  .tab-view .overflow-x-auto:has(.bk-scroll){-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+}
+
+/* --- Detail debitur: lembar bawah dengan pegangan --- */
+.bk-grab-detail{display:none}
+@media(max-width:639px){
+  #modalDetail>div{position:relative;will-change:transform;transition:transform .2s var(--ease-drawer)}
+  .bk-grab-detail{display:block;top:8px}
+  #modalDetail>div>div:nth-child(2){padding-top:20px!important;touch-action:none}
+}
+
+/* --- Dashboard HP: ringkasan NPL menonjol --- */
+@media(max-width:640px){
+  .bk-kolstrip{padding:12px}
+  .bk-kolstrip-head{flex-direction:column;align-items:flex-start;gap:2px}
+  #bk-kolstrip-note{font-size:13px;font-weight:600;color:var(--bk-bad,#c62839)}
+  .bk-kolbar{height:40px}
+  .bk-kollegend button{min-height:44px}
+}
+
+/* --- Sentuh: target ≥ 44px, hanya pada kontrol yang aman --- */
+@media(pointer:coarse){
+  .bk-filter,.bk-crow-act,.bk-btn-ghost,.bk-perm-all,#sidebar .nav-btn{min-height:44px}
+  .bk-btn-ghost{min-width:60px}
+  .bk-row td{padding-top:12px;padding-bottom:12px}
+  .tab-view input[type=checkbox],.tab-view input[type=radio]{min-width:22px;min-height:22px}
+}
+@media(prefers-reduced-motion:reduce){
+  #bk-hdr,#bk-pill,#bk-scrim,.dak-dock-item,.bk-filterbtn{transition:none}
+  body.bk-filter-open #bk-filterwrap{animation:none}
+}
+
+/* Header HP: menu & cari sudah ada di dock bawah, jadi tidak diulang di header */
+@media(max-width:767px){
+  #bk-hdr header button[onclick*="toggleSidebar"],#bk-hdr .dak-command-trigger{display:none!important}
+  #bk-hdr header>div:first-child{gap:8px}
+  .bk-filterbtn{margin-left:auto}
+  .bk-filterbtn.is-filtered::after{content:"";width:8px;height:8px;border-radius:50%;background:var(--bk-blue,#1457c5);flex:none}
+}
+@media(max-width:400px){.bk-filterbtn span{display:none}.bk-filterbtn{padding:0;width:44px;justify-content:center}}
+@media(max-width:640px){
+  .bk-table.bk-cards.bk-compact tr:not(.is-open) td[data-label="Identitas"] .font-mono{white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .bk-table.bk-cards.bk-compact td[data-label="Identitas"]{min-width:0}
+  .bk-table.bk-cards.bk-compact td[data-label="Identitas"] .click-detail{min-width:0}
+}
