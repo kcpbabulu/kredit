@@ -1233,6 +1233,8 @@ function renderDashboard(res) {
     if(el('loader')) el('loader').style.display='none';
     
     const k = res.kpi; const d = res.diff;
+    // Banking UI: lepas skeleton saat data tiba
+    document.querySelectorAll('.bk-kpi.is-loading').forEach(c => c.classList.remove('is-loading'));
 
     // A. Animasi Kartu Utama
     document.querySelectorAll('.glass-card').forEach((card, index) => {
@@ -1267,9 +1269,8 @@ function renderDashboard(res) {
         if (typeof animateValueDecimal === 'function') animateValueDecimal('v_npl', oldNpl, nplNow, 800);
         else el('v_npl').innerText = nplNow.toFixed(2) + '%';
         
-        const nplCard = el('v_npl').closest('.glass-card');
-        if(nplNow > 5) nplCard.classList.add('ring-2', 'ring-red-500', 'animate-pulse-slow');
-        else nplCard.classList.remove('ring-2', 'ring-red-500', 'animate-pulse-slow');
+        const nplCard = el('v_npl').closest('.bk-kpi, .glass-card');
+        if (nplCard) nplCard.classList.toggle('bk-alert', nplNow > 5); // tanpa denyut; ambang 5% sesuai batas NPL
 
         if(d && el('bdg_rat_npl')) {
             let nplPrev = d.prev_os > 0 ? (d.prev_npl / d.prev_os) * 100 : 0;
