@@ -1,0 +1,168 @@
+/* ==========================================================================
+   DaKOPen — Polish Layer v1540 (dimuat paling akhir)
+   Batch 1: perbaikan keterbacaan & bug tampilan
+   Batch 2: hirarki Dashboard, strip kolektibilitas, tabel padat
+   Batch 3: Penagihan padat, panel detail samping, hak akses berkelompok
+   ========================================================================== */
+:root{
+  --ease-out:cubic-bezier(.23,1,.32,1);
+  --ease-drawer:cubic-bezier(.32,.72,0,1);
+  /* Skala kolektibilitas: satu-satunya tempat warna risiko didefinisikan */
+  --kol-1:#2f7d5b; --kol-2:#b98a00; --kol-3:#d2691a; --kol-4:#c62839; --kol-5:#7a1426;
+  --kol-1-bg:#e6f4ed; --kol-2-bg:#fbf1d0; --kol-3-bg:#fde8d6; --kol-4-bg:#fbe3e6; --kol-5-bg:#f3d9de;
+}
+html.dark{
+  --kol-1:#58c796; --kol-2:#f0c04a; --kol-3:#ff9a4d; --kol-4:#ff7a88; --kol-5:#ff9fb0;
+  --kol-1-bg:rgba(88,199,150,.14); --kol-2-bg:rgba(240,192,74,.14); --kol-3-bg:rgba(255,154,77,.14); --kol-4-bg:rgba(255,122,136,.14); --kol-5-bg:rgba(255,159,176,.14);
+}
+
+/* ===== BATCH 1 — keterbacaan ===== */
+/* Letter-spacing negatif global membuat kata menempel; sisakan hanya untuk judul besar. */
+body{letter-spacing:0!important;word-spacing:.04em}
+.tab-view h1,.tab-view h2{letter-spacing:-.015em}
+.tab-view p,.tab-view small,.tab-view label,.tab-view td,.tab-view th,.tab-view button,
+.dak-hero-copy p,.dak-section-hint,.dak-intel-bottom p{letter-spacing:0!important}
+
+/* Angka: satu keluarga huruf, lebar sama, tidak pernah terpotong. */
+.tab-view .font-mono,.tab-view [class*="font-mono"],.bk-table td,.bk-crow-amt,.bk-panel-stat-value{
+  font-family:inherit!important;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.tab-view td.text-right,.tab-view td.text-right .font-mono,.tab-view td.bk-num,.bk-crow-tgk,.bk-panel-stat-value{
+  white-space:nowrap;overflow-wrap:normal;word-break:normal}
+.tab-view td.text-right{min-width:max-content}
+#tblALLNpl td,#tblALLKkr td{vertical-align:middle}
+
+/* Fokus: cincin hanya muncul untuk keyboard, bukan setelah klik mouse. */
+body.using-mouse #sidebar .nav-btn:focus,body.using-mouse #sidebar button:focus,
+body.using-mouse #dak-admin-nav-btn:focus,body.using-mouse .dak-mobile-dock button:focus{outline:none!important;box-shadow:none}
+/* Tombol admin tidak terlihat "aktif" terus-menerus; hanya saat hover/fokus keyboard. */
+#dak-admin-nav-btn:not(:hover):not(:focus-visible){background:transparent!important;border-color:transparent!important;color:inherit!important}
+html.dark #dak-admin-nav-btn:not(:hover):not(:focus-visible){background:transparent!important;border-color:transparent!important}
+
+/* Modal admin: latar kartu putih bersih. */
+.dak-admin-card{background:#fff!important}
+html.dark .dak-admin-card{background:#111c2e!important}
+.dak-admin-card .dak-admin-layout{background:transparent}
+
+/* Hak akses per menu — dikelompokkan */
+.dak-permission-grid{display:flex!important;flex-direction:column;gap:12px}
+.dak-perm-group{border:1px solid var(--bk-line,#dfe7f1);border-radius:12px;padding:0 12px 12px;margin:0;min-width:0}
+.dak-perm-group legend{display:flex;align-items:center;gap:10px;padding:0 6px;font-size:12px;font-weight:700;color:var(--bk-muted,#64748b)}
+.dak-perm-all{border:0;background:transparent;color:var(--bk-blue,#1457c5);font-size:12px;font-weight:600;cursor:pointer;padding:2px 4px;border-radius:6px}
+.dak-perm-all:hover{background:rgba(20,87,197,.08)}
+.dak-perm-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.dak-perm-items label{display:flex;align-items:center;gap:8px;min-height:40px}
+
+/* Label KPI netral (merah/jingga hanya untuk makna risiko) */
+.bk-kpi-label,.dak-intel-tile small{color:var(--bk-muted,#64748b)!important}
+
+/* ===== BATCH 2 — hirarki Dashboard ===== */
+.dak-dashboard-hero{min-height:0!important;padding:12px 18px!important;border-radius:16px!important}
+.dak-dashboard-hero .dak-hero-eyebrow,.dak-dashboard-hero p{display:none!important}
+.dak-dashboard-hero h1{font-size:clamp(18px,1.8vw,24px)!important;margin:0!important}
+/* Informasi ganda: Rasio NPL & KKR sudah ada di Indikator utama. */
+.dak-intel-tile.risk,.dak-intel-tile.watch{display:none!important}
+.dak-intel-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+
+.bk-kolstrip{background:var(--bk-surface,#fff);border:1px solid var(--bk-line,#dfe7f1);border-radius:14px;padding:14px 16px}
+.bk-kolstrip[hidden]{display:none}
+.bk-kolstrip-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.bk-kolstrip-head h2{font-size:15px;font-weight:700;color:var(--bk-navy,#0f2a4a);margin:0}
+.bk-kolstrip-head span{font-size:12px;color:var(--bk-muted,#64748b)}
+.bk-kolbar{display:flex;gap:3px;height:34px}
+.bk-kolseg{flex:1 1 0;min-width:6px;border:0;padding:0;border-radius:6px;cursor:pointer;position:relative;
+  background:var(--c);transition:transform .16s var(--ease-out),opacity .16s var(--ease-out),filter .16s}
+.bk-kolseg:active{transform:scale(.97)}
+.bk-kolbar:hover .bk-kolseg:not(:hover){opacity:.55}
+.bk-kolseg:focus-visible{outline:3px solid rgba(20,87,197,.45);outline-offset:2px}
+.bk-kollegend{list-style:none;margin:12px 0 0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.bk-kollegend li{min-width:0}
+.bk-kollegend button{width:100%;text-align:left;background:transparent;border:0;padding:6px 8px;border-radius:8px;cursor:pointer;color:inherit}
+.bk-kollegend button:hover{background:var(--bk-neutral-bg,#eef2f7)}
+.bk-kollegend .k{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--bk-muted,#64748b)}
+.bk-kollegend .k i{width:9px;height:9px;border-radius:3px;background:var(--c);flex:none}
+.bk-kollegend .v{display:block;font-size:15px;font-weight:700;color:var(--bk-navy,#0f2a4a);font-variant-numeric:tabular-nums}
+.bk-kollegend .s{display:block;font-size:11px;color:var(--bk-muted,#64748b);font-variant-numeric:tabular-nums}
+@media(max-width:640px){.bk-kollegend{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Badge Kol seragam di seluruh aplikasi */
+.bk-kol{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;line-height:18px;white-space:nowrap}
+.bk-kol-1{color:var(--kol-1);background:var(--kol-1-bg)} .bk-kol-2{color:var(--kol-2);background:var(--kol-2-bg)}
+.bk-kol-3{color:var(--kol-3);background:var(--kol-3-bg)} .bk-kol-4{color:var(--kol-4);background:var(--kol-4-bg)}
+.bk-kol-5{color:var(--kol-5);background:var(--kol-5-bg)}
+.bk-kolchip{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:6px;background:currentColor}
+.bk-kolchip.bk-kol-2{color:var(--kol-2);background:var(--kol-2)} .bk-kolchip.bk-kol-3{color:var(--kol-3);background:var(--kol-3)} .bk-kolchip.bk-kol-5{color:var(--kol-5);background:var(--kol-5)}
+
+/* Judul panel & tabel padat (Konsentrasi Debitur) */
+.bk-panel-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;
+  background:var(--bk-surface,#fff);border:1px solid var(--bk-line,#dfe7f1);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.bk-panel-title{font-size:18px;font-weight:700;color:var(--bk-navy,#0f2a4a);margin:0}
+.bk-panel-sub{font-size:13px;color:var(--bk-muted,#64748b);margin:4px 0 0;max-width:62ch}
+.bk-panel-stat{display:flex;flex-direction:column;align-items:flex-end}
+.bk-panel-stat-label{font-size:12px;color:var(--bk-muted,#64748b)}
+.bk-panel-stat-value{font-size:clamp(18px,2.2vw,26px);font-weight:700;color:var(--bk-navy,#0f2a4a)}
+.bk-panel-stat-note{font-size:12px;color:var(--bk-muted,#64748b)}
+.bk-tablewrap{background:var(--bk-surface,#fff);border:1px solid var(--bk-line,#dfe7f1);border-radius:14px;overflow:auto}
+.bk-table{width:100%;border-collapse:collapse;font-size:13px}
+.bk-table thead th{position:sticky;top:0;z-index:2;background:var(--bk-surface,#fff);text-align:left;font-size:12px;font-weight:600;
+  color:var(--bk-muted,#64748b);padding:10px 12px;border-bottom:1px solid var(--bk-line,#dfe7f1);white-space:nowrap}
+.bk-table td{padding:10px 12px;border-bottom:1px solid var(--bk-line,#dfe7f1);vertical-align:middle}
+.bk-table .bk-num{text-align:right;white-space:nowrap}
+.bk-table thead th.bk-num{text-align:right}
+.bk-table tbody tr:last-child td{border-bottom:0}
+.bk-row{cursor:pointer}
+.bk-row:hover,.bk-row:focus-visible{background:var(--bk-neutral-bg,#eef2f7);outline:none}
+.bk-row:focus-visible{box-shadow:inset 3px 0 0 var(--bk-blue,#1457c5)}
+.bk-c-rank{width:44px;color:var(--bk-muted,#64748b);font-variant-numeric:tabular-nums}
+.bk-c-kol{width:76px} .bk-c-act{width:84px;text-align:right}
+.bk-c-pareto{min-width:150px;white-space:nowrap}
+.bk-c-cov{width:110px}
+.bk-name{font-weight:600;color:var(--bk-text,#1d2b42)}
+.bk-sub{font-size:11.5px;color:var(--bk-muted,#64748b);font-variant-numeric:tabular-nums}
+.bk-bar{display:inline-block;vertical-align:middle;width:96px;height:6px;border-radius:99px;background:var(--bk-neutral-bg,#eef2f7);overflow:hidden}
+.bk-bar i{display:block;height:100%;background:var(--bk-blue,#1457c5);border-radius:99px}
+.bk-bar-val{display:inline-block;width:38px;text-align:right;margin-left:8px;font-size:12px;font-variant-numeric:tabular-nums;color:var(--bk-muted,#64748b)}
+.bk-good{color:var(--bk-good,#0f8a5f);font-weight:600} .bk-bad{color:var(--bk-bad,#c62839);font-weight:600}
+.bk-btn-ghost{border:1px solid var(--bk-line,#dfe7f1);background:transparent;color:var(--bk-blue,#1457c5);font-weight:600;font-size:12px;
+  padding:5px 12px;border-radius:8px;cursor:pointer;transition:background-color .15s,transform .16s var(--ease-out)}
+.bk-btn-ghost:hover{background:rgba(20,87,197,.07)} .bk-btn-ghost:active{transform:scale(.97)}
+@media(max-width:700px){.bk-c-pareto,.bk-table thead th.bk-c-pareto{display:none}.bk-c-cov{display:none}}
+
+/* ===== BATCH 3 — Penagihan padat ===== */
+.bk-filterbar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;background:var(--bk-surface,#fff);border-bottom:1px solid var(--bk-line,#dfe7f1)}
+.bk-filter{display:inline-flex;align-items:center;gap:10px;min-height:40px;padding:6px 14px;border-radius:10px;cursor:pointer;
+  border:1px solid var(--bk-line,#dfe7f1);background:transparent;color:var(--bk-text,#1d2b42);font-size:13px;font-weight:600;
+  transition:background-color .15s,border-color .15s,transform .16s var(--ease-out)}
+.bk-filter b{font-variant-numeric:tabular-nums;font-size:15px}
+.bk-filter:hover{background:var(--bk-neutral-bg,#eef2f7)} .bk-filter:active{transform:scale(.97)}
+.bk-filter.is-on{border-color:var(--bk-blue,#1457c5);background:rgba(20,87,197,.08);color:var(--bk-blue,#1457c5)}
+.bk-clist{display:flex;flex-direction:column;gap:6px}
+.bk-crow{display:flex;align-items:center;gap:14px;background:var(--bk-surface,#fff);border:1px solid var(--bk-line,#dfe7f1);border-radius:10px;padding:8px 12px 8px 0;overflow:hidden}
+.bk-crow[hidden]{display:none}
+.bk-crow-bar{align-self:stretch;width:4px;flex:none;margin-right:2px;background:var(--kol-3)}
+.bk-bucket-EARLY{background:var(--kol-2)} .bk-bucket-MID{background:var(--kol-3)} .bk-bucket-HARD{background:var(--kol-4)}
+.bk-crow-main{flex:1 1 auto;min-width:0}
+.bk-crow-name{font-weight:600;font-size:14px;color:var(--bk-text,#1d2b42);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-crow-name:hover{color:var(--bk-blue,#1457c5)}
+.bk-crow-amt{text-align:right;flex:none}
+.bk-crow-tgk{font-size:15px;font-weight:700;color:var(--bk-bad,#c62839);font-variant-numeric:tabular-nums}
+.bk-crow-act{flex:none;min-width:76px;min-height:36px;border-radius:9px;border:1px solid var(--bk-line,#dfe7f1);background:transparent;
+  color:var(--bk-text,#1d2b42);font-weight:600;font-size:13px;cursor:pointer;transition:transform .16s var(--ease-out),background-color .15s}
+.bk-crow-act.is-wa{background:#128c4a;border-color:#128c4a;color:#fff}
+.bk-crow-act:active{transform:scale(.97)}
+@media(max-width:640px){.bk-crow{flex-wrap:wrap;padding:8px 12px 8px 0}.bk-crow-amt{text-align:left;order:3;flex:1 1 60%}.bk-crow-act{order:4}}
+
+/* ===== BATCH 3 — Detail debitur sebagai panel samping (HP tetap lembar bawah) ===== */
+@media(min-width:640px){
+  #modalDetail{align-items:stretch!important;justify-content:flex-end!important;padding:0!important}
+  #modalDetail>div{width:min(560px,100vw)!important;max-width:560px!important;height:100dvh!important;max-height:100dvh!important;
+    border-radius:0!important;margin:0!important;animation:bk-drawer-in .22s var(--ease-drawer) both!important}
+}
+@keyframes bk-drawer-in{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+#modalDetail #detailContent{font-size:13px}
+
+/* ===== Gerak: hormati preferensi pengguna ===== */
+@media(prefers-reduced-motion:reduce){
+  #modalDetail>div{animation:none!important}
+  .bk-kolseg,.bk-filter,.bk-btn-ghost,.bk-crow-act{transition:none}
+}
+@media(hover:none){.bk-kolbar:hover .bk-kolseg:not(:hover){opacity:1}}
