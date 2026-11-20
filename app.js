@@ -485,11 +485,11 @@ function updateCard(id, currVal, diffVal, prevVal, invertColor) {
       if (elBadge) {
           if (diffVal !== undefined && diffVal !== null) {
               let isGood = invertColor ? (diffVal <= 0) : (diffVal >= 0);
-              let colorClass = diffVal === 0 ? "text-gray-400 bg-gray-100" : 
+              let colorClass = (diffVal === 0 || invertColor === null) ? "text-slate-500 bg-slate-100 dark:bg-slate-700/40" : 
                               (isGood ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" : "text-red-600 bg-red-50 dark:bg-red-900/20");
               let pct = prevVal ? (diffVal/prevVal)*100 : 0;
               elBadge.innerHTML = `<div class="inline-flex items-center px-2 py-1 rounded text-[10px] font-bold ${colorClass} mt-1 border border-black/5">
-                                    ${diffVal > 0 ? '▲' : '▼'} ${isNoa ? formatNumber(diffVal) : formatRupiah(diffVal)} | ${Math.abs(pct).toFixed(1)}%
+                                    ${diffVal === 0 ? '•' : (diffVal > 0 ? '▲' : '▼')} ${isNoa ? formatNumber(diffVal) : formatRupiah(diffVal)} | ${Math.abs(pct).toFixed(1)}%
                                    </div>`;
               elBadge.classList.remove('hidden');
           } else { elBadge.classList.add('hidden'); }
@@ -1244,12 +1244,13 @@ function renderDashboard(res) {
     });
 
     // B. Update KPI Angka
-    updateCard('v_os', k.total_os, d?.os, d?.prev_os, false);
+    updateCard('v_os', k.total_os, d?.os, d?.prev_os, null);
     updateCard('v_tgk', k.tunggakan, d?.tunggakan, d?.prev_tgk, true); 
-    updateCard('v_noa', k.noa, d?.noa, d?.prev_noa, false);
-    updateCard('v_prod', k.prod_os, d?.prod_os, d?.prev_prod, false);
-    updateCard('v_cons', k.cons_os, d?.cons_os, d?.prev_cons, false);
+    updateCard('v_noa', k.noa, d?.noa, d?.prev_noa, null);
+    updateCard('v_prod', k.prod_os, d?.prod_os, d?.prev_prod, null);
+    updateCard('v_cons', k.cons_os, d?.cons_os, d?.prev_cons, null);
 
+    try { if (window.dakKolStrip) window.dakKolStrip(res); } catch (e) { console.warn('Kol strip:', e); }
     // C. Perekaman Data Cabang (PENTING UNTUK MODAL)
     if(res.branch_perf) {
         app.state.branch_perf = res.branch_perf; // Simpan ke state
@@ -1903,22 +1904,14 @@ function renderSimTable(type) {
     // Header Stats dengan ID untuk Animasi
     var html = `
     <div class="flex flex-col h-full bg-slate-50 dark:bg-slate-900">
-        <div class="grid grid-cols-3 gap-3 p-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 shadow-sm z-10">
-            <div class="text-center p-2 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-100 dark:border-yellow-800/30">
-                <div class="text-[9px] text-yellow-600 dark:text-yellow-400 font-black uppercase tracking-tighter">Early (Kol 2)</div>
-                <div id="coll_stat_early" class="text-2xl font-black text-slate-700 dark:text-slate-100">${res.stats.early}</div>
-            </div>
-            <div class="text-center p-2 rounded-2xl bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/30">
-                <div class="text-[9px] text-orange-600 dark:text-orange-400 font-black uppercase tracking-tighter">Mid (Kol 3)</div>
-                <div id="coll_stat_mid" class="text-2xl font-black text-slate-700 dark:text-slate-100">${res.stats.mid}</div>
-            </div>
-            <div class="text-center p-2 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/30">
-                <div class="text-[9px] text-red-600 dark:text-red-400 font-black uppercase tracking-tighter">Hard (Kol 4-5)</div>
-                <div id="coll_stat_hard" class="text-2xl font-black text-slate-700 dark:text-slate-100">${res.stats.hard}</div>
-            </div>
+        <div class="bk-filterbar" role="group" aria-label="Saring menurut tahap penagihan">
+            <button type="button" class="bk-filter is-all is-on" data-bucket="ALL" onclick="dakCollFilter('ALL')"><span>Semua</span><b>${res.stats.early + res.stats.mid + res.stats.hard}</b></button>
+            <button type="button" class="bk-filter" data-bucket="EARLY" onclick="dakCollFilter('EARLY')"><span><i class="bk-kolchip bk-kol-2"></i>Early · Kol 2</span><b id="coll_stat_early">${res.stats.early}</b></button>
+            <button type="button" class="bk-filter" data-bucket="MID" onclick="dakCollFilter('MID')"><span><i class="bk-kolchip bk-kol-3"></i>Mid · Kol 3</span><b id="coll_stat_mid">${res.stats.mid}</b></button>
+            <button type="button" class="bk-filter" data-bucket="HARD" onclick="dakCollFilter('HARD')"><span><i class="bk-kolchip bk-kol-5"></i>Hard · Kol 4-5</span><b id="coll_stat_hard">${res.stats.hard}</b></button>
         </div>
 
-        <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar" id="collection_list_wrapper">`;
+        <div class="flex-1 overflow-y-auto p-3 md:p-4 custom-scrollbar bk-clist" id="collection_list_wrapper">`;
 
     if(res.list.length === 0) {
         html += `
@@ -1944,41 +1937,21 @@ function renderSimTable(type) {
             var btnIcon = isHpAda ? "fa-whatsapp" : "fa-copy";
             var btnText = isHpAda ? "TAGIH" : "COPY";
 
-            // Tambahkan class 'animate-card' dan delay style dinamis
+            var kolN = Number(r.kol) || 0;
             html += `
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 flex overflow-hidden opacity-0 transform translate-y-4 transition-all duration-500 item-coll-card" 
-                 style="transition-delay: ${idx * 50}ms">
-                <div class="w-2 ${barColor} flex-shrink-0"></div>
-                <div class="p-4 flex-1 flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div class="flex-1 w-full">
-                        <div class="flex items-center gap-2 mb-1">
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${r.bucket}</span>
-                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full ${r.bucket==='HARD'?'bg-red-100 text-red-600':'bg-blue-100 text-blue-600'}">KOL ${r.kol}</span>
-                        </div>
-                        <div class="font-black text-lg text-slate-800 dark:text-slate-100 cursor-pointer hover:text-brand-600 transition-colors"
-                             onclick="window.app.fetchDetail('${r.loan}')">
-                             ${r.nama}
-                        </div>
-                        <div class="text-[10px] text-slate-500 font-medium flex gap-2">
-                             <span>PK: ${r.pk}</span>
-                             <span class="opacity-30">|</span>
-                             <span>JT: ${tglJtSafe}</span>
-                        </div>
-                    </div>
-
-                    <div class="text-right w-full md:w-auto border-t md:border-t-0 border-slate-100 dark:border-slate-700 pt-3 md:pt-0">
-                        <div class="text-[9px] text-slate-400 font-black uppercase tracking-tighter">Tagihan (C2C)</div>
-                        <div class="text-xl font-black font-mono text-red-600 dark:text-red-400">${fmtIDR(r.tgk)}</div>
-                        <div class="text-[10px] text-slate-400 font-bold">OS: ${fmtIDR(r.os)}</div>
-                    </div>
-
-                    <div class="flex gap-2 w-full md:w-auto">
-<button onclick="window.app.actionWA('${namaSafe}', '${hp}', '${r.pk}', ${r.tgk}, ${r.os}, '${tglJtSafe}')" 
-    class="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl transition-all font-black text-[10px] active:scale-90 ${btnClass}">
-    <i class="fab ${btnIcon} text-base"></i> ${btnText}
-</button>
-                    </div>
+            <div class="bk-crow" data-bucket="${r.bucket}">
+                <span class="bk-crow-bar bk-bucket-${r.bucket}"></span>
+                <div class="bk-crow-main">
+                    <div class="bk-crow-name" tabindex="0" onclick="window.app.fetchDetail('${r.loan}')" onkeydown="if(event.key==='Enter'){window.app.fetchDetail('${r.loan}')}">${r.nama}</div>
+                    <div class="bk-sub"><span class="bk-kol bk-kol-${kolN}">Kol ${r.kol}</span> PK: ${r.pk || '-'} · JT: ${tglJtSafe}</div>
                 </div>
+                <div class="bk-crow-amt">
+                    <div class="bk-crow-tgk">${fmtIDR(r.tgk)}</div>
+                    <div class="bk-sub">Tunggakan · OS ${fmtIDR(r.os)}</div>
+                </div>
+                <button onclick="window.app.actionWA('${namaSafe}', '${hp}', '${r.pk}', ${r.tgk}, ${r.os}, '${tglJtSafe}')" class="bk-crow-act ${isHpAda ? 'is-wa' : ''}" type="button">
+                    <i class="fab ${btnIcon}"></i> ${isHpAda ? 'Tagih' : 'Salin'}
+                </button>
             </div>`;
         });
     }
@@ -2396,93 +2369,49 @@ function renderCKPNRow(r, totalCKPN) {
     const oldTotal = clean(document.getElementById('v_top_total_os')?.innerText) || 0;
 
     // Header Insight
+    var portTotal = Number(window.app && app.state && app.state.data && app.state.data.kpi && app.state.data.kpi.total_os) || 0;
     var headerHtml = `
-    <div class="bg-slate-900 text-white p-6 rounded-xl shadow-2xl relative overflow-hidden mb-6">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-yellow-500 rounded-full mix-blend-overlay filter blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2"></div>
-        <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-            <div>
-                <h2 class="text-2xl font-bold font-serif text-yellow-500"><i class="fas fa-crown mr-2"></i>Top 25 Obligor (Pareto)</h2>
-                <p class="text-slate-400 text-sm mt-1">Daftar debitur dengan eksposur kredit terbesar. Memerlukan pemantauan intensif.</p>
-            </div>
-            <div class="text-right border-l border-slate-700 pl-6">
-                <div class="text-xs text-slate-400 uppercase tracking-widest">Total Exposure</div>
-                <div id="v_top_total_os" class="text-3xl font-mono font-bold text-white mt-1">${fmtIDR(totalTopOS)}</div>
-                <div class="text-xs text-yellow-500 mt-1 italic">*Mewakili konsentrasi risiko tertinggi</div>
-            </div>
+    <div class="bk-panel-head">
+        <div>
+            <h2 class="bk-panel-title">Top 25 Obligor</h2>
+            <p class="bk-panel-sub">Debitur dengan baki debet terbesar. Batang menunjukkan porsi kumulatif terhadap total ${res.length} debitur teratas${portTotal ? ' dan porsi terhadap seluruh portofolio' : ''}.</p>
+        </div>
+        <div class="bk-panel-stat">
+            <span class="bk-panel-stat-label">Total eksposur</span>
+            <span id="v_top_total_os" class="bk-panel-stat-value">${fmtIDR(totalTopOS)}</span>
+            ${portTotal ? `<span class="bk-panel-stat-note">${(totalTopOS / portTotal * 100).toFixed(1)}% dari portofolio</span>` : ''}
         </div>
     </div>`;
 
-    var listHtml = '<div class="grid grid-cols-1 gap-4">';
-
+    var cum = 0;
+    var listHtml = '<div class="bk-tablewrap"><table class="bk-table bk-no-enhance"><thead><tr><th class="bk-c-rank">#</th><th>Debitur</th><th class="bk-num">Baki debet</th><th class="bk-c-kol">Kol</th><th class="bk-c-pareto">Porsi kumulatif</th><th class="bk-c-cov">Agunan</th><th class="bk-c-act"><span class="sr-only">Aksi</span></th></tr></thead><tbody>';
     res.forEach((r, index) => {
-        var coverage = r.agunan ? (r.agunan / r.os * 100) : (Math.random() * (150 - 80) + 80);
-        var isRisky = coverage < 100;
-        var rankColor = index < 3 ? 'text-yellow-500' : 'text-slate-400';
-        var rankIcon = index < 3 ? 'fa-trophy' : 'fa-certificate';
-        
-        // Buat ID unik untuk setiap baris baki debet: v_top_os_0, v_top_os_1, dst.
-        listHtml += `
-        <div class="bg-white dark:bg-slate-800 rounded-lg p-5 border-l-4 ${isRisky ? 'border-red-500' : 'border-emerald-500'} shadow-sm hover:shadow-md transition group relative overflow-hidden">
-            <div class="absolute right-0 top-0 text-9xl font-bold text-slate-100 dark:text-slate-700 opacity-50 -mt-4 -mr-4 pointer-events-none z-0">${index + 1}</div>
-            <div class="relative z-10 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                <div class="flex items-start gap-4 flex-1">
-                    <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center shrink-0">
-                        <i class="fas ${rankIcon} ${rankColor} text-xl"></i>
-                    </div>
-                    <div>
-                        <div class="font-bold text-lg text-slate-800 dark:text-white cursor-pointer hover:text-blue-600 underline-offset-2 hover:underline"
-                             onclick="app.fetchDetail('${r.loan}')">
-                             ${r.nama}
-                        </div>
-                        <div class="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                            <span class="bg-slate-200 px-2 py-0.5 rounded text-slate-700 font-mono">${r.loan}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex-1 w-full md:text-right space-y-2">
-                    <div class="flex justify-between md:justify-end items-baseline gap-4">
-                        <span class="text-xs text-slate-400 uppercase">Baki Debet</span>
-                        <span id="v_top_os_${index}" class="font-bold font-mono text-xl text-slate-800 dark:text-slate-200">${fmtIDR(r.os)}</span>
-                    </div>
-                    <div class="flex justify-between md:justify-end items-center gap-4">
-                        <span class="text-xs text-slate-400 uppercase">Kolektibilitas</span>
-                        <span class="px-3 py-1 rounded-full text-xs font-bold ${r.kol > 2 ? 'bg-red-100 text-red-700' : (r.kol==2 ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700')}">
-                            Kol ${r.kol}
-                        </span>
-                    </div>
-                </div>
-
-                <div class="w-full md:w-48 bg-slate-50 dark:bg-slate-700/50 p-3 rounded-lg border border-slate-200 dark:border-slate-600">
-                     <div class="flex justify-between text-[10px] text-slate-500 mb-1">
-                        <span>Agunan Coverage</span>
-                        <span class="${isRisky ? 'text-red-500 font-bold' : 'text-emerald-500'}">${coverage.toFixed(0)}%</span>
-                     </div>
-                     <div class="w-full bg-slate-200 rounded-full h-1.5 mb-3">
-                        <div class="${isRisky ? 'bg-red-500' : 'bg-emerald-500'} h-1.5 rounded-full" style="width: ${Math.min(coverage, 100)}%"></div>
-                     </div>
-                     <button onclick="app.fetchDetail('${r.loan}')" class="w-full text-xs bg-slate-800 hover:bg-slate-900 text-white py-1.5 rounded transition shadow">
-                        <i class="fas fa-file-invoice-dollar mr-1"></i> Detail
-                     </button>
-                </div>
-            </div>
-        </div>`;
+        cum += Number(r.os) || 0;
+        var cumPct = totalTopOS > 0 ? cum / totalTopOS * 100 : 0;
+        var share = portTotal > 0 ? (Number(r.os) / portTotal * 100) : null;
+        // Cakupan agunan hanya tampil bila datanya memang ada. Tidak ada angka karangan.
+        var hasCov = r.agunan && r.os > 0;
+        var coverage = hasCov ? (r.agunan / r.os * 100) : null;
+        var risky = hasCov && coverage < 100;
+        var kolCls = 'bk-kol bk-kol-' + (Number(r.kol) || 0);
+        listHtml += `<tr class="bk-row" tabindex="0" onclick="app.fetchDetail('${r.loan}')" onkeydown="if(event.key==='Enter'){app.fetchDetail('${r.loan}')}">
+            <td class="bk-c-rank">${index + 1}</td>
+            <td><div class="bk-name">${r.nama}</div><div class="bk-sub">${r.loan}</div></td>
+            <td class="bk-num"><span id="v_top_os_${index}">${fmtIDR(r.os)}</span>${share !== null ? `<div class="bk-sub">${share.toFixed(2)}% portofolio</div>` : ''}</td>
+            <td class="bk-c-kol"><span class="${kolCls}">Kol ${r.kol}</span></td>
+            <td class="bk-c-pareto"><div class="bk-bar" role="img" aria-label="Kumulatif ${cumPct.toFixed(0)} persen"><i style="width:${cumPct.toFixed(1)}%"></i></div><span class="bk-bar-val">${cumPct.toFixed(0)}%</span></td>
+            <td class="bk-c-cov">${hasCov ? `<span class="${risky ? 'bk-bad' : 'bk-good'}">${coverage.toFixed(0)}%</span>` : '<span class="bk-sub">Tidak ada data</span>'}</td>
+            <td class="bk-c-act"><button type="button" class="bk-btn-ghost" onclick="event.stopPropagation();app.fetchDetail('${r.loan}')">Detail</button></td>
+        </tr>`;
     });
-
-    listHtml += '</div>';
+    listHtml += '</tbody></table></div>';
     container.innerHTML = headerHtml + listHtml;
 
     // --- EKSEKUSI ANIMASI SETELAH RENDER ---
     // 1. Animasi Header Total
     animateValue('v_top_total_os', oldTotal, totalTopOS, 1000, true);
 
-    // 2. Animasi Per Baris (Staggered Effect)
-    res.forEach((r, index) => {
-        // Beri sedikit delay antar baris agar terlihat mewah (cascade effect)
-        setTimeout(() => {
-            animateValue(`v_top_os_${index}`, 0, r.os, 800, true);
-        }, index * 50); 
-    });
+    // Baris tidak dianimasikan: tabel dibaca berulang, angka langsung terlihat.
       unlockMenu();
 }
 
@@ -10128,7 +10057,7 @@ window.dakOpenTelegramConfig = function() {
 
   function loadDiagnostics(){const status=$("dak-tg-diagnostics-status"),list=$("dak-tg-bot-diagnostics");if(status)status.textContent='Memeriksa webhook, antrean, dan konfigurasi…';window.google.script.run.withSuccessHandler(r=>{if(!wrap.isConnected)return;const x=r||{},m=x.summary||{};$('dak-tg-stat-config').textContent=Number(m.activeConfigurations||0);$('dak-tg-stat-bots').textContent=Number(m.bots||0);$('dak-tg-stat-pending').textContent=Number(m.pendingRegistrations||0);$('dak-tg-stat-updates').textContent=Number(m.pendingUpdates||0);const errors=Number(m.webhookErrors||0);status.textContent=errors?'Perlu perhatian: '+errors+' bot memiliki error atau gagal diperiksa.':'Pemeriksaan selesai. Tidak ada error webhook yang dilaporkan.';status.className='dak-tg-diagnostics-status '+(errors?'is-warning':'is-ok');list.innerHTML=(x.bots||[]).map(b=>{const w=b.webhook||{};const ok=!b.error&&!!w.active&&!w.lastErrorMessage;return `<article class="dak-tg-bot-health"><b>${esc(b.label||'Bot Telegram')}</b><span class="${ok?'ok':'warn'}">${ok?'Webhook aktif':b.error?'Gagal diperiksa':w.lastErrorMessage?'Ada error webhook':'Webhook belum aktif'}</span><small>${esc(w.url||b.error||'URL webhook belum tersedia')}</small><small>Antrean: ${Number(w.pending||0)}${w.lastErrorMessage?' · '+esc(w.lastErrorMessage):''}</small></article>`;}).join('')||'<small>Belum ada bot aktif yang dapat diperiksa.</small>';}).withFailureHandler(e=>{if(status)status.textContent='Diagnosis gagal: '+(e.message||e);}).telegramAdminGetDiagnostics();}
   $('dak-tg-diagnostics-refresh').onclick=loadDiagnostics;
-  function loadCleanupDiagnostics(){const status=$('dak-tg-cleanup-status');if(status)status.textContent='Memeriksa registry sesi dan hasil penghapusan…';window.google.script.run.withSuccessHandler(r=>{if(!wrap.isConnected)return;const x=r||{};$('dak-tg-cleanup-sessions').textContent=Number(x.activeSessions||0);$('dak-tg-cleanup-tracked').textContent=Number(x.trackedMessages||0);$('dak-tg-cleanup-deleted').textContent=Number(x.deleted||0);$('dak-tg-cleanup-failed').textContent=Number(x.failed||0);$('dak-tg-cleanup-last').textContent='Pemeriksaan: '+(x.checkedAt||'-')+' · Retensi '+Number(x.policy&&x.policy.retentionHours||48)+' jam · Maksimal '+Number(x.policy&&x.policy.maxTrackedPerSession||40)+' pesan/sesi';status.textContent=Number(x.failed||0)>0?'Ada kegagalan penghapusan tercatat. Lihat Failure Inspector di bawah.':'Diagnostik selesai. Tidak ada kegagalan penghapusan yang tercatat.';status.className='dak-tg-diagnostics-status '+(Number(x.failed||0)>0?'is-warning':'is-ok');const box=$('dak-tg-cleanup-failure-list'),items=Array.isArray(x.recentFailures)?x.recentFailures:[];if(box)box.innerHTML=items.length?items.map(f=>{const labels={NOT_FOUND:'Pesan sudah tidak ditemukan',TOO_OLD_OR_UNDELETABLE:'Pesan terlalu lama atau tidak dapat dihapus',MISSING_DELETE_PERMISSION:'Bot tidak memiliki izin menghapus pesan',INVALID_MESSAGE_ID:'ID pesan tidak valid',CHAT_NOT_FOUND:'Chat tidak ditemukan',TELEGRAM_API_ERROR:'Telegram API menolak penghapusan'};return `<article class="dak-tg-cleanup-failure"><div><b>${esc(labels[f.code]||f.code||'Gagal menghapus')}</b><small>${esc(f.at||'')} · ${esc(f.kind||'pesan')} · Chat ${esc(f.chatId||'-')} · User ${esc(f.userId||'-')}</small></div><p>${esc(f.reason||'Alasan tidak tersedia')}</p><small>Message ID: ${esc(f.messageId||'-')} · Topic: ${esc(f.topicId||'-')}</small></article>`;}).join(''):'<small>Tidak ada rincian kegagalan yang tercatat sejak Failure Inspector dipasang.</small>';}).withFailureHandler(e=>{if(status)status.textContent='Diagnostik cleanup gagal: '+(e.message||e);}).telegramAdminGetCleanupDiagnostics();}
+  function loadCleanupDiagnostics(){const status=$('dak-tg-cleanup-status');if(status)status.textContent='Memeriksa registry sesi dan hasil penghapusan…';window.google.script.run.withSuccessHandler(r=>{if(!wrap.isConnected)return;const x=r||{};$('dak-tg-cleanup-sessions').textContent=Number(x.activeSessions||0);$('dak-tg-cleanup-tracked').textContent=Number(x.trackedMessages||0);$('dak-tg-cleanup-deleted').textContent=Number(x.deleted||0);$('dak-tg-cleanup-failed').textContent=Number(x.failed||0);$('dak-tg-cleanup-last').textContent='Pemeriksaan: '+(window.dakFmtTime?window.dakFmtTime(x.checkedAt):(x.checkedAt||'-'))+' · Retensi '+Number(x.policy&&x.policy.retentionHours||48)+' jam · Maksimal '+Number(x.policy&&x.policy.maxTrackedPerSession||40)+' pesan/sesi';status.textContent=Number(x.failed||0)>0?'Ada kegagalan penghapusan tercatat. Lihat Failure Inspector di bawah.':'Diagnostik selesai. Tidak ada kegagalan penghapusan yang tercatat.';status.className='dak-tg-diagnostics-status '+(Number(x.failed||0)>0?'is-warning':'is-ok');const box=$('dak-tg-cleanup-failure-list'),items=Array.isArray(x.recentFailures)?x.recentFailures:[];if(box)box.innerHTML=items.length?items.map(f=>{const labels={NOT_FOUND:'Pesan sudah tidak ditemukan',TOO_OLD_OR_UNDELETABLE:'Pesan terlalu lama atau tidak dapat dihapus',MISSING_DELETE_PERMISSION:'Bot tidak memiliki izin menghapus pesan',INVALID_MESSAGE_ID:'ID pesan tidak valid',CHAT_NOT_FOUND:'Chat tidak ditemukan',TELEGRAM_API_ERROR:'Telegram API menolak penghapusan'};return `<article class="dak-tg-cleanup-failure"><div><b>${esc(labels[f.code]||f.code||'Gagal menghapus')}</b><small>${esc(f.at||'')} · ${esc(f.kind||'pesan')} · Chat ${esc(f.chatId||'-')} · User ${esc(f.userId||'-')}</small></div><p>${esc(f.reason||'Alasan tidak tersedia')}</p><small>Message ID: ${esc(f.messageId||'-')} · Topic: ${esc(f.topicId||'-')}</small></article>`;}).join(''):'<small>Tidak ada rincian kegagalan yang tercatat sejak Failure Inspector dipasang.</small>';}).withFailureHandler(e=>{if(status)status.textContent='Diagnostik cleanup gagal: '+(e.message||e);}).telegramAdminGetCleanupDiagnostics();}
   $('dak-tg-cleanup-refresh').onclick=loadCleanupDiagnostics;
   async function reload(){loadDiagnostics();loadCleanupDiagnostics();loadPending();loadPersonalUsers();window.google.script.run.withSuccessHandler(r=>{if(!wrap.isConnected)return;configs=r||[];renderList();}).withFailureHandler(e=>message(e.message,true)).telegramAdminListConfigs();window.google.script.run.withSuccessHandler(r=>{if(!wrap.isConnected)return;branches=r||[];$('dak-tg-branches').innerHTML=branches.map(b=>`<label><input type="checkbox" data-tg-branch="${esc(b)}"><span>${esc(b)}</span></label>`).join('')||'<span>Daftar cabang tidak tersedia.</span>';}).withFailureHandler(()=>{$('dak-tg-branches').textContent='Daftar cabang belum dapat dimuat.';}).adminListBranches();window.google.script.run.withSuccessHandler(r=>{if(!wrap.isConnected)return;$('dak-tg-logs').innerHTML=(r||[]).slice(0,20).map(x=>`<div class="dak-tg-log"><b>${esc(x.action||'')}</b> · ${esc(x.status||'')}<small>${esc(x.name||x.fileName||x.configId||'')}<br>${esc(x.at||'')}<br>${esc(x.branch||'')} ${esc(x.detail||'')}</small></div>`).join('')||'Belum ada riwayat.';}).withFailureHandler(()=>{$('dak-tg-logs').textContent='Riwayat belum dapat dimuat.';}).telegramAdminListLogs();}
   $('dak-tg-close').onclick=()=>wrap.remove();wrap.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();wrap.remove();}});$('dak-tg-new').onclick=reset;$('dak-tg-delete').onclick=async()=>{const id=$('dak-tg-id').value;if(!id){message('Pilih konfigurasi yang akan dihapus.',true);return;}if(!await dakConfirm('Hapus konfigurasi Telegram ini?'))return;window.google.script.run.withSuccessHandler(()=>{message('Konfigurasi dihapus.');reset();reload();}).withFailureHandler(err=>message(err.message,true)).telegramAdminDeleteConfig(id);};
@@ -10155,7 +10084,7 @@ window.dakOpenAdmin = function(){
  if(window.matchMedia('(max-width: 1023px), (hover: none) and (pointer: coarse)').matches) window.app?.toggleSidebar(true);
  const old=document.getElementById('dak-admin-modal');if(old)old.remove();const wrap=document.createElement('div');wrap.id='dak-admin-modal';wrap.className='dak-admin-backdrop';wrap.innerHTML=`<section class="dak-admin-card"><header><div><span class="text-xs font-black text-blue-600 uppercase">Kontrol akses</span><h2>Pengaturan Administrator</h2><p>Atur pengguna, menu yang terlihat, dan izin upload.</p></div><button id="dak-admin-close" aria-label="Tutup">×</button></header><div class="dak-admin-layout"><aside id="dak-user-list"><p>Memuat pengguna…</p></aside><form id="dak-user-form"><div class="dak-admin-fields"><label>Username<input id="dak-u-username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+"></label><label>Nama tampilan<input id="dak-u-name" required maxlength="100"></label><label>Password baru <small>(kosongkan saat mengedit agar tidak berubah)</small><input id="dak-u-password" type="password" minlength="10" autocomplete="new-password"></label><label class="dak-active-label"><input id="dak-u-active" type="checkbox" checked> Akun aktif</label></div><h3>Jangkauan cabang</h3><div class="dak-branch-scope"><label><input type="radio" name="dak-branch-scope" value="all" checked> Seluruh cabang</label><label><input type="radio" name="dak-branch-scope" value="selected"> Cabang tertentu</label></div><div id="dak-branch-grid" class="dak-branch-grid"><span class="dak-muted">Memuat daftar cabang…</span></div><h3>Hak akses per menu</h3><div id="dak-permission-grid" class="dak-permission-grid"></div><div class="dak-admin-actions"><button type="button" id="dak-user-new" class="secondary">Pengguna baru</button><button type="submit" class="primary">Simpan pengguna</button></div><div id="dak-admin-message" role="status"></div></form></div></section>`;document.body.appendChild(wrap);
  const menuLabels={dashboard:'Dashboard',journey:'Data Center · Riwayat Debitur',archive:'Data Center · Arsip Kredit',report:'Cetak Laporan',map:'Peta Sebaran NPL',nplall:'NPL Center · Total',nplkur:'NPL Center · KUR',nplkonsumtif:'NPL Center · Konsumtif',nplprod:'NPL Center · Produktif',collection:'Operasional · Penagihan',watchlist:'Operasional · Early Warning',freshdrop:'Operasional · Perubahan Kualitas',maturity:'Operasional · Jatuh Tempo',writeoff:'Operasional · Hapus Buku',top:'Executive · Konsentrasi Debitur',risk:'Executive · Peta Risiko',vintage:'Executive · Kualitas Vintage',stress:'Executive · Simulasi Risiko',ckpn:'Executive · Proyeksi CKPN',kredit:'Data Center · Master Kredit',mutasi:'Data Center · Mutasi Kredit',upload:'Upload Data'};
- const grid=document.getElementById('dak-permission-grid');const branchGrid=document.getElementById('dak-branch-grid');let availableBranches=[];window.google.script.run.withSuccessHandler(list=>{availableBranches=list||[];branchGrid.innerHTML=availableBranches.map(b=>`<label><input type="checkbox" data-branch="${String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><span>${String(b).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span></label>`).join('')||'<span class="dak-muted">Tidak ada daftar cabang pada snapshot terbaru.</span>';if(selected)formUser(selected);}).withFailureHandler(()=>{branchGrid.innerHTML='<span class="dak-muted">Daftar cabang belum dapat dimuat.</span>';}).adminListBranches();Object.entries(menuLabels).forEach(([k,v])=>{grid.insertAdjacentHTML('beforeend',`<label><input type="checkbox" data-permission="${k}" checked> <span>${v}</span></label>`)});
+ const grid=document.getElementById('dak-permission-grid');const branchGrid=document.getElementById('dak-branch-grid');let availableBranches=[];window.google.script.run.withSuccessHandler(list=>{availableBranches=list||[];branchGrid.innerHTML=availableBranches.map(b=>`<label><input type="checkbox" data-branch="${String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><span>${String(b).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span></label>`).join('')||'<span class="dak-muted">Tidak ada daftar cabang pada snapshot terbaru.</span>';if(selected)formUser(selected);}).withFailureHandler(()=>{branchGrid.innerHTML='<span class="dak-muted">Daftar cabang belum dapat dimuat.</span>';}).adminListBranches();(function(){const groups={};Object.entries(menuLabels).forEach(([k,v])=>{const p=v.split(' · ');const g=p.length>1?p[0]:'Umum';(groups[g]=groups[g]||[]).push([k,p.length>1?p.slice(1).join(' · '):v]);});Object.entries(groups).forEach(([g,items],gi)=>{const id='dak-pg-'+gi;grid.insertAdjacentHTML('beforeend',`<fieldset class="dak-perm-group"><legend><span>${g}</span><button type="button" class="dak-perm-all" data-group="${id}">Pilih semua</button></legend><div id="${id}" class="dak-perm-items">${items.map(([k,v])=>`<label><input type="checkbox" data-permission="${k}" checked> <span>${v}</span></label>`).join('')}</div></fieldset>`);});grid.querySelectorAll('.dak-perm-all').forEach(b=>b.addEventListener('click',()=>{const boxes=grid.querySelectorAll('#'+b.dataset.group+' input');const all=Array.from(boxes).every(x=>x.checked);boxes.forEach(x=>x.checked=!all);b.textContent=all?'Pilih semua':'Kosongkan';}));})();
  let users=[],selected=null;const list=document.getElementById('dak-user-list');function formUser(u){selected=u||null;document.getElementById('dak-u-username').value=u?u.username:'';document.getElementById('dak-u-username').readOnly=!!u;document.getElementById('dak-u-name').value=u?u.name:'';document.getElementById('dak-u-password').value='';document.getElementById('dak-u-active').checked=u?u.active:true;document.querySelectorAll('[name="dak-branch-scope"]').forEach(r=>r.checked=(u?u.branchScope||'all':'all')===r.value);branchGrid.querySelectorAll('[data-branch]').forEach(c=>c.checked=!!(u&&u.branches&&u.branches.includes(c.dataset.branch)));branchGrid.classList.toggle('is-disabled',(u?u.branchScope||'all':'all')==='all');grid.querySelectorAll('[data-permission]').forEach(c=>c.checked?c.checked=!u||!!(u.permissions&&u.permissions[c.dataset.permission]):c.checked=!!(u&&u.permissions&&u.permissions[c.dataset.permission]));document.getElementById('dak-admin-message').textContent='';}
  function renderList(){list.innerHTML='<h3>Daftar pengguna</h3>'+users.map(u=>`<button type="button" data-user="${u.username.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" class="dak-user-item ${selected&&selected.username===u.username?'selected':''}"><strong>${u.name}</strong><small>@${u.username} · ${u.role==='admin'?'Administrator':u.active?'Aktif':'Nonaktif'}</small></button>`).join('');list.querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>{formUser(users.find(u=>u.username===b.dataset.user));renderList();});}
  function load(){window.google.script.run.withSuccessHandler(r=>{users=r||[];renderList();if(!selected)formUser(null);}).withFailureHandler(e=>{list.textContent=e.message;}) .adminListUsers();}
