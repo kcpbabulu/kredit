@@ -1249,6 +1249,7 @@ function renderDashboard(res) {
     updateCard('v_noa', k.noa, d?.noa, d?.prev_noa, null);
     updateCard('v_prod', k.prod_os, d?.prod_os, d?.prev_prod, null);
     updateCard('v_cons', k.cons_os, d?.cons_os, d?.prev_cons, null);
+    if (window.dakNoa) { dakNoa('v_prod', k.prod_noa); dakNoa('v_cons', k.cons_noa); }
 
     try { if (window.dakKolStrip) window.dakKolStrip(res); } catch (e) { console.warn('Kol strip:', e); }
     // C. Perekaman Data Cabang (PENTING UNTUK MODAL)
@@ -1571,21 +1572,25 @@ function renderSimTable(type) {
             
             // Kartu 4: Total KKR KUR
             updateCard('k_kur_kkr', c.kur_kkr, d.kur_kkr, d.prev_kur_kkr, true);
+            if (window.dakNoa) { dakNoa('k_mikro', c.mikro_noa); dakNoa('k_kecil', c.kecil_noa); dakNoa('k_kur_npl', c.kur_npl_noa); dakNoa('k_kur_kkr', c.kur_kkr_noa); }
         } 
         else if(type === 'ALL') { 
             updateCard('k_all_tot', c.total_os, d.os, d.prev_os, false); 
             updateCard('k_all_npl', c.npl_os, d.npl_os, d.prev_npl, true);
             updateCard('k_all_kkr', c.kkr_os, d.kkr, d.prev_kkr, true);
+            if (window.dakNoa) { dakNoa('k_all_tot', c.noa); dakNoa('k_all_npl', c.npl_noa); dakNoa('k_all_kkr', c.kkr_noa); }
         } 
         else if(type === 'Kons') {
             updateCard('k_kons_tot', c.cons_os, d.cons_os, d.prev_cons, false); 
             updateCard('k_kons_npl', c.cons_npl, d.cons_npl, d.prev_cons_npl, true);
             updateCard('k_kons_kkr', c.cons_kkr, d.cons_kkr, d.prev_cons_kkr, true);
+            if (window.dakNoa) { dakNoa('k_kons_tot', c.cons_noa); dakNoa('k_kons_npl', c.cons_npl_noa); dakNoa('k_kons_kkr', c.cons_kkr_noa); }
         }
         else if(type === 'Prod') {
             updateCard('k_prod_tot', c.prod_os, d.prod_os, d.prev_prod, false); 
             updateCard('k_prod_npl', c.prod_npl, d.prod_npl, d.prev_prod_npl, true);
             updateCard('k_prod_kkr', c.prod_kkr, d.prod_kkr, d.prev_prod_kkr, true);
+            if (window.dakNoa) { dakNoa('k_prod_tot', c.prod_noa); dakNoa('k_prod_npl', c.prod_npl_noa); dakNoa('k_prod_kkr', c.prod_kkr_noa); }
         }
 
         // E. Update Ratio Header
@@ -3059,6 +3064,7 @@ function renderMutasiPage(res) {
         </div>
     </div>`;
 
+    if (window.dakMutasiSeg) window.dakMutasiSeg(res, renderMutasiList);
     // --- TRIGGER ANIMASI ---
     animateValue('m_val_cair', oldCair, res.summary.booking_amt, 800, true);
     animateValue('m_val_lunas', oldLunas, res.summary.repayment_amt, 800, true);
