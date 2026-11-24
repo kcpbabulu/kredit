@@ -312,3 +312,104 @@ html.dark table.dak-sticky-c1:not(.bk-cards) thead th:first-child,
 html.dark table.dak-sticky-c2:not(.bk-cards) thead th:nth-child(2) {
   background-color: #0f172a;
 }
+
+/* =====================================================================
+   v1594 — Mobile UX & Layout Hardening (HP <= 767px)
+   ===================================================================== */
+@media (max-width: 767px) {
+  /* 1. Fix lembar filter HP (#bk-filterwrap) agar tidak terjepit height:32px dari style.css */
+  main > div:first-child > header > div#bk-filterwrap {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: 82dvh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 8px 16px calc(18px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  main > div:first-child > header > div#bk-filterwrap > div:not(.bk-sheet-head) {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  main > div:first-child > header > div#bk-filterwrap select {
+    flex: none !important;
+    width: 100% !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    padding: 0 14px !important;
+    font-size: 15px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* 2. Perapihan header HP & perbesar tombol logout ke 40x40px (ramah sentuh) */
+  main > div:first-child > header > div:first-child {
+    padding: 0 48px 0 0 !important;
+    min-height: 44px !important;
+  }
+  #dak-session-toolbar.dak-session-toolbar {
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    right: 8px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-width: 40px !important;
+    border-radius: 12px !important;
+  }
+  #dak-session-toolbar button {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    border-radius: 12px !important;
+  }
+  #dak-session-toolbar button i {
+    font-size: 14px !important;
+  }
+
+  /* 3. Hapus double bottom padding agar ruang baca HP lebih lega */
+  main {
+    padding-bottom: 0 !important;
+  }
+  main .mobile-scroll,
+  #bk-scroll {
+    padding-bottom: calc(86px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+  .tab-view {
+    padding-bottom: 16px !important;
+  }
+
+  /* 4. Pratinjau laporan A4 (#view-report) nyaman digeser di layar HP */
+  #view-report .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    position: relative;
+  }
+  #view-report .overflow-x-auto::before {
+    content: "← Geser ke samping untuk melihat seluruh kertas A4 →";
+    display: block;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.08);
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    border-radius: 10px;
+    padding: 6px 10px;
+    margin-bottom: 10px;
+  }
+  html.dark #view-report .overflow-x-auto::before {
+    color: #93c5fd;
+    background: rgba(37, 99, 235, 0.18);
+    border-color: rgba(96, 165, 250, 0.28);
+  }
+}
+
+/* 5. Pada HP kecil (<= 420px), panel grafik & tabel besar tetap 1 kolom penuh (tidak terjepit 2 kolom) */
+@media (max-width: 420px) {
+  .tab-view .grid.grid-cols-1,
+  .tab-view .grid[class*="lg:grid-cols-2"],
+  .tab-view .grid[class*="lg:grid-cols-12"],
+  .tab-view .grid[class*="xl:grid-cols-2"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
