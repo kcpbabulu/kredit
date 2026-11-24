@@ -310,7 +310,7 @@ function renderMapPage(res) {
                     <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md shadow-inner text-lg group-hover:scale-110 transition-transform"><i class="fas fa-map-marked-alt"></i></div>
                     <div>
                         <h3 class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Sebaran Wilayah</h3>
-                        <div class="text-[9px] text-emerald-100 mt-0.5 font-bold tracking-widest">Pilih Titik Kordinat</div>
+                        <div class="text-[10px] text-emerald-100 mt-0.5 font-bold tracking-widest">Pilih Titik Kordinat</div>
                     </div>
                 </div>
                 <div class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center md:hidden transition-transform duration-300" id="map-chevron">
@@ -340,7 +340,7 @@ function renderMapPage(res) {
                             </div>
                             <div class="text-right flex flex-col items-end">
                                 <div class="text-xs font-black px-3 py-1 rounded-full shadow-inner ${badgeTheme}">${reg.npl_pct.toFixed(2)}%</div>
-                                <div class="text-[8px] font-bold uppercase tracking-widest mt-1 opacity-60 text-slate-600">Ratio</div>
+                                <div class="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60 text-slate-600">Ratio</div>
                             </div>
                         </div>
                     </div>`;
@@ -423,10 +423,10 @@ function initLeafletMap(points) {
 
         var content = `
             <div class="p-3 min-w-[200px] font-sans bg-white/50 backdrop-blur-md rounded-xl">
-                <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1"><i class="fas fa-map-pin text-emerald-500 mr-1"></i> ${p.area}</div>
+                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1"><i class="fas fa-map-pin text-emerald-500 mr-1"></i> ${p.area}</div>
                 <div class="font-black text-slate-800 text-sm leading-tight mb-3">${p.nama}</div>
                 <div class="flex justify-between items-center bg-red-500/10 p-2.5 rounded-lg border border-red-500/20">
-                    <span class="text-[9px] font-bold text-red-600 uppercase tracking-wider">Outstanding</span>
+                    <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Outstanding</span>
                     <span class="font-black font-mono text-red-700 text-xs">Rp ${new Intl.NumberFormat('id-ID').format(p.os)}</span>
                 </div>
             </div>`;
@@ -1084,7 +1084,7 @@ window.renderStressRow = function(r, i, base) {
             <div class="text-[10px] text-slate-400 font-mono font-bold">${fmt(r.os)}</div>
         </td>
         <td class="p-4 w-1/2 align-middle">
-            <div class="flex justify-between text-[9px] mb-2 font-black uppercase tracking-tighter">
+            <div class="flex justify-between text-[10px] mb-2 font-black uppercase tracking-tighter">
                 <span class="${isStressed?'text-red-600':'text-slate-500'}">Prob. Default: ${r.rate}%</span>
                 <span class="text-slate-300">Base: ${base.rate}%</span>
             </div>
@@ -1095,7 +1095,7 @@ window.renderStressRow = function(r, i, base) {
         </td>
         <td class="p-4 w-1/4 text-right align-middle">
             <div class="font-black font-mono text-slate-800 dark:text-white text-xs">${fmt(r.prov)}</div>
-            ${diffProv > 0 ? `<div class="text-[9px] font-bold text-red-500 animate-bounce-short">+${fmt(diffProv)}</div>` : ''}
+            ${diffProv > 0 ? `<div class="text-[10px] font-bold text-red-500 animate-bounce-short">+${fmt(diffProv)}</div>` : ''}
         </td>
     </tr>`;
 };
@@ -1236,15 +1236,15 @@ window.setScenario = function(type) {
                     <div class="space-y-4">
                         <div class="flex items-center gap-4">
                             <div class="w-8 h-8 rounded-xl bg-emerald-500 flex items-center justify-center font-black text-xs shadow-lg shadow-emerald-500/40">A</div>
-                            <div class="flex flex-col"><span class="text-xs font-bold">HEALTHY</span><span class="text-[9px] text-slate-400">NPL Ratio < 2%</span></div>
+                            <div class="flex flex-col"><span class="text-xs font-bold">HEALTHY</span><span class="text-[10px] text-slate-400">NPL Ratio < 2%</span></div>
                         </div>
                         <div class="flex items-center gap-4">
                             <div class="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center font-black text-xs shadow-lg shadow-orange-500/40">B</div>
-                            <div class="flex flex-col"><span class="text-xs font-bold">WATCHLIST</span><span class="text-[9px] text-slate-400">NPL Ratio 2% - 5%</span></div>
+                            <div class="flex flex-col"><span class="text-xs font-bold">WATCHLIST</span><span class="text-[10px] text-slate-400">NPL Ratio 2% - 5%</span></div>
                         </div>
                         <div class="flex items-center gap-4">
                             <div class="w-8 h-8 rounded-xl bg-red-500 flex items-center justify-center font-black text-xs shadow-lg shadow-red-500/40">C</div>
-                            <div class="flex flex-col"><span class="text-xs font-bold">CRITICAL</span><span class="text-[9px] text-slate-400">NPL Ratio > 5%</span></div>
+                            <div class="flex flex-col"><span class="text-xs font-bold">CRITICAL</span><span class="text-[10px] text-slate-400">NPL Ratio > 5%</span></div>
                         </div>
                     </div>
                 </div>
@@ -1502,7 +1502,7 @@ function formatNumber(angka) {
       safeTxt('prodScopeCount', `${scoped.length.toLocaleString('id-ID')} fasilitas · ${scope==='all'?'Semua Produktif':scope==='kur'?'KUR':'Non-KUR'}`);
       safeTxt('prodScopeExplanation', scope==='all'?'Menampilkan seluruh kredit produktif, termasuk KUR.':scope==='kur'?'Menampilkan subset KUR yang sama dengan cakupan halaman NPL KUR.':'Menampilkan kredit produktif selain KUR.');
       document.querySelectorAll('[data-prod-scope]').forEach(b=>{const active=b.dataset.prodScope===scope;b.classList.toggle('active',active);b.classList.toggle('bg-emerald-600',active);b.classList.toggle('text-white',active);b.classList.toggle('border-emerald-500',active);});
-      if(typeof renderSimTableHTML==='function') { renderSimTableHTML('tblProdNpl',nplRows.slice(0,50),'Prod',true,'NPL'); renderSimTableHTML('tblProdKkr',kkrRows.slice(0,50),'Prod',true,'KKR'); }
+      if(typeof renderSimTableHTML==='function') { renderSimTableHTML('tblProdNpl',nplRows,'Prod',true,'NPL'); renderSimTableHTML('tblProdKkr',kkrRows,'Prod',true,'KKR'); }
       const sectors={}; scoped.filter(r=>r.kol>=3).forEach(r=>{const k=String(r.sektor||'Lainnya').trim()||'Lainnya';sectors[k]=(sectors[k]||0)+(Number(r.os)||0);});
       const sorted=Object.entries(sectors).sort((a,b)=>b[1]-a[1]).slice(0,6); const host=el('prodSectorBreakdown');
       if(host) host.innerHTML=sorted.length?sorted.map(([name,value])=>`<button type="button" onclick="app.setProdSector(decodeURIComponent('${encodeURIComponent(name)}'))" class="text-left rounded-xl border ${app.state.prodSector===name?'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20':'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60'} p-2"><div class="flex justify-between gap-2 text-[10px] font-bold"><span class="truncate">${escapeProdText(name)}</span><span>${formatRupiah(value)}</span></div><div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 mt-2 overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:${Math.max(2,value/(sorted[0][1]||1)*100)}%"></div></div></button>`).join(''):'<div class="text-xs text-slate-400">Tidak ada data sektor pada cakupan ini.</div>';
@@ -1523,64 +1523,93 @@ function formatNumber(angka) {
     if (!tbody) return; 
     tbody.innerHTML = '';
     
-    if (rows.length === 0) { 
+    if (!rows || rows.length === 0) { 
         tbody.innerHTML = '<tr><td colspan="7" class="p-12 text-center text-slate-400 italic">Tidak ada data ditemukan</td></tr>'; 
         return; 
     }
 
-    rows.forEach((r, i) => {
-        let tr = document.createElement('tr'); 
-        tr.className = "group border-b border-slate-100 dark:border-slate-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all duration-200"; 
-        tr.id = `row_${type}_${suffix}_${i}`;
-        
-        // Premium Badge Style
-        const kolStyle = {
-            1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-            2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
-            3: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-            4: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
-            5: 'bg-slate-900 text-white dark:bg-black dark:text-slate-300 shadow-sm'
-        };
-        let colBadgeClass = kolStyle[r.kol] || 'bg-slate-100 text-slate-600';
-        
-        // Modern Simulation Checkbox
-        let checkHTML = '';
-        if (isSimulation) { 
-            tr.style.cursor = "pointer"; 
-            tr.onclick = function(e) { 
-                if(e.target.closest('.click-detail')) return; 
-                if(e.target.type !== 'checkbox') window.app.toggleSim(type, i, r.os, r.kol, suffix); 
-            }; 
-            checkHTML = `
-                <div class="relative flex items-center justify-center">
-                    <input type="checkbox" id="chk_${type}_${suffix}_${i}" 
-                           class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 checked:border-blue-600 checked:bg-blue-600 transition-all" 
-                           onclick="window.app.toggleSim('${type}', ${i}, ${r.os}, ${r.kol}, '${suffix}')">
-                    <i class="fas fa-check absolute text-[10px] text-white opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
-                </div>`; 
-        } else { 
-            checkHTML = `<span class="text-[10px] font-bold text-slate-300 font-mono">${(i+1).toString().padStart(2, '0')}</span>`; 
+    const esc = window.escapeHTML || (v => String(v == null ? '' : v));
+    const kolStyle = {
+        1: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+        2: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+        3: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
+        4: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+        5: 'bg-slate-900 text-white dark:bg-black dark:text-slate-300 shadow-sm'
+    };
+
+    const PAGE_SIZE = 50;
+    let rendered = 0;
+
+    function appendBatch() {
+        const oldMore = tbody.querySelector('tr.dak-loadmore-row');
+        if (oldMore) oldMore.remove();
+
+        const end = Math.min(rendered + PAGE_SIZE, rows.length);
+        const frag = document.createDocumentFragment();
+
+        for (let i = rendered; i < end; i++) {
+            const r = rows[i];
+            let tr = document.createElement('tr'); 
+            tr.className = "group border-b border-slate-100 dark:border-slate-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all duration-200"; 
+            tr.id = `row_${type}_${suffix}_${i}`;
+            let colBadgeClass = kolStyle[r.kol] || 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300';
+            
+            let checkHTML = '';
+            if (isSimulation) { 
+                tr.style.cursor = "pointer"; 
+                tr.onclick = function(e) { 
+                    if(e.target.closest('.click-detail')) return; 
+                    if(e.target.type !== 'checkbox') window.app.toggleSim(type, i, r.os, r.kol, suffix); 
+                }; 
+                checkHTML = `
+                    <div class="relative flex items-center justify-center">
+                        <input type="checkbox" id="chk_${type}_${suffix}_${i}" 
+                               class="peer h-5 w-5 cursor-pointer appearance-none rounded border border-slate-300 dark:border-slate-600 checked:border-blue-600 checked:bg-blue-600 transition-all" 
+                               onclick="window.app.toggleSim('${type}', ${i}, ${r.os}, ${r.kol}, '${suffix}')">
+                        <i class="fas fa-check absolute text-[10px] text-white opacity-0 peer-checked:opacity-100 pointer-events-none"></i>
+                    </div>`; 
+            } else { 
+                checkHTML = `<span class="text-[10px] font-bold text-slate-400 font-mono">${(i+1).toString().padStart(2, '0')}</span>`; 
+            }
+
+            tr.innerHTML = `
+                <td data-label="" class="p-3 text-center">${checkHTML}</td>
+                <td data-label="Identitas" class="p-3">
+                    <div class="click-detail flex flex-col group/item" onclick="event.stopPropagation(); window.app.fetchDetail('${esc(r.loan)}')">
+                        <div class="truncate w-full md:w-48 font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight text-xs">${esc(r.nama || '-')}</div>
+                        <div class="text-[10px] font-bold font-mono text-slate-400 mt-0.5">${esc(r.loan)} | PK: ${esc(r.pk || '-')}</div>
+                    </div>
+                </td>
+                <td data-label="Unit" class="p-3 hidden sm:table-cell"><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">${esc(r.br || '-')}</span></td>
+                <td data-label="Kol" class="p-3 text-center"><span class="px-2 py-0.5 rounded-md text-[10px] font-black shadow-sm ${colBadgeClass}">KOL ${r.kol}</span></td>
+                <td data-label="Plafond" class="p-3 text-right font-mono text-[10px] text-slate-400 hidden lg:table-cell">${formatRupiah(r.plafond || 0)}</td>
+                <td data-label="Baki Debet" class="p-3 text-right font-mono text-xs font-black text-slate-700 dark:text-slate-200">${formatRupiah(r.os)}</td>
+                <td data-label="Tgk" class="p-3 text-right">
+                    <div class="font-mono text-xs font-black text-red-600 dark:text-red-400">${formatRupiah(r.tgk || 0)}</div>
+                    ${r.tgk > 0 ? `<div class="text-[10px] text-red-400 font-bold uppercase tracking-tighter mt-0.5">Arrears</div>` : ''}
+                </td>
+            `;
+            frag.appendChild(tr);
         }
 
-        tr.innerHTML = `
-            <td class="p-3 text-center">${checkHTML}</td>
-            <td class="p-3">
-                <div class="click-detail flex flex-col group/item" onclick="event.stopPropagation(); window.app.fetchDetail('${r.loan}')">
-                    <div class="truncate w-32 md:w-48 font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight text-xs">${r.nama}</div>
-                    <div class="text-[9px] font-black font-mono text-slate-400 mt-0.5">${r.loan} | PK: ${r.pk || '-'}</div>
-                </div>
-            </td>
-            <td class="p-3 hidden sm:table-cell"><span class="text-[10px] font-bold text-slate-500 uppercase">${r.br}</span></td>
-            <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-md text-[9px] font-black shadow-sm ${colBadgeClass}">KOL ${r.kol}</span></td>
-            <td class="p-3 text-right font-mono text-[10px] text-slate-400 hidden lg:table-cell">${formatRupiah(r.plafond || 0)}</td>
-            <td class="p-3 text-right font-mono text-xs font-black text-slate-700 dark:text-slate-200">${formatRupiah(r.os)}</td>
-            <td class="p-3 text-right">
-                <div class="font-mono text-xs font-black text-red-600 dark:text-red-400">${formatRupiah(r.tgk || 0)}</div>
-                ${r.tgk > 0 ? `<div class="text-[8px] text-red-400 font-bold uppercase tracking-tighter mt-0.5">Arrears</div>` : ''}
-            </td>
-        `;
-        tbody.appendChild(tr);
-    });
+        rendered = end;
+        if (rendered < rows.length) {
+            const rem = rows.length - rendered;
+            const nextCount = Math.min(PAGE_SIZE, rem);
+            const moreTr = document.createElement('tr');
+            moreTr.className = 'dak-loadmore-row';
+            moreTr.innerHTML = `<td colspan="7" class="p-3 text-center bg-slate-50/70 dark:bg-slate-800/50">
+                <button type="button" class="dak-loadmore-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all">
+                    <i class="fas fa-angles-down text-[10px]"></i> Tampilkan ${nextCount} Berikutnya (Sisa ${rem} Debitur)
+                </button>
+            </td>`;
+            moreTr.querySelector('button').addEventListener('click', appendBatch);
+            frag.appendChild(moreTr);
+        }
+        tbody.appendChild(frag);
+    }
+
+    appendBatch();
 }
 
 // --- 4. RENDER SIM TABLE WRAPPER (UTK KOMPATIBILITAS) ---
@@ -1887,10 +1916,10 @@ function renderSimTable(type) {
 
         html += `
         <div class="opacity-0 transform translate-y-8 transition-all duration-700 ease-out watchlist-card" 
-             style="transition-delay: ${idx * 100}ms">
+             style="transition-delay: ${Math.min(idx * 25, 300)}ms">
             <div class="rounded-[1.5rem] border ${theme.border} ${theme.bg} p-5 shadow-xl ${theme.shadow} hover:scale-[1.03] transition-transform relative overflow-hidden group">
                 
-                <div class="absolute top-0 right-0 ${theme.badge} text-white text-[9px] font-black px-4 py-1.5 rounded-bl-2xl shadow-lg z-10 tracking-widest">
+                <div class="absolute top-0 right-0 ${theme.badge} text-white text-[10px] font-black px-4 py-1.5 rounded-bl-2xl shadow-lg z-10 tracking-widest">
                     ${riskLevel}
                 </div>
 
@@ -1909,7 +1938,7 @@ function renderSimTable(type) {
                     </div>
                     
                     <div class="space-y-2">
-                        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest flex justify-between">
+                        <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex justify-between">
                             <span>Risk Score Analysis</span>
                             <span class="${theme.text}">${r.score}%</span>
                         </div>
@@ -1919,10 +1948,10 @@ function renderSimTable(type) {
                     </div>
 
                     <div class="bg-white/50 dark:bg-slate-900/50 rounded-xl p-3 border border-black/5">
-                        <div class="text-[8px] font-black text-slate-400 uppercase mb-2">Primary Triggers</div>
+                        <div class="text-[10px] font-black text-slate-400 uppercase mb-2">Primary Triggers</div>
                         <div class="flex flex-wrap gap-1.5">
                             ${r.reasons.map(reason => 
-                                `<span class="bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-black/5 text-[9px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                `<span class="bg-white dark:bg-slate-800 px-2 py-0.5 rounded-md border border-black/5 text-[10px] font-bold text-slate-600 dark:text-slate-400 flex items-center gap-1">
                                     <div class="w-1 h-1 rounded-full ${theme.badge}"></div> ${reason}
                                 </span>`
                             ).join('')}
@@ -1931,7 +1960,7 @@ function renderSimTable(type) {
                     
                     <div class="pt-2 flex justify-between items-end border-t border-black/5">
                         <div>
-                            <div class="text-[8px] font-bold text-slate-400 uppercase">Exposure</div>
+                            <div class="text-[10px] font-bold text-slate-400 uppercase">Exposure</div>
                             <div class="font-black font-mono text-slate-800 dark:text-white text-sm">${fmtIDR(r.os)}</div>
                         </div>
                         <button onclick="app.fetchDetail('${r.loan}')" class="p-2 rounded-lg bg-white dark:bg-slate-800 text-slate-400 hover:text-brand-600 shadow-sm border border-black/5 transition-colors">
@@ -2260,7 +2289,7 @@ function renderCKPNPage(res) {
                 </div>
 
                 <div class="bg-white/10 backdrop-blur-xl rounded-3xl p-5 border border-white/10 w-full md:w-56 transform transition hover:scale-105 duration-500">
-                    <div class="text-[9px] text-teal-200 font-black uppercase tracking-widest mb-1">Risk Concentration</div>
+                    <div class="text-[10px] text-teal-200 font-black uppercase tracking-widest mb-1">Risk Concentration</div>
                     <div class="flex items-end gap-2">
                         <span class="text-2xl font-black text-white">Kol ${topBucket.k}</span>
                         <span class="text-[10px] text-teal-100 font-bold mb-1 opacity-70">Main Driver</span>
@@ -2284,7 +2313,7 @@ function renderCKPNPage(res) {
                 ${[1,2,3,4,5].map(k => `
                     <div class="flex flex-col items-center gap-1">
                         <div class="w-full h-1 rounded-full ${getBucketColor(k)} opacity-40"></div>
-                        <span class="text-[8px] font-black text-slate-400">KOL ${k}</span>
+                        <span class="text-[10px] font-black text-slate-400">KOL ${k}</span>
                     </div>
                 `).join('')}
             </div>
@@ -2425,7 +2454,7 @@ function renderCKPNRow(r, totalCKPN) {
             <div class="w-full bg-slate-100 h-1.5 rounded-full mt-1 flex justify-end">
                 <div class="h-1.5 rounded-full ${barColor} opacity-80" style="width: ${barWidth}%"></div>
             </div>
-            <div class="text-[9px] text-slate-400 mt-0.5">${barWidth.toFixed(1)}% dari Total</div>
+            <div class="text-[10px] text-slate-400 mt-0.5">${barWidth.toFixed(1)}% dari Total</div>
         </td>
     </tr>`;
 }
@@ -2545,7 +2574,7 @@ function renderRiskMatrix(res) {
             </div>
 
             <div class="bg-slate-800 dark:bg-slate-700 p-5 rounded-2xl shadow-lg text-white flex flex-col justify-center">
-                <div class="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Risk Legend</div>
+                <div class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Risk Legend</div>
                 <div class="flex gap-4">
                     <div class="flex items-center gap-2 text-[10px] font-bold"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span> KOL 1</div>
                     <div class="flex items-center gap-2 text-[10px] font-bold"><span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]"></span> KOL 2</div>
@@ -2748,12 +2777,12 @@ function initRiskChart(points) {
                 <div class="text-[10px] font-mono text-slate-400 mt-1">${r.loan}</div>
             </td>
             <td class="p-4 text-center">
-                <span class="px-3 py-1 rounded-full text-[9px] font-black bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${r.br}</span>
+                <span class="px-3 py-1 rounded-full text-[10px] font-black bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">${r.br}</span>
             </td>
             <td class="p-4 text-center text-[10px] font-bold text-slate-500 italic">${r.tgl_wo || '-'}</td>
             <td class="p-4 text-right">
                 <div class="font-black font-mono text-slate-900 dark:text-white text-sm">${fmtIDR(r.os)}</div>
-                <div class="text-[8px] text-slate-400 uppercase font-bold">Saldo Ekstrakom</div>
+                <div class="text-[10px] text-slate-400 uppercase font-bold">Saldo Ekstrakom</div>
             </td>
             <td class="p-4 text-center">${btnHtml}</td>
         </tr>`;
@@ -2774,7 +2803,7 @@ function renderFreshDropPage(res) {
     // Handle Error jika data bulan lalu tidak ada
     if(res.error) {
         const container = document.getElementById('fresh_list_container');
-        if(container) container.innerHTML = `<div class="p-8 text-center text-red-500 font-bold bg-red-50 rounded border border-red-200">${res.error}</div>`;
+        if(container) container.innerHTML = `<div class="p-8 text-center text-red-500 font-bold bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800">${window.escapeHTML ? window.escapeHTML(res.error) : res.error}</div>`;
         return;
     }
 
@@ -2844,29 +2873,29 @@ function renderFreshDropPage(res) {
 
         // Tombol Action
         var btnHtml = '';
+        var _esc = window.escapeHTML || (v => String(v == null ? '' : v));
         if(r.hp && r.hp.length > 5) {
-             btnHtml = `<button onclick="app.copyAndOpenWA('${r.hp}', '${safeMsg}')" class="group flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600 hover:bg-green-600 hover:text-white transition shadow-sm active:scale-90" title="Tagih via WA">
+             btnHtml = `<button onclick="event.stopPropagation(); app.copyAndOpenWA('${r.hp}', '${safeMsg}')" class="group flex items-center justify-center w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 hover:bg-green-600 hover:text-white transition shadow-sm active:scale-90" title="Tagih via WA">
                         <i class="fab fa-whatsapp text-lg group-hover:scale-110 transition"></i>
                         </button>`;
         } else {
-             btnHtml = `<button onclick="app.copyAndOpenWA('', '${safeMsg}')" class="group flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition shadow-sm active:scale-90" title="Copy Script">
+             btnHtml = `<button onclick="event.stopPropagation(); app.copyAndOpenWA('', '${safeMsg}')" class="group flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition shadow-sm active:scale-90" title="Copy Script">
                         <i class="fas fa-copy text-sm"></i>
                         </button>`;
         }
 
         html += `
-        <tr class="hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-colors group">
-            <td class="px-4 py-3 pl-6">
-                <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-orange-700 dark:group-hover:text-orange-400 cursor-pointer" 
-                     onclick="event.stopPropagation(); app.fetchDetail('${r.loan}')">
-                     ${r.nama}
+        <tr class="hover:bg-orange-50/40 dark:hover:bg-orange-900/15 transition-colors group cursor-pointer" onclick="app.fetchDetail('${_esc(r.loan)}')">
+            <td data-label="Debitur" class="px-4 py-3 pl-6">
+                <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-orange-700 dark:group-hover:text-orange-400">
+                     ${_esc(r.nama || '-')}
                 </div>
-                <div class="text-[10px] text-slate-400 font-mono">${r.loan} • ${r.br}</div>
+                <div class="text-[10px] text-slate-400 font-mono">${_esc(r.loan)} • ${_esc(r.br || '-')}</div>
             </td>
-            <td class="px-4 py-3 text-center">
+            <td data-label="Perubahan Kol" class="px-4 py-3 text-center">
                 ${kolBadge}
             </td>
-            <td class="px-4 py-3 text-right">
+            <td data-label="Tunggakan" class="px-4 py-3 text-right">
                 <div class="font-mono font-bold text-red-600 dark:text-red-400 text-xs bg-red-50 dark:bg-red-900/30 inline-block px-2 py-0.5 rounded">${fmtIDR(r.tgk)}</div>
             </td>
             <td class="px-4 py-3 text-right font-mono text-slate-600 dark:text-slate-400 font-medium text-xs">
@@ -3069,11 +3098,11 @@ function renderMutasiPage(res) {
                 <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-hand-holding-usd text-9xl text-emerald-500"></i></div>
                 <div class="relative z-10 flex flex-col h-full justify-between">
                     <div>
-                        <div class="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1 bg-emerald-100 dark:bg-emerald-900/50 inline-block px-2 py-0.5 rounded-md">New Booking</div>
+                        <div class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1 bg-emerald-100 dark:bg-emerald-900/50 inline-block px-2 py-0.5 rounded-md">New Booking</div>
                         <div id="m_val_cair" class="text-xl md:text-2xl font-black text-slate-800 dark:text-white drop-shadow-sm mt-1">Rp 0</div>
                     </div>
                     <div class="mt-4 text-[10px] font-bold text-emerald-600 flex items-center gap-1.5 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm">
-                        <i class="fas fa-user-plus text-[9px]"></i> <span>${res.details.new_booking.length} Debitur</span>
+                        <i class="fas fa-user-plus text-[10px]"></i> <span>${res.details.new_booking.length} Debitur</span>
                     </div>
                 </div>
             </div>
@@ -3083,11 +3112,11 @@ function renderMutasiPage(res) {
                 <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-flag-checkered text-9xl text-rose-500"></i></div>
                 <div class="relative z-10 flex flex-col h-full justify-between">
                     <div>
-                        <div class="text-[9px] font-black text-rose-600 uppercase tracking-widest mb-1 bg-rose-100 dark:bg-rose-900/50 inline-block px-2 py-0.5 rounded-md">Repayment</div>
+                        <div class="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1 bg-rose-100 dark:bg-rose-900/50 inline-block px-2 py-0.5 rounded-md">Repayment</div>
                         <div id="m_val_lunas" class="text-xl md:text-2xl font-black text-slate-800 dark:text-white drop-shadow-sm mt-1">Rp 0</div>
                     </div>
                     <div class="mt-4 text-[10px] font-bold text-rose-600 flex items-center gap-1.5 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm">
-                        <i class="fas fa-user-check text-[9px]"></i> <span>${res.details.repayment.length} Debitur</span>
+                        <i class="fas fa-user-check text-[10px]"></i> <span>${res.details.repayment.length} Debitur</span>
                     </div>
                 </div>
             </div>
@@ -3097,11 +3126,11 @@ function renderMutasiPage(res) {
                 <div class="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-chart-pie text-9xl text-slate-500"></i></div>
                 <div class="relative z-10 flex flex-col h-full justify-between">
                     <div>
-                        <div class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1 bg-slate-100 dark:bg-slate-700 inline-block px-2 py-0.5 rounded-md">Net Growth</div>
+                        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 bg-slate-100 dark:bg-slate-700 inline-block px-2 py-0.5 rounded-md">Net Growth</div>
                         <div id="m_val_net" class="text-xl md:text-2xl font-black ${growthColor} drop-shadow-sm mt-1">Rp 0</div>
                     </div>
                     <div class="mt-4 text-[10px] font-bold text-slate-500 flex items-center gap-1.5 ${growthBg} w-fit px-3 py-1 rounded-full shadow-inner border backdrop-blur-sm">
-                        <i class="fas fa-bolt text-[9px] text-yellow-500"></i> <span>MTD Performance</span>
+                        <i class="fas fa-bolt text-[10px] text-yellow-500"></i> <span>MTD Performance</span>
                     </div>
                 </div>
             </div>
@@ -3111,11 +3140,11 @@ function renderMutasiPage(res) {
                 <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500"><i class="fas fa-sort-amount-down text-9xl text-orange-500"></i></div>
                 <div class="relative z-10 flex flex-col h-full justify-between">
                     <div>
-                        <div class="text-[9px] font-black text-orange-600 uppercase tracking-widest mb-1 bg-orange-100 dark:bg-orange-900/50 inline-block px-2 py-0.5 rounded-md">Quality Drop</div>
+                        <div class="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1 bg-orange-100 dark:bg-orange-900/50 inline-block px-2 py-0.5 rounded-md">Quality Drop</div>
                         <div id="m_val_drop" class="text-xl md:text-2xl font-black text-orange-600 dark:text-orange-400 drop-shadow-sm mt-1">Rp 0</div>
                     </div>
                     <div class="mt-4 text-[10px] font-bold text-orange-600 flex items-center gap-1.5 bg-white/60 dark:bg-black/20 w-fit px-3 py-1 rounded-full shadow-inner backdrop-blur-sm">
-                        <i class="fas fa-exclamation-triangle text-[9px]"></i> <span>${res.details.downgrade.length} Debitur</span>
+                        <i class="fas fa-exclamation-triangle text-[10px]"></i> <span>${res.details.downgrade.length} Debitur</span>
                     </div>
                 </div>
             </div>
@@ -3127,10 +3156,10 @@ function renderMutasiPage(res) {
             <!-- Segmented Control (Tabs gaya iOS) -->
             <div class="p-4 md:p-6 pb-2">
                 <div class="flex p-1.5 bg-slate-200/50 dark:bg-slate-800/80 backdrop-blur-md gap-1 rounded-full shadow-inner overflow-x-auto custom-scrollbar">
-                    <button onclick="switchMutasiTab(this, 'tab_new')" class="mut-btn active-mut flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300">Pencairan</button>
-                    <button onclick="switchMutasiTab(this, 'tab_lunas')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Pelunasan</button>
-                    <button onclick="switchMutasiTab(this, 'tab_drop')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Downgrade</button>
-                    <button onclick="switchMutasiTab(this, 'tab_rise')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Upgrade</button>
+                    <button onclick="switchMutasiTab(this, 'tab_new')" class="mut-btn active-mut flex-1 min-w-[90px] py-2.5 text-[10px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300">Pencairan</button>
+                    <button onclick="switchMutasiTab(this, 'tab_lunas')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[10px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Pelunasan</button>
+                    <button onclick="switchMutasiTab(this, 'tab_drop')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[10px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Downgrade</button>
+                    <button onclick="switchMutasiTab(this, 'tab_rise')" class="mut-btn flex-1 min-w-[90px] py-2.5 text-[10px] sm:text-[10px] font-black uppercase tracking-widest rounded-full transition-all duration-300 text-slate-500 hover:text-slate-800 dark:hover:text-white">Upgrade</button>
                 </div>
             </div>
 
@@ -3174,19 +3203,19 @@ function renderMutasiList(data, type) {
             let iconBox = '';
             
             if(type === 'LUNAS') {
-                badge = '<span class="px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-600 text-[9px] font-black tracking-widest uppercase border border-rose-200 dark:border-rose-800">Lunas</span>';
+                badge = '<span class="px-3 py-1 rounded-full bg-rose-100 dark:bg-rose-900/40 text-rose-600 text-[10px] font-black tracking-widest uppercase border border-rose-200 dark:border-rose-800">Lunas</span>';
                 amtColor = 'text-slate-400 line-through opacity-60';
-                iconBox = '<div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0 shadow-inner border border-rose-100"><i class="fas fa-check-double"></i></div>';
+                iconBox = '<div class="w-10 h-10 rounded-2xl bg-rose-50 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400 flex items-center justify-center shrink-0 shadow-inner border border-rose-100 dark:border-rose-800/50"><i class="fas fa-check-double"></i></div>';
             } else if(type === 'NEW') {
-                badge = '<span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 text-[9px] font-black tracking-widest uppercase border border-emerald-200 dark:border-emerald-800">Cair</span>';
+                badge = '<span class="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 text-[10px] font-black tracking-widest uppercase border border-emerald-200 dark:border-emerald-800">Cair</span>';
                 amtColor = 'text-emerald-600 dark:text-emerald-400';
                 iconBox = '<div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0 shadow-inner border border-emerald-100"><i class="fas fa-hand-holding-usd"></i></div>';
             } else if(type === 'DROP') {
-                badge = `<span class="px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 text-[9px] font-black tracking-widest uppercase border border-orange-200 dark:border-orange-800">K${r.kol_old} <i class="fas fa-arrow-right mx-1"></i> K${r.kol_new}</span>`;
+                badge = `<span class="px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 text-[10px] font-black tracking-widest uppercase border border-orange-200 dark:border-orange-800">K${r.kol_old} <i class="fas fa-arrow-right mx-1"></i> K${r.kol_new}</span>`;
                 amtColor = 'text-orange-600 dark:text-orange-400';
                 iconBox = '<div class="w-10 h-10 rounded-2xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0 shadow-inner border border-orange-100"><i class="fas fa-sort-amount-down"></i></div>';
             } else if(type === 'RISE') {
-                badge = `<span class="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 text-[9px] font-black tracking-widest uppercase border border-blue-200 dark:border-blue-800">K${r.kol_old} <i class="fas fa-arrow-right mx-1"></i> K${r.kol_new}</span>`;
+                badge = `<span class="px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-600 text-[10px] font-black tracking-widest uppercase border border-blue-200 dark:border-blue-800">K${r.kol_old} <i class="fas fa-arrow-right mx-1"></i> K${r.kol_new}</span>`;
                 amtColor = 'text-blue-600 dark:text-blue-400';
                 iconBox = '<div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0 shadow-inner border border-blue-100"><i class="fas fa-level-up-alt"></i></div>';
             }
@@ -3202,9 +3231,9 @@ function renderMutasiList(data, type) {
                         <span class="font-black text-slate-800 dark:text-white text-xs sm:text-sm uppercase tracking-wide group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">${r.nama || 'Nasabah'}</span>
                         
                         <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5">
-                            <span class="text-[9px] font-mono font-bold text-slate-500 bg-slate-100 dark:bg-slate-900/80 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-fingerprint mr-1 opacity-50"></i>${r.loan}</span>
-                            <span class="text-[9px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-900/80 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-building mr-1 opacity-50"></i>${r.br || '-'}</span>
-                            <span class="text-[9px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded hidden md:inline-block">${(r.segmen || 'UMUM').substring(0,20)}</span>
+                            <span class="text-[10px] font-mono font-bold text-slate-500 bg-slate-100 dark:bg-slate-900/80 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-fingerprint mr-1 opacity-50"></i>${r.loan}</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-900/80 px-2 py-0.5 rounded shadow-inner"><i class="fas fa-building mr-1 opacity-50"></i>${r.br || '-'}</span>
+                            <span class="text-[10px] font-bold text-slate-400 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded hidden md:inline-block">${(r.segmen || 'UMUM').substring(0,20)}</span>
                         </div>
                     </div>
                 </div>
@@ -3268,8 +3297,8 @@ function renderKreditPage() {
                 <div>
                     <h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white uppercase tracking-tighter leading-none">Data Master Kredit</h2>
                     <div class="flex items-center gap-1.5 mt-1">
-                        <span class="px-1.5 py-0.5 rounded text-[7px] md:text-[8px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">Live</span>
-                        <span class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest" id="creditInfoStatus">Sinkronisasi...</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] md:text-[10px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">Live</span>
+                        <span class="text-[10px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest" id="creditInfoStatus">Sinkronisasi...</span>
                     </div>
                 </div>
             </div>
@@ -3290,14 +3319,14 @@ function renderKreditPage() {
                 <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-blue-500 shadow-sm hover:shadow-md transition-all relative overflow-hidden bg-white/80 dark:bg-slate-800/80 flex-1 flex flex-col justify-center">
                     <div class="absolute -right-3 -bottom-3 opacity-5"><i class="fas fa-coins text-7xl text-blue-500"></i></div>
                     <div class="relative z-10">
-                        <div class="text-[8px] md:text-[9px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-blue-100 dark:border-blue-800/50">Total Outstanding</div>
+                        <div class="text-[10px] md:text-[10px] font-black text-blue-600 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-blue-100 dark:border-blue-800/50">Total Outstanding</div>
                         <div class="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter" id="kr_os">...</div>
                     </div>
                 </div>
                 <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-emerald-500 shadow-sm hover:shadow-md transition-all relative overflow-hidden bg-white/80 dark:bg-slate-800/80 flex-1 flex flex-col justify-center">
                     <div class="absolute -right-3 -bottom-3 opacity-5"><i class="fas fa-users text-7xl text-emerald-500"></i></div>
                     <div class="relative z-10">
-                        <div class="text-[8px] md:text-[9px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-emerald-100 dark:border-emerald-800/50">Total Debitur</div>
+                        <div class="text-[10px] md:text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-md inline-block uppercase tracking-widest mb-1 border border-emerald-100 dark:border-emerald-800/50">Total Debitur</div>
                         <div class="text-xl md:text-3xl font-black text-slate-800 dark:text-white tracking-tighter" id="kr_noa">...</div>
                     </div>
                 </div>
@@ -3307,13 +3336,13 @@ function renderKreditPage() {
             <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[270px] sm:h-[290px] md:h-[320px] shadow-sm">
                     <div class="text-[10px] md:text-xs font-black mb-2 flex items-center gap-2 text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
-                        <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-chart-pie"></i></div><span>Komposisi Kredit</span><span class="ml-auto text-[9px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik irisan</span>
+                        <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-chart-pie"></i></div><span>Komposisi Kredit</span><span class="ml-auto text-[10px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik irisan</span>
                     </div>
                     <div class="flex-1 relative w-full h-full"><canvas id="chKr1"></canvas></div>
                 </div>
                 <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[270px] sm:h-[290px] md:h-[320px] shadow-sm">
                     <div class="text-[10px] md:text-xs font-black mb-2 flex items-center gap-2 text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
-                        <div class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-sm"><i class="fas fa-chart-bar"></i></div><span>Sektor Ekonomi</span><span class="ml-auto text-[9px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik batang</span>
+                        <div class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-sm"><i class="fas fa-chart-bar"></i></div><span>Sektor Ekonomi</span><span class="ml-auto text-[10px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik batang</span>
                     </div>
                     <div class="flex-1 relative w-full h-full"><canvas id="chKr2"></canvas></div>
                 </div>
@@ -3329,7 +3358,7 @@ function renderKreditPage() {
             <div class="overflow-auto flex-1 custom-scrollbar px-1 pt-1">
                 <table class="w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1">
                     <thead class="bg-slate-50/90 dark:bg-slate-800/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
-                        <tr class="text-[7px] md:text-[8px] font-black uppercase tracking-widest">
+                        <tr class="text-[10px] md:text-[10px] font-black uppercase tracking-widest">
                             <th class="p-2.5 md:p-3 rounded-l-md cursor-pointer hover:text-blue-600 transition" onclick="app.sortKredit('nama')">Identitas Debitur <i class="fas fa-sort text-slate-300 ml-1"></i></th>
                             <th class="p-2.5 md:p-3 text-center">No. Perjanjian</th>
                             <th class="p-2.5 md:p-3 text-center">Status</th>
@@ -3519,7 +3548,7 @@ function renderCreditRows(data) {
                         </div>
                         <div>
                             <p class="text-xs font-black tracking-widest uppercase text-slate-400">Pencarian Kosong</p>
-                            <p class="text-[9px] font-bold text-slate-400 mt-1">Coba gunakan kata kunci lain.</p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1">Coba gunakan kata kunci lain.</p>
                         </div>
                     </div>
                 </td>
@@ -3554,7 +3583,7 @@ function renderCreditRows(data) {
                     </div>
                     <div class="min-w-0">
                         <div class="font-black text-[10px] md:text-[11px] text-slate-800 dark:text-white uppercase truncate">${window.escapeHTML ? window.escapeHTML(r.nama || "-") : (r.nama || "-")}</div>
-                        <div class="text-[7px] md:text-[8px] font-bold text-slate-400 mt-0.5 flex items-center gap-1">
+                        <div class="text-[10px] md:text-[10px] font-bold text-slate-400 mt-0.5 flex items-center gap-1">
                             <span class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200/50"><i class="fas fa-fingerprint text-blue-400"></i> ${r.loan}</span>
                         </div>
                     </div>
@@ -3562,24 +3591,24 @@ function renderCreditRows(data) {
             </td>
             
             <td class="p-2 md:p-3 text-center align-middle hidden sm:table-cell">
-                <div class="text-[8px] md:text-[9px] font-bold text-slate-500 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md inline-block border border-slate-200/50">
+                <div class="text-[10px] md:text-[10px] font-bold text-slate-500 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md inline-block border border-slate-200/50">
                     <i class="fas fa-file-contract text-blue-500"></i> ${r.pk || '-'}
                 </div>
             </td>
             
             <td class="p-2 md:p-3 text-center align-middle">
-                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded shadow-sm text-[8px] md:text-[9px] font-black uppercase tracking-wider border ${style.bg}">
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded shadow-sm text-[10px] md:text-[10px] font-black uppercase tracking-wider border ${style.bg}">
                     <i class="fas ${style.icon}"></i> KOL ${k}
                 </span>
             </td>
             
             <td class="p-2 md:p-3 text-right align-middle hidden lg:table-cell">
-                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 font-mono tracking-tighter">${fmtIDR(r.plafond)}</div>
+                <div class="text-[10px] md:text-[10px] font-bold text-slate-400 font-mono tracking-tighter">${fmtIDR(r.plafond)}</div>
             </td>
             
             <td class="p-2 md:p-3 text-right align-middle rounded-r-md">
                 <div class="font-mono font-black ${bakiColor} text-[11px] md:text-[13px] group-hover:text-blue-600 transition-colors tracking-tighter">${fmtIDR(r.os)}</div>
-                <div class="text-[7px] md:text-[8px] font-bold text-slate-400 mt-0.5 flex justify-end items-center gap-1">
+                <div class="text-[10px] md:text-[10px] font-bold text-slate-400 mt-0.5 flex justify-end items-center gap-1">
                     <i class="far fa-calendar-alt"></i> JT: ${r.tgl_jt || '-'}
                 </div>
             </td>
@@ -3650,7 +3679,7 @@ function renderTrend(res) {
             </div>
             <div>
                 <h3 class="font-black text-lg md:text-xl text-slate-800 dark:text-white tracking-tight leading-none">Trend Performance</h3>
-                <p class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-1 uppercase tracking-widest">OS Volume vs Kualitas (NPL)</p>
+                <p class="text-[10px] md:text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">OS Volume vs Kualitas (NPL)</p>
             </div>
         </div>
 
@@ -3668,7 +3697,7 @@ function renderTrend(res) {
                     <div class="group relative flex flex-col items-center justify-end w-full h-full cursor-pointer">
                         
                         <!-- Floating Tooltip -->
-                        <div class="absolute bottom-full mb-3 hidden group-hover:flex flex-col bg-slate-800/95 backdrop-blur-md text-white text-[9px] md:text-[10px] p-2.5 rounded-xl shadow-xl z-20 w-32 md:w-40 text-center border border-slate-600 transform transition-all animate-pop-in">
+                        <div class="absolute bottom-full mb-3 hidden group-hover:flex flex-col bg-slate-800/95 backdrop-blur-md text-white text-[10px] md:text-[10px] p-2.5 rounded-xl shadow-xl z-20 w-32 md:w-40 text-center border border-slate-600 transform transition-all animate-pop-in">
                             <div class="font-black text-blue-300 uppercase tracking-widest mb-1 border-b border-slate-600 pb-1">${d.label}</div>
                             <div class="font-mono mt-1">OS: ${(d.os/1e9).toFixed(1)} M</div>
                             <div class="font-mono font-bold ${nplRatio>5 ? 'text-red-400' : 'text-emerald-400'}">NPL: ${nplRatio.toFixed(2)}%</div>
@@ -3680,17 +3709,17 @@ function renderTrend(res) {
                         
                         <!-- Gradient Bar -->
                         <div class="w-full md:w-12 rounded-t-md md:rounded-t-xl bg-gradient-to-t ${barColor} opacity-70 group-hover:opacity-100 transition-all duration-500 relative shadow-inner" style="height: ${hPct}%">
-                             <div class="absolute top-1 left-0 right-0 text-center text-[7px] md:text-[9px] text-white/90 font-black hidden md:block">${nplRatio.toFixed(1)}%</div>
+                             <div class="absolute top-1 left-0 right-0 text-center text-[10px] md:text-[10px] text-white/90 font-black hidden md:block">${nplRatio.toFixed(1)}%</div>
                         </div>
                         
                         <!-- Label Bulan -->
-                        <div class="mt-2 text-[7px] md:text-[9px] text-slate-500 font-bold truncate w-full text-center">${d.label.split(' ')[0]}</div>
+                        <div class="mt-2 text-[10px] md:text-[10px] text-slate-500 font-bold truncate w-full text-center">${d.label.split(' ')[0]}</div>
                     </div>`;
                 }).join('')}
             </div>
             
             <!-- Legend -->
-            <div class="mt-6 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 flex flex-wrap items-center justify-center gap-4 md:gap-8 text-[8px] md:text-[9px] font-black text-slate-500 uppercase tracking-widest">
+            <div class="mt-6 pt-4 border-t border-slate-200/50 dark:border-slate-700/50 flex flex-wrap items-center justify-center gap-4 md:gap-8 text-[10px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest">
                 <div class="flex items-center gap-1.5"><div class="w-3 h-3 bg-gradient-to-t from-blue-400 to-indigo-600 rounded-sm shadow-sm"></div> Volume Kredit (OS)</div>
                 <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 bg-red-500 rounded-full border border-white ring-2 ring-red-200 shadow-sm"></div> Trend NPL Ratio</div>
             </div>
@@ -3700,14 +3729,14 @@ function renderTrend(res) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
              <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-blue-500 bg-blue-50/50 dark:bg-blue-900/10 flex flex-col justify-center">
                 <div class="font-black text-blue-700 dark:text-blue-400 text-[10px] md:text-[11px] mb-1.5 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-chart-line"></i> Growth Insight</div>
-                <div class="text-[9px] md:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <div class="text-[10px] md:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                     Posisi kredit terakhir tercatat <b class="font-mono text-blue-600 dark:text-blue-400">${fmtIDR(last.os)}</b>.
                     Trend volume menunjukkan pergerakan yang <b class="${last.os > first.os ? 'text-emerald-600' : 'text-rose-600'}">${last.os > first.os ? 'POSITIF (Ekspansi)' : 'NEGATIF (Kontraksi)'}</b> dibandingkan awal periode pengamatan.
                 </div>
              </div>
              <div class="glass-card p-4 md:p-5 rounded-[1.2rem] md:rounded-[1.5rem] border-l-[3px] border-orange-500 bg-orange-50/50 dark:bg-orange-900/10 flex flex-col justify-center">
                 <div class="font-black text-orange-700 dark:text-orange-400 text-[10px] md:text-[11px] mb-1.5 uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-exclamation-triangle"></i> Risk Insight</div>
-                <div class="text-[9px] md:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                <div class="text-[10px] md:text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                     Rasio NPL terkini berada di level <b class="font-mono text-orange-600 dark:text-orange-400">${(last.npl/last.os*100).toFixed(2)}%</b>.
                     Waspadai jika titik rasio NPL (Dot) bergerak melampaui tinggi batang volume kredit.
                 </div>
@@ -3819,9 +3848,9 @@ function renderTrend(res) {
           <div class="dak-history-warning mt-2.5 flex items-center justify-between gap-2 p-2 rounded-lg border ${badgeColor} shadow-sm">
               <div class="flex items-center gap-2 min-w-0">
                   <i class="fas ${icon} text-sm shrink-0"></i>
-                  <span class="text-[9px] font-black uppercase tracking-widest leading-tight">PERHATIAN!<br>Pernah KOL ${r.worst_kol}</span>
+                  <span class="text-[10px] font-black uppercase tracking-widest leading-tight">PERHATIAN!<br>Pernah KOL ${r.worst_kol}</span>
               </div>
-              <span class="dak-history-date text-[9px] font-bold bg-white/80 dark:bg-slate-800/80 px-2 py-1 rounded shadow-sm border border-black/5">${historicalDateLabel}</span>
+              <span class="dak-history-date text-[10px] font-bold bg-white/80 dark:bg-slate-800/80 px-2 py-1 rounded shadow-sm border border-black/5">${historicalDateLabel}</span>
           </div>`;
       }
 
@@ -3830,8 +3859,8 @@ function renderTrend(res) {
               <h3 class="text-sm font-black text-blue-800 dark:text-blue-300 leading-tight">${r.nama}</h3>
               <div class="text-[10px] font-mono text-blue-600/70 dark:text-blue-400 mt-0.5">${r.loan}</div>
               <div class="mt-1.5 flex items-center gap-1">
-                  <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.type}</span>
-                  <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.gol}</span>
+                  <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[10px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.type}</span>
+                  <span class="bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[10px] font-bold shadow-sm border border-slate-100 dark:border-slate-700">${r.gol}</span>
               </div>
               ${historyBadge}
           </div>
@@ -3842,12 +3871,12 @@ function renderTrend(res) {
               ${row('Plafond', fmt(r.plafond), true)} 
               ${row('Baki Debet', fmt(r.os), true, true)} 
               ${row('Bunga %', r.bunga)} 
-              ${row('Jangka Waktu', `${r.mulai} - ${r.selesai} <span class="text-[9px] text-slate-400">(${tenor} bln)</span>`)} 
+              ${row('Jangka Waktu', `${r.mulai} - ${r.selesai} <span class="text-[10px] text-slate-400">(${tenor} bln)</span>`)} 
               ${row('Sektor', (r.sektor || 'UMUM').substring(0, 25) + '...')}
           </div>
           
           <div class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-xl p-3 mt-4">
-              <div class="text-[9px] font-black text-red-500 uppercase tracking-widest mb-1.5">Tunggakan (KOL ${r.kol})</div>
+              <div class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1.5">Tunggakan (KOL ${r.kol})</div>
               <div class="flex justify-between text-xs mb-1">
                   <span class="text-slate-500">Pokok</span>
                   <span class="font-mono font-bold text-slate-700 dark:text-slate-300">${fmt(r.tgk_pokok)}</span>
@@ -3863,7 +3892,7 @@ function renderTrend(res) {
           </div>
           
           <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-xl p-3 mt-4">
-              <div class="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-1">🤖 Remedial Strategy</div>
+              <div class="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-1">🤖 Remedial Strategy</div>
               <div class="text-[10px] text-amber-800 dark:text-amber-200 font-medium leading-relaxed">${remedial}</div>
           </div>
           
@@ -4239,7 +4268,7 @@ function renderMaturityPage(res) {
             <td class="px-4 py-3 text-center font-mono text-[10px]">${r.pk}</td>
             <td class="px-4 py-3 text-center font-bold text-slate-700 dark:text-slate-200">${r.tgl_jt}</td>
             <td class="px-4 py-3 text-center">
-                <span class="${badgeClass} px-3 py-1 rounded-full text-[9px] font-black whitespace-nowrap shadow-sm border border-black/5">${badgeText}</span>
+                <span class="${badgeClass} px-3 py-1 rounded-full text-[10px] font-black whitespace-nowrap shadow-sm border border-black/5">${badgeText}</span>
             </td>
             <td class="px-4 py-3 text-right font-mono font-black text-slate-800 dark:text-slate-100">${fmtIDR(r.os)}</td>
             <td class="px-4 py-3 text-center">${btnHtml}</td>
@@ -6025,7 +6054,7 @@ function renderJourneyPage() {
             <div class="flex flex-col items-center justify-center py-20 text-slate-400 animate-pulse">
                 <i class="fas fa-satellite-dish text-4xl mb-4 text-emerald-200"></i>
                 <div class="text-xs font-bold uppercase tracking-widest mb-1">Sinkronisasi Data...</div>
-                <div class="text-[9px]">Mengambil NPL & Debitur dalam Pemantauan</div>
+                <div class="text-[10px]">Mengambil NPL & Debitur dalam Pemantauan</div>
             </div>`;
             
         // [PENTING] Ambil Tanggal yang sedang dipilih user
@@ -6078,7 +6107,7 @@ function renderJourneyPage() {
                     <i class="fas fa-search text-xl opacity-30"></i>
                 </div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-center">Data tidak ditemukan</p>
-                <p class="text-[9px] text-slate-300 mt-1">Filter: ${activeBranch} | "${keyword}"</p>
+                <p class="text-[10px] text-slate-300 mt-1">Filter: ${activeBranch} | "${keyword}"</p>
             </div>`;
         return;
     }
@@ -6099,7 +6128,7 @@ function renderJourneyPage() {
         
         if (d.status_journey === 'RECOVERY') {
             // TAMPILAN KHUSUS KOL 1 (RECOVERY) - Biru
-            badgeHTML = `<span class="px-2 py-1 rounded text-[9px] font-black leading-none bg-blue-100 text-blue-700 border border-blue-200 flex items-center gap-1">
+            badgeHTML = `<span class="px-2 py-1 rounded text-[10px] font-black leading-none bg-blue-100 text-blue-700 border border-blue-200 flex items-center gap-1">
                             <i class="fas fa-history"></i> PANTAU
                          </span>`;
             borderClass = 'border-l-4 border-blue-400';
@@ -6107,7 +6136,7 @@ function renderJourneyPage() {
         } else {
             // TAMPILAN NPL BIASA - Merah/Orange
             let kolColor = kol == 2 ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700';
-            badgeHTML = `<span class="px-2 py-1 rounded text-[9px] font-black leading-none ${kolColor}">KOL ${d.kol}</span>`;
+            badgeHTML = `<span class="px-2 py-1 rounded text-[10px] font-black leading-none ${kolColor}">KOL ${d.kol}</span>`;
             borderClass = 'border-l-4 border-transparent'; 
         }
 
@@ -6127,14 +6156,14 @@ function renderJourneyPage() {
                         ${d.nama}
                         ${d.status_journey === 'RECOVERY' ? '<i class="fas fa-shield-alt text-blue-400 text-xs" title="Debitur Recovery"></i>' : ''}
                     </div>
-                    <div class="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">
                         ${d.loan} <span class="mx-1">•</span> ${d.br}
                     </div>
                 </div>
 
                 <div class="flex flex-col items-end gap-1">
                     ${badgeHTML}
-                    <span class="text-[8px] font-bold text-slate-400 font-mono">
+                    <span class="text-[10px] font-bold text-slate-400 font-mono">
                         Rp ${formatMoney(d.os)}
                     </span>
                 </div>
@@ -6209,7 +6238,7 @@ function executeRender(container) {
                 </div>
                 <p class="text-[10px] font-black uppercase tracking-widest text-center">
                     Data tidak ditemukan<br>
-                    <span class="text-[9px] font-normal opacity-70 normal-case">"${keyword}" di cabang ${activeBranch}</span>
+                    <span class="text-[10px] font-normal opacity-70 normal-case">"${keyword}" di cabang ${activeBranch}</span>
                 </p>
             </div>`;
         return;
@@ -6249,17 +6278,17 @@ function executeRender(container) {
                         </h4>
                         ${d.is_new ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' : ''} 
                     </div>
-                    <div class="flex items-center text-[9px] text-slate-400 font-medium tracking-wide">
+                    <div class="flex items-center text-[10px] text-slate-400 font-medium tracking-wide">
                         <span class="font-mono text-slate-500 bg-slate-100 px-1 rounded mr-1">${d.loan}</span>
                         <span>${d.br}</span>
                     </div>
                 </div>
 
                 <div class="flex flex-col items-end gap-1 shrink-0">
-                    <span class="px-2 py-0.5 rounded-[4px] text-[9px] font-black uppercase tracking-wider ${badgeColor}">
+                    <span class="px-2 py-0.5 rounded-[4px] text-[10px] font-black uppercase tracking-wider ${badgeColor}">
                         KOL ${d.kol}
                     </span>
-                    <span class="text-[9px] font-bold text-slate-500 dark:text-slate-400 font-mono">
+                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 font-mono">
                         Rp ${formatMoney(d.os)}
                     </span>
                 </div>
@@ -7139,13 +7168,13 @@ function showJourneyDetail(loanId) {
                     if(h.statusKomitmen) {
                         let badgeColor = h.statusKomitmen === 'LUNAS' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700';
                         if(h.statusKomitmen === 'PARSIAL') badgeColor = 'bg-yellow-100 text-yellow-700';
-                        statusButtons = `<button onclick="app.updateStatusKomitmen('${h.logId}', 'RESET', '${debtor.loan}', ${h.nominal}, ${h.realisasi || 0})" class="px-2 py-1 rounded text-[9px] font-black ${badgeColor} flex items-center gap-1 hover:brightness-95 transition ml-auto">${h.statusKomitmen} <i class="fas fa-pen text-[8px] opacity-50"></i></button>`;
+                        statusButtons = `<button onclick="app.updateStatusKomitmen('${h.logId}', 'RESET', '${debtor.loan}', ${h.nominal}, ${h.realisasi || 0})" class="px-2 py-1 rounded text-[10px] font-black ${badgeColor} flex items-center gap-1 hover:brightness-95 transition ml-auto">${h.statusKomitmen} <i class="fas fa-pen text-[10px] opacity-50"></i></button>`;
                     } else {
                         statusButtons = `<div class="flex gap-1 ml-auto"><button onclick="app.updateStatusKomitmen('${h.logId}', 'LUNAS', '${debtor.loan}', ${h.nominal})" class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-emerald-500 hover:text-white transition text-slate-400 border border-slate-200 shadow-sm"><i class="fas fa-check text-[10px]"></i></button><button onclick="app.updateStatusKomitmen('${h.logId}', 'BATAL', '${debtor.loan}', ${h.nominal})" class="w-6 h-6 flex items-center justify-center rounded-full bg-slate-100 hover:bg-red-500 hover:text-white transition text-slate-400 border border-slate-200 shadow-sm"><i class="fas fa-times text-[10px]"></i></button></div>`;
                     }
                 }
 
-                return `<div class="relative pl-10 py-3 group animate-fade-in" style="animation-delay: ${index * 50}ms"><div class="absolute left-3 top-4 w-9 h-9 rounded-full ${theme.bg} ${theme.color} border-2 border-white shadow-sm flex items-center justify-center z-10 ring-1 ring-slate-100 group-hover:scale-110 transition-transform duration-200"><i class="fas ${theme.icon} text-sm"></i></div><div class="bg-white rounded-xl border border-slate-100 shadow-sm p-3.5 hover:shadow-md hover:border-emerald-100 transition-all duration-200"><div class="flex justify-between items-start mb-2 border-b border-dashed border-slate-100 pb-2"><div class="flex flex-col"><span class="text-[11px] font-black text-slate-700 uppercase tracking-tight">${h.aksi} <span class="text-slate-400 font-normal mx-1">•</span> ${h.media}</span><span class="text-[10px] text-slate-400 mt-0.5 font-mono">${h.timestamp || '-'}</span></div><div class="flex items-center gap-2"><div class="text-[9px] font-bold px-2 py-1 rounded bg-slate-50 text-slate-500 uppercase tracking-wider">${h.petugas ? h.petugas.split('@')[0] : 'System'}</div>${h.logId ? `<button onclick="app.editLog('${h.logId}', '${h.aksi}', '${h.media}', '${h.nominal}', '${h.tglKomitmen}', '${debtor.loan}', this)" data-catatan="${window.escapeHTML(h.catatan || '')}" class="text-slate-300 hover:text-blue-500 transition px-1"><i class="fas fa-pencil-alt text-[10px]"></i></button><button onclick="app.deleteLog('${h.logId}', '${debtor.loan}')" class="text-slate-300 hover:text-red-500 transition px-1"><i class="fas fa-trash text-[10px]"></i></button>` : ''}</div></div><div class="text-xs text-slate-600 leading-relaxed mb-1 font-medium italic">"${h.catatan || ''}"</div>${h.nominal > 0 ? `<div class="mt-3 flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 shrink-0"><i class="fas fa-money-bill-wave"></i></div><div class="flex-1 min-w-0"><div class="text-[9px] text-slate-400 uppercase font-bold">Komitmen Bayar</div><div class="text-sm font-black text-emerald-700">Rp ${Number(h.nominal).toLocaleString('id-ID')}</div><div class="text-[9px] text-slate-400 mt-0.5">Jatuh Tempo: <span class="font-bold text-slate-600">${h.tglKomitmen || '-'}</span></div></div>${statusButtons}</div>` : ''}</div></div>`;
+                return `<div class="relative pl-10 py-3 group animate-fade-in" style="animation-delay: ${index * 50}ms"><div class="absolute left-3 top-4 w-9 h-9 rounded-full ${theme.bg} ${theme.color} border-2 border-white shadow-sm flex items-center justify-center z-10 ring-1 ring-slate-100 group-hover:scale-110 transition-transform duration-200"><i class="fas ${theme.icon} text-sm"></i></div><div class="bg-white rounded-xl border border-slate-100 shadow-sm p-3.5 hover:shadow-md hover:border-emerald-100 transition-all duration-200"><div class="flex justify-between items-start mb-2 border-b border-dashed border-slate-100 pb-2"><div class="flex flex-col"><span class="text-[11px] font-black text-slate-700 uppercase tracking-tight">${h.aksi} <span class="text-slate-400 font-normal mx-1">•</span> ${h.media}</span><span class="text-[10px] text-slate-400 mt-0.5 font-mono">${h.timestamp || '-'}</span></div><div class="flex items-center gap-2"><div class="text-[10px] font-bold px-2 py-1 rounded bg-slate-50 text-slate-500 uppercase tracking-wider">${h.petugas ? h.petugas.split('@')[0] : 'System'}</div>${h.logId ? `<button onclick="app.editLog('${h.logId}', '${h.aksi}', '${h.media}', '${h.nominal}', '${h.tglKomitmen}', '${debtor.loan}', this)" data-catatan="${window.escapeHTML(h.catatan || '')}" class="text-slate-300 hover:text-blue-500 transition px-1"><i class="fas fa-pencil-alt text-[10px]"></i></button><button onclick="app.deleteLog('${h.logId}', '${debtor.loan}')" class="text-slate-300 hover:text-red-500 transition px-1"><i class="fas fa-trash text-[10px]"></i></button>` : ''}</div></div><div class="text-xs text-slate-600 leading-relaxed mb-1 font-medium italic">"${h.catatan || ''}"</div>${h.nominal > 0 ? `<div class="mt-3 flex items-center gap-3 bg-slate-50 p-2 rounded-lg border border-slate-100"><div class="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-emerald-600 shadow-sm border border-slate-100 shrink-0"><i class="fas fa-money-bill-wave"></i></div><div class="flex-1 min-w-0"><div class="text-[10px] text-slate-400 uppercase font-bold">Komitmen Bayar</div><div class="text-sm font-black text-emerald-700">Rp ${Number(h.nominal).toLocaleString('id-ID')}</div><div class="text-[10px] text-slate-400 mt-0.5">Jatuh Tempo: <span class="font-bold text-slate-600">${h.tglKomitmen || '-'}</span></div></div>${statusButtons}</div>` : ''}</div></div>`;
             }).join('');
             historyHtml += `</div>`;
         }
@@ -7160,7 +7189,7 @@ function showJourneyDetail(loanId) {
                             ${btnWA} 
                         </div>
                         <p class="text-[10px] opacity-60 font-bold uppercase mt-1">${debtor.loan} • ${debtor.br}</p>
-                        ${debtor.status_journey === 'RECOVERY' || debtor.kol == 1 ? '<span class="inline-block mt-2 px-2 py-0.5 bg-blue-600 rounded text-[9px] font-bold uppercase shadow-sm">RECOVERY / PANTAU</span>' : ''}
+                        ${debtor.status_journey === 'RECOVERY' || debtor.kol == 1 ? '<span class="inline-block mt-2 px-2 py-0.5 bg-blue-600 rounded text-[10px] font-bold uppercase shadow-sm">RECOVERY / PANTAU</span>' : ''}
                     </div>
                     <div class="flex gap-2">
                          <button onclick="app.exportJourneyResume('${debtor.loan}')" class="bg-white/10 hover:bg-white/20 p-2.5 rounded-xl transition" title="Cetak PDF"><i class="fas fa-file-pdf"></i></button>
@@ -7478,7 +7507,7 @@ function renderHistoryTimeline(history) {
                             <i class="far fa-clock mr-1"></i> ${dateStr} <span class="opacity-50">(${timeStr})</span>
                         </span>
                     </div>
-                    <div class="text-[9px] font-bold px-2 py-1 rounded bg-slate-50 text-slate-500 uppercase tracking-wider">
+                    <div class="text-[10px] font-bold px-2 py-1 rounded bg-slate-50 text-slate-500 uppercase tracking-wider">
                         ${h.petugas ? h.petugas.split(' ')[0] : 'System'}
                     </div>
                 </div>
@@ -7497,7 +7526,7 @@ function renderHistoryTimeline(history) {
                         <div class="text-sm font-black text-emerald-700">Rp ${Number(h.nominal).toLocaleString('id-ID')}</div>
                     </div>
                     <div class="text-right">
-                        <div class="text-[9px] text-slate-400">Jatuh Tempo</div>
+                        <div class="text-[10px] text-slate-400">Jatuh Tempo</div>
                         <div class="text-[10px] font-bold text-slate-600">${h.komitmenTanggal || '-'}</div>
                     </div>
                 </div>
@@ -7601,7 +7630,7 @@ function renderCalendarGrid(year, month) {
         // Marker 1: Nominal Uang (Jika ada janji)
         if (totalNominal > 0) {
             markerHtml += `
-                <span class="text-[8px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-md truncate w-full text-center">
+                <span class="text-[10px] font-black text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-md truncate w-full text-center">
                     Rp ${(totalNominal/1000000).toFixed(1)}Jt
                 </span>`;
         }
@@ -7665,23 +7694,23 @@ function showCalendarDetail(day) {
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-1.5 mb-1">
                         ${iconType}
-                        <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500">${titleType}</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">${titleType}</span>
                     </div>
                     <h4 class="font-bold text-xs text-slate-700 dark:text-slate-200 truncate">${e.nama}</h4>
-                    <p class="text-[9px] font-mono text-slate-400">${e.loanId}</p>
+                    <p class="text-[10px] font-mono text-slate-400">${e.loanId}</p>
                 </div>
                 
                 ${e.type === 'PROMISE' ? 
                 `<div class="text-right">
                     <div class="font-black text-xs text-emerald-600">Rp ${(e.nominal/1000).toFixed(0)}k</div>
-                    <div class="text-[9px] text-slate-400 mt-0.5">${e.status === 'LUNAS' ? '✅ LUNAS' : '⏳ MENUNGGU'}</div>
+                    <div class="text-[10px] text-slate-400 mt-0.5">${e.status === 'LUNAS' ? '✅ LUNAS' : '⏳ MENUNGGU'}</div>
                 </div>` : 
                 `<div class="text-right">
-                    <div class="text-[9px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500">${e.petugas ? e.petugas.split(' ')[0] : 'AO'}</div>
+                    <div class="text-[10px] font-bold bg-slate-100 px-2 py-1 rounded text-slate-500">${e.petugas ? e.petugas.split(' ')[0] : 'AO'}</div>
                 </div>`}
             </div>
 
-            <button onclick="app.openDetailFromCalendar('${e.loanId}')" class="mt-3 w-full py-1.5 ${bgType} border border-slate-100 hover:brightness-95 rounded-lg text-[9px] font-bold transition flex items-center justify-center gap-2">
+            <button onclick="app.openDetailFromCalendar('${e.loanId}')" class="mt-3 w-full py-1.5 ${bgType} border border-slate-100 hover:brightness-95 rounded-lg text-[10px] font-bold transition flex items-center justify-center gap-2">
                 <i class="fas fa-external-link-alt"></i> LIHAT DETAIL
             </button>
         </div>
@@ -8264,7 +8293,7 @@ function renderArchiveList(data) {
     // EMPTY STATE
     if (!data || data.length === 0) {
         grid.innerHTML = `
-        <div class="flex flex-col items-center justify-center p-12 text-center text-slate-400 border-2 border-dashed border-slate-300 rounded-3xl bg-slate-50">
+        <div class="flex flex-col items-center justify-center p-12 text-center text-slate-400 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-3xl bg-slate-50 dark:bg-slate-800/60">
             <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 text-slate-300 shadow-sm">
                 <i class="fas fa-search text-3xl"></i>
             </div>
@@ -8317,9 +8346,9 @@ function renderArchiveList(data) {
         let leftBorderStyle = (!isHB && !isLunas) ? `border-left: 5px solid ${t.hex};` : '';
 
         // Status Badge
-        let statusBadge = isHB ? `<span class="bg-red-600 text-white px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-ban mr-1"></i>HAPUS BUKU</span>` : 
-                          (isLunas ? `<span class="bg-slate-600 text-white px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-check mr-1"></i>LUNAS</span>` : 
-                                     `<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider"><i class="fas fa-circle text-[6px] mr-1 align-middle"></i>AKTIF</span>`);
+        let statusBadge = isHB ? `<span class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-ban mr-1"></i>HAPUS BUKU</span>` : 
+                          (isLunas ? `<span class="bg-slate-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-check mr-1"></i>LUNAS</span>` : 
+                                     `<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider"><i class="fas fa-circle text-[6px] mr-1 align-middle"></i>AKTIF</span>`);
 
         let highlightClass = isChecked ? 'ring-2 ring-blue-500 bg-blue-50/50 z-10' : '';
 
@@ -8341,7 +8370,7 @@ function renderArchiveList(data) {
             </div>
 
             <div class="w-16 flex flex-col items-center justify-center self-stretch border-r border-slate-200/50 bg-white/50">
-                <span class="text-[7px] font-black text-slate-400 uppercase mb-0.5">ARSIP</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase mb-0.5">ARSIP</span>
                 <span class="text-2xl font-black text-slate-800 font-mono leading-none">${item.no_urut || '-'}</span>
             </div>
 
@@ -8351,10 +8380,10 @@ function renderArchiveList(data) {
                     ${statusBadge}
                 </div>
                 <div class="flex items-center">
-                    <span class="${t.bg_solid} ${t.text_solid} text-[9px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
+                    <span class="${t.bg_solid} ${t.text_solid} text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
                         ${(item.jenis_kredit || 'UMUM').substring(0,20)}
                     </span>
-                    ${item.is_new ? '<span class="ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold bg-amber-400 text-amber-900">BARU</span>' : ''}
+                    ${item.is_new ? '<span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-400 text-amber-900">BARU</span>' : ''}
                 </div>
                 <div class="flex items-center gap-3 text-[10px] text-slate-500 font-mono mt-0.5">
                     <div class="flex items-center gap-1">
@@ -8367,7 +8396,7 @@ function renderArchiveList(data) {
             </div>
 
             <div class="hidden md:flex flex-col items-end justify-center px-4 border-l border-dashed border-slate-300 h-14 min-w-[110px]">
-                <div class="text-[8px] font-bold text-slate-400 uppercase mb-1">Realisasi</div>
+                <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Realisasi</div>
                 <div class="text-xs font-bold text-slate-700">${tglFix}</div>
             </div>
 
@@ -8580,7 +8609,7 @@ window.updateFloatingPrintBar = function() {
                 </div>
                 <div>
                     <div class="text-white font-black text-sm md:text-base leading-none"><span id="print-selected-count">0</span> Berkas</div>
-                    <div class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Siap Dicetak</div>
+                    <div class="text-[10px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Siap Dicetak</div>
                 </div>
             </div>
             <button onclick="if(window.app && window.app.printSelectedLabels) window.app.printSelectedLabels()" id="btnPrintSelected" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center gap-2 border border-blue-400/50">
@@ -9301,10 +9330,10 @@ window.renderSectorRows=function(data){
     else if(kol===3)color='bg-orange-100 text-orange-700 border-orange-200';
     else if(kol===2)color='bg-amber-100 text-amber-700 border-amber-200';
     return `<tr class="hover:bg-violet-50/70 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50" onclick="if(window.app&&window.app.fetchDetail)window.app.fetchDetail(decodeURIComponent('${safeLoan}'))">
-      <td class="p-2.5 md:p-3"><div class="font-black text-[10px] md:text-xs text-slate-700 dark:text-white truncate max-w-[150px] md:max-w-[230px]">${esc(r.nama||'Tanpa Nama')}</div><div class="text-[8px] md:text-[9px] font-bold text-slate-400 font-mono mt-0.5">${esc(loan)}</div></td>
-      <td class="p-2.5 md:p-3 text-center hidden md:table-cell"><span class="text-[8px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">${esc(r.br||'-')}</span></td>
-      <td class="p-2.5 md:p-3 hidden sm:table-cell"><span class="text-[8px] md:text-[9px] font-bold text-violet-700 dark:text-violet-300 whitespace-normal">${esc(r.sektor||'LAINNYA')}</span></td>
-      <td class="p-2.5 md:p-3 text-center"><span class="px-2 py-0.5 text-[8px] md:text-[9px] font-black rounded border ${color}">KOL ${kol}</span></td>
+      <td class="p-2.5 md:p-3"><div class="font-black text-[10px] md:text-xs text-slate-700 dark:text-white truncate max-w-[150px] md:max-w-[230px]">${esc(r.nama||'Tanpa Nama')}</div><div class="text-[10px] md:text-[10px] font-bold text-slate-400 font-mono mt-0.5">${esc(loan)}</div></td>
+      <td class="p-2.5 md:p-3 text-center hidden md:table-cell"><span class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">${esc(r.br||'-')}</span></td>
+      <td class="p-2.5 md:p-3 hidden sm:table-cell"><span class="text-[10px] md:text-[10px] font-bold text-violet-700 dark:text-violet-300 whitespace-normal">${esc(r.sektor||'LAINNYA')}</span></td>
+      <td class="p-2.5 md:p-3 text-center"><span class="px-2 py-0.5 text-[10px] md:text-[10px] font-black rounded border ${color}">KOL ${kol}</span></td>
       <td class="p-2.5 md:p-3 text-right hidden lg:table-cell font-mono text-[10px]">${fmt(r.plafond)}</td>
       <td class="p-2.5 md:p-3 text-right font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] md:text-xs">${fmt(r.os)}</td>
     </tr>`;
@@ -9344,7 +9373,7 @@ function openBranchModal() {
     const getDiff = (now, prev, isBadIfUp = false, isRupiah = true) => {
         let diff = now - (prev || 0);
         let pct = prev ? (diff / prev * 100).toFixed(1) : (now > 0 ? 100 : 0);
-        if(diff === 0) return `<span class="inline-block px-1.5 py-0.5 rounded border border-transparent bg-slate-100/50 dark:bg-slate-700/50 text-slate-400 text-[7px] md:text-[8px] font-black shadow-sm">Tetap</span>`;
+        if(diff === 0) return `<span class="inline-block px-1.5 py-0.5 rounded border border-transparent bg-slate-100/50 dark:bg-slate-700/50 text-slate-400 text-[10px] md:text-[10px] font-black shadow-sm">Tetap</span>`;
         
         let sign = diff > 0 ? '+' : '';
         let arrow = diff > 0 ? '▲' : '▼';
@@ -9352,7 +9381,7 @@ function openBranchModal() {
         let color = isBad ? 'text-rose-600 bg-rose-100/60 border-rose-200 dark:bg-rose-900/30 dark:border-rose-800/50' : 'text-emerald-600 bg-emerald-100/60 border-emerald-200 dark:bg-emerald-900/30 dark:border-emerald-800/50';
         let valStr = isRupiah ? 'Rp ' + fmtShort(diff) : fmtShort(diff);
         
-        return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border shadow-sm text-[7px] md:text-[8px] font-black ${color}">
+        return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border shadow-sm text-[10px] md:text-[10px] font-black ${color}">
                     <span>${arrow}</span> <span>${sign}${valStr} (${sign}${pct}%)</span>
                 </span>`;
     };
@@ -9391,7 +9420,7 @@ function openBranchModal() {
                     </div>
                     <div class="min-w-0">
                         <div class="font-black text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${br}</div>
-                        <div class="text-[9px] font-bold text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                        <div class="text-[10px] font-bold text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
                             <span class="flex items-center gap-1"><i class="fas fa-users text-blue-400"></i> ${d.noa || 0} NOA ${noaDiff}</span>
                             <span class="opacity-50">|</span>
                             <span>Porsi: ${pPort}%</span>
@@ -9407,17 +9436,17 @@ function openBranchModal() {
             <!-- ROW 2: Segmen Kredit (Prod, Kons, KUR) -->
             <div class="grid grid-cols-3 gap-2">
                 <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-inner">
-                    <span class="text-[8px] font-black text-teal-600 uppercase tracking-widest mb-1">Produktif</span>
+                    <span class="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-1">Produktif</span>
                     <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] mb-1">${fmtIDR(d.prod)}</span>
                     ${prodDiff}
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-inner">
-                    <span class="text-[8px] font-black text-indigo-600 uppercase tracking-widest mb-1">Konsumtif</span>
+                    <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">Konsumtif</span>
                     <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] mb-1">${fmtIDR(d.kons)}</span>
                     ${konsDiff}
                 </div>
                 <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center shadow-inner">
-                    <span class="text-[8px] font-black text-emerald-600 uppercase tracking-widest mb-1">KUR</span>
+                    <span class="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">KUR</span>
                     <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] mb-1">${fmtIDR(d.kur)}</span>
                     ${kurDiff}
                 </div>
@@ -9428,17 +9457,17 @@ function openBranchModal() {
                 <!-- Col 1: Mutasi Cair Lunas -->
                 <div class="flex flex-col gap-2">
                     <div class="flex-1 bg-emerald-50 dark:bg-emerald-900/10 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center">
-                        <span class="text-[8px] font-black text-emerald-700 dark:text-emerald-400 uppercase flex items-center gap-1"><i class="fas fa-plus-circle"></i> Cair</span>
+                        <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase flex items-center gap-1"><i class="fas fa-plus-circle"></i> Cair</span>
                         <div class="text-right">
-                            <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[9px]">+${fmtIDR(d.cair_os || 0)}</div>
-                            <div class="text-[7px] font-bold text-emerald-600 mt-0.5">${d.cair_noa || 0} Rek</div>
+                            <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[10px]">+${fmtIDR(d.cair_os || 0)}</div>
+                            <div class="text-[10px] font-bold text-emerald-600 mt-0.5">${d.cair_noa || 0} Rek</div>
                         </div>
                     </div>
                     <div class="flex-1 bg-rose-50 dark:bg-rose-900/10 p-2 rounded-lg border border-rose-100 dark:border-rose-800/50 flex justify-between items-center">
-                        <span class="text-[8px] font-black text-rose-700 dark:text-rose-400 uppercase flex items-center gap-1"><i class="fas fa-check-double"></i> Lunas</span>
+                        <span class="text-[10px] font-black text-rose-700 dark:text-rose-400 uppercase flex items-center gap-1"><i class="fas fa-check-double"></i> Lunas</span>
                         <div class="text-right">
-                            <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[9px]">-${fmtIDR(d.lunas_os || 0)}</div>
-                            <div class="text-[7px] font-bold text-rose-600 mt-0.5">${d.lunas_noa || 0} Rek</div>
+                            <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[10px]">-${fmtIDR(d.lunas_os || 0)}</div>
+                            <div class="text-[10px] font-bold text-rose-600 mt-0.5">${d.lunas_noa || 0} Rek</div>
                         </div>
                     </div>
                 </div>
@@ -9447,16 +9476,16 @@ function openBranchModal() {
                 <div class="flex flex-col gap-2">
                     <div class="bg-orange-50/50 dark:bg-orange-900/20 p-2 rounded-lg border border-orange-100 dark:border-orange-800/40 flex flex-col justify-center relative overflow-hidden">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-[8px] font-black text-orange-600 uppercase tracking-widest">KKR (2-5)</span>
-                            <span class="text-[7px] font-bold text-orange-700 bg-orange-100 dark:bg-orange-900/60 border border-orange-200 dark:border-orange-800 px-1 py-0.5 rounded shadow-sm">${pKkr}%</span>
+                            <span class="text-[10px] font-black text-orange-600 uppercase tracking-widest">KKR (2-5)</span>
+                            <span class="text-[10px] font-bold text-orange-700 bg-orange-100 dark:bg-orange-900/60 border border-orange-200 dark:border-orange-800 px-1 py-0.5 rounded shadow-sm">${pKkr}%</span>
                         </div>
                         <div class="font-mono font-black text-orange-600 dark:text-orange-400 text-[10px] mb-1">${fmtIDR(d.kkr)}</div>
                         <div>${kkrDiff}</div>
                     </div>
                     <div class="bg-red-50/50 dark:bg-red-900/20 p-2 rounded-lg border border-red-100 dark:border-red-800/40 flex flex-col justify-center relative overflow-hidden">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="text-[8px] font-black text-red-600 uppercase tracking-widest">NPL (3-5)</span>
-                            <span class="text-[7px] font-bold border px-1 py-0.5 rounded ${badgeNPL}">${pNpl}%</span>
+                            <span class="text-[10px] font-black text-red-600 uppercase tracking-widest">NPL (3-5)</span>
+                            <span class="text-[10px] font-bold border px-1 py-0.5 rounded ${badgeNPL}">${pNpl}%</span>
                         </div>
                         <div class="font-mono font-black text-red-600 dark:text-red-400 text-[10px] mb-1">${fmtIDR(d.npl)}</div>
                         <div>${nplDiff}</div>
