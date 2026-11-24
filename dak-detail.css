@@ -695,3 +695,70 @@ html.dark .dak-freshness {
     border-color: rgba(51, 65, 85, 0.8) !important;
   }
 }
+
+/* =====================================================================
+   v1598 — Fix Scroll Terkunci pada List Debitur (NPL Intelligence Center & Dashboard)
+   ===================================================================== */
+/* 1. Desktop & Umum: pastikan anak flex-1 bisa di-scroll (min-height: 0) dan scroll chaining aktif */
+.tab-view {
+  overscroll-behavior-y: auto !important;
+}
+.tab-view .glass-card.flex.flex-col > .overflow-auto,
+.tab-view .glass-card.flex.flex-col > .overflow-y-auto,
+.tab-view .glass-card.flex.flex-col > .overflow-x-auto {
+  min-height: 0 !important;
+  overscroll-behavior-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-view .overflow-auto,
+.tab-view .overflow-x-auto,
+.tab-view .overflow-y-auto {
+  overscroll-behavior-y: auto !important;
+}
+/* Prioritaskan gestur gulir vertikal saat jari menyentuh baris/kartu debitur */
+.tab-view .bk-table,
+.tab-view .bk-table tbody,
+.tab-view .bk-table tbody tr,
+.tab-view .bk-table td,
+.tab-view .click-detail,
+#list-sektor-container,
+#list-sektor-container > * {
+  touch-action: pan-y;
+}
+.tab-view .bk-table.bk-scroll,
+.tab-view .bk-table.bk-scroll tbody tr,
+.tab-view .bk-table.bk-scroll td {
+  touch-action: pan-x pan-y;
+}
+
+/* 2. Mobile (<= 767px): cakup .overflow-auto (NPL Intelligence Center) & Dashboard agar tidak menjebak scroll */
+@media (max-width: 767px) {
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) > .overflow-auto,
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) > .overflow-y-auto,
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) > .overflow-x-auto {
+    overflow-y: visible !important;
+    overflow-x: visible !important;
+    max-height: none !important;
+    height: auto !important;
+    overscroll-behavior: auto !important;
+    touch-action: pan-y !important;
+  }
+  /* Kecuali tabel analitik lebar (.bk-scroll) yang tetap butuh geser horizontal */
+  .tab-view .glass-card.flex.flex-col > .overflow-auto:has(.bk-scroll),
+  .tab-view .glass-card.flex.flex-col > .overflow-x-auto:has(.bk-scroll) {
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+    touch-action: pan-x pan-y !important;
+  }
+  /* Pastikan kontainer scroll utama (#bk-scroll) merespons cepat tanpa lag smooth-scroll saat disentuh */
+  #bk-scroll {
+    scroll-behavior: auto !important;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
