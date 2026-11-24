@@ -3553,7 +3553,7 @@ function renderCreditRows(data) {
                         <i class="fas fa-user text-xs"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="font-black text-[10px] md:text-[11px] text-slate-800 dark:text-white uppercase truncate">${safeNama}</div>
+                        <div class="font-black text-[10px] md:text-[11px] text-slate-800 dark:text-white uppercase truncate">${window.escapeHTML ? window.escapeHTML(r.nama || "-") : (r.nama || "-")}</div>
                         <div class="text-[7px] md:text-[8px] font-bold text-slate-400 mt-0.5 flex items-center gap-1">
                             <span class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200/50"><i class="fas fa-fingerprint text-blue-400"></i> ${r.loan}</span>
                         </div>
@@ -6245,7 +6245,7 @@ function executeRender(container) {
                 <div class="flex-1 min-w-0 pr-3">
                     <div class="flex items-center gap-2 mb-0.5">
                         <h4 class="font-bold text-slate-700 dark:text-slate-200 text-xs truncate group-hover:text-emerald-600 transition">
-                            ${safeNama}
+                            ${window.escapeHTML ? window.escapeHTML(d.nama || "-") : (d.nama || "-")}
                         </h4>
                         ${d.is_new ? '<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>' : ''} 
                     </div>
@@ -9803,27 +9803,27 @@ window.renderTableRaw = function(tableId, rows) {
         return `
         <tr class="hover:bg-blue-50/50 dark:hover:bg-slate-800/80 transition-colors group cursor-pointer animate-fade-in border-b border-slate-100/50 dark:border-slate-800/50" style="animation-delay: ${Math.min(idx * 20, 400)}ms" onclick="if(window.app && window.app.fetchDetail) window.app.fetchDetail('${r.loan}')">
             
-            <td class="p-2.5 md:p-3 align-middle">
-                <div class="font-black text-[10px] md:text-xs text-slate-800 dark:text-white group-hover:text-blue-600 transition-colors truncate w-32 md:w-auto uppercase">${safeNama}</div>
-                <div class="text-[8px] md:text-[9px] font-bold text-slate-500 mt-0.5 font-mono flex items-center gap-1"><i class="fas fa-fingerprint opacity-50 text-blue-400"></i>${r.loan}</div>
+            <td data-label="Nama / Loan" class="p-2.5 md:p-3 align-middle">
+                <div class="font-black text-[11px] md:text-xs text-slate-800 dark:text-white group-hover:text-blue-600 transition-colors truncate w-full md:w-auto uppercase">${window.escapeHTML ? window.escapeHTML(r.nama || '-') : (r.nama || '-')}</div>
+                <div class="text-[10px] font-bold text-slate-500 mt-0.5 font-mono flex items-center gap-1"><i class="fas fa-fingerprint opacity-50 text-blue-400"></i>${r.loan}</div>
             </td>
             
-            <td class="p-2.5 md:p-3 text-center align-middle hidden sm:table-cell">
-                <span class="text-[8px] md:text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 dark:bg-slate-800/80 px-2 py-1 rounded-md border border-slate-200/50 dark:border-slate-700 shadow-sm">${r.br || '-'}</span>
+            <td data-label="Unit" class="p-2.5 md:p-3 text-center align-middle hidden sm:table-cell">
+                <span class="inline-block text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wide bg-slate-50 dark:bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-700">${r.br || '-'}</span>
             </td>
             
-            <td class="p-2.5 md:p-3 text-center align-middle">
-                <span class="inline-flex items-center justify-center min-w-[30px] px-1.5 py-0.5 rounded shadow-sm text-[9px] font-black border ${bgKol}">
+            <td data-label="Kol" class="p-2.5 md:p-3 text-center align-middle">
+                <span class="inline-flex items-center justify-center w-fit px-2 py-0.5 rounded-md shadow-sm text-[10px] font-black border ${bgKol}">
                     KOL ${k}
                 </span>
             </td>
             
-            <td class="p-2.5 md:p-3 text-right align-middle hidden lg:table-cell">
-                <div class="text-[9px] md:text-[10px] font-bold text-slate-400 font-mono tracking-tighter">${fmtIDR(r.plafond)}</div>
+            <td data-label="Plafond" class="p-2.5 md:p-3 text-right align-middle hidden lg:table-cell">
+                <div class="text-[11px] font-bold text-slate-500 dark:text-slate-400 font-mono tracking-tight">${fmtIDR(r.plafond)}</div>
             </td>
             
-            <td class="p-2.5 md:p-3 text-right align-middle">
-                <div class="font-mono font-black text-slate-800 dark:text-white text-[11px] md:text-xs group-hover:scale-105 group-hover:text-blue-600 transition-all origin-right tracking-tighter">${fmtIDR(r.os)}</div>
+            <td data-label="Baki Debet" class="p-2.5 md:p-3 text-right align-middle">
+                <div class="font-mono font-black text-slate-800 dark:text-white text-xs group-hover:scale-105 group-hover:text-blue-600 transition-all origin-right tracking-tight">${fmtIDR(r.os)}</div>
             </td>
             
         </tr>`; 

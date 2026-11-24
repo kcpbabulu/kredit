@@ -3,8 +3,8 @@
    - Aset berversi (?v=...): cache dulu → instan, versi baru otomatis karena angka ?v berubah.
    - Library CDN & font: tampil dari cache, diperbarui di latar belakang.
    - Panggilan API Apps Script TIDAK pernah dicache di sini (data debitur). */
-const CACHE_VERSION = 'dakopen-static-v1595-ux-shimmer';
-const APP_SHELL = ['./','./index.html','./style.css?v=1593','./dak-banking.css?v=1520','./dak-interact.css?v=1590','./dak-polish.css?v=1590','./dak-detail.css?v=1595','./dak-interact.js?v=1590','./dak-detail.js?v=1590','./app.js?v=1595','./manifest.json'];
+const CACHE_VERSION = 'dakopen-static-v1596-mobile-pro';
+const APP_SHELL = ['./','./index.html','./style.css?v=1593','./dak-banking.css?v=1520','./dak-interact.css?v=1590','./dak-polish.css?v=1590','./dak-detail.css?v=1596','./dak-interact.js?v=1596','./dak-detail.js?v=1590','./app.js?v=1596','./manifest.json'];
 const CDN_HOSTS = ['cdnjs.cloudflare.com','cdn.jsdelivr.net','unpkg.com','cdn.sheetjs.com','cdn.tailwindcss.com','fonts.googleapis.com','fonts.gstatic.com'];
 
 self.addEventListener('install', event => {

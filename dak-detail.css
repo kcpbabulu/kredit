@@ -597,3 +597,101 @@ html.dark .dak-freshness {
     animation: none !important;
   }
 }
+
+/* =====================================================================
+   v1596 — Mobile Pro Polish: Sticky Frosted Header, Native Scroll, Cards & Typography
+   ===================================================================== */
+/* 1. Spasi rapi antara teks tautan & ikon di Fokus Perhatian Portofolio */
+.dak-intel-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+@media (max-width: 767px) {
+  /* 2. Sticky Frosted-Glass Header: tidak pernah hilang/menyisakan ruang kosong saat scroll */
+  #bk-hdr {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 45 !important;
+    margin-top: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    transition: padding .2s ease, background-color .2s ease !important;
+  }
+  body.bk-hdr-hide #bk-hdr {
+    margin-top: 0 !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+  body.bk-hdr-stuck #bk-hdr {
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+  body.bk-hdr-stuck #bk-hdr header {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    box-shadow: 0 8px 24px -8px rgba(15, 42, 74, 0.16), 0 1px 2px rgba(15, 42, 74, 0.06) !important;
+    border-color: rgba(203, 213, 225, 0.8) !important;
+    padding: 5px 10px !important;
+  }
+  html.dark body.bk-hdr-stuck #bk-hdr header {
+    background: rgba(15, 23, 42, 0.88) !important;
+    border-color: rgba(51, 65, 85, 0.85) !important;
+    box-shadow: 0 10px 26px -8px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  /* 3. Hapus nested scrollbar kaku di HP untuk panel daftar/tabel (grafik & peta tetap aman) */
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) {
+    height: auto !important;
+    max-height: none !important;
+  }
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) > .overflow-y-auto,
+  .tab-view .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)) > .overflow-x-auto {
+    overflow-y: visible !important;
+    max-height: none !important;
+  }
+}
+
+/* 4. Kartu debitur non-compact (seperti TOP NPL GLOBAL) lebih proporsional di HP */
+@media (max-width: 640px) {
+  .bk-table.bk-cards:not(.bk-compact) td {
+    align-items: flex-start !important;
+  }
+  .bk-table.bk-cards:not(.bk-compact) td[data-label="Kol"] {
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+  .bk-table.bk-cards:not(.bk-compact) td[data-label="Kol"] > span {
+    width: fit-content !important;
+    min-width: 54px !important;
+    padding: 3px 10px !important;
+  }
+  .bk-table.bk-cards:not(.bk-compact) td[data-label="Baki Debet"] {
+    align-items: flex-end !important;
+  }
+  .bk-table.bk-cards:not(.bk-compact) td[data-label]::before {
+    display: block !important;
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    color: #64748b !important;
+    margin-bottom: 2px !important;
+  }
+  html.dark .bk-table.bk-cards:not(.bk-compact) td[data-label]::before {
+    color: #94a3b8 !important;
+  }
+  .bk-table.bk-cards:not(.bk-compact) td:first-child::before {
+    display: none !important;
+  }
+  .bk-table.bk-cards:not(.bk-compact) tbody tr {
+    border-radius: 14px !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+  }
+  html.dark .bk-table.bk-cards:not(.bk-compact) tbody tr {
+    background: rgba(30, 41, 59, 0.72) !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+  }
+}

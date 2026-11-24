@@ -436,18 +436,10 @@
   /* ---- Header menyembunyi saat menggulir ke bawah ---- */
   function setupAutoHide() {
     const sc = $('bk-scroll'), hd = $('bk-hdr'); if (!sc || !hd) return;
-    let last = 0, lock = 0;
     sc.addEventListener('scroll', () => {
-      if (!mq.matches || document.body.classList.contains('bk-filter-open')) { document.body.classList.remove('bk-hdr-hide'); return; }
-      const now = Date.now(); if (now < lock) { last = sc.scrollTop; return; }
-      const y = sc.scrollTop, dy = y - last;
-      if (Math.abs(dy) < 10) return;
-      const hide = dy > 0 && y > 90;
-      if (hide !== document.body.classList.contains('bk-hdr-hide')) {
-        hd.style.setProperty('--bk-hdr-h', hd.offsetHeight + 'px');
-        document.body.classList.toggle('bk-hdr-hide', hide); lock = now + 320;
-      }
-      last = y;
+      document.body.classList.remove('bk-hdr-hide');
+      if (!mq.matches) { document.body.classList.remove('bk-hdr-stuck'); return; }
+      document.body.classList.toggle('bk-hdr-stuck', sc.scrollTop > 18);
     }, { passive: true });
   }
 
