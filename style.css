@@ -431,8 +431,6 @@ main header{border-color:var(--dak-border)!important;box-shadow:var(--dak-shadow
 html,body{min-height:100%;overscroll-behavior-y:contain}
 body{overflow-x:hidden}
 main{min-width:0;min-height:0}
-main>header{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:10px;align-items:center;max-width:100%;backdrop-filter:blur(16px)}
-main>header>*{min-width:0}
 .tab-view{width:100%;max-width:var(--dak-content-max);margin-inline:auto;box-sizing:border-box;min-width:0}
 .tab-view img,.tab-view canvas,.tab-view svg{max-width:100%}
 .tab-view .grid>*{min-width:0}
@@ -444,13 +442,11 @@ main>header>*{min-width:0}
 #sidebar .nav-btn{min-width:0;text-align:left}
 #bottom-nav{z-index:75;padding-bottom:env(safe-area-inset-bottom)}
 /* Avoid toolbar collision with dashboard controls on mid-sized screens. */
-@media(min-width:768px){.dak-session-toolbar{top:8px;right:12px;max-width:40vw}main>header{padding-right:clamp(220px,22vw,360px)!important}.tab-view{padding-bottom:24px!important}}
+@media(min-width:768px){.dak-session-toolbar{top:8px;right:12px;max-width:40vw}.tab-view{padding-bottom:24px!important}}
 @media(max-width:767px){
   html,body{height:100%;height:100dvh}
   body{font-size:14px}
   main{width:100%;max-width:100vw;overflow-x:hidden}
-  main>header{position:relative;top:auto;z-index:30;padding:12px!important;border-radius:0 0 16px 16px!important;gap:8px}
-  main>header>*{max-width:100%}
   .tab-view{padding:12px!important;overflow-wrap:anywhere}
   .tab-view .grid{grid-template-columns:minmax(0,1fr)!important}
   .tab-view table{min-width:620px}
@@ -476,13 +472,6 @@ main>header>*{min-width:0}
 
 /* V79: compact two-tier header — profile occupies a deliberate slim top rail */
 @media (min-width: 768px) {
-  main > header {
-    padding-top: 50px !important;
-    padding-right: 20px !important;
-    position: relative;
-    min-height: 112px;
-    align-content: center;
-  }
   .dak-session-toolbar {
     position: absolute !important;
     top: 7px !important;
@@ -494,19 +483,13 @@ main>header>*{min-width:0}
     box-shadow: 0 4px 16px rgba(15,23,42,.07) !important;
   }
   .dak-session-toolbar button { padding: 7px 11px !important; }
-  main > header .no-print { min-width: 0; flex-wrap: wrap; overflow: visible !important; }
-  main > header #selBranch, main > header #selDate, main > header #selComp { min-height: 38px; font-size: 12px !important; }
 }
 @media (min-width: 768px) and (max-width: 1100px) {
-  main > header { padding-top: 48px !important; gap: 8px !important; }
   .dak-session-toolbar { max-width: calc(100% - 16px) !important; }
 }
 @media (min-width: 768px) {
-  main > header .w-full.xl\\:w-auto { min-width: 0; }
-  main > header .no-print { justify-content: flex-end; }
 }
 @media (max-width: 767px) {
-  main > header { padding-bottom: 10px !important; }
   .dak-session-toolbar { bottom: calc(82px + env(safe-area-inset-bottom)) !important; top: auto !important; max-width: calc(100vw - 16px) !important; }
 }
 @media print {
@@ -1955,152 +1938,6 @@ html.dark :where(.tab-view) :where(th,td,label){color:inherit}
   main>div:first-child>header .dak-command-trigger span{display:none!important}
   main>div:first-child>header .dak-command-trigger{width:34px!important;justify-content:center!important;padding:0!important}
   main>div:first-child>header .dak-command-trigger kbd{display:none!important}
-}
-
-
-/* ==========================================================
-   DaKOPen V131 · Rebuilt desktop workspace navigation
-   Fix: prevent center title, module tabs and quick links from
-   competing for one horizontal line and overflowing header.
-   ========================================================== */
-@media (min-width:1101px){
-  main>div:first-child>header{
-    grid-template-rows:48px 42px!important;
-    row-gap:0!important;
-    padding:5px 12px 6px!important;
-  }
-  main>div:first-child>header #dak-unified-global-nav{
-    grid-row:2!important;
-    min-height:40px!important;
-    height:40px!important;
-    padding:4px 0 0!important;
-    overflow:hidden!important;
-    border-top:1px solid rgba(148,163,184,.16)!important;
-  }
-  main>div:first-child>header .dak-unified-header{
-    display:grid!important;
-    grid-template-columns:max-content minmax(0,1fr)!important;
-    grid-template-rows:32px!important;
-    align-items:center!important;
-    justify-content:stretch!important;
-    column-gap:14px!important;
-    row-gap:0!important;
-    width:100%!important;
-    min-width:0!important;
-    height:32px!important;
-    overflow:hidden!important;
-  }
-  /* Center switcher is the only left-side element in row two. */
-  main>div:first-child>header .dak-center-switcher{
-    grid-column:1!important;
-    grid-row:1!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    gap:5px!important;
-    min-width:0!important;
-    height:30px!important;
-    overflow:visible!important;
-    white-space:nowrap!important;
-  }
-  main>div:first-child>header .dak-center-chip{
-    display:inline-flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:6px!important;
-    flex:0 0 auto!important;
-    min-height:28px!important;
-    height:28px!important;
-    padding:0 10px!important;
-    border:1px solid rgba(148,163,184,.22)!important;
-    border-radius:999px!important;
-    background:rgba(255,255,255,.56)!important;
-    color:#64748b!important;
-    font-size:10px!important;
-    font-weight:750!important;
-    line-height:1!important;
-    box-shadow:0 1px 2px rgba(15,23,42,.025)!important;
-    white-space:nowrap!important;
-  }
-  main>div:first-child>header .dak-center-chip.is-current{
-    color:#1d4ed8!important;
-    border-color:rgba(37,99,235,.22)!important;
-    background:linear-gradient(135deg,rgba(219,234,254,.92),rgba(239,246,255,.78))!important;
-    box-shadow:inset 0 0 0 1px rgba(59,130,246,.04)!important;
-  }
-  html.dark main>div:first-child>header .dak-center-chip{
-    color:#cbd5e1!important;background:rgba(30,41,59,.72)!important;border-color:rgba(148,163,184,.18)!important;
-  }
-  html.dark main>div:first-child>header .dak-center-chip.is-current{
-    color:#bfdbfe!important;background:rgba(30,64,175,.28)!important;border-color:rgba(96,165,250,.3)!important;
-  }
-  /* Remove redundant title/count and history/favorite ribbons from the
-     always-visible header; module tabs become the primary navigation. */
-  main>div:first-child>header .dak-unified-heading,
-  main>div:first-child>header .dak-quick-access{
-    display:none!important;
-  }
-  main>div:first-child>header .dak-unified-tabs{
-    grid-column:2!important;
-    grid-row:1!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:flex-start!important;
-    gap:5px!important;
-    width:100%!important;
-    max-width:none!important;
-    min-width:0!important;
-    height:31px!important;
-    margin:0!important;
-    padding:0 2px 1px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    scrollbar-width:thin!important;
-    scrollbar-color:rgba(100,116,139,.28) transparent!important;
-    overscroll-behavior-x:contain!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
-  main>div:first-child>header .dak-unified-tab{
-    flex:0 0 auto!important;
-    min-height:27px!important;
-    height:27px!important;
-    padding:0 10px!important;
-    border-radius:9px!important;
-    border:1px solid rgba(148,163,184,.16)!important;
-    background:rgba(255,255,255,.55)!important;
-    color:#64748b!important;
-    font-size:10px!important;
-    font-weight:700!important;
-    line-height:1!important;
-    white-space:nowrap!important;
-    box-shadow:none!important;
-    transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease!important;
-  }
-  main>div:first-child>header .dak-unified-tab:hover{
-    transform:translateY(-1px)!important;
-    border-color:rgba(59,130,246,.28)!important;
-    background:rgba(239,246,255,.9)!important;
-    color:#1d4ed8!important;
-  }
-  main>div:first-child>header .dak-unified-tab.is-active{
-    color:#fff!important;
-    border-color:rgba(37,99,235,.95)!important;
-    background:linear-gradient(135deg,#2563eb,#3b82f6)!important;
-    box-shadow:0 3px 8px rgba(37,99,235,.18)!important;
-  }
-  html.dark main>div:first-child>header .dak-unified-tab{
-    color:#cbd5e1!important;background:rgba(30,41,59,.66)!important;border-color:rgba(148,163,184,.16)!important;
-  }
-  html.dark main>div:first-child>header .dak-unified-tab.is-active{
-    color:#fff!important;background:linear-gradient(135deg,#1d4ed8,#3b82f6)!important;
-  }
-}
-@media (min-width:1101px) and (max-width:1350px){
-  main>div:first-child>header .dak-center-chip{
-    padding:0 8px!important;font-size:9px!important;gap:5px!important;
-  }
-  main>div:first-child>header .dak-unified-header{column-gap:8px!important}
-  main>div:first-child>header .dak-unified-tab{padding:0 8px!important;font-size:9px!important}
 }
 
 

@@ -508,7 +508,7 @@ function init() {
     google.script.run.withSuccessHandler(res => {
       s.snaps = res;
       if(!res || !res.length) { 
-          alert("Data Kosong / Belum ada Snapshot."); 
+          dakToastAlert("Data Kosong / Belum ada Snapshot."); 
           if(el('loader')) el('loader').style.display='none'; 
           return; 
       }
@@ -541,7 +541,7 @@ function init() {
       loadBranches(); 
 
     }).withFailureHandler(e => { 
-        alert("Error Init: "+e); 
+        dakToastAlert("Error Init: "+e); 
         if(el('loader')) el('loader').style.display='none'; 
     }).getAvailableSnapshots();
 
@@ -763,7 +763,7 @@ function refresh(viewId) {
     // Mutasi
     else if(id === 'view-mutasi') {
         if (!s.filter.c) {
-            alert("Harap pilih Tanggal Pembanding untuk melihat Mutasi!");
+            dakToastAlert("Harap pilih Tanggal Pembanding untuk melihat Mutasi!");
             if(loader) loader.style.display = 'none';
             if (typeof unlockMenu === 'function') unlockMenu(); // Pastikan menu terbuka kembali jika dibatalkan
         } else {
@@ -2028,7 +2028,7 @@ window.actionWA = function(nama, hp, pk, tgk, os, tgl) {
         if (window.showToast) {
             window.showToast("Nomor HP Kosong! Teks tagihan sudah disalin.", "warning");
         } else {
-            alert("Nomor HP Kosong! Teks tagihan sudah disalin ke clipboard.");
+            dakToastAlert("Nomor HP Kosong! Teks tagihan sudah disalin ke clipboard.");
         }
     }
 }
@@ -2119,6 +2119,21 @@ function showToast(msg, type) {
     close.addEventListener('click', removeToast);
     window.setTimeout(removeToast, kind === 'error' ? 6000 : 3800);
 }
+
+window.showToast = showToast;
+function dakToastAlert(msg, explicitType) {
+    var text = String(msg == null ? '' : msg).replace(/\s*\n+\s*/g, ' — ').trim();
+    var type = explicitType;
+    if (!type) {
+        var low = text.toLowerCase();
+        if (/(gagal|error|terputus|salah|tidak valid)/.test(low)) type = 'error';
+        else if (/(sukses|berhasil|tersalin|diperbarui|ditambahkan)/.test(low)) type = 'success';
+        else if (/(kosong|harap|pilih|centang|belum|tidak|lengkapi|parsial|⚠️)/.test(low)) type = 'warning';
+        else type = 'info';
+    }
+    showToast(text, type);
+}
+
 
 
 
@@ -2818,8 +2833,8 @@ function renderFreshDropPage(res) {
       var textArea = document.createElement("textarea"); textArea.value = text;
       textArea.style.position = "fixed"; textArea.style.left = "-9999px"; textArea.style.top = "0"; document.body.appendChild(textArea); textArea.focus(); textArea.select();
       try { var successful = document.execCommand('copy');
-      if(successful) alert("⚠️ NOMOR HP TIDAK TERSEDIA!\n\nScript penagihan telah disalin ke Clipboard.\nSilakan paste ke Email, Surat, atau Catatan.");
-      else alert("Gagal menyalin script."); } catch (err) { alert("Gagal menyalin script: " + err); } document.body.removeChild(textArea);
+      if(successful) dakToastAlert("⚠️ NOMOR HP TIDAK TERSEDIA!\n\nScript penagihan telah disalin ke Clipboard.\nSilakan paste ke Email, Surat, atau Catatan.");
+      else dakToastAlert("Gagal menyalin script."); } catch (err) { dakToastAlert("Gagal menyalin script: " + err); } document.body.removeChild(textArea);
   }
 
   // --- FUNGSI SEND WA (VERSI STABIL & TERINTEGRASI) ---
@@ -2967,7 +2982,7 @@ const fmtDate = (d) => {
 
 function renderMutasiPage(res) {
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
-    if(res.error) { alert(res.error); return; }
+    if(res.error) { dakToastAlert(res.error); return; }
 
     var container = document.getElementById('view-mutasi');
     
@@ -3804,12 +3819,12 @@ function renderTrend(res) {
   }
 
   function getWA() { if(el('loader')) el('loader').style.display='flex'; google.script.run.withSuccessHandler(txt => { if(el('loader')) el('loader').style.display='none'; el('waText').value = txt; el('modalWA').classList.remove('hidden'); }).getWAReport(s.filter.b, s.filter.d, s.filter.c); }
-  function copyWA() { const t = el('waText'); t.select(); document.execCommand('copy'); alert("Laporan Tersalin!"); }
+  function copyWA() { const t = el('waText'); t.select(); document.execCommand('copy'); dakToastAlert("Laporan Tersalin!"); }
 
  function doUpload(btn) {
     const file = el('upFileRaw').files[0];
     const date = el('upDate').value;
-    if (!file || !date) { alert("Lengkapi data!"); return; }
+    if (!file || !date) { dakToastAlert("Lengkapi data!"); return; }
 
     // --- INISIALISASI ANIMASI UI ---
     showUploadOverlay(); // Munculkan layar progress keren
@@ -3862,7 +3877,7 @@ function renderTrend(res) {
         google.script.run.withSuccessHandler(() => {
             finishUploadUI(true, "Upload selesai. Menyegarkan data aplikasi...");
             setTimeout(() => {
-                alert("Sukses! Data Strategic V60 telah diupdate.");
+                dakToastAlert("Sukses! Data Strategic V60 telah diupdate.");
                 location.reload();
             }, 1000);
         }).withFailureHandler(err => {
@@ -5633,7 +5648,7 @@ function renderReportPage(res) {
           var url = 'https://wa.me/' + hp + '?text=' + encodeURIComponent(msg);
           window.open(url, '_blank');
       } else {
-          alert('Script Penawaran berhasil disalin ke Clipboard! (Nomor HP Kosong)');
+          dakToastAlert('Script Penawaran berhasil disalin ke Clipboard! (Nomor HP Kosong)');
       }
   }
 
@@ -5714,7 +5729,7 @@ function processUploadWithAutoDate(data) {
   const header = String(data[0][0]).trim().toUpperCase();
   
   if (header !== "JOBDATE") {
-    alert("Error: Format file salah! Kolom A1 harus berisi header 'JOBDATE'.");
+    dakToastAlert("Error: Format file salah! Kolom A1 harus berisi header 'JOBDATE'.");
     return;
   }
 
@@ -5743,12 +5758,12 @@ function processUploadWithAutoDate(data) {
       // Jika Excel serial number (opsional, jaga-jaga)
       // Excel date serial logic butuh library moment/xlsx helper, 
       // tapi biasanya SheetJS sudah handle ini jadi string/date.
-      alert("Format tanggal Excel numeric terdeteksi. Pastikan cell diformat sebagai Text/Date.");
+      dakToastAlert("Format tanggal Excel numeric terdeteksi. Pastikan cell diformat sebagai Text/Date.");
       return;
   }
 
   if (!fixedDateStr) {
-    alert("Gagal membaca tanggal di A2. Pastikan format DD/MM/YYYY");
+    dakToastAlert("Gagal membaca tanggal di A2. Pastikan format DD/MM/YYYY");
     return;
   }
 
@@ -5762,7 +5777,7 @@ function processUploadWithAutoDate(data) {
         uploadBatchData(sheetName, data); 
     })
     .withFailureHandler(function(err) {
-        alert("Gagal Init: " + err.message);
+        dakToastAlert("Gagal Init: " + err.message);
     })
     .initUpload(fixedDateStr); // Kirim "2026-02-03"
 }
@@ -5792,7 +5807,7 @@ function detectDateFromFile(input) {
     reader.onload = function(e) {
         try {
             if (typeof XLSX === 'undefined') {
-                alert("Library SheetJS belum dimuat.");
+                dakToastAlert("Library SheetJS belum dimuat.");
                 return;
             }
 
@@ -6230,7 +6245,7 @@ function openMitigationForm(loanId) {
         } else {
             console.error("Form Linimasa Debitur tidak ditemukan: elemen #modal-mitigasi tidak ada. Periksa kesesuaian index.html dan app.js.");
             if (typeof showToast === 'function') showToast('Form linimasa tidak tersedia. Muat ulang aplikasi atau perbarui index.html dan app.js secara bersamaan.', 'error');
-            else alert('Form linimasa tidak tersedia. Muat ulang aplikasi atau perbarui index.html dan app.js secara bersamaan.');
+            else dakToastAlert('Form linimasa tidak tersedia. Muat ulang aplikasi atau perbarui index.html dan app.js secara bersamaan.');
         }
         return;
     }
@@ -6333,7 +6348,7 @@ function submitMitigasi(e) {
         hariIni.setHours(0, 0, 0, 0); // Reset jam ke 00:00 agar perbandingan adil
 
         if (tglJanji < hariIni) {
-            alert("⚠️ LOGIC ERROR:\nTanggal Janji Bayar tidak boleh di masa lalu (Backdate).\nSilakan perbaiki tanggal janji bayar.");
+            dakToastAlert("⚠️ LOGIC ERROR:\nTanggal Janji Bayar tidak boleh di masa lalu (Backdate).\nSilakan perbaiki tanggal janji bayar.");
             return; // STOP PROSES, JANGAN LANJUT
         }
     }
@@ -6372,7 +6387,7 @@ function submitMitigasi(e) {
         }
         // Backend kadang mengembalikan {error: ...} tanpa melempar exception.
         if (!res || res.error || res.success === false) {
-            alert('Gagal menyimpan log: ' + ((res && res.error) || (res && res.message) || 'Respons server tidak valid.'));
+            dakToastAlert('Gagal menyimpan log: ' + ((res && res.error) || (res && res.message) || 'Respons server tidak valid.'));
             return;
         }
         closeMitigasiModal();
@@ -6381,14 +6396,14 @@ function submitMitigasi(e) {
         } else if (typeof app !== 'undefined' && app.showJourneyDetail) {
             app.showJourneyDetail(data.loanId);
         }
-        alert(data.logId ? 'Log penanganan berhasil diperbarui.' : 'Log penanganan berhasil ditambahkan.');
+        dakToastAlert(data.logId ? 'Log penanganan berhasil diperbarui.' : 'Log penanganan berhasil ditambahkan.');
 
     }).withFailureHandler((err) => {
         if(submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
-        alert("Gagal simpan: " + err);
+        dakToastAlert("Gagal simpan: " + err);
     }).processMitigationForm(data); 
 }
 
@@ -6426,7 +6441,7 @@ function exportJourneyResume(loanId) {
 
     // 5. BUKA MODAL
     const resumeConfigModal = document.getElementById('modal-resume-config');
-    if (!resumeConfigModal) { alert('Form konfigurasi resume tidak tersedia. Muat ulang aplikasi dan pastikan aset V108 terpasang lengkap.'); return; }
+    if (!resumeConfigModal) { dakToastAlert('Form konfigurasi resume tidak tersedia. Muat ulang aplikasi dan pastikan aset V108 terpasang lengkap.'); return; }
     resumeConfigModal.classList.remove('hidden');
 
     // 6. LOAD DATA DARI SERVER
@@ -6599,7 +6614,7 @@ function generateResumeFinal() {
     const getVal = (id) => { const el = document.getElementById(id); if (!el) throw new Error('Elemen resume tidak ditemukan: #' + id); return el.value || ''; };
     let valSolusi, valKeuangan, valTindak;
     try { valSolusi = getVal('cfg-solusi'); valKeuangan = getVal('cfg-keuangan'); valTindak = getVal('cfg-tindak-lanjut'); }
-    catch (e) { alert(e.message + '. Pastikan index.html dan app.js satu versi.'); return; }
+    catch (e) { dakToastAlert(e.message + '. Pastikan index.html dan app.js satu versi.'); return; }
 
     google.script.run.saveDebtorResumeData(loanId, valSolusi, valKeuangan, valTindak);
 
@@ -6624,7 +6639,7 @@ function generateResumeFinal() {
     const list = (s && s.data && s.data.npl_list) ? s.data.npl_list : [];
     const basicData = list.find(x => String(x.loan).trim() === String(loanId).trim());
 
-    if (!basicData) { alert("Data dasar tidak ditemukan."); if(loader)loader.style.display='none'; return; }
+    if (!basicData) { dakToastAlert("Data dasar tidak ditemukan."); if(loader)loader.style.display='none'; return; }
 
     // --- 4. AMBIL DATA SERVER & RENDER ---
     google.script.run.withSuccessHandler(serverData => {
@@ -6666,7 +6681,7 @@ function generateResumeFinal() {
         // --- RENDER HTML PREVIEW ---
         const resumeArea = document.getElementById('resume-preview-content');
         const modalPreview = document.getElementById('modal-resume-preview');
-        if (!resumeArea || !modalPreview) { alert('Komponen pratinjau resume tidak ditemukan. Pastikan index.html dan app.js berasal dari versi yang sama.'); return; }
+        if (!resumeArea || !modalPreview) { dakToastAlert('Komponen pratinjau resume tidak ditemukan. Pastikan index.html dan app.js berasal dari versi yang sama.'); return; }
 
         const finalFilename = `RESUME_${d.loan}_${tglFile}`;
         const btnPrint = document.getElementById('btn-print-resume');
@@ -7216,7 +7231,7 @@ async function deleteLog(logId, loanId) {
         showJourneyDetail(loanId); // Refresh timeline
     }).withFailureHandler(err => {
         if(loader) loader.style.display = 'none';
-        alert("Gagal menghapus: " + err);
+        dakToastAlert("Gagal menghapus: " + err);
     }).deleteHandlingLog(logId);
 }
 
@@ -7275,7 +7290,7 @@ async function updateStatusKomitmen(logId, action, loanId, nominalJanji, current
         } else {
             statusFinal = 'PARSIAL';
             realisasiFinal = bayar;
-            alert(`⚠️ Pembayaran parsial.\nStatus: PARSIAL (Rp ${bayar.toLocaleString()})`);
+            dakToastAlert(`⚠️ Pembayaran parsial.\nStatus: PARSIAL (Rp ${bayar.toLocaleString()})`);
         }
     } 
     
@@ -7296,7 +7311,7 @@ async function updateStatusKomitmen(logId, action, loanId, nominalJanji, current
         else app.showJourneyDetail(loanId);
     }).withFailureHandler(err => {
         if(loader) loader.style.display = 'none';
-        alert("Gagal update: " + err);
+        dakToastAlert("Gagal update: " + err);
     }).updateCommitmentStatus(logId, statusFinal, realisasiFinal);
 }
 
@@ -7634,7 +7649,7 @@ function printDailyReport() {
     const dateStr = document.getElementById('selDate').value;
     
     // Validasi
-    if(!dateStr) { alert("Harap pilih tanggal terlebih dahulu di header atas."); return; }
+    if(!dateStr) { dakToastAlert("Harap pilih tanggal terlebih dahulu di header atas."); return; }
 
     // 2. Tampilkan Loading UI
     const container = document.getElementById('daily-report-content');
@@ -7837,8 +7852,8 @@ function generatePeriodicReport() {
     const startStr = document.getElementById('rpt-start-date').value;
     const endStr = document.getElementById('rpt-end-date').value;
     
-    if(!startStr || !endStr) { alert("Pilih rentang tanggal."); return; }
-    if(new Date(startStr) > new Date(endStr)) { alert("Tanggal Awal tidak boleh lebih besar dari Tanggal Akhir."); return; }
+    if(!startStr || !endStr) { dakToastAlert("Pilih rentang tanggal."); return; }
+    if(new Date(startStr) > new Date(endStr)) { dakToastAlert("Tanggal Awal tidak boleh lebih besar dari Tanggal Akhir."); return; }
 
     const container = document.getElementById('periodic-report-content');
     
@@ -8340,7 +8355,7 @@ function exportArchiveData() {
     const dataToExport = window.currentArchiveData;
     
     if (!dataToExport || dataToExport.length === 0) {
-        alert("Tidak ada data untuk diekspor. Silakan muat atau filter data terlebih dahulu.");
+        dakToastAlert("Tidak ada data untuk diekspor. Silakan muat atau filter data terlebih dahulu.");
         return;
     }
 
@@ -8387,7 +8402,7 @@ function exportArchiveData() {
 
     } catch (e) {
         console.error("Error Export Excel:", e);
-        alert("Gagal mengekspor data: " + e.message);
+        dakToastAlert("Gagal mengekspor data: " + e.message);
     } finally {
         // Kembalikan tombol ke semula
         btn.innerHTML = originalText;
@@ -8575,7 +8590,7 @@ window.selectAllForPrint = function() {
             }
         }, 400);
     } else {
-        alert("Semua berkas yang tampil di halaman ini sudah dicentang.");
+        dakToastAlert("Semua berkas yang tampil di halaman ini sudah dicentang.");
     }
 };
 
@@ -8585,11 +8600,11 @@ window.selectAllForPrint = function() {
 window.printSelectedLabels = function() {
     if (!window.selectedLabels) return;
     const ids = Array.from(window.selectedLabels);
-    if(ids.length === 0) return alert("Silakan centang minimal satu berkas!");
+    if(ids.length === 0) return dakToastAlert("Silakan centang minimal satu berkas!");
     
     // Ambil dari cache/state arsip Anda
     const archiveCache = app.state && app.state.archive_list ? app.state.archive_list : window.allArchiveData; 
-    if(!archiveCache) return alert("Data arsip belum termuat sempurna.");
+    if(!archiveCache) return dakToastAlert("Data arsip belum termuat sempurna.");
 
     const itemsToPrint = archiveCache.filter(item => ids.includes(item.loan));
     if(itemsToPrint.length === 0) return;
@@ -8740,7 +8755,7 @@ window.syncArchiveData = function(btnEl) {
     google.script.run
         .withSuccessHandler(function(res) {
             if(res && res.status === "error") {
-                alert("Gagal Sinkronisasi: " + res.message);
+                dakToastAlert("Gagal Sinkronisasi: " + res.message);
                 window.resetSyncButton(btnEl);
                 if (loader) loader.style.display = 'none';
             } else {
@@ -8758,7 +8773,7 @@ window.syncArchiveData = function(btnEl) {
             }
         })
         .withFailureHandler(function(err) {
-            alert("Koneksi ke server terputus: " + err.message);
+            dakToastAlert("Koneksi ke server terputus: " + err.message);
             window.resetSyncButton(btnEl);
             if (loader) loader.style.display = 'none';
         })
@@ -8785,7 +8800,7 @@ async function changeStatus(loanId, newStatus) {
     }
 
     google.script.run.withSuccessHandler(res => {
-        if(!res.success) alert("Gagal update status: " + res.message);
+        if(!res.success) dakToastAlert("Gagal update status: " + res.message);
     }).setArchiveStatus(loanId, newStatus);
 }
 
@@ -8802,7 +8817,7 @@ function openDetailFromArchive(loanId) {
             if(detailArea) detailArea.scrollIntoView({behavior: 'smooth'});
         }, 100);
     } else {
-        alert("Modul Journey belum dimuat.");
+        dakToastAlert("Modul Journey belum dimuat.");
     }
 }
 
@@ -8825,7 +8840,7 @@ function filterNewFiles() {
     
     const newItems = archiveCache.filter(x => x.is_new);
     renderArchiveList(newItems);
-    alert(`Menampilkan ${newItems.length} berkas baru bulan ini.`);
+    dakToastAlert(`Menampilkan ${newItems.length} berkas baru bulan ini.`);
 }
 
 
@@ -8903,16 +8918,16 @@ async function executeDeleteSheets() {
 
     google.script.run.withSuccessHandler(res => {
         if(res.success) {
-            alert(res.message);
+            dakToastAlert(res.message);
             // Refresh halaman paksa agar memori aplikasi tidak memanggil sheet yang sudah ga ada
             location.reload(); 
         } else {
-            alert("Gagal: " + res.message);
+            dakToastAlert("Gagal: " + res.message);
             btn.innerHTML = btnTextOriginal;
             btn.disabled = false;
         }
     }).withFailureHandler(err => {
-        alert("Error Koneksi: " + err);
+        dakToastAlert("Error Koneksi: " + err);
         btn.innerHTML = btnTextOriginal;
         btn.disabled = false;
     }).deleteDatabaseSheets(sheetNames);
@@ -9245,7 +9260,7 @@ function openBranchModal() {
     else if (typeof app !== 'undefined' && app.state && app.state.branch_perf) stats = app.state.branch_perf;
 
     if(!stats || Object.keys(stats).length === 0) {
-        alert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data berhasil.");
+        dakToastAlert("Data komparasi unit belum tersedia. Pastikan sinkronisasi data berhasil.");
         return;
     }
 
@@ -9483,7 +9498,7 @@ function initBottomSheetPhysics() {
 // --- FUNGSI EKSPOR WA: KOMPARASI CABANG (LENGKAP & SIAP FORWARD) ---
 function exportBranchWA() {
     const stats = app.state.branch_perf;
-    if (!stats || Object.keys(stats).length === 0) return alert("Data komparasi tidak tersedia.");
+    if (!stats || Object.keys(stats).length === 0) return dakToastAlert("Data komparasi tidak tersedia.");
     
     const fmt = v => new Intl.NumberFormat('id-ID').format(v || 0);
     const dateStr = document.getElementById('headerDate') ? document.getElementById('headerDate').innerText : new Date().toLocaleDateString('id-ID');
@@ -9544,7 +9559,7 @@ function exportBranchWA() {
 // --- FUNGSI EKSPOR PDF: KOMPARASI CABANG (ANTI BLANK PUTIH) ---
 function exportBranchPDF() {
     const stats = app.state.branch_perf;
-    if (!stats || Object.keys(stats).length === 0) return alert("Data komparasi tidak tersedia.");
+    if (!stats || Object.keys(stats).length === 0) return dakToastAlert("Data komparasi tidak tersedia.");
     
     // Tampilkan loading screen
     if (document.getElementById('loader')) document.getElementById('loader').style.display = 'flex';

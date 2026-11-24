@@ -286,3 +286,29 @@ html.dark .bk-fb-latest{color:#ffb070!important}
     font-size: 10px !important;
   }
 }
+
+/* v1593 — Sticky column nama debitur saat tabel digeser horizontal */
+table.dak-sticky-c1:not(.bk-cards) th:first-child,
+table.dak-sticky-c1:not(.bk-cards) td:first-child,
+table.dak-sticky-c2:not(.bk-cards) th:nth-child(2),
+table.dak-sticky-c2:not(.bk-cards) td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  z-index: 12;
+  background-color: #ffffff;
+  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
+}
+table.dak-sticky-c1:not(.bk-cards) thead th:first-child,
+table.dak-sticky-c2:not(.bk-cards) thead th:nth-child(2) {
+  z-index: 22;
+  background-color: #f8fafc;
+}
+html.dark table.dak-sticky-c1:not(.bk-cards) td:first-child,
+html.dark table.dak-sticky-c2:not(.bk-cards) td:nth-child(2) {
+  background-color: #1e293b;
+  box-shadow: 2px 0 6px -2px rgba(0, 0, 0, 0.35);
+}
+html.dark table.dak-sticky-c1:not(.bk-cards) thead th:first-child,
+html.dark table.dak-sticky-c2:not(.bk-cards) thead th:nth-child(2) {
+  background-color: #0f172a;
+}
