@@ -3,9 +3,12 @@
 <html lang="id">
 <head>
 <meta charset="utf-8"/>
+<!-- v1595 Anti-Flicker (FOUC Guard) -->
+<style id="dak-fouc-guard">html.dak-booting body{opacity:0}body{transition:opacity .18s ease-out}</style>
+<script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1594 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1595 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -41,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1594" rel="stylesheet">
+<link href="dak-detail.css?v=1595" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -170,7 +173,7 @@
 <div class="flex items-center gap-1.5">
 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)] animate-pulse"></span>
 <span class="text-[10px] md:text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                    Data: <span class="text-slate-600 dark:text-slate-300 font-black" id="headerDate">...</span>
+                    Data: <span class="text-slate-600 dark:text-slate-300 font-black" id="headerDate">...</span> <span id="dak-freshness" class="dak-freshness" hidden></span>
 </span>
 </div>
 </div>
@@ -204,6 +207,15 @@
 </div>
 <div aria-live="polite" class="dak-unified-global-nav hidden" id="dak-unified-global-nav"></div>
 </header>
+</div>
+<!-- v1595 Top Progress Bar & Offline Banner -->
+<div id="dak-top-progress" class="dak-top-progress" aria-hidden="true"><span></span></div>
+<div id="dak-offline-banner" class="dak-offline-banner" role="status" aria-live="polite" hidden>
+  <div class="dak-offline-inner">
+    <i class="fas fa-wifi dak-offline-ico" aria-hidden="true"></i>
+    <span id="dak-offline-text">Mode Offline — menampilkan data terakhir. Beberapa aksi simpan tidak tersedia.</span>
+  </div>
+  <button type="button" class="dak-offline-retry" onclick="window.location.reload()">Coba Lagi</button>
 </div>
 <!-- AREA KONTEN (TABS) -->
 <!-- pb-24: Safe Area agar di HP konten terbawah tidak tertutup bottom nav -->
@@ -1748,7 +1760,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1590"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1593"></script>
+<script defer src="app.js?v=1595"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

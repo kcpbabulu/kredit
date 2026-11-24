@@ -6,6 +6,62 @@ const GAS_URL = "https://script.google.com/macros/s/AKfycbyck07bvRRtow084FWUkJc1
 window.google = { script: { run: null } };
 
 // Membuat objek palsu yang mencegat perintah google.script.run
+// v1595 UX Helpers: Non-blocking Top Progress, Skeleton Shimmer & Data Freshness
+window.__dakPendingReq = 0;
+window.dakSetBusy = function(delta) {
+    window.__dakPendingReq = Math.max(0, (window.__dakPendingReq || 0) + delta);
+    const bar = document.getElementById('dak-top-progress');
+    if (bar) bar.classList.toggle('is-active', window.__dakPendingReq > 0);
+    if (window.__dakPendingReq === 0) {
+        document.querySelectorAll('.tab-view[aria-busy="true"]').forEach(el => el.removeAttribute('aria-busy'));
+    }
+};
+window.dakMarkFresh = function(ts) {
+    try {
+        const d = ts ? new Date(ts) : new Date();
+        if (isNaN(d.getTime())) return;
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        if (!ts) localStorage.setItem('dak_last_fresh_ts', String(d.getTime()));
+        const el = document.getElementById('dak-freshness');
+        if (el) {
+            el.textContent = 'Diperbarui ' + hh + ':' + mm;
+            el.title = 'Data terakhir disinkronkan pukul ' + hh + ':' + mm;
+            el.hidden = false;
+        }
+    } catch (e) {}
+};
+window.dakSyncOfflineBanner = function(justOnline) {
+    const banner = document.getElementById('dak-offline-banner');
+    const txt = document.getElementById('dak-offline-text');
+    const retry = banner && banner.querySelector('.dak-offline-retry');
+    if (!banner || !txt) return;
+    if (!navigator.onLine) {
+        banner.classList.remove('is-online');
+        let lastTs = '';
+        try {
+            const saved = Number(localStorage.getItem('dak_last_fresh_ts') || 0);
+            if (saved) {
+                const d = new Date(saved);
+                lastTs = ' (terakhir ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ')';
+            }
+        } catch (e) {}
+        txt.textContent = 'Mode Offline — menampilkan data terakhir' + lastTs + '. Aksi simpan & sinkronisasi dijeda.';
+        if (retry) retry.hidden = false;
+        banner.hidden = false;
+    } else if (justOnline) {
+        banner.classList.add('is-online');
+        txt.textContent = 'Kembali Online — koneksi pulih. Data siap disinkronkan.';
+        if (retry) retry.hidden = true;
+        banner.hidden = false;
+        clearTimeout(window.__dakOnlineTimer);
+        window.__dakOnlineTimer = setTimeout(() => { banner.hidden = true; banner.classList.remove('is-online'); }, 3200);
+    } else {
+        banner.hidden = true;
+        banner.classList.remove('is-online');
+    }
+};
+
 function createGasProxy(successHandler, failureHandler) {
     return new Proxy({}, {
         get: function(target, propName) {
@@ -36,6 +92,8 @@ function createGasProxy(successHandler, failureHandler) {
                     requestTimedOut = true;
                     controller.abort();
                 }, requestTimeoutMs);
+                const __trackBusy = (propName !== 'authLogin');
+                if (__trackBusy && window.dakSetBusy) window.dakSetBusy(1);
                 fetch(GAS_URL, {
                     method: 'POST',
                     signal: controller.signal,
@@ -52,8 +110,10 @@ function createGasProxy(successHandler, failureHandler) {
                     const globalLoader = document.getElementById('loader');
                     if (globalLoader && propName !== 'authLogin') globalLoader.style.display = 'none';
                     // -----------------
+                    if (__trackBusy && window.dakSetBusy) window.dakSetBusy(-1);
                     clearTimeout(timeoutId);
                     if (res.status === 'success') {
+                        if (propName !== 'authLogin' && window.dakMarkFresh) window.dakMarkFresh();
                         if (propName === 'authLogin' && res.data && res.data.token) window.dakApplySession(res.data);
                         if (successHandler) successHandler(res.data);
                     } else {
@@ -64,6 +124,7 @@ function createGasProxy(successHandler, failureHandler) {
                     }
                 })
                 .catch(err => {
+                    if (__trackBusy && window.dakSetBusy) window.dakSetBusy(-1);
                     clearTimeout(timeoutId);
                     console.error("Fetch Error:", err);
                     const globalLoader = document.getElementById('loader');
@@ -105,9 +166,9 @@ function updateNetworkStatus() {
   const online=navigator.onLine; el.textContent=online?'Online':'Offline'; el.classList.toggle('is-offline',!online);
   el.setAttribute('aria-label',online?'Koneksi internet tersedia':'Koneksi internet tidak tersedia');
 }
-window.addEventListener('online',()=>{updateNetworkStatus();showAppNotice('Koneksi kembali tersedia. Muat ulang data untuk sinkronisasi.','success');});
-window.addEventListener('offline',()=>{updateNetworkStatus();showAppNotice('Offline: hanya aset aplikasi yang tersimpan yang dapat dibuka. Data kredit belum tentu terbaru.','warning');});
-document.addEventListener('DOMContentLoaded',updateNetworkStatus);
+window.addEventListener('online',()=>{updateNetworkStatus();if(window.dakSyncOfflineBanner)window.dakSyncOfflineBanner(true);showAppNotice('Koneksi kembali tersedia. Muat ulang data untuk sinkronisasi.','success');});
+window.addEventListener('offline',()=>{updateNetworkStatus();if(window.dakSyncOfflineBanner)window.dakSyncOfflineBanner(false);showAppNotice('Offline: hanya aset aplikasi yang tersimpan yang dapat dibuka. Data kredit belum tentu terbaru.','warning');});
+document.addEventListener('DOMContentLoaded',()=>{updateNetworkStatus();if(window.dakSyncOfflineBanner)window.dakSyncOfflineBanner(false);try{const saved=Number(localStorage.getItem('dak_last_fresh_ts')||0);if(saved&&window.dakMarkFresh)window.dakMarkFresh(saved);}catch(e){}});
 
 // ================= BATAS BRIDGE PROXY =================
 
@@ -680,7 +741,7 @@ function refresh(viewId) {
         const el = document.getElementById(id);
         if(el) {
             // Ganti angka dengan kotak abu-abu berdenyut
-            el.innerHTML = '<div class="animate-pulse bg-gray-200 dark:bg-slate-700 h-6 w-24 rounded"></div>';
+            el.innerHTML = '<span class="dak-skel-inline" aria-hidden="true"></span>';
         }
     });
 

@@ -413,3 +413,187 @@ html.dark table.dak-sticky-c2:not(.bk-cards) thead th:nth-child(2) {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+/* =====================================================================
+   v1595 — UX Polish: Skeleton Shimmer, Top Progress Bar, Offline Banner & Freshness
+   ===================================================================== */
+/* 1. Top Slim Progress Bar */
+.dak-top-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 2147482600;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .2s ease;
+  background: rgba(37, 99, 235, 0.12);
+  overflow: hidden;
+}
+.dak-top-progress.is-active {
+  opacity: 1;
+}
+.dak-top-progress > span {
+  display: block;
+  height: 100%;
+  width: 42%;
+  background: linear-gradient(90deg, transparent, #2563eb 45%, #38bdf8 80%, transparent);
+  border-radius: 999px;
+  animation: dakTopSweep 1.15s cubic-bezier(.4, 0, .2, 1) infinite;
+}
+@keyframes dakTopSweep {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(340%); }
+}
+
+/* 2. Non-blocking Skeleton Shimmer saat tab-view sedang memuat data */
+@keyframes dakShimmerSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.tab-view[aria-busy="true"] .glass-card,
+.tab-view[aria-busy="true"] .bk-kpi {
+  position: relative;
+  overflow: hidden;
+}
+.tab-view[aria-busy="true"] .glass-card::after,
+.tab-view[aria-busy="true"] .bk-kpi::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.48) 50%, transparent 80%);
+  animation: dakShimmerSweep 1.25s ease-in-out infinite;
+}
+html.dark .tab-view[aria-busy="true"] .glass-card::after,
+html.dark .tab-view[aria-busy="true"] .bk-kpi::after {
+  background: linear-gradient(100deg, transparent 20%, rgba(148, 163, 184, 0.14) 50%, transparent 80%);
+}
+.tab-view[aria-busy="true"] tbody {
+  opacity: 0.62;
+  transition: opacity .2s ease;
+}
+.dak-skel-inline {
+  display: inline-block;
+  height: 1.15em;
+  width: 5.5rem;
+  border-radius: 6px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: dakSkelBg 1.2s ease-in-out infinite;
+}
+html.dark .dak-skel-inline {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+  background-size: 200% 100%;
+}
+@keyframes dakSkelBg {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* 3. Persistent Slim Offline / Online Banner */
+.dak-offline-banner {
+  margin: 0 12px 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(254, 243, 199, 0.94);
+  color: #92400e;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 14px rgba(146, 64, 14, 0.08);
+  transition: all .2s ease;
+}
+.dak-offline-banner[hidden] {
+  display: none !important;
+}
+.dak-offline-banner.is-online {
+  background: rgba(209, 250, 229, 0.95);
+  color: #065f46;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+html.dark .dak-offline-banner {
+  background: rgba(120, 53, 15, 0.42);
+  color: #fde68a;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+html.dark .dak-offline-banner.is-online {
+  background: rgba(6, 78, 59, 0.48);
+  color: #a7f3d0;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+.dak-offline-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.dak-offline-ico {
+  flex: none;
+  font-size: 13px;
+}
+.dak-offline-retry {
+  flex: none;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 30px;
+}
+.dak-offline-retry:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+@media (min-width: 768px) {
+  .dak-offline-banner {
+    margin: 0 20px 6px;
+  }
+}
+
+/* 4. Data Freshness Badge di Header */
+.dak-freshness {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: #059669;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+}
+html.dark .dak-freshness {
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.16);
+  border-color: rgba(16, 185, 129, 0.28);
+}
+.dak-freshness[hidden] {
+  display: none !important;
+}
+@media (max-width: 480px) {
+  .dak-freshness {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dak-top-progress > span,
+  .tab-view[aria-busy="true"] .glass-card::after,
+  .tab-view[aria-busy="true"] .bk-kpi::after,
+  .dak-skel-inline {
+    animation: none !important;
+  }
+}
