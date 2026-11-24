@@ -1,10 +1,10 @@
-/* DaKOPen PWA v1560 — strategi cache per jenis berkas.
+/* DaKOPen PWA v1570 — strategi cache per jenis berkas.
    - Halaman (index): jaringan dulu (maks 4 dtk), cadangan dari cache → selalu versi terbaru bila online.
    - Aset berversi (?v=...): cache dulu → instan, versi baru otomatis karena angka ?v berubah.
    - Library CDN & font: tampil dari cache, diperbarui di latar belakang.
    - Panggilan API Apps Script TIDAK pernah dicache di sini (data debitur). */
-const CACHE_VERSION = 'dakopen-static-v1560-detail';
-const APP_SHELL = ['./','./index.html','./style.css?v=1509','./dak-banking.css?v=1520','./dak-interact.css?v=1560','./dak-polish.css?v=1560','./dak-detail.css?v=1560','./dak-interact.js?v=1560','./dak-detail.js?v=1560','./app.js?v=1560','./manifest.json'];
+const CACHE_VERSION = 'dakopen-static-v1570-noa';
+const APP_SHELL = ['./','./index.html','./style.css?v=1509','./dak-banking.css?v=1520','./dak-interact.css?v=1570','./dak-polish.css?v=1570','./dak-detail.css?v=1570','./dak-interact.js?v=1570','./dak-detail.js?v=1570','./app.js?v=1570','./manifest.json'];
 const CDN_HOSTS = ['cdnjs.cloudflare.com','cdn.jsdelivr.net','unpkg.com','cdn.sheetjs.com','cdn.tailwindcss.com','fonts.googleapis.com','fonts.gstatic.com'];
 
 self.addEventListener('install', event => {
