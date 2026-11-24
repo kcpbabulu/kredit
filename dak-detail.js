@@ -226,8 +226,20 @@
       e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1);
     });
     syncBar();
+    if (window.ResizeObserver) new ResizeObserver(() => fit()).observe($('bk-hdr') || document.body); else window.addEventListener('resize', fit);
+  }
+  function fit() {
+    const bar = FB.bar, w = $('bk-filterwrap'); if (!bar || !w || !bar.offsetParent) return;
+    bar.classList.remove('c1', 'c2', 'c3');
+    const over = () => w.scrollWidth > w.clientWidth + 1 || bar.scrollWidth > bar.clientWidth + 1;
+    for (const c of ['c1', 'c2', 'c3']) { if (!over()) break; bar.classList.add(c); }
+  }
+  function cleanSheet() { // sisa lembar filter HP tidak boleh tampil di desktop (berkas lama bisa masih membuatnya)
+    const desk = window.matchMedia('(min-width: 768px)').matches;
+    document.querySelectorAll('#bk-filterwrap .bk-sheet-head, #bk-filterwrap .bk-fl, #bk-filterwrap .bk-grab').forEach(e => { e.style.display = desk ? 'none' : ''; });
   }
   function syncBar() {
+    cleanSheet();
     const bar = FB.bar; if (!bar) return;
     const sb = $('selBranch'), sd = $('selDate'), sc = $('selComp'); if (!sb || !sd) return;
     const o = sb.selectedOptions && sb.selectedOptions[0], full = o ? o.textContent.trim() : '';
@@ -247,6 +259,7 @@
     const ctxt = cv ? 'vs ' + isoToLong(cv) : 'Tanpa pembanding'; if (ct.textContent !== ctxt) ct.textContent = ctxt; cb.classList.toggle('is-none', !cv);
     cb.setAttribute('aria-label', 'Tanggal pembanding: ' + (cv ? isoToLong(cv) : 'tidak ada'));
     cb.disabled = !sc || readDates(sc).length === 0;
+    fit();
   }
   function goDate(iso) { const sd = $('selDate'); if (!sd || sd.value === iso) return; sd.value = iso; syncBar(); clearTimeout(FB.stepT); FB.stepT = setTimeout(() => { fire(sd); }, 380); busy(); }
   function step(dir) {
@@ -614,6 +627,7 @@
   }
 
   function init() {
+    document.documentElement.dataset.dakVer = '1590'; console.info('DaKOPen UI v1590');
     initCalendars(); buildBar(); watchClose(); addLinkButton(); openFromHash();
     // select tanggal dibuat/diisi ulang oleh app.js; pastikan tombol selalu sinkron
     setInterval(() => { initCalendars(); buildBar(); syncBar(); const a = $('selDate'), c = $('selComp'); if (a) syncButton(a); if (c) syncButton(c); }, 900);
