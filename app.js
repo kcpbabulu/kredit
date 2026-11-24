@@ -575,7 +575,11 @@ function loadBranches() {
       const options = isRestricted
         ? available.map(b => `<option value="${b.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">${b.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('')
         : '<option value="ALL">Semua Unit</option>' + available.map(b => `<option value="${b.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}">${b.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</option>`).join('');
-      const defaultBranch = isRestricted ? (available[0] || '') : 'ALL';
+      // v1580: pertahankan unit yang sedang dipilih (atau terakhir dipakai) saat tanggal data diganti
+      let savedB = ''; try { savedB = localStorage.getItem('dak_unit') || ''; } catch (e) {}
+      const curB = (el('selBranch') && el('selBranch').value) || savedB;
+      const keepB = curB && (available.includes(curB) || (!isRestricted && curB === 'ALL')) ? curB : '';
+      const defaultBranch = keepB || (isRestricted ? (available[0] || '') : 'ALL');
       const h = options || '<option value="">Tidak ada cabang yang diizinkan</option>';
 
       // A. Isi Dropdown Toolbar Utama dan pilih cabang awal yang aman.
@@ -9760,6 +9764,13 @@ window.renderTableRaw = function(tableId, rows) {
     // 2. Event Handlers
     onDateChange: function() { 
         s.filter.d = document.getElementById('selDate').value; 
+        // v1580: pembanding otomatis mengikuti bulan sebelumnya dari tanggal yang dipilih
+        try {
+            const sc = document.getElementById('selComp');
+            const ym = String(s.filter.d).slice(0, 7);
+            const prev = (s.snaps || []).filter(x => String(x.date).slice(0, 7) < ym).sort((a, b) => a.date < b.date ? 1 : -1)[0];
+            if (sc) { sc.value = prev ? prev.date : ''; s.filter.c = sc.value; }
+        } catch (e) { console.warn('auto banding:', e); }
         loadBranches(); 
     },
 
