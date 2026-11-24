@@ -25,6 +25,45 @@
   }
   window.dakCopy = copyText;
 
+
+  /* ---- Mutasi kredit: rekap NoA & OS per segmen + filter segmen ---- */
+  const MUT = [['new_booking', 'Pencairan', 'NEW'], ['repayment', 'Pelunasan', 'LUNAS'], ['downgrade', 'Downgrade', 'DROP'], ['upgrade', 'Upgrade', 'RISE']];
+  const TABS = { new_booking: 'tab_new', repayment: 'tab_lunas', downgrade: 'tab_drop', upgrade: 'tab_rise' };
+  window.dakMutasiSeg = function (res, renderList) {
+    try {
+      const host = $('view-mutasi'); if (!host || !res || !res.details) return;
+      const old = $('bk-seg'); if (old) old.remove();
+      const det = res.details, known = MUT.some(m => (det[m[0]] || []).some(x => x.seg));
+      const agg = (arr, seg) => { let n = 0, o = 0; (arr || []).forEach(x => { if (!seg || x.seg === seg) { n++; o += Number(x.os) || 0; } }); return { n, o }; };
+      const cell = a => a.n ? nf.format(a.n) + ' NoA<small>' + rp(a.o) + '</small>' : '<span style="color:var(--dd-mut)">–</span>';
+      let rows = '';
+      MUT.forEach(m => {
+        const arr = det[m[0]] || [], k = agg(arr, 'Kons'), p = agg(arr, 'Prod'), t = agg(arr);
+        rows += '<tr><td>' + m[1] + '</td>' + (known ? '<td>' + cell(k) + '</td><td>' + cell(p) + '</td>' : '') + '<td>' + cell(t) + '</td></tr>';
+      });
+      const grid = host.querySelector('.grid'); if (!grid) return;
+      const sec = document.createElement('section'); sec.id = 'bk-seg'; sec.className = 'bk-seg'; sec.setAttribute('aria-label', 'Rekap mutasi per segmen');
+      sec.innerHTML = '<div class="bk-seg-head"><h3>Rekap per segmen kredit</h3>' + (known ? '<div class="bk-seg-filter" role="group" aria-label="Filter segmen daftar mutasi"><button type="button" data-seg="" aria-pressed="true">Semua</button><button type="button" data-seg="Kons" aria-pressed="false">Konsumtif</button><button type="button" data-seg="Prod" aria-pressed="false">Produktif</button></div>' : '') + '</div>' +
+        '<div class="bk-seg-scroll"><table><thead><tr><th>Mutasi</th>' + (known ? '<th>Konsumtif</th><th>Produktif</th>' : '') + '<th>Total</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<p class="bk-seg-note">' + (known ? 'OS adalah baki debet akhir periode (pelunasan memakai baki debet sebelum lunas). Filter di atas juga berlaku untuk daftar di bawah.' : 'Segmentasi belum tersedia: perbarui Code.gs di Apps Script agar rekap per konsumtif/produktif muncul.') + '</p>';
+      grid.insertAdjacentElement('afterend', sec);
+      sec.querySelectorAll('[data-seg]').forEach(b => b.addEventListener('click', () => {
+        sec.querySelectorAll('[data-seg]').forEach(x => x.setAttribute('aria-pressed', x === b));
+        const seg = b.dataset.seg;
+        MUT.forEach(m => { const t = $(TABS[m[0]]); if (t && renderList) t.innerHTML = renderList((det[m[0]] || []).filter(x => !seg || x.seg === seg), m[2]); });
+      }));
+    } catch (e) { console.warn('dakMutasiSeg:', e); }
+  };
+
+  /* ---- NoA kecil di bawah angka kartu (dashboard & NPL Intelligence Center) ---- */
+  window.dakNoa = function (valueId, n, label) {
+    const v = $(valueId); if (!v) return;
+    let t = $('noa_' + valueId);
+    if (n == null || isNaN(Number(n))) { if (t) t.remove(); return; }
+    if (!t) { t = document.createElement('div'); t.id = 'noa_' + valueId; t.className = 'bk-noa'; v.insertAdjacentElement('afterend', t); }
+    t.textContent = (label || 'NoA') + ' ' + nf.format(Number(n));
+  };
+
   /* =====================================================================
      1. KALENDER PEMILIH TANGGAL DATA
      ===================================================================== */
@@ -41,14 +80,14 @@
   }
   function syncButton(sel) {
     const b = sel._bkBtn; if (!b) return;
-    const txt = b.querySelector('.bk-calbtn-txt'), v = labelFor(sel, sel.id === 'selComp' ? 'Banding…' : 'Pilih tanggal');
+    const txt = b.querySelector('.bk-calbtn-txt'), isC = sel.id === 'selComp', v0 = labelFor(sel, isC ? 'Tanpa pembanding' : 'Pilih tanggal'), v = isC && sel.value ? 'vs ' + v0 : v0;
     if (txt.textContent !== v) txt.textContent = v;
     b.setAttribute('aria-label', (sel.id === 'selComp' ? 'Tanggal pembanding: ' : 'Tanggal data: ') + v);
     b.disabled = readDates(sel).length === 0;
   }
   function attach(sel) {
     if (!sel || sel._bkBtn) return;
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'bk-calbtn';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'bk-calbtn'; b.dataset.for = sel.id;
     b.setAttribute('aria-haspopup', 'dialog');
     b.innerHTML = '<i class="fas fa-calendar-days" aria-hidden="true"></i><span class="bk-calbtn-txt"></span>';
     sel.parentNode.insertBefore(b, sel); sel.classList.add('bk-cal-src'); sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
