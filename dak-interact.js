@@ -408,6 +408,7 @@
   }
   function buildSheet() {
     const w = $('bk-filterwrap'); if (!w || w.dataset.bkSheet) return;
+    if (!window.matchMedia('(max-width: 767px)').matches) return;
     w.dataset.bkSheet = '1'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-label', 'Filter data');
     const head = document.createElement('div'); head.className = 'bk-sheet-head';
     head.innerHTML = '<span class="bk-grab" aria-hidden="true"></span><strong>Filter data</strong><button type="button" class="bk-sheet-done">Selesai</button>';

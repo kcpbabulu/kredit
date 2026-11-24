@@ -104,9 +104,9 @@
     d.addEventListener('keydown', onKey);
     cal.el = d; return d;
   }
-  function openCal(sel) {
+  function openCal(sel, anchor) {
     const el = ensureEl();
-    cal.sel = sel; cal.btn = sel._bkBtn; cal.allowEmpty = sel.id === 'selComp';
+    cal.sel = sel; cal.btn = anchor || sel._bkBtn; cal.allowEmpty = sel.id === 'selComp';
     cal.dates = readDates(sel); cal.set = new Set(cal.dates);
     if (!cal.dates.length) return;
     const cur = sel.value && cal.set.has(sel.value) ? sel.value : cal.dates[cal.dates.length - 1];
@@ -185,6 +185,127 @@
     render(); focusDay();
   }
   window.addEventListener('resize', () => { if (cal.el && !cal.el.hidden) position(); });
+
+
+  /* =====================================================================
+     1b. BAR FILTER HEADER (unit · periode · pembanding) — desktop
+     ===================================================================== */
+  const shortUnit = t => String(t || '').replace('KANTOR CABANG PENAJAM', 'KC PPU').replace(/^KANTOR CABANG /, 'KC ').replace(/^CAPEM /, 'KCP ').replace(/\s+/g, ' ').trim();
+  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : v; } catch (e) { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  const FB = { bar: null, pop: null, hi: 0, stepT: 0, busyT: 0 };
+  const fire = sel => sel.dispatchEvent(new Event('change', { bubbles: true }));
+  function busy() { if (!FB.bar) return; FB.bar.classList.add('is-busy'); clearTimeout(FB.busyT); FB.busyT = setTimeout(() => FB.bar && FB.bar.classList.remove('is-busy'), 1100); }
+
+  function buildBar() {
+    const w = $('bk-filterwrap'), sb = $('selBranch'), sd = $('selDate'); if (!w || !sb || !sd || FB.bar) return;
+    const cap = sb.closest('#bk-filterwrap > div'); if (cap) cap.classList.add('bk-cap');
+    const bar = document.createElement('div'); bar.id = 'bk-fbar'; bar.className = 'bk-fbar'; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', 'Filter data');
+    bar.innerHTML =
+      '<div class="bk-fb-unitwrap"><button type="button" class="bk-fb-unit" aria-haspopup="listbox" aria-expanded="false"><i class="fas fa-building-columns" aria-hidden="true"></i><span class="bk-fb-unit-t">Semua Unit</span><i class="fas fa-chevron-down bk-fb-chev" aria-hidden="true"></i></button><button type="button" class="bk-fb-x" aria-label="Kembali ke Semua Unit" title="Kembali ke Semua Unit" hidden>×</button></div>' +
+      '<span class="bk-fb-sep" aria-hidden="true"></span>' +
+      '<div class="bk-fb-date"><button type="button" class="bk-fb-step" data-step="-1" aria-label="Periode sebelumnya" title="Periode sebelumnya (Alt+←)">‹</button>' +
+      '<button type="button" class="bk-fb-datebtn" aria-haspopup="dialog"><i class="fas fa-calendar-days" aria-hidden="true"></i><span class="bk-fb-d">–</span></button>' +
+      '<button type="button" class="bk-fb-step" data-step="1" aria-label="Periode berikutnya" title="Periode berikutnya (Alt+→)">›</button></div>' +
+      '<button type="button" class="bk-fb-latest" hidden title="Kembali ke data terbaru">Ke terbaru</button>' +
+      '<span class="bk-fb-sep" aria-hidden="true"></span>' +
+      '<button type="button" class="bk-fb-comp" aria-haspopup="dialog"><span class="bk-fb-c">–</span></button>' +
+      '<span class="bk-fb-bar" aria-hidden="true"></span>';
+    w.insertBefore(bar, w.firstChild); FB.bar = bar;
+    const q = sel => bar.querySelector(sel);
+    q('.bk-fb-unit').addEventListener('click', toggleUnit);
+    q('.bk-fb-x').addEventListener('click', () => setUnit('ALL'));
+    q('.bk-fb-datebtn').addEventListener('click', e => openCal(sd, e.currentTarget));
+    q('.bk-fb-comp').addEventListener('click', e => { const c = $('selComp'); if (c) openCal(c, e.currentTarget); });
+    bar.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => step(+b.dataset.step)));
+    q('.bk-fb-latest').addEventListener('click', () => { const d = readDates(sd); if (d.length) goDate(d[d.length - 1]); });
+    ['selBranch', 'selDate', 'selComp'].forEach(id => { const x = $(id); if (!x) return; x.addEventListener('change', () => { syncBar(); busy(); }); new MutationObserver(syncBar).observe(x, { childList: true }); });
+    document.addEventListener('keydown', e => {
+      if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+      if (/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) return;
+      e.preventDefault(); step(e.key === 'ArrowLeft' ? -1 : 1);
+    });
+    syncBar();
+  }
+  function syncBar() {
+    const bar = FB.bar; if (!bar) return;
+    const sb = $('selBranch'), sd = $('selDate'), sc = $('selComp'); if (!sb || !sd) return;
+    const o = sb.selectedOptions && sb.selectedOptions[0], full = o ? o.textContent.trim() : '';
+    const isAll = !o || o.value === 'ALL' || !o.value, hasAll = Array.from(sb.options).some(x => x.value === 'ALL');
+    const unit = bar.querySelector('.bk-fb-unit'), ut = bar.querySelector('.bk-fb-unit-t');
+    const txt = isAll ? (full || 'Semua Unit') : shortUnit(full);
+    if (ut.textContent !== txt) ut.textContent = txt; unit.title = full || 'Pilih unit';
+    unit.classList.toggle('is-filtered', !isAll); unit.disabled = sb.disabled || sb.options.length <= 1;
+    bar.querySelector('.bk-fb-chev').style.display = unit.disabled ? 'none' : '';
+    bar.querySelector('.bk-fb-x').hidden = isAll || !hasAll || sb.disabled;
+    const dates = readDates(sd), cur = sd.value, i = dates.indexOf(cur);
+    const dt = bar.querySelector('.bk-fb-d'), dtxt = cur ? isoToLong(cur) : '–'; if (dt.textContent !== dtxt) dt.textContent = dtxt;
+    const steps = bar.querySelectorAll('[data-step]'); steps[0].disabled = i <= 0; steps[1].disabled = i < 0 || i >= dates.length - 1;
+    bar.querySelector('.bk-fb-latest').hidden = !(dates.length && i >= 0 && i < dates.length - 1);
+    bar.querySelector('.bk-fb-datebtn').setAttribute('aria-label', 'Tanggal data: ' + dtxt);
+    const ct = bar.querySelector('.bk-fb-c'), cb = bar.querySelector('.bk-fb-comp'), cv = sc && sc.value;
+    const ctxt = cv ? 'vs ' + isoToLong(cv) : 'Tanpa pembanding'; if (ct.textContent !== ctxt) ct.textContent = ctxt; cb.classList.toggle('is-none', !cv);
+    cb.setAttribute('aria-label', 'Tanggal pembanding: ' + (cv ? isoToLong(cv) : 'tidak ada'));
+    cb.disabled = !sc || readDates(sc).length === 0;
+  }
+  function goDate(iso) { const sd = $('selDate'); if (!sd || sd.value === iso) return; sd.value = iso; syncBar(); clearTimeout(FB.stepT); FB.stepT = setTimeout(() => { fire(sd); }, 380); busy(); }
+  function step(dir) {
+    const sd = $('selDate'); if (!sd) return; const dates = readDates(sd), i = dates.indexOf(sd.value), n = i + dir;
+    if (i < 0 || n < 0 || n >= dates.length) return; goDate(dates[n]);
+  }
+  /* popover unit */
+  function ensurePop() {
+    if (FB.pop) return FB.pop;
+    const p = document.createElement('div'); p.id = 'bk-unitpop'; p.className = 'bk-unitpop'; p.hidden = true;
+    p.innerHTML = '<div class="bk-up-search"><i class="fas fa-magnifying-glass" aria-hidden="true"></i><input type="search" placeholder="Cari unit…" aria-label="Cari unit" autocomplete="off"></div><div class="bk-up-recent" hidden></div><ul role="listbox" aria-label="Unit"></ul><p class="bk-up-empty" hidden>Unit tidak ditemukan</p>';
+    document.body.appendChild(p); FB.pop = p;
+    const inp = p.querySelector('input');
+    inp.addEventListener('input', () => renderUnits(inp.value));
+    p.addEventListener('keydown', e => {
+      const items = Array.from(p.querySelectorAll('li:not([hidden])'));
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeUnit(true); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); if (!items.length) return; FB.hi = (FB.hi + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; markHi(items); }
+      else if (e.key === 'Enter') { e.preventDefault(); const it = items[FB.hi]; if (it) setUnit(it.dataset.v); }
+    });
+    p.addEventListener('click', e => { const li = e.target.closest('li[data-v]'), rc = e.target.closest('[data-rc]'); if (li) setUnit(li.dataset.v); else if (rc) setUnit(rc.dataset.rc); });
+    return p;
+  }
+  function markHi(items) { items.forEach((li, i) => { li.classList.toggle('is-hi', i === FB.hi); li.setAttribute('aria-selected', li.classList.contains('is-cur')); if (i === FB.hi) li.scrollIntoView({ block: 'nearest' }); }); }
+  function renderUnits(filter) {
+    const p = FB.pop, sb = $('selBranch'), ul = p.querySelector('ul'), f = String(filter || '').toLowerCase().trim();
+    const opts = Array.from(sb.options).filter(o => o.value);
+    ul.innerHTML = opts.map(o => '<li role="option" data-v="' + esc(o.value) + '" class="' + (o.value === sb.value ? 'is-cur' : '') + '"' + (f && o.textContent.toLowerCase().indexOf(f) < 0 ? ' hidden' : '') + '><span>' + esc(o.value === 'ALL' ? o.textContent.trim() : o.textContent.trim()) + '</span>' + (o.value === sb.value ? '<b>✓</b>' : '') + '</li>').join('');
+    const vis = ul.querySelectorAll('li:not([hidden])'); p.querySelector('.bk-up-empty').hidden = vis.length > 0;
+    let rec = []; try { rec = JSON.parse(lsGet('dak_unit_recent', '[]')); } catch (e) {}
+    rec = rec.filter(v => v !== sb.value && opts.some(o => o.value === v)).slice(0, 3);
+    const rc = p.querySelector('.bk-up-recent'); rc.hidden = !!f || !rec.length;
+    rc.innerHTML = rec.length ? '<span>Terakhir dipakai</span>' + rec.map(v => '<button type="button" data-rc="' + esc(v) + '">' + esc(v === 'ALL' ? 'Semua Unit' : shortUnit((opts.find(o => o.value === v) || {}).textContent)) + '</button>').join('') : '';
+    FB.hi = Math.max(0, Array.from(vis).findIndex(li => li.classList.contains('is-cur'))); markHi(Array.from(vis));
+  }
+  function toggleUnit() { const p = ensurePop(); if (p.hidden) openUnit(); else closeUnit(true); }
+  function openUnit() {
+    const p = ensurePop(), b = FB.bar.querySelector('.bk-fb-unit'); if (b.disabled) return;
+    renderUnits(''); p.querySelector('input').value = ''; p.hidden = false; b.setAttribute('aria-expanded', 'true');
+    const r = b.getBoundingClientRect(), w = Math.max(280, r.width);
+    p.style.minWidth = w + 'px'; p.style.left = Math.min(Math.max(8, r.left), window.innerWidth - p.offsetWidth - 8) + 'px'; p.style.top = (r.bottom + 8) + 'px';
+    p.querySelector('input').focus({ preventScroll: true });
+    setTimeout(() => document.addEventListener('pointerdown', outsideUnit, true), 0);
+  }
+  function outsideUnit(e) { if (FB.pop && !FB.pop.contains(e.target) && !FB.bar.querySelector('.bk-fb-unit').contains(e.target)) closeUnit(false); }
+  function closeUnit(refocus) {
+    const p = FB.pop; if (!p || p.hidden) return; p.hidden = true; document.removeEventListener('pointerdown', outsideUnit, true);
+    const b = FB.bar.querySelector('.bk-fb-unit'); b.setAttribute('aria-expanded', 'false'); if (refocus) b.focus({ preventScroll: true });
+  }
+  function setUnit(v) {
+    const sb = $('selBranch'); closeUnit(true); if (!sb) return;
+    if (sb.value !== v) { sb.value = v; if (sb.value !== v) return; fire(sb); }
+    lsSet('dak_unit', v);
+    let rec = []; try { rec = JSON.parse(lsGet('dak_unit_recent', '[]')); } catch (e) {}
+    rec = [v].concat(rec.filter(x => x !== v)).slice(0, 4); lsSet('dak_unit_recent', JSON.stringify(rec));
+    syncBar(); busy();
+  }
+
+  document.addEventListener('change', e => { if (e.target && e.target.id === 'selBranch') lsSet('dak_unit', e.target.value); }, true);
 
   function initCalendars() { attach($('selDate')); attach($('selComp')); }
 
@@ -493,9 +614,9 @@
   }
 
   function init() {
-    initCalendars(); watchClose(); addLinkButton(); openFromHash();
+    initCalendars(); buildBar(); watchClose(); addLinkButton(); openFromHash();
     // select tanggal dibuat/diisi ulang oleh app.js; pastikan tombol selalu sinkron
-    setInterval(() => { initCalendars(); const a = $('selDate'), c = $('selComp'); if (a) syncButton(a); if (c) syncButton(c); }, 900);
+    setInterval(() => { initCalendars(); buildBar(); syncBar(); const a = $('selDate'), c = $('selComp'); if (a) syncButton(a); if (c) syncButton(c); }, 900);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
