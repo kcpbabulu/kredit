@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1599 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1600 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1599" rel="stylesheet">
+<link href="dak-detail.css?v=1600" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -1412,12 +1412,14 @@
 <input class="pl-8 pr-3 py-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-[10px] font-bold shadow-sm focus:border-purple-500 outline-none w-full xl:w-48 transition-colors" id="searchArchive" onkeyup="app.filterArchive()" placeholder="Cari Debitur..." type="text"/>
 <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-[10px]"></i>
 </div>
+<div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
 <button class="bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-slate-700 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-slate-600 px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 shrink-0 flex items-center justify-center gap-1.5" id="btnSyncArchive" onclick="app.syncArchiveData(this)">
 <i class="fas fa-sync-alt"></i> Sync
                   </button>
 <button class="bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-md active:scale-95 shrink-0 flex items-center justify-center gap-1.5" onclick="app.exportArchiveData()">
 <i class="fas fa-file-excel text-[10px]"></i> Unduh
                   </button>
+</div>
 </div>
 </div>
 <!-- KPI Cards -->
@@ -1444,7 +1446,7 @@
 </div>
 </div>
 </button>
-<button class="glass-card p-2 md:p-4 rounded-[1rem] group text-left active:scale-95 border-b-[3px] border-rose-500 hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/20 cursor-pointer" onclick="app.selectAllForPrint()">
+<button class="col-span-2 sm:col-span-1 dak-arsip-labelgen glass-card p-2 md:p-4 rounded-[1rem] group text-left active:scale-95 border-b-[3px] border-rose-500 hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/20 cursor-pointer" onclick="app.selectAllForPrint()">
 <div class="flex items-center justify-between h-full">
 <div class="flex flex-col justify-between h-full">
 <div class="text-[10px] font-black text-rose-600 dark:text-rose-300 uppercase tracking-widest mb-1 bg-rose-100 dark:bg-rose-900/40 px-2 py-0.5 rounded w-fit border border-rose-200 dark:border-rose-800 whitespace-nowrap">Label Gen</div>
@@ -1758,9 +1760,9 @@
 </div>
 <!-- END MODAL LINIMASA DEBITUR -->
 <!-- App Javascript -->
-<script defer src="dak-interact.js?v=1596"></script>
+<script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1599"></script>
+<script defer src="app.js?v=1600"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

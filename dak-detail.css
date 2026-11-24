@@ -896,3 +896,201 @@ html.dark .dak-freshness {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
+
+/* =====================================================================
+   v1600 — Smooth Transitions, Auto-Scroll Tab Fade, Collection Search & Cross-Menu Polish
+   ===================================================================== */
+/* 1. Transisi halus antar-menu (subtle fade-slide) */
+@keyframes dakTabEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.tab-view:not(.hidden) {
+  animation: dakTabEnter 0.16s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab-view:not(.hidden) { animation: none !important; }
+}
+
+/* 2. Fade-edge hint pada tab kontekstual HP agar terlihat jelas bisa digeser */
+@media (max-width: 767px) {
+  #dak-unified-global-nav .dak-unified-tabs {
+    padding-right: 22px !important;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 90%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 90%, transparent 100%);
+  }
+}
+
+/* 3. Pencarian Cepat di Menu Penagihan (view-collection) */
+.bk-coll-search-wrap {
+  padding: 0 14px 10px;
+  background: var(--bk-surface, #fff);
+  border-bottom: 1px solid var(--bk-line, #dfe7f1);
+}
+html.dark .bk-coll-search-wrap {
+  background: #0f172a;
+  border-color: #1e293b;
+}
+.bk-coll-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  min-height: 40px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.bk-coll-search:focus-within {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+  background: #fff;
+}
+html.dark .bk-coll-search {
+  background: #1e293b;
+  border-color: #334155;
+}
+html.dark .bk-coll-search:focus-within {
+  background: #0f172a;
+  border-color: #3b82f6;
+}
+.bk-coll-search i {
+  font-size: 12px;
+  color: #64748b;
+  flex: none;
+}
+.bk-coll-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 500;
+  color: #0f172a;
+  padding: 8px 0 !important;
+  min-height: 36px !important;
+}
+html.dark .bk-coll-search input {
+  color: #f1f5f9;
+}
+.bk-coll-clear {
+  width: 24px;
+  height: 24px;
+  min-height: 24px !important;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(148, 163, 184, 0.25);
+  color: #475569;
+  font-size: 15px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.bk-coll-clear[hidden] { display: none !important; }
+html.dark .bk-coll-clear { color: #cbd5e1; background: rgba(148, 163, 184, 0.2); }
+
+/* 4. Hapus Buku (WO): Kontras tegas pada Saldo Tagihan & pil "12 Debitur" */
+#view-writeoff #wo_total_os {
+  color: #ffffff !important;
+}
+#view-writeoff #wo_count {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+#view-writeoff .bg-slate-800\/80 {
+  background-color: rgba(15, 23, 42, 0.72) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+}
+#view-writeoff .bg-slate-900\/75,
+#view-writeoff .bg-slate-900\/50 {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.35) !important;
+}
+
+/* 5. Jatuh Tempo: Kontras pil NOA/OS & Nomor PK rapi 1 baris */
+#view-maturity .bg-slate-900\/40 {
+  background-color: rgba(15, 23, 42, 0.68) !important;
+  border-color: rgba(255, 255, 255, 0.28) !important;
+}
+#view-maturity #mat_total_noa,
+#view-maturity #mat_total_os {
+  color: #fde047 !important;
+}
+@media (max-width: 640px) {
+  #view-maturity .bk-table.bk-cards td[data-label="Nomor PK"] {
+    font-size: 11px !important;
+    letter-spacing: -0.02em !important;
+    word-break: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+
+/* 6. Fresh Drop: Perataan grid kartu debitur simetris di HP */
+@media (max-width: 640px) {
+  #view-freshdrop .bk-table.bk-cards td[data-label="Baki Debet"] {
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  #view-freshdrop .bk-table.bk-cards td[data-label="Tunggakan"],
+  #view-freshdrop .bk-table.bk-cards td[data-label="Action"] {
+    align-items: flex-end !important;
+    text-align: right !important;
+  }
+}
+
+/* 7. Master Kredit: KPI Total Outstanding & Total Debitur berdampingan 2 kolom di HP */
+@media (max-width: 767px) {
+  #view-kredit .flex.flex-col:has(#kr_os):has(#kr_noa) {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  #view-kredit #kr_os,
+  #view-kredit #kr_noa {
+    font-size: clamp(13px, 3.8vw, 18px) !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.03em !important;
+  }
+}
+
+/* 8. E-Arsip Kredit: Kartu LABEL GEN lebar penuh rapi di HP */
+@media (max-width: 639px) {
+  #view-archive .dak-arsip-labelgen {
+    grid-column: 1 / -1 !important;
+  }
+  #view-archive .dak-arsip-labelgen > div {
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+  }
+  #view-archive .dak-arsip-labelgen > div > div:first-child {
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  #view-archive .dak-arsip-labelgen > div > div:first-child > div:first-child {
+    margin-bottom: 0 !important;
+  }
+  #view-archive .dak-arsip-labelgen > div > div:first-child > div:last-child {
+    margin-top: 0 !important;
+  }
+}
+
+/* 9. Mutasi Kredit: Konsistensi format nominal 1 baris adaptif */
+#m_val_cair,
+#m_val_lunas,
+#m_val_net,
+#m_val_drop {
+  white-space: nowrap !important;
+  font-size: clamp(13px, 3.7vw, 22px) !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.03em !important;
+}

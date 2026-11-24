@@ -303,11 +303,44 @@
   document.addEventListener('pointerdown', () => document.body && document.body.classList.add('using-mouse'), true);
   document.addEventListener('keydown', e => { if (e.key === 'Tab' && document.body) document.body.classList.remove('using-mouse'); }, true);
 
-  // Filter tahap penagihan (client-side)
-  window.dakCollFilter = function (b) {
+  // Filter tahap penagihan + pencarian cepat (client-side)
+  window.__dakCollBucket = 'ALL';
+  window.__dakCollQuery = '';
+  function applyCollFilters() {
     const w = document.getElementById('collection_list_wrapper'); if (!w) return;
-    w.querySelectorAll('.bk-crow').forEach(r => { r.hidden = (b !== 'ALL' && r.dataset.bucket !== b); });
-    document.querySelectorAll('.bk-filter').forEach(x => x.classList.toggle('is-on', x.dataset.bucket === b));
+    const b = window.__dakCollBucket || 'ALL';
+    const q = String(window.__dakCollQuery || '').toLowerCase().trim();
+    let vis = 0;
+    w.querySelectorAll('.bk-crow').forEach(r => {
+      const okBucket = (b === 'ALL' || r.dataset.bucket === b);
+      const okText = (!q || (r.textContent || '').toLowerCase().indexOf(q) >= 0);
+      r.hidden = !(okBucket && okText);
+      if (!r.hidden) vis++;
+    });
+    let emp = document.getElementById('dak-coll-empty-search');
+    if (q && vis === 0) {
+      if (!emp) {
+        emp = document.createElement('div');
+        emp.id = 'dak-coll-empty-search';
+        emp.className = 'p-8 text-center text-xs font-semibold text-slate-400';
+        emp.innerHTML = '<i class="fas fa-magnifying-glass mb-2 text-lg block opacity-40"></i>Debitur tidak ditemukan untuk kata kunci tersebut.';
+        w.appendChild(emp);
+      }
+      emp.hidden = false;
+    } else if (emp) {
+      emp.hidden = true;
+    }
+    const clr = document.getElementById('dak-coll-clear');
+    if (clr) clr.hidden = !q;
+  }
+  window.dakCollFilter = function (b) {
+    window.__dakCollBucket = b || 'ALL';
+    document.querySelectorAll('.bk-filter').forEach(x => x.classList.toggle('is-on', x.dataset.bucket === window.__dakCollBucket));
+    applyCollFilters();
+  };
+  window.dakCollSearch = function (q) {
+    window.__dakCollQuery = q || '';
+    applyCollFilters();
   };
 
   // Strip kolektibilitas dari res.all_list (tanpa perubahan backend)

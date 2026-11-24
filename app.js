@@ -203,6 +203,7 @@ function dakRenderUnifiedNav(viewId){
   <div class="dak-unified-tabs" role="tablist" aria-label="${cfg.title}">${tabs.map(([label,id,icon])=>`<button type="button" role="tab" aria-selected="${id===viewId?'true':'false'}" class="dak-unified-tab ${id===viewId?'is-active':''}" data-unified-view="${id}"><i class="fas ${icon}"></i><span>${label}</span></button>`).join('')}</div>
   <div class="dak-quick-access"><span class="dak-quick-caption"><i class="fas fa-clock-rotate-left"></i> Terakhir</span>${(quick.recent||[]).slice(0,3).map(id=>`<button type="button" data-quick-view="${id}">${dakQuickLabel(id)}</button>`).join('')}<span class="dak-quick-separator"></span><span class="dak-quick-caption"><i class="fas fa-star"></i> Favorit</span>${favorites.slice(0,3).map(id=>`<button type="button" data-quick-view="${id}">${dakQuickLabel(id)}</button>`).join('')||'<span class="dak-quick-empty">Belum ada</span>'}<button type="button" class="dak-favorite-current ${favorites.includes(viewId)?'is-saved':''}" data-favorite-current="1" title="${favorites.includes(viewId)?'Hapus dari favorit':'Simpan ke favorit'}"><i class="fas fa-star"></i><span>${favorites.includes(viewId)?'Tersimpan':'Favoritkan'}</span></button></div>
  </section>`;
+ requestAnimationFrame(()=>{try{const act=host.querySelector('.dak-unified-tab.is-active');if(act&&typeof act.scrollIntoView==='function')act.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});}catch(e){}});
  host.querySelectorAll('[data-center-switch]').forEach(btn=>btn.addEventListener('click',()=>{const key=btn.dataset.centerSwitch;const first=DAK_UNIFIED_CENTERS[key]?.tabs?.[0]?.[1];if(first)dakOpenUnifiedCenter(key,first);}));
  host.querySelectorAll('[data-unified-view]').forEach(btn=>btn.addEventListener('click',()=>{const v=btn.dataset.unifiedView;if(v==='view-archive'){window.app.loadArchiveData();return;}window.app.switchTab(v);if(v==='view-journey'&&window.app.state&&window.app.state.data&&window.app.state.data.npl_list)window.app.renderJourneyPage();}));
  host.querySelectorAll('[data-quick-view]').forEach(btn=>btn.addEventListener('click',()=>window.app.switchTab(btn.dataset.quickView)));
@@ -2008,6 +2009,13 @@ function renderSimTable(type) {
             <button type="button" class="bk-filter" data-bucket="EARLY" onclick="dakCollFilter('EARLY')"><span><i class="bk-kolchip bk-kol-2"></i>Early · Kol 2</span><b id="coll_stat_early">${res.stats.early}</b></button>
             <button type="button" class="bk-filter" data-bucket="MID" onclick="dakCollFilter('MID')"><span><i class="bk-kolchip bk-kol-3"></i>Mid · Kol 3</span><b id="coll_stat_mid">${res.stats.mid}</b></button>
             <button type="button" class="bk-filter" data-bucket="HARD" onclick="dakCollFilter('HARD')"><span><i class="bk-kolchip bk-kol-5"></i>Hard · Kol 4-5</span><b id="coll_stat_hard">${res.stats.hard}</b></button>
+        </div>
+        <div class="bk-coll-search-wrap">
+            <div class="bk-coll-search">
+                <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" id="dak-coll-q" placeholder="Cari nama debitur, No. PK, atau unit…" oninput="if(window.dakCollSearch) window.dakCollSearch(this.value)" autocomplete="off" aria-label="Cari debitur penagihan">
+                <button type="button" id="dak-coll-clear" class="bk-coll-clear" hidden aria-label="Hapus pencarian" onclick="var i=document.getElementById('dak-coll-q');if(i){i.value='';i.focus();}if(window.dakCollSearch)window.dakCollSearch('');">×</button>
+            </div>
         </div>
 
         <div class="flex-1 overflow-y-auto p-3 md:p-4 custom-scrollbar bk-clist" id="collection_list_wrapper">`;
