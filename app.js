@@ -1893,11 +1893,11 @@ function renderSimTable(type) {
                 <i class="fas fa-shield-virus text-8xl"></i>
             </div>
             <div class="relative z-10">
-                <h3 class="text-2xl font-black italic tracking-tighter flex items-center gap-3">
-                    <span class="w-2 h-8 bg-yellow-500 rounded-full"></span>
+                <h3 class="text-xl sm:text-2xl font-black italic tracking-tighter flex items-center gap-3 text-slate-900 dark:text-white">
+                    <span class="w-2 h-7 bg-amber-500 rounded-full shrink-0"></span>
                     EARLY WARNING SYSTEM
                 </h3>
-                <p class="text-slate-400 text-xs mt-2 font-medium uppercase tracking-[0.2em] opacity-70">Portfolio Risk Intelligence Platform</p>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px] mt-1.5 font-semibold uppercase tracking-[0.16em]">Portfolio Risk Intelligence Platform</p>
             </div>
         </div>
         
@@ -3297,7 +3297,7 @@ function renderKreditPage() {
                 <div>
                     <h2 class="text-base md:text-lg font-black text-slate-800 dark:text-white uppercase tracking-tighter leading-none">Data Master Kredit</h2>
                     <div class="flex items-center gap-1.5 mt-1">
-                        <span class="px-1.5 py-0.5 rounded text-[10px] md:text-[10px] font-black bg-blue-100 text-blue-600 uppercase tracking-wider">Live</span>
+                        <span class="inline-flex items-center whitespace-nowrap shrink-0 px-2 py-0.5 rounded text-[10px] font-black bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300 uppercase tracking-wider">Live</span>
                         <span class="text-[10px] md:text-[10px] font-bold text-slate-500 uppercase tracking-widest" id="creditInfoStatus">Sinkronisasi...</span>
                     </div>
                 </div>
@@ -8347,8 +8347,8 @@ function renderArchiveList(data) {
 
         // Status Badge
         let statusBadge = isHB ? `<span class="bg-red-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-ban mr-1"></i>HAPUS BUKU</span>` : 
-                          (isLunas ? `<span class="bg-slate-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-check mr-1"></i>LUNAS</span>` : 
-                                     `<span class="bg-emerald-100 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider"><i class="fas fa-circle text-[6px] mr-1 align-middle"></i>AKTIF</span>`);
+                          (isLunas ? `<span class="inline-flex items-center whitespace-nowrap shrink-0 bg-slate-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm"><i class="fas fa-check mr-1"></i>LUNAS</span>` : 
+                                     `<span class="inline-flex items-center whitespace-nowrap shrink-0 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider"><i class="fas fa-circle text-[6px] mr-1"></i>AKTIF</span>`);
 
         let highlightClass = isChecked ? 'ring-2 ring-blue-500 bg-blue-50/50 z-10' : '';
 
@@ -8383,7 +8383,7 @@ function renderArchiveList(data) {
                     <span class="${t.bg_solid} ${t.text_solid} text-[10px] font-bold px-2 py-0.5 rounded shadow-sm uppercase tracking-wide">
                         ${(item.jenis_kredit || 'UMUM').substring(0,20)}
                     </span>
-                    ${item.is_new ? '<span class="ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-400 text-amber-900">BARU</span>' : ''}
+                    ${item.is_new ? '<span class="inline-flex items-center whitespace-nowrap shrink-0 ml-2 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-400 text-amber-900">BARU</span>' : ''}
                 </div>
                 <div class="flex items-center gap-3 text-[10px] text-slate-500 font-mono mt-0.5">
                     <div class="flex items-center gap-1">

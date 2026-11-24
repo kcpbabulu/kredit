@@ -762,3 +762,137 @@ html.dark .dak-freshness {
     -webkit-overflow-scrolling: touch !important;
   }
 }
+
+/* =====================================================================
+   v1599 — Fix Logout Position, Dashboard Overlap, Top 25 Mobile Cards & Smooth UX
+   ===================================================================== */
+@media (max-width: 767px) {
+  /* 1. Kunci tombol Logout (#dak-session-toolbar) selalu sejajar di Baris 1 (tidak jatuh ke tab kontekstual) */
+  #dak-session-toolbar.dak-session-toolbar {
+    top: 8px !important;
+    transform: none !important;
+    right: 8px !important;
+    z-index: 20 !important;
+  }
+  body.bk-hdr-stuck #dak-session-toolbar.dak-session-toolbar {
+    top: 7px !important;
+    transform: none !important;
+  }
+
+  /* 2. Atasi tumpang tindih Dashboard (override specificity #view-dash height:360px!important dari style.css) */
+  #view-dash .grid.grid-cols-1.lg\:grid-cols-3 > .glass-card,
+  #view-dash .glass-card.flex.flex-col:not(:has(canvas)):not(:has(.leaflet-container)),
+  #view-nplall .glass-card.flex.flex-col:not(:has(canvas)),
+  #view-nplkur .glass-card.flex.flex-col:not(:has(canvas)),
+  #view-nplkonsumtif .glass-card.flex.flex-col:not(:has(canvas)),
+  #view-nplprod .glass-card.flex.flex-col:not(:has(canvas)),
+  #view-collection .glass-card.flex.flex-col:not(:has(canvas)),
+  #view-writeoff .glass-card.flex.flex-col:not(:has(canvas)) {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+  #view-dash .grid.grid-cols-1.lg\:grid-cols-3 {
+    gap: 14px !important;
+    align-items: start !important;
+  }
+
+  /* 3. Ruang lega untuk grafik Komposisi Kredit di HP agar legend tidak terpotong */
+  #view-kredit .glass-card:has(canvas) {
+    height: 315px !important;
+    min-height: 315px !important;
+    padding-bottom: 14px !important;
+  }
+
+  /* 4. Top 25 Obligor: ubah tabel lebar menjadi kartu mobile agar nominal & KOL tidak terpotong */
+  #view-top .bk-tablewrap {
+    overflow: visible !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  #view-top .bk-table,
+  #view-top .bk-table tbody {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  #view-top .bk-table thead {
+    display: none !important;
+  }
+  #view-top .bk-table tbody tr.bk-row {
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) auto !important;
+    gap: 6px 10px !important;
+    align-items: center !important;
+    padding: 12px 14px !important;
+    margin-bottom: 10px !important;
+    border-radius: 14px !important;
+    background: var(--bk-surface, #fff) !important;
+    border: 1px solid var(--bk-line, #dfe7f1) !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04) !important;
+    cursor: pointer !important;
+  }
+  html.dark #view-top .bk-table tbody tr.bk-row {
+    background: rgba(30, 41, 59, 0.78) !important;
+    border-color: rgba(51, 65, 85, 0.8) !important;
+  }
+  #view-top .bk-table tbody tr.bk-row td {
+    padding: 0 !important;
+    border: 0 !important;
+    min-width: 0 !important;
+  }
+  #view-top .bk-table tbody tr.bk-row td.bk-c-rank {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+    font-weight: 800 !important;
+    font-size: 13px !important;
+    color: var(--bk-blue, #1457c5) !important;
+    text-align: center !important;
+  }
+  #view-top .bk-table tbody tr.bk-row td:nth-child(2) {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+  #view-top .bk-table tbody tr.bk-row td.bk-c-kol {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    justify-self: end !important;
+  }
+  #view-top .bk-table tbody tr.bk-row td.bk-num {
+    grid-column: 2 / span 2 !important;
+    grid-row: 2 !important;
+    text-align: left !important;
+    display: flex !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    padding-top: 6px !important;
+    border-top: 1px dashed rgba(148, 163, 184, 0.28) !important;
+    font-size: 14px !important;
+    font-weight: 800 !important;
+  }
+  #view-top .bk-table tbody tr.bk-row td.bk-c-pareto,
+  #view-top .bk-table tbody tr.bk-row td.bk-c-cov,
+  #view-top .bk-table tbody tr.bk-row td.bk-c-act {
+    display: none !important;
+  }
+}
+
+/* 5. Micro-interaction halus & responsif di seluruh menu */
+.tab-view .bk-table tbody tr,
+.tab-view .watchlist-card,
+#list-sektor-container > * {
+  transition: transform .14s ease, background-color .15s ease, box-shadow .15s ease;
+}
+.tab-view .bk-table tbody tr:active,
+#list-sektor-container > *:active {
+  transform: scale(0.988);
+}
+#dak-unified-global-nav .dak-unified-tabs {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}

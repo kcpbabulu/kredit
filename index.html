@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1598 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1599 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1598" rel="stylesheet">
+<link href="dak-detail.css?v=1599" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -353,7 +353,7 @@
 <div class="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
 <div>
 <h2 class="text-lg md:text-xl font-black tracking-tight flex items-center gap-2"><i class="fas fa-hourglass-end text-2xl opacity-80"></i> Jatuh Tempo</h2>
-<div class="flex gap-2 text-[10px] md:text-[10px] font-mono bg-black/20 p-1.5 rounded-lg border border-white/10 backdrop-blur-md inline-block mt-2">
+<div class="flex gap-2 text-[10px] md:text-[10px] font-mono bg-slate-900/40 text-white p-2 rounded-lg border border-white/20 backdrop-blur-md inline-flex items-center mt-2">
 <div>NOA: <span class="font-bold text-yellow-300 text-xs md:text-sm" id="mat_total_noa">0</span></div>
 <div class="w-px bg-white/30"></div>
 <div>OS: <span class="font-bold text-yellow-300 text-xs md:text-sm" id="mat_total_os">Rp 0</span></div>
@@ -1082,7 +1082,7 @@
 <div class="relative z-10 bg-slate-800/80 p-2.5 md:p-3 rounded-xl border border-slate-700 w-full sm:w-auto text-center sm:text-right">
 <div class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Saldo Tagihan</div>
 <div class="text-lg md:text-xl font-black font-mono tracking-tighter text-slate-200 leading-none" id="wo_total_os">...</div>
-<div class="text-[10px] font-bold text-slate-500 mt-1 bg-slate-900/50 px-2 py-0.5 rounded inline-block"><span class="text-white" id="wo_count">...</span> Debitur</div>
+<div class="text-[10px] font-bold text-slate-200 mt-1 bg-slate-900/75 px-2.5 py-0.5 rounded-md inline-block border border-slate-700"><span class="text-white font-black" id="wo_count">...</span> Debitur</div>
 </div>
 </div>
 <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[450px] border border-white/60 shadow-sm bg-white/60 pb-1 dark:bg-slate-800/70 dark:border-slate-700/60">
@@ -1447,8 +1447,8 @@
 <button class="glass-card p-2 md:p-4 rounded-[1rem] group text-left active:scale-95 border-b-[3px] border-rose-500 hover:-translate-y-1 transition-all duration-300 bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-md shadow-rose-500/20 cursor-pointer" onclick="app.selectAllForPrint()">
 <div class="flex items-center justify-between h-full">
 <div class="flex flex-col justify-between h-full">
-<div class="text-[10px] md:text-[10px] font-black text-rose-100 uppercase tracking-widest mb-1 bg-black/20 px-1.5 py-0.5 rounded w-fit border border-white/20">Label Gen</div>
-<div class="text-[10px] md:text-sm font-black leading-tight mt-1">Cetak<br/>Otomatis</div>
+<div class="text-[10px] font-black text-rose-600 dark:text-rose-300 uppercase tracking-widest mb-1 bg-rose-100 dark:bg-rose-900/40 px-2 py-0.5 rounded w-fit border border-rose-200 dark:border-rose-800 whitespace-nowrap">Label Gen</div>
+<div class="text-xs md:text-sm font-black leading-tight mt-1 text-slate-800 dark:text-white">Cetak Otomatis</div>
 </div>
 <div class="hidden sm:flex w-8 h-8 rounded-lg bg-white/20 text-white items-center justify-center group-hover:-rotate-12 transition-transform backdrop-blur-sm border border-white/30">
 <i class="fas fa-qrcode text-sm"></i>
@@ -1760,7 +1760,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1596"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1597"></script>
+<script defer src="app.js?v=1599"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {
