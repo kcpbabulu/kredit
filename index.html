@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1607 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1608 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1607" rel="stylesheet">
+<link href="dak-detail.css?v=1608" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -2019,35 +2019,47 @@
 <i class="fas fa-times text-xs"></i>
 </button>
 </div>
-<!-- KPI Summary Bento -->
-<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-700/50 shrink-0">
-<div class="bg-blue-50 dark:bg-blue-900/30 p-2 rounded-xl border border-blue-100 dark:border-blue-800/50 flex flex-col justify-center relative overflow-hidden">
-<i class="fas fa-coins absolute -right-2 -bottom-2 text-2xl text-blue-500 opacity-10"></i>
-<span class="text-[10px] md:text-[10px] font-black text-blue-500 uppercase tracking-widest mb-0.5 relative z-10">Total Eksposur</span>
-<span class="text-xs md:text-sm font-black font-mono text-slate-800 dark:text-white truncate relative z-10" id="sec-sum-os">Rp 0</span>
+<!-- KPI Summary Bento (v1608 Interactive Click-to-Filter) -->
+<div class="grid grid-cols-3 gap-2 p-2.5 sm:p-3 bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200/60 dark:border-slate-700/50 shrink-0" id="dakDrillKpis">
+  <button type="button" data-dkpi="ALL" onclick="window.dakModalSuite && window.dakModalSuite.clickDrillKpi('')" class="dak-dkpi-card is-active text-left bg-blue-50 dark:bg-blue-900/30 p-2 sm:p-2.5 rounded-xl border border-blue-200/80 dark:border-blue-800/60 flex flex-col justify-center relative overflow-hidden cursor-pointer transition-all">
+    <i class="fas fa-coins absolute -right-2 -bottom-2 text-2xl text-blue-500 opacity-10"></i>
+    <span class="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5 relative z-10">Total Eksposur</span>
+    <span class="text-xs sm:text-sm font-black font-mono text-slate-800 dark:text-white truncate relative z-10" id="sec-sum-os">Rp 0</span>
+  </button>
+  <button type="button" data-dkpi="KKR" onclick="window.dakModalSuite && window.dakModalSuite.clickDrillKpi('KKR')" class="dak-dkpi-card text-left bg-orange-50 dark:bg-orange-900/30 p-2 sm:p-2.5 rounded-xl border border-orange-200/80 dark:border-orange-800/60 flex flex-col justify-center relative overflow-hidden cursor-pointer transition-all">
+    <i class="fas fa-eye absolute -right-2 -bottom-2 text-2xl text-orange-500 opacity-10"></i>
+    <span class="text-[10px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-wider mb-0.5 relative z-10">KKR (Kol 2–5)</span>
+    <span class="text-xs sm:text-sm font-black font-mono text-orange-600 dark:text-orange-300 truncate relative z-10" id="sec-sum-kkr">Rp 0</span>
+  </button>
+  <button type="button" data-dkpi="NPL" onclick="window.dakModalSuite && window.dakModalSuite.clickDrillKpi('NPL')" class="dak-dkpi-card text-left bg-red-50 dark:bg-red-900/30 p-2 sm:p-2.5 rounded-xl border border-red-200/80 dark:border-red-800/60 flex flex-col justify-center relative overflow-hidden cursor-pointer transition-all">
+    <i class="fas fa-skull-crossbones absolute -right-2 -bottom-2 text-2xl text-red-500 opacity-10"></i>
+    <span class="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider mb-0.5 relative z-10">NPL (Kol 3–5)</span>
+    <span class="text-xs sm:text-sm font-black font-mono text-red-600 dark:text-red-300 truncate relative z-10" id="sec-sum-npl">Rp 0</span>
+  </button>
 </div>
-<div class="bg-orange-50 dark:bg-orange-900/30 p-2 rounded-xl border border-orange-100 dark:border-orange-800/50 flex flex-col justify-center relative overflow-hidden">
-<i class="fas fa-eye absolute -right-2 -bottom-2 text-2xl text-orange-500 opacity-10"></i>
-<span class="text-[10px] md:text-[10px] font-black text-orange-500 uppercase tracking-widest mb-0.5 relative z-10">Total KKR (Kol 2)</span>
-<span class="text-xs md:text-sm font-black font-mono text-orange-600 truncate relative z-10" id="sec-sum-kkr">Rp 0</span>
+<!-- Filter & Aksi Cepat (Collapsible di HP) -->
+<div class="p-2.5 sm:p-3 border-b border-slate-200/60 dark:border-slate-700/50 bg-white/85 dark:bg-slate-900/75 space-y-2 shrink-0">
+  <div class="flex items-center gap-2">
+    <div class="relative flex-1 min-w-0">
+      <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+      <input class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-2 pl-9 pr-3 text-xs font-semibold outline-none focus:ring-2 focus:ring-violet-400" id="drillSearch" oninput="window.applyPortfolioDrilldownFilters()" placeholder="Cari nama, No. Loan, PK, atau unit..." type="search"/>
+    </div>
+    <button type="button" id="dakDrillFilterToggle" class="sm:hidden dak-drill-btn" onclick="window.dakModalSuite && window.dakModalSuite.toggleDrillFilters()"><i class="fas fa-sliders"></i> Filter</button>
+    <button type="button" class="dak-kr-exportbtn" onclick="window.dakModalSuite && window.dakModalSuite.exportDrillCSV()" title="Unduh hasil saringan ke CSV"><i class="fas fa-file-csv"></i> <span class="hidden sm:inline">CSV</span></button>
+  </div>
+  <div id="dakDrillAdvFilters" class="dak-drill-adv hidden sm:grid sm:grid-cols-12 gap-2">
+    <div class="sm:col-span-4"><select class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold" id="drillSectorFilter" onchange="window.applyPortfolioDrilldownFilters()"><option value="">Semua sektor ekonomi</option></select></div>
+    <div class="sm:col-span-3"><select class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold" id="drillKolFilter" onchange="window.applyPortfolioDrilldownFilters()"><option value="">Semua KOL</option><option value="1">KOL 1 (Lancar)</option><option value="2">KOL 2 (DPK)</option><option value="KKR">KKR (KOL 2–5)</option><option value="NPL">NPL (KOL 3–5)</option><option value="3">KOL 3</option><option value="4">KOL 4</option><option value="5">KOL 5</option></select></div>
+    <div class="sm:col-span-4"><select class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold" id="drillSortSelect" onchange="window.dakModalSuite && window.dakModalSuite.applyDrillSort(this.value)"><option value="os_desc">Urutkan: Baki Debet Terbesar</option><option value="kol_desc">Urutkan: KOL Tertinggi</option><option value="tgk_desc">Urutkan: Tunggakan Terbesar</option><option value="nama_asc">Urutkan: Nama A–Z</option></select></div>
+    <div class="sm:col-span-1"><button class="w-full h-full min-h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-violet-100" onclick="window.resetPortfolioDrilldownFilters()" title="Reset filter" type="button"><i class="fas fa-rotate-left"></i></button></div>
+  </div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-[10px]">
+    <div class="font-bold text-slate-500 shrink-0"><span id="drillResultCount">0 debitur</span> · <span id="drillResultScope">Seluruh hasil</span></div>
+    <div class="dak-drill-chips" id="drillSectorSummary"></div>
+  </div>
 </div>
-<div class="bg-red-50 dark:bg-red-900/30 p-2 rounded-xl border border-red-100 dark:border-red-800/50 flex flex-col justify-center relative overflow-hidden">
-<i class="fas fa-skull-crossbones absolute -right-2 -bottom-2 text-2xl text-red-500 opacity-10"></i>
-<span class="text-[10px] md:text-[10px] font-black text-red-500 uppercase tracking-widest mb-0.5 relative z-10">Total NPL (Kol 3-5)</span>
-<span class="text-xs md:text-sm font-black font-mono text-red-600 truncate relative z-10" id="sec-sum-npl">Rp 0</span>
-</div>
-</div>
-<!-- Tabel Data Sektor (Sortable) -->
-<div class="p-3 border-b border-slate-200/60 dark:border-slate-700/50 bg-white/80 dark:bg-slate-900/70 space-y-2 shrink-0">
-<div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
-<div class="sm:col-span-6 relative"><i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-2 pl-9 pr-3 text-xs font-semibold outline-none focus:ring-2 focus:ring-violet-400" id="drillSearch" oninput="window.applyPortfolioDrilldownFilters()" placeholder="Cari nama, No. Loan, PK, atau unit..." type="search"/></div>
-<div class="sm:col-span-3"><select class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold" id="drillSectorFilter" onchange="window.applyPortfolioDrilldownFilters()"><option value="">Semua sektor ekonomi</option></select></div>
-<div class="sm:col-span-2"><select class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-xs font-bold" id="drillKolFilter" onchange="window.applyPortfolioDrilldownFilters()"><option value="">Semua KOL</option><option value="1">KOL 1</option><option value="2">KOL 2</option><option value="3">KOL 3</option><option value="4">KOL 4</option><option value="5">KOL 5</option></select></div>
-<div class="sm:col-span-1"><button class="w-full h-full min-h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-violet-100" onclick="window.resetPortfolioDrilldownFilters()" title="Reset filter" type="button"><i class="fas fa-rotate-left"></i></button></div>
-</div>
-<div class="flex flex-wrap items-center justify-between gap-2 text-[10px]"><div class="font-bold text-slate-500"><span id="drillResultCount">0 debitur</span> · <span id="drillResultScope">Seluruh hasil</span></div><div class="flex flex-wrap gap-1" id="drillSectorSummary"></div></div>
-</div><div class="p-0 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 dark:bg-slate-900/30">
-<table class="dak-sticky-c1 w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1 p-2">
+<div class="p-0 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50 dark:bg-slate-900/30">
+<table class="dak-drill-table dak-sticky-c1 w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1 p-2">
 <thead class="bg-white/90 dark:bg-slate-800/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
 <tr class="text-[10px] md:text-[10px] font-black uppercase tracking-widest"><th class="p-2.5 md:p-3 rounded-l-md cursor-pointer hover:text-violet-600" onclick="app.sortSector('nama')">Debitur / No. Loan</th><th class="p-2.5 md:p-3 hidden md:table-cell text-center">Unit</th><th class="p-2.5 md:p-3 hidden sm:table-cell">Sektor Ekonomi</th><th class="p-2.5 md:p-3 text-center cursor-pointer hover:text-violet-600" onclick="app.sortSector('kol')">KOL</th><th class="p-2.5 md:p-3 hidden lg:table-cell text-right">Plafon</th><th class="p-2.5 md:p-3 text-right rounded-r-md cursor-pointer hover:text-violet-600" onclick="app.sortSector('os')">Baki Debet</th></tr>
 </thead>
@@ -2094,6 +2106,23 @@
 </button>
 </div>
 </div>
+<!-- v1608 Interactive Branch Controls -->
+<div class="dak-br-ctrlbar" id="dakBranchControls">
+  <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakBrSearch" placeholder="Cari unit / cabang…" oninput="window.dakModalSuite && window.dakModalSuite.renderBranchView()" autocomplete="off"/></div>
+  <div class="dak-br-ctrlright">
+    <select id="dakBrSort" class="dak-ops-sel" onchange="window.dakModalSuite && window.dakModalSuite.renderBranchView()" aria-label="Urutkan unit kerja">
+      <option value="os">OS Terbesar</option>
+      <option value="npl">NPL % Tertinggi</option>
+      <option value="growth">Growth Tertinggi</option>
+      <option value="cair">Pencairan Terbesar</option>
+    </select>
+    <button type="button" id="dakBrRiskBtn" class="dak-dc-pill" onclick="window.dakModalSuite && window.dakModalSuite.toggleBranchRisk()">NPL &gt; 5%</button>
+    <div class="dak-npl-mettoggle" id="dakBrModeToggle">
+      <button type="button" class="is-on" data-br-mode="full" onclick="window.dakModalSuite && window.dakModalSuite.setBranchMode('full')">Lengkap</button>
+      <button type="button" data-br-mode="compact" onclick="window.dakModalSuite && window.dakModalSuite.setBranchMode('compact')">Ringkas</button>
+    </div>
+  </div>
+</div>
 <!-- Area Scroll Kartu Bento -->
 <div class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-5 relative z-0 pb-6 flex flex-col gap-3" id="list-modal-branch">
 <!-- Data Bento Cards akan disuntikkan secara dinamis -->
@@ -2135,7 +2164,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1607"></script>
+<script defer src="app.js?v=1608"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

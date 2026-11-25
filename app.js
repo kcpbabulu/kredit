@@ -9338,7 +9338,7 @@ window.applyPortfolioDrilldownFilters=function(){
   const kol=document.getElementById('drillKolFilter')?.value||'';
   const data=base.filter(r=>{
     if(sector&&String(r.sektor||'').trim()!==sector)return false;
-    if(kol&&String(parseInt(r.kol)||1)!==kol)return false;
+    const rKol=parseInt(r.kol)||1;if(kol==='KKR'){if(rKol<2||rKol>5)return false;}else if(kol==='NPL'){if(rKol<3||rKol>5)return false;}else if(kol&&String(rKol)!==kol)return false;
     if(q){
       const hay=[r.nama,r.loan,r.pk,r.br,r.sektor,r.gol].join(' ').toLowerCase();
       if(!hay.includes(q))return false;
@@ -9347,7 +9347,9 @@ window.applyPortfolioDrilldownFilters=function(){
   });
   window.appState.currentSectorData=data;
   window.appState.drillPage=1;
-  window.updatePortfolioDrilldownSummary_(data);
+  if(window.dakModalSuite&&window.dakModalSuite.syncDrillKpiState) window.dakModalSuite.syncDrillKpiState(kol);
+  if(window.dakModalSuite&&window.dakModalSuite.sortCurrentDrillData) window.dakModalSuite.sortCurrentDrillData();
+  window.updatePortfolioDrilldownSummary_(window.appState.currentSectorData);
   window.renderPortfolioDrilldownPage_();
 };
 
@@ -9360,7 +9362,9 @@ window.updatePortfolioDrilldownSummary_=function(data){
     bySector[s]=(bySector[s]||0)+v;
   });
   const put=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-  put('sec-sum-os',fmt(os));put('sec-sum-kkr',fmt(kkr));put('sec-sum-npl',fmt(npl));
+  const fmtMob=v=>{const a=Math.abs(v||0);if(a>=1e12)return 'Rp '+(v/1e12).toFixed(2).replace('.',',')+' T';if(a>=1e9)return 'Rp '+(v/1e9).toFixed(2).replace('.',',')+' M';if(a>=1e6)return 'Rp '+(v/1e6).toFixed(1).replace('.',',')+' Jt';return fmt(v);};
+  const putAmt=(id,val)=>{const e=document.getElementById(id);if(e){e.textContent=(window.innerWidth<640?fmtMob(val):fmt(val));e.title=fmt(val);}};
+  putAmt('sec-sum-os',os);putAmt('sec-sum-kkr',kkr);putAmt('sec-sum-npl',npl);
   put('drillResultCount',data.length.toLocaleString('id-ID')+' debitur');
   put('drillResultScope',(window.appState.drillMode&&window.appState.drillMode.label)||'Hasil pencarian');
   const chips=document.getElementById('drillSectorSummary');
@@ -9429,12 +9433,12 @@ window.renderSectorRows=function(data){
     else if(kol===3)color='bg-orange-100 text-orange-700 border-orange-200';
     else if(kol===2)color='bg-amber-100 text-amber-700 border-amber-200';
     return `<tr class="hover:bg-violet-50/70 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer border-b border-slate-100/50 dark:border-slate-800/50" onclick="if(window.app&&window.app.fetchDetail)window.app.fetchDetail(decodeURIComponent('${safeLoan}'))">
-      <td class="p-2.5 md:p-3"><div class="font-black text-[10px] md:text-xs text-slate-700 dark:text-white truncate max-w-[150px] md:max-w-[230px]">${esc(r.nama||'Tanpa Nama')}</div><div class="text-[10px] md:text-[10px] font-bold text-slate-400 font-mono mt-0.5">${esc(loan)}</div></td>
-      <td class="p-2.5 md:p-3 text-center hidden md:table-cell"><span class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">${esc(r.br||'-')}</span></td>
-      <td class="p-2.5 md:p-3 hidden sm:table-cell"><span class="text-[10px] md:text-[10px] font-bold text-violet-700 dark:text-violet-300 whitespace-normal">${esc(r.sektor||'LAINNYA')}</span></td>
-      <td class="p-2.5 md:p-3 text-center"><span class="px-2 py-0.5 text-[10px] md:text-[10px] font-black rounded border ${color}">KOL ${kol}</span></td>
-      <td class="p-2.5 md:p-3 text-right hidden lg:table-cell font-mono text-[10px]">${fmt(r.plafond)}</td>
-      <td class="p-2.5 md:p-3 text-right font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] md:text-xs">${fmt(r.os)}</td>
+      <td data-label="Debitur" class="p-2.5 md:p-3"><div class="font-black text-xs text-slate-800 dark:text-white truncate max-w-[210px] md:max-w-[240px]">${esc(r.nama||'Tanpa Nama')}</div><div class="text-[10px] font-bold text-slate-400 font-mono mt-0.5">${esc(loan)}</div></td>
+      <td data-label="Unit" class="p-2.5 md:p-3 text-center hidden md:table-cell"><span class="text-[10px] font-bold text-slate-500 uppercase bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">${esc(r.br||'-')}</span></td>
+      <td data-label="Sektor" class="p-2.5 md:p-3 hidden sm:table-cell"><span class="text-[10px] font-bold text-violet-700 dark:text-violet-300 whitespace-normal">${esc(r.sektor||'LAINNYA')}</span></td>
+      <td data-label="KOL" class="p-2.5 md:p-3 text-center"><span class="px-2 py-0.5 text-[10px] font-black rounded border ${color}">KOL ${kol}</span></td>
+      <td data-label="Plafon" class="p-2.5 md:p-3 text-right hidden lg:table-cell font-mono text-[10px]">${fmt(r.plafond)}</td>
+      <td data-label="Baki Debet" class="p-2.5 md:p-3 text-right font-mono font-black text-slate-700 dark:text-slate-200 text-[10px] md:text-xs">${fmt(r.os)}</td>
     </tr>`;
   }).join('');
 };
@@ -9596,7 +9600,8 @@ function openBranchModal() {
         `;
     });
 
-    container.innerHTML = html;
+    window.__dakBranchStatsCache = stats;
+    if (window.dakModalSuite && typeof window.dakModalSuite.renderBranchView === 'function') { window.dakModalSuite.renderBranchView(); } else { container.innerHTML = html; }
 
     // Animate Modal Entry
     const modal = document.getElementById('modal-branch');
@@ -12584,6 +12589,313 @@ document.addEventListener('click',function(){});
       });
       if (window.app && typeof window.app.updateDeleteCount === 'function') window.app.updateDeleteCount();
       if (window.showToast) window.showToast(count > 0 ? `${count} snapshot lebih dari ${days} hari dipilih.` : `Tidak ada snapshot lebih lama dari ${days} hari.`, 'info');
+    }
+  };
+})();
+
+
+// =========================================================================
+// DAKOPEN v1608 — INTERACTIVE DRILLDOWN (#modalSector) & BRANCH (#modalBranch) SUITE
+// =========================================================================
+(function () {
+  if (window.dakModalSuite) return;
+
+  let brMode = 'full';     // 'full' | 'compact'
+  let brRiskOnly = false;
+
+  const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+  const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(v) || 0);
+  const fmtShortRp = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+  const fmtDiff = (now, prev, isBadIfUp = false, isRupiah = true) => {
+    const diff = (Number(now) || 0) - (Number(prev) || 0);
+    const pct = prev ? ((diff / prev) * 100).toFixed(1) : (now > 0 ? '100' : '0');
+    if (diff === 0) return '<span class="inline-block px-1.5 py-0.5 rounded bg-slate-100/70 dark:bg-slate-700/60 text-slate-400 text-[10px] font-black">Tetap</span>';
+    const sign = diff > 0 ? '+' : '';
+    const arrow = diff > 0 ? '▲' : '▼';
+    const isBad = isBadIfUp ? diff > 0 : diff < 0;
+    const color = isBad
+      ? 'text-rose-600 bg-rose-100/70 border-rose-200 dark:bg-rose-900/30 dark:border-rose-800/50 dark:text-rose-300'
+      : 'text-emerald-600 bg-emerald-100/70 border-emerald-200 dark:bg-emerald-900/30 dark:border-emerald-800/50 dark:text-emerald-300';
+    const abs = Math.abs(diff);
+    const shortVal = isRupiah
+      ? (abs >= 1e9 ? 'Rp ' + (abs / 1e9).toFixed(2).replace(/\.00$/, '') + 'M' : abs >= 1e6 ? 'Rp ' + (abs / 1e6).toFixed(0) + 'Jt' : 'Rp ' + new Intl.NumberFormat('id-ID').format(abs))
+      : new Intl.NumberFormat('id-ID').format(abs);
+    return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-black ${color}"><span>${arrow}</span><span>${sign}${shortVal} (${sign}${pct}%)</span></span>`;
+  };
+
+  window.dakModalSuite = {
+    // --- A. #modalSector (Drilldown) ---
+    toggleDrillFilters() {
+      const adv = document.getElementById('dakDrillAdvFilters');
+      const btn = document.getElementById('dakDrillFilterToggle');
+      if (!adv) return;
+      const open = adv.classList.toggle('is-open');
+      if (btn) btn.classList.toggle('is-on', open);
+    },
+
+    clickDrillKpi(kolVal) {
+      const sel = document.getElementById('drillKolFilter');
+      if (sel) sel.value = kolVal || '';
+      if (typeof window.applyPortfolioDrilldownFilters === 'function') window.applyPortfolioDrilldownFilters();
+    },
+
+    syncDrillKpiState(kolVal) {
+      const activeKey = kolVal === 'KKR' ? 'KKR' : (kolVal === 'NPL' ? 'NPL' : (!kolVal ? 'ALL' : ''));
+      document.querySelectorAll('#dakDrillKpis [data-dkpi]').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.dkpi === activeKey);
+      });
+    },
+
+    applyDrillSort(val) {
+      this.sortCurrentDrillData(val);
+      if (window.appState) window.appState.drillPage = 1;
+      if (typeof window.renderPortfolioDrilldownPage_ === 'function') window.renderPortfolioDrilldownPage_();
+    },
+
+    sortCurrentDrillData(explicitVal) {
+      const data = window.appState && window.appState.currentSectorData;
+      if (!Array.isArray(data)) return;
+      const v = explicitVal || (document.getElementById('drillSortSelect')?.value || 'os_desc');
+      data.sort((a, b) => {
+        if (v === 'kol_desc') return (Number(b.kol) || 1) - (Number(a.kol) || 1) || (Number(b.os) || 0) - (Number(a.os) || 0);
+        if (v === 'tgk_desc') return (Number(b.tgk) || 0) - (Number(a.tgk) || 0);
+        if (v === 'nama_asc') return String(a.nama || '').localeCompare(String(b.nama || ''), 'id');
+        return (Number(b.os) || 0) - (Number(a.os) || 0);
+      });
+    },
+
+    exportDrillCSV() {
+      const rows = (window.appState && window.appState.currentSectorData) || [];
+      if (!rows.length) {
+        if (window.showToast) window.showToast('Tidak ada data debitur untuk diunduh.', 'warning');
+        return;
+      }
+      const escCsv = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const title = (document.getElementById('modalSectorTitle')?.textContent || 'Rincian_Portofolio').replace(/[^\w]+/g, '_');
+      const lines = ['No Loan,Nama Debitur,Unit,Sektor Ekonomi,KOL,Plafon,Baki Debet,Tunggakan'].concat(
+        rows.map(r => [escCsv(r.loan), escCsv(r.nama), escCsv(r.br), escCsv(r.sektor), Number(r.kol || 1), Number(r.plafond || 0), Number(r.os || 0), Number(r.tgk || 0)].join(','))
+      );
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = title + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (window.showToast) window.showToast('Berhasil mengunduh ' + rows.length.toLocaleString('id-ID') + ' debitur (CSV).', 'success');
+    },
+
+    // --- B. #modalBranch (Kinerja Unit Kerja) ---
+    setBranchMode(mode) {
+      brMode = mode;
+      document.querySelectorAll('#dakBrModeToggle button').forEach(b => b.classList.toggle('is-on', b.dataset.brMode === mode));
+      this.renderBranchView();
+    },
+
+    toggleBranchRisk() {
+      brRiskOnly = !brRiskOnly;
+      const btn = document.getElementById('dakBrRiskBtn');
+      if (btn) btn.classList.toggle('is-on', brRiskOnly);
+      this.renderBranchView();
+    },
+
+    drillBranch(branchName, kolFilter) {
+      if (window.app && typeof window.app.closeBranchModal === 'function') window.app.closeBranchModal();
+      const targetBr = String(branchName || '').trim();
+      setTimeout(() => {
+        if (typeof window.openPortfolioDrilldown === 'function') {
+          window.openPortfolioDrilldown({
+            title: targetBr.toUpperCase(),
+            label: kolFilter === 'NPL' ? 'Debitur NPL (KOL 3–5) Unit ' + targetBr : (kolFilter === 'KKR' ? 'Debitur KKR (KOL 2–5) Unit ' + targetBr : 'Seluruh Debitur Unit ' + targetBr),
+            sector: '',
+            test: r => String(r.br || '').trim().toUpperCase() === targetBr.toUpperCase()
+          });
+          if (kolFilter) {
+            const sel = document.getElementById('drillKolFilter');
+            if (sel) { sel.value = kolFilter; window.applyPortfolioDrilldownFilters(); }
+          }
+        }
+      }, 180);
+    },
+
+    focusBranchGlobal(branchName) {
+      if (window.app && typeof window.app.closeBranchModal === 'function') window.app.closeBranchModal();
+      const sel = document.getElementById('selBranch');
+      if (sel) {
+        const opt = Array.from(sel.options).find(o => o.value.toUpperCase() === String(branchName || '').toUpperCase() || o.textContent.toUpperCase().includes(String(branchName || '').toUpperCase()));
+        if (opt) {
+          sel.value = opt.value;
+          sel.dispatchEvent(new Event('change', { bubbles: true }));
+          if (window.showToast) window.showToast('Filter global difokuskan ke: ' + branchName, 'success');
+          return;
+        }
+      }
+      if (window.showToast) window.showToast('Unit ' + branchName + ' dipilih.', 'info');
+    },
+
+    renderBranchView() {
+      const container = document.getElementById('list-modal-branch');
+      const stats = window.__dakBranchStatsCache || (window.app && window.app.state && window.app.state.branch_perf);
+      if (!container || !stats) return;
+
+      const q = (document.getElementById('dakBrSearch')?.value || '').toLowerCase().trim();
+      const sortBy = document.getElementById('dakBrSort')?.value || 'os';
+      let globalOs = 0;
+      Object.values(stats).forEach(v => { globalOs += (Number(v.os) || 0); });
+
+      let list = Object.keys(stats).map(br => {
+        const d = stats[br] || {};
+        const os = Number(d.os) || 0;
+        const npl = Number(d.npl) || 0;
+        const kkr = Number(d.kkr) || 0;
+        const pNpl = os > 0 ? (npl / os * 100) : 0;
+        const pKkr = os > 0 ? (kkr / os * 100) : 0;
+        const pPort = globalOs > 0 ? (os / globalOs * 100) : 0;
+        const growth = os - (Number(d.prev_os) || 0);
+        return { br, d, os, npl, kkr, pNpl, pKkr, pPort, growth, cair: Number(d.cair_os) || 0 };
+      });
+
+      if (q) list = list.filter(x => x.br.toLowerCase().includes(q));
+      if (brRiskOnly) list = list.filter(x => x.pNpl > 5);
+
+      list.sort((a, b) => {
+        if (sortBy === 'npl') return b.pNpl - a.pNpl;
+        if (sortBy === 'growth') return b.growth - a.growth;
+        if (sortBy === 'cair') return b.cair - a.cair;
+        return b.os - a.os;
+      });
+
+      if (!list.length) {
+        container.innerHTML = '<div class="p-10 text-center text-xs font-bold text-slate-400"><i class="fas fa-building-circle-xmark text-3xl mb-2 block opacity-40"></i>Tidak ada unit kerja yang cocok dengan filter.</div>';
+        return;
+      }
+
+      const isMob = window.innerWidth < 640;
+      const fmtSeg = v => isMob ? fmtShortRp(v) : fmtIDR(v);
+
+      container.innerHTML = list.map((item, i) => {
+        const { br, d, pNpl, pKkr, pPort } = item;
+        const safeBr = br.replace(/'/g, "\\'");
+        const badgeNPL = pNpl > 5
+          ? 'bg-red-500 text-white border-transparent'
+          : (pNpl > 3 ? 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/50 dark:text-orange-300' : 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300');
+
+        if (brMode === 'compact') {
+          return `
+          <div class="dak-br-compact-card" onclick="window.dakModalSuite.drillBranch('${safeBr}','')">
+            <div class="dak-br-c-top">
+              <div class="min-w-0">
+                <div class="font-black text-xs sm:text-sm text-slate-800 dark:text-white uppercase truncate">${esc(br)}</div>
+                <div class="text-[10px] font-bold text-slate-500 mt-0.5">${d.noa || 0} NOA · Porsi ${pPort.toFixed(1)}%</div>
+              </div>
+              <div class="text-right shrink-0">
+                <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm">${fmtShortRp(d.os)}</div>
+                <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded border text-[10px] font-black ${badgeNPL}">NPL ${pNpl.toFixed(2)}%</span>
+              </div>
+            </div>
+            <div class="dak-br-pbar"><span style="width:${Math.min(100, pPort).toFixed(1)}%"></span></div>
+            <div class="flex items-center justify-between gap-2 mt-1.5">
+              <div>${fmtDiff(d.os, d.prev_os, false, true)}</div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" class="dak-br-actmini" onclick="event.stopPropagation();window.dakModalSuite.drillBranch('${safeBr}','NPL')">NPL ›</button>
+                <button type="button" class="dak-br-actmini is-focus" onclick="event.stopPropagation();window.dakModalSuite.focusBranchGlobal('${safeBr}')">Fokus</button>
+              </div>
+            </div>
+          </div>`;
+        }
+
+        return `
+        <div class="bg-white/95 dark:bg-slate-800/90 rounded-[1.35rem] p-3.5 sm:p-4 shadow-sm border border-slate-200 dark:border-slate-700 hover:border-purple-300 transition-all flex flex-col gap-3">
+          <div class="flex justify-between items-start border-b border-dashed border-slate-200 dark:border-slate-700 pb-2.5 gap-2">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <div class="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-900/30 text-purple-600 flex items-center justify-center font-black border border-purple-200 dark:border-purple-800/50 shrink-0"><i class="fas fa-building text-xs"></i></div>
+              <div class="min-w-0">
+                <div class="font-black text-xs sm:text-sm text-slate-800 dark:text-white uppercase tracking-tight truncate">${esc(br)}</div>
+                <div class="text-[10px] font-bold text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                  <span><i class="fas fa-users text-blue-400"></i> ${d.noa || 0} NOA</span>
+                  ${fmtDiff(d.noa, d.prev_noa, false, false)}
+                  <span>· Porsi ${pPort.toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="font-mono font-black text-blue-600 dark:text-blue-400 text-xs sm:text-sm leading-tight" title="${fmtIDR(d.os)}">${isMob ? fmtShortRp(d.os) : fmtIDR(d.os)}</div>
+              <div class="mt-1">${fmtDiff(d.os, d.prev_os, false, true)}</div>
+            </div>
+          </div>
+
+          <div class="dak-br-pbar"><span style="width:${Math.min(100, pPort).toFixed(1)}%"></span></div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center">
+              <span class="text-[10px] font-black text-teal-600 uppercase tracking-wider mb-0.5">Produktif</span>
+              <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[11px] mb-1" title="${fmtIDR(d.prod)}">${fmtSeg(d.prod)}</span>
+              ${fmtDiff(d.prod, d.prev_prod, false, true)}
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center">
+              <span class="text-[10px] font-black text-indigo-600 uppercase tracking-wider mb-0.5">Konsumtif</span>
+              <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[11px] mb-1" title="${fmtIDR(d.kons)}">${fmtSeg(d.kons)}</span>
+              ${fmtDiff(d.kons, d.prev_kons, false, true)}
+            </div>
+            <div class="bg-slate-50 dark:bg-slate-900/40 p-2 rounded-xl border border-slate-100 dark:border-slate-700/50 flex flex-col items-center justify-center text-center">
+              <span class="text-[10px] font-black text-emerald-600 uppercase tracking-wider mb-0.5">KUR</span>
+              <span class="font-mono font-black text-slate-700 dark:text-slate-200 text-[11px] mb-1" title="${fmtIDR(d.kur)}">${fmtSeg(d.kur)}</span>
+              ${fmtDiff(d.kur, d.prev_kur, false, true)}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="flex flex-col gap-2">
+              <div class="flex-1 bg-emerald-50 dark:bg-emerald-900/15 p-2 rounded-lg border border-emerald-100 dark:border-emerald-800/50 flex justify-between items-center gap-1">
+                <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase"><i class="fas fa-plus-circle"></i> Cair</span>
+                <div class="text-right">
+                  <div class="font-mono font-black text-emerald-700 dark:text-emerald-400 text-[10.5px]">+${fmtSeg(d.cair_os || 0)}</div>
+                  <div class="text-[10px] font-bold text-emerald-600">${d.cair_noa || 0} Rek</div>
+                </div>
+              </div>
+              <div class="flex-1 bg-rose-50 dark:bg-rose-900/15 p-2 rounded-lg border border-rose-100 dark:border-rose-800/50 flex justify-between items-center gap-1">
+                <span class="text-[10px] font-black text-rose-700 dark:text-rose-400 uppercase"><i class="fas fa-check-double"></i> Lunas</span>
+                <div class="text-right">
+                  <div class="font-mono font-black text-rose-700 dark:text-rose-400 text-[10.5px]">-${fmtSeg(d.lunas_os || 0)}</div>
+                  <div class="text-[10px] font-bold text-rose-600">${d.lunas_noa || 0} Rek</div>
+                </div>
+              </div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <button type="button" onclick="window.dakModalSuite.drillBranch('${safeBr}','KKR')" class="text-left bg-orange-50/70 dark:bg-orange-900/20 hover:bg-orange-100/70 p-2 rounded-lg border border-orange-200/70 dark:border-orange-800/50 flex flex-col justify-center cursor-pointer transition-colors" title="Klik untuk melihat debitur KKR unit ini">
+                <div class="flex justify-between items-center mb-0.5 w-full">
+                  <span class="text-[10px] font-black text-orange-600 uppercase">KKR (2–5) ›</span>
+                  <span class="text-[10px] font-bold text-orange-700 bg-orange-100 dark:bg-orange-900/60 px-1.5 py-0.5 rounded">${pKkr.toFixed(2)}%</span>
+                </div>
+                <div class="font-mono font-black text-orange-600 dark:text-orange-300 text-[11px] mb-1">${fmtSeg(d.kkr)}</div>
+                <div>${fmtDiff(d.kkr, d.prev_kkr, true, true)}</div>
+              </button>
+              <button type="button" onclick="window.dakModalSuite.drillBranch('${safeBr}','NPL')" class="text-left bg-red-50/70 dark:bg-red-900/20 hover:bg-red-100/70 p-2 rounded-lg border border-red-200/70 dark:border-red-800/50 flex flex-col justify-center cursor-pointer transition-colors" title="Klik untuk melihat debitur NPL unit ini">
+                <div class="flex justify-between items-center mb-0.5 w-full">
+                  <span class="text-[10px] font-black text-red-600 uppercase">NPL (3–5) ›</span>
+                  <span class="text-[10px] font-bold border px-1.5 py-0.5 rounded ${badgeNPL}">${pNpl.toFixed(2)}%</span>
+                </div>
+                <div class="font-mono font-black text-red-600 dark:text-red-300 text-[11px] mb-1">${fmtSeg(d.npl)}</div>
+                <div>${fmtDiff(d.npl, d.prev_npl, true, true)}</div>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+            <button type="button" class="dak-br-actmini" onclick="window.dakModalSuite.drillBranch('${safeBr}','')"><i class="fas fa-users"></i> Lihat Debitur</button>
+            <button type="button" class="dak-br-actmini is-focus" onclick="window.dakModalSuite.focusBranchGlobal('${safeBr}')"><i class="fas fa-crosshairs"></i> Fokus Unit Ini</button>
+          </div>
+        </div>`;
+      }).join('');
     }
   };
 })();
