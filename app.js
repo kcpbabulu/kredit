@@ -4118,6 +4118,7 @@ function updateUploadUI(pct, status) {
     if (bar) bar.style.width = value + '%';
     if (text) text.innerText = value + '%';
     if (statusText) statusText.innerText = status || 'Memproses...';
+    if (window.dakUploadSuite && typeof window.dakUploadSuite.syncStepper === 'function') window.dakUploadSuite.syncStepper(value, false);
 }
 
 function finishUploadUI(success, message) {
@@ -4129,6 +4130,7 @@ function finishUploadUI(success, message) {
     if (success) {
         if (pct) pct.innerText = '100%';
         if (bar) bar.style.width = '100%';
+        if (window.dakUploadSuite && typeof window.dakUploadSuite.syncStepper === 'function') window.dakUploadSuite.syncStepper(100, true);
     } else if (panel) {
         panel.classList.remove('hidden');
         panel.classList.add('border-red-200', 'bg-red-50', 'dark:bg-red-950/30');
@@ -5975,6 +5977,9 @@ function detectDateFromFile(input) {
             
             const firstSheetName = workbook.SheetNames[0];
             const worksheet = workbook.Sheets[firstSheetName];
+            if (window.dakUploadSuite && typeof window.dakUploadSuite.analyzeWorkbook === 'function') {
+                try { window.dakUploadSuite.analyzeWorkbook(file, workbook, firstSheetName, worksheet); } catch (ex) {}
+            }
             
             // Ambil Header (A1) & Isi (A2)
             // Gunakan .v (raw value) untuk A1, dan cek .w (formatted) atau .v (value) untuk A2
@@ -9029,6 +9034,8 @@ function filterNewFiles() {
 
 // 1. Menampilkan daftar sheet ke dalam UI
 function renderSheetManager() {
+    const badge = document.getElementById('dakSheetCountBadge');
+    if (badge) badge.textContent = String((s && s.snaps && s.snaps.length) || 0);
     const container = document.getElementById('sheetManagerList');
     if(!container) return;
     
@@ -9047,7 +9054,7 @@ function renderSheetManager() {
         let sheetName = 'DATA_' + snap.date.replace(/-/g, '');
         
         html += `
-        <label class="flex items-center justify-between p-3 hover:bg-white dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors group">
+        <label data-snap-date="${snap.date}" class="dak-sheet-row flex items-center justify-between p-3 hover:bg-white dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors group">
             <div class="flex items-center gap-3">
                 <input type="checkbox" value="${sheetName}" onchange="app.updateDeleteCount()" class="sheet-delete-cb w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500 cursor-pointer">
                 <div>
@@ -10032,9 +10039,11 @@ window.renderTableRaw = function(tableId, rows) {
             if(modal) {
                 modal.classList.remove('hidden');
                 modal.setAttribute('aria-hidden', 'false');
-                // Reset input tanggal
+                // Reset input tanggal & auto-load Manajemen DB (v1607)
                 const upDate = document.getElementById('upDate');
                 if(upDate) upDate.value = "";
+                if (typeof renderSheetManager === 'function') renderSheetManager();
+                if (window.dakUploadSuite && typeof window.dakUploadSuite.onOpen === 'function') window.dakUploadSuite.onOpen();
             }
         }, 300);
     },
@@ -12388,6 +12397,193 @@ document.addEventListener('click',function(){});
         pill.remove();
       }
       setTimeout(() => { if (vizChart) vizChart.resize(); }, 220);
+    }
+  };
+})();
+
+
+// =========================================================================
+// DAKOPEN v1607 — INTERACTIVE UPLOAD & DB MANAGER SUITE
+// =========================================================================
+(function () {
+  if (window.dakUploadSuite) return;
+
+  const fmtSize = b => {
+    const n = Number(b) || 0;
+    if (n >= 1048576) return (n / 1048576).toFixed(2) + ' MB';
+    if (n >= 1024) return (n / 1024).toFixed(1) + ' KB';
+    return n + ' B';
+  };
+  const isoDate = d => {
+    const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  function wireDropzone() {
+    const dz = document.getElementById('dakDropzone');
+    const inp = document.getElementById('upFileRaw');
+    if (!dz || !inp || dz.dataset.wired) return;
+    dz.dataset.wired = '1';
+    ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => {
+      e.preventDefault();
+      dz.classList.add('is-dragover');
+    }));
+    ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => {
+      e.preventDefault();
+      dz.classList.remove('is-dragover');
+    }));
+    dz.addEventListener('drop', e => {
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (files && files.length) {
+        try {
+          const dt = new DataTransfer();
+          dt.items.add(files[0]);
+          inp.files = dt.files;
+        } catch (err) {}
+        if (window.app && typeof window.app.detectDateFromFile === 'function') window.app.detectDateFromFile(inp);
+      }
+    });
+  }
+
+  window.dakUploadSuite = {
+    onOpen() {
+      wireDropzone();
+      const backBtn = document.getElementById('dakUpBackSettings');
+      if (backBtn) {
+        const isAdmin = !!(window.DAK_AUTH && window.DAK_AUTH.user && window.DAK_AUTH.user.role === 'admin');
+        backBtn.classList.toggle('hidden', !isAdmin);
+      }
+      this.setTab('upload');
+      this.checkOverwrite();
+    },
+
+    setTab(tab) {
+      document.querySelectorAll('#modalUpload [data-up-tab]').forEach(b => b.classList.toggle('is-on', b.dataset.upTab === tab));
+      const pUp = document.getElementById('dakUpTabUpload');
+      const pDb = document.getElementById('dakUpTabDb');
+      if (pUp) pUp.hidden = tab !== 'upload';
+      if (pDb) pDb.hidden = tab !== 'db';
+      if (tab === 'db' && window.app && typeof window.app.renderSheetManager === 'function') {
+        window.app.renderSheetManager();
+      }
+    },
+
+    clearFile() {
+      const inp = document.getElementById('upFileRaw');
+      if (inp) inp.value = '';
+      const disp = document.getElementById('fileNameDisplay');
+      if (disp) disp.textContent = 'Pilih file atau seret ke sini…';
+      const meta = document.getElementById('dakFileMeta');
+      if (meta) meta.textContent = 'Format: .xlsx, .xls, .csv · Maks. 10MB';
+      const clr = document.getElementById('dakClearFileBtn');
+      if (clr) clr.hidden = true;
+      const pf = document.getElementById('dakUploadPreflight');
+      if (pf) pf.hidden = true;
+      const auto = document.getElementById('autoLabel');
+      if (auto) auto.classList.add('hidden');
+    },
+
+    analyzeWorkbook(file, workbook, sheetName, worksheet) {
+      const meta = document.getElementById('dakFileMeta');
+      const clr = document.getElementById('dakClearFileBtn');
+      const pf = document.getElementById('dakUploadPreflight');
+      const over10 = file && file.size > 10 * 1024 * 1024;
+      if (meta && file) {
+        meta.innerHTML = `${fmtSize(file.size)} · Sheet: <b>${String(sheetName || 'Sheet1').replace(/</g, '&lt;')}</b>` + (over10 ? ' <span class="text-rose-500 font-bold">(Melebihi 10MB!)</span>' : '');
+      }
+      if (clr) clr.hidden = false;
+      if (!pf || typeof XLSX === 'undefined') return;
+
+      const raw = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
+      let hdrIdx = 0;
+      for (let i = 0; i < Math.min(raw.length, 20); i++) {
+        if (raw[i].join('|').toUpperCase().includes('BRNAME')) { hdrIdx = i; break; }
+      }
+      const cols = (raw[hdrIdx] || []).map(c => String(c || '').toUpperCase().trim());
+      const rowCount = Math.max(0, raw.length - hdrIdx - 1);
+      const checks = [
+        { label: 'BRNAME', ok: cols.some(c => c.includes('BRNAME')) },
+        { label: 'OS / Baki Debet', ok: cols.some(c => c.includes('BAKI') || c === 'OS' || c.includes('SALDO') || c.includes('CBAL')) },
+        { label: 'KOL', ok: cols.some(c => c.includes('KOL') || c.includes('KOLEK')) },
+        { label: 'PK / Loan', ok: cols.some(c => c.includes('PK') || c.includes('LOAN') || c.includes('ACCT') || c.includes('REK')) }
+      ];
+      const okAll = checks.every(x => x.ok);
+      pf.innerHTML = `
+        <div class="dak-pf-head">
+          <span><i class="fas ${okAll ? 'fa-circle-check text-emerald-500' : 'fa-triangle-exclamation text-amber-500'}"></i> Pratinjau Pra-Upload</span>
+          <b>${rowCount.toLocaleString('id-ID')} baris data</b>
+        </div>
+        <div class="dak-pf-chips">
+          ${checks.map(c => `<span class="dak-pf-chip ${c.ok ? 'is-ok' : 'is-warn'}"><i class="fas ${c.ok ? 'fa-check' : 'fa-circle-exclamation'}"></i> ${c.label}</span>`).join('')}
+        </div>`;
+      pf.hidden = false;
+      setTimeout(() => this.checkOverwrite(), 120);
+    },
+
+    setDatePreset(kind) {
+      const inp = document.getElementById('upDate');
+      if (!inp) return;
+      const now = new Date();
+      let target = new Date(now);
+      if (kind === 'yesterday') target.setDate(now.getDate() - 1);
+      else if (kind === 'eom') target = new Date(now.getFullYear(), now.getMonth(), 0);
+      inp.value = isoDate(target);
+      this.checkOverwrite();
+    },
+
+    checkOverwrite() {
+      const box = document.getElementById('dakUploadOverwrite');
+      const val = document.getElementById('upDate')?.value || '';
+      if (!box) return;
+      const snaps = (window.app && window.app.state && window.app.state.snaps) || [];
+      const exists = val && snaps.some(x => x.date === val);
+      if (exists) {
+        box.innerHTML = `<i class="fas fa-triangle-exclamation"></i> <span>Snapshot tanggal <b>${val}</b> sudah ada di database. Melanjutkan upload akan <b>menimpa</b> data tanggal tersebut.</span>`;
+        box.hidden = false;
+      } else {
+        box.hidden = true;
+      }
+    },
+
+    syncStepper(pct, done) {
+      const wrap = document.getElementById('dakUpStepper');
+      if (!wrap) return;
+      const step = done || pct >= 100 ? 4 : (pct >= 20 ? 3 : (pct >= 5 ? 2 : 1));
+      wrap.querySelectorAll('.dak-up-step').forEach(el => {
+        const n = Number(el.dataset.step);
+        el.classList.toggle('is-done', n < step || (done && n === 4));
+        el.classList.toggle('is-active', n === step && !done);
+      });
+    },
+
+    filterSheets(q) {
+      const term = String(q || '').toLowerCase().trim();
+      document.querySelectorAll('#sheetManagerList .dak-sheet-row').forEach(row => {
+        row.hidden = !!term && (row.textContent || '').toLowerCase().indexOf(term) < 0;
+      });
+    },
+
+    selectAllSheets(flag) {
+      document.querySelectorAll('#sheetManagerList .dak-sheet-row:not([hidden]) .sheet-delete-cb').forEach(cb => {
+        cb.checked = !!flag;
+      });
+      if (window.app && typeof window.app.updateDeleteCount === 'function') window.app.updateDeleteCount();
+    },
+
+    selectOldSheets(days) {
+      const cutoff = Date.now() - (days * 86400000);
+      let count = 0;
+      document.querySelectorAll('#sheetManagerList .dak-sheet-row').forEach(row => {
+        const dStr = row.dataset.snapDate;
+        const cb = row.querySelector('.sheet-delete-cb');
+        if (!cb || !dStr) return;
+        const ts = Date.parse(dStr);
+        const isOld = Number.isFinite(ts) && ts < cutoff;
+        cb.checked = isOld;
+        if (isOld) count++;
+      });
+      if (window.app && typeof window.app.updateDeleteCount === 'function') window.app.updateDeleteCount();
+      if (window.showToast) window.showToast(count > 0 ? `${count} snapshot lebih dari ${days} hari dipilih.` : `Tidak ada snapshot lebih lama dari ${days} hari.`, 'info');
     }
   };
 })();

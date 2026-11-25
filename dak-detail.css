@@ -2477,3 +2477,194 @@ body.dak-present-mode #view-dash {
   cursor: pointer;
 }
 .dak-present-exit:hover { background: #1e293b; }
+
+/* =====================================================================
+   v1607 — Interactive Upload & DB Manager Suite
+   ===================================================================== */
+.dak-up-closebtn {
+  width: 36px;
+  height: 36px;
+  min-height: 36px !important;
+  border-radius: 10px;
+  border: 0;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+}
+html.dark .dak-up-closebtn { background: #1e293b; color: #cbd5e1; }
+
+.dak-up-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  margin-bottom: 16px;
+  border-radius: 13px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+html.dark .dak-up-tabs { background: #0f172a; border-color: #334155; }
+.dak-up-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  min-height: 38px !important;
+  border-radius: 10px;
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.dak-up-tab.is-on {
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.25);
+}
+html.dark .dak-up-tab { color: #94a3b8; }
+html.dark .dak-up-tab.is-on { background: #2563eb; color: #ffffff; }
+.dak-up-badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  background: rgba(15, 23, 42, 0.12);
+}
+.dak-up-tab.is-on .dak-up-badge { background: rgba(255, 255, 255, 0.22); }
+.dak-up-pane[hidden] { display: none !important; }
+
+.dak-dropzone.is-dragover {
+  border-color: #2563eb !important;
+  background: rgba(37, 99, 235, 0.08) !important;
+  transform: scale(1.008);
+}
+.dak-up-clearfile {
+  width: 28px;
+  height: 28px;
+  min-height: 28px !important;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(148, 163, 184, 0.25);
+  color: #475569;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  flex: none;
+}
+.dak-up-clearfile[hidden] { display: none !important; }
+html.dark .dak-up-clearfile { background: rgba(148, 163, 184, 0.2); color: #e2e8f0; }
+
+.dak-preflight {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dak-preflight[hidden] { display: none !important; }
+html.dark .dak-preflight { background: rgba(15, 23, 42, 0.65); border-color: #334155; }
+.dak-pf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #1e293b;
+}
+html.dark .dak-pf-head { color: #f1f5f9; }
+.dak-pf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dak-pf-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+}
+.dak-pf-chip.is-ok { background: rgba(16, 185, 129, 0.12); color: #047857; }
+.dak-pf-chip.is-warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }
+html.dark .dak-pf-chip.is-ok { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+html.dark .dak-pf-chip.is-warn { background: rgba(245, 158, 11, 0.22); color: #fcd34d; }
+
+.dak-up-datepresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.dak-up-datepresets button {
+  padding: 4px 10px;
+  min-height: 28px !important;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dak-up-datepresets button:hover { border-color: #2563eb; color: #2563eb; }
+html.dark .dak-up-datepresets button { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+
+.dak-overwrite-alert {
+  margin-top: 8px;
+  padding: 8px 11px;
+  border-radius: 10px;
+  background: rgba(245, 158, 11, 0.14);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+.dak-overwrite-alert[hidden] { display: none !important; }
+html.dark .dak-overwrite-alert { background: rgba(245, 158, 11, 0.18); color: #fde68a; }
+
+.dak-up-stepper {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.dak-up-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(203, 213, 225, 0.7);
+  font-size: 10.5px;
+  color: #64748b;
+}
+html.dark .dak-up-step { background: rgba(30, 41, 59, 0.7); border-color: #334155; color: #94a3b8; }
+.dak-up-step span {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  color: #334155;
+  font-size: 10px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.dak-up-step.is-active { border-color: #2563eb; color: #1d4ed8; background: rgba(37, 99, 235, 0.1); }
+.dak-up-step.is-active span { background: #2563eb; color: #fff; }
+.dak-up-step.is-done { border-color: #10b981; color: #047857; background: rgba(16, 185, 129, 0.1); }
+.dak-up-step.is-done span { background: #10b981; color: #fff; }
+html.dark .dak-up-step.is-active { color: #93c5fd; }
+html.dark .dak-up-step.is-done { color: #6ee7b7; }

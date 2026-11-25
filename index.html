@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1606 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1607 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1606" rel="stylesheet">
+<link href="dak-detail.css?v=1607" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -1892,76 +1892,112 @@
 <!-- 2. Modal Upload Data -->
 <div aria-hidden="true" aria-modal="true" class="fixed inset-0 z-[10010] hidden bg-slate-900/60 flex items-center justify-center p-3 sm:p-4 backdrop-blur-sm transition-opacity duration-300" id="modalUpload" role="dialog">
 <div class="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-[1.5rem] p-5 sm:p-7 lg:p-8 w-full max-w-4xl shadow-2xl border border-white/30 dark:border-slate-700/50 transform transition-transform duration-300 max-h-[92dvh] overflow-y-auto custom-scrollbar animate-pop-in">
-<!-- Header Upload -->
-<div class="flex items-center gap-3.5 mb-5">
-<div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
-<i class="fas fa-cloud-upload-alt text-2xl"></i>
+<!-- Header Upload (v1607 Interactive) -->
+<div class="flex items-start justify-between gap-3 mb-4">
+  <div class="flex items-center gap-3.5 min-w-0">
+    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
+      <i class="fas fa-cloud-upload-alt text-2xl"></i>
+    </div>
+    <div class="min-w-0">
+      <div class="flex items-center gap-2 flex-wrap">
+        <h3 class="font-black text-lg text-slate-800 dark:text-white tracking-tight leading-none">Upload &amp; Manajemen Data</h3>
+        <button type="button" id="dakUpBackSettings" class="dak-back-settings-btn hidden" onclick="app.closeModal('modalUpload');if(window.dakOpenSettingsCenter)window.dakOpenSettingsCenter();"><i class="fas fa-arrow-left"></i> Pengaturan</button>
+      </div>
+      <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Excel / CSV Ready · Validasi Otomatis</p>
+    </div>
+  </div>
+  <button type="button" class="dak-up-closebtn" onclick="app.closeModal('modalUpload')" aria-label="Tutup">×</button>
 </div>
-<div>
-<h3 class="font-black text-lg text-slate-800 dark:text-white tracking-tight leading-none">Upload Data</h3>
-<p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">Excel / CSV Ready</p>
+
+<!-- 2 Interactive Tabs -->
+<div class="dak-up-tabs" role="tablist" aria-label="Mode Upload Data">
+  <button type="button" role="tab" class="dak-up-tab is-on" data-up-tab="upload" onclick="window.dakUploadSuite && window.dakUploadSuite.setTab('upload')"><i class="fas fa-cloud-arrow-up"></i> Upload Snapshot</button>
+  <button type="button" role="tab" class="dak-up-tab" data-up-tab="db" onclick="window.dakUploadSuite && window.dakUploadSuite.setTab('db')"><i class="fas fa-database"></i> Manajemen DB <span class="dak-up-badge" id="dakSheetCountBadge">0</span></button>
 </div>
+
+<!-- TAB 1: UPLOAD SNAPSHOT -->
+<div id="dakUpTabUpload" class="dak-up-pane">
+  <div class="space-y-4">
+    <div class="relative group">
+      <label class="text-[10px] font-black uppercase text-slate-400 ml-1 mb-1.5 flex justify-between">
+        <span>File Master Data (Drag &amp; Drop atau Pilih)</span>
+        <span class="text-blue-500 hidden" id="fileStatus"><i class="fas fa-spinner fa-spin mr-1"></i>Analisa...</span>
+      </label>
+      <div id="dakDropzone" class="dak-dropzone relative overflow-hidden rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-blue-400 transition-all bg-slate-50/80 dark:bg-slate-900/50">
+        <input accept=".xlsx, .xls, .csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="upFileRaw" onchange="app.detectDateFromFile(this)" type="file"/>
+        <div class="p-3.5 flex items-center gap-3">
+          <div class="w-11 h-11 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm shrink-0"><i class="fas fa-file-excel text-emerald-500 text-xl"></i></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-xs sm:text-sm font-bold text-slate-700 dark:text-slate-200 truncate" id="fileNameDisplay">Pilih file atau seret ke sini…</p>
+            <p class="text-[10px] text-slate-400 font-semibold mt-0.5" id="dakFileMeta">Format: .xlsx, .xls, .csv · Maks. 10MB</p>
+          </div>
+          <button type="button" id="dakClearFileBtn" class="dak-up-clearfile relative z-20" hidden onclick="event.stopPropagation();window.dakUploadSuite && window.dakUploadSuite.clearFile()" title="Hapus file" aria-label="Hapus file">×</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pre-Flight Validation Card -->
+    <div id="dakUploadPreflight" class="dak-preflight" hidden></div>
+
+    <div>
+      <label class="text-[10px] font-black uppercase text-slate-400 ml-1 mb-1.5 block">Cut-Off Data <span class="text-emerald-500 hidden ml-1" id="autoLabel">(Auto ✨)</span></label>
+      <div class="relative">
+        <input class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 pl-10 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm shadow-sm cursor-pointer" id="upDate" onchange="window.dakUploadSuite && window.dakUploadSuite.checkOverwrite()" type="date"/>
+        <i class="fas fa-calendar-alt absolute left-3.5 top-3.5 text-slate-400"></i>
+      </div>
+      <div class="dak-up-datepresets">
+        <button type="button" onclick="window.dakUploadSuite && window.dakUploadSuite.setDatePreset('today')">Hari Ini</button>
+        <button type="button" onclick="window.dakUploadSuite && window.dakUploadSuite.setDatePreset('yesterday')">Kemarin</button>
+        <button type="button" onclick="window.dakUploadSuite && window.dakUploadSuite.setDatePreset('eom')">Akhir Bulan Lalu</button>
+      </div>
+      <div id="dakUploadOverwrite" class="dak-overwrite-alert" hidden></div>
+    </div>
+  </div>
+
+  <div class="mt-5 flex flex-col sm:flex-row gap-2.5">
+    <button class="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white py-3 rounded-xl text-xs font-black tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex justify-center items-center gap-2" onclick="app.doUpload(this)">PROSES UPLOAD <i class="fas fa-arrow-right text-[10px]"></i></button>
+    <button class="sm:w-32 py-3 text-[11px] font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-700 dark:text-slate-200 hover:bg-slate-200 rounded-xl active:scale-95 transition-colors" onclick="app.closeModal('modalUpload')">BATAL</button>
+  </div>
+
+  <!-- Progress Upload + 4-Step Visual Stepper -->
+  <section aria-live="polite" class="hidden mt-5 rounded-2xl border border-blue-100 dark:border-blue-900/60 bg-blue-50/80 dark:bg-slate-900/70 p-4 sm:p-5" id="uploadProgressPanel">
+    <div class="dak-up-stepper" id="dakUpStepper">
+      <div class="dak-up-step is-active" data-step="1"><span>1</span><b>Baca</b></div>
+      <div class="dak-up-step" data-step="2"><span>2</span><b>Validasi</b></div>
+      <div class="dak-up-step" data-step="3"><span>3</span><b>Kirim</b></div>
+      <div class="dak-up-step" data-step="4"><span>4</span><b>Selesai</b></div>
+    </div>
+    <div class="flex items-center justify-between gap-3 mb-2.5 mt-3">
+      <div class="min-w-0">
+        <p class="text-xs sm:text-sm font-black text-slate-800 dark:text-white">Proses upload sedang berjalan</p>
+        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5" id="uploadStatus">Menyiapkan file...</p>
+      </div>
+      <span class="text-xl sm:text-2xl font-black text-blue-600 tabular-nums shrink-0" id="uploadPct">0%</span>
+    </div>
+    <div class="h-2.5 w-full rounded-full bg-blue-100 dark:bg-slate-700 overflow-hidden">
+      <div class="h-full w-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 transition-all duration-300" id="uploadBar"></div>
+    </div>
+    <p class="text-[10px] text-slate-400 mt-2">Mohon jangan tutup jendela atau muat ulang aplikasi sampai proses selesai.</p>
+  </section>
 </div>
-<!-- Form Upload -->
-<div class="space-y-4">
-<div class="relative group">
-<label class="text-[10px] font-black uppercase text-slate-400 ml-1 mb-1.5 flex justify-between">
-<span>File Master Data</span>
-<span class="text-blue-500 hidden" id="fileStatus"><i class="fas fa-spinner fa-spin mr-1"></i>Analisa...</span>
-</label>
-<div class="relative overflow-hidden rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-600 hover:border-blue-400 transition-colors bg-slate-50/80 dark:bg-slate-900/50">
-<input accept=".xlsx, .xls, .csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="upFileRaw" onchange="app.detectDateFromFile(this)" type="file"/>
-<div class="p-3 flex items-center gap-3">
-<div class="w-10 h-10 bg-white dark:bg-slate-800 rounded-lg flex items-center justify-center shadow-sm shrink-0"><i class="fas fa-file-excel text-emerald-500 text-lg"></i></div>
-<div class="flex-1 min-w-0">
-<p class="text-xs font-bold text-slate-700 dark:text-slate-200 truncate" id="fileNameDisplay">Pilih file...</p>
-<p class="text-[10px] text-slate-400 font-medium mt-0.5">Maks. 10MB</p>
-</div>
-</div>
-</div>
-</div>
-<div>
-<label class="text-[10px] font-black uppercase text-slate-400 ml-1 mb-1.5 block">Cut-Off Data <span class="text-emerald-500 hidden ml-1" id="autoLabel">(Auto ✨)</span></label>
-<div class="relative">
-<input class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-3 pl-10 focus:border-blue-500 outline-none transition-all font-bold text-slate-700 dark:text-slate-200 text-xs sm:text-sm shadow-sm cursor-pointer" id="upDate" type="date"/>
-<i class="fas fa-calendar-alt absolute left-3.5 top-3.5 text-slate-400"></i>
-</div>
-</div>
-</div>
-<div class="mt-6 space-y-2.5">
-<button class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 text-white py-3 rounded-xl text-xs font-black tracking-widest shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex justify-center items-center gap-2" onclick="app.doUpload(this)">PROSES UPLOAD <i class="fas fa-arrow-right text-[10px]"></i></button>
-<button class="w-full py-2.5 text-[10px] font-bold text-slate-500 hover:text-slate-700 bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 hover:bg-slate-200 rounded-xl active:scale-95 transition-colors" onclick="app.closeModal('modalUpload')">BATAL</button>
-</div>
-<!-- Progress upload ditampilkan di dalam modal, tepat di bawah tombol aksi -->
-<section aria-live="polite" class="hidden mt-5 rounded-2xl border border-blue-100 dark:border-blue-900/60 bg-blue-50/80 dark:bg-slate-900/70 p-4 sm:p-5" id="uploadProgressPanel">
-<div class="flex items-center justify-between gap-3 mb-3">
-<div class="min-w-0">
-<p class="text-xs sm:text-sm font-black text-slate-800 dark:text-white">Proses upload sedang berjalan</p>
-<p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1" id="uploadStatus">Menyiapkan file...</p>
-</div>
-<span class="text-xl sm:text-2xl font-black text-blue-600 tabular-nums shrink-0" id="uploadPct">0%</span>
-</div>
-<div class="h-2.5 w-full rounded-full bg-blue-100 dark:bg-slate-700 overflow-hidden">
-<div class="h-full w-0 rounded-full bg-gradient-to-r from-blue-600 to-cyan-500 transition-all duration-300" id="uploadBar"></div>
-</div>
-<p class="text-[10px] text-slate-400 mt-2">Mohon jangan tutup jendela atau muat ulang aplikasi sampai proses selesai.</p>
-</section>
-<!-- Manajemen DB -->
-<div class="mt-6 border-t border-dashed border-slate-200 dark:border-slate-700 pt-5">
-<div class="flex justify-between items-end mb-3">
-<div>
-<h3 class="text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-widest flex items-center gap-1.5"><i class="fas fa-trash-alt text-red-500 text-xs"></i> Bersihkan DB</h3>
-</div>
-<button class="text-[10px] bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2.5 py-1.5 rounded-lg font-bold transition-colors active:scale-95 flex items-center gap-1" onclick="app.renderSheetManager()">
-<i class="fas fa-sync-alt"></i> Load
-                </button>
-</div>
-<div class="max-h-44 sm:max-h-56 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50/80 dark:bg-slate-900/50 p-1.5 custom-scrollbar" id="sheetManagerList">
-<div class="p-3 text-center text-[10px] font-bold text-slate-400">Klik "Load" memuat DB.</div>
-</div>
-<button class="mt-2.5 w-full bg-red-50 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white py-2.5 rounded-xl text-[10px] font-black transition-all hidden active:scale-95 uppercase tracking-widest shadow-sm" id="btnDeleteSheets" onclick="app.executeDeleteSheets()">
-                HAPUS PERMANEN (<span id="countDelete">0</span>)
-            </button>
+
+<!-- TAB 2: MANAJEMEN DB -->
+<div id="dakUpTabDb" class="dak-up-pane" hidden>
+  <div class="dak-ops-bar mb-3">
+    <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakSheetSearch" placeholder="Cari tanggal / bulan snapshot…" oninput="window.dakUploadSuite && window.dakUploadSuite.filterSheets(this.value)" autocomplete="off"/></div>
+    <div class="dak-dc-pills is-compact">
+      <button type="button" class="dak-dc-pill" onclick="window.dakUploadSuite && window.dakUploadSuite.selectOldSheets(30)">Lama (&gt;30 Hr)</button>
+      <button type="button" class="dak-dc-pill" onclick="window.dakUploadSuite && window.dakUploadSuite.selectAllSheets(true)">Pilih Semua</button>
+      <button type="button" class="dak-dc-pill" onclick="window.dakUploadSuite && window.dakUploadSuite.selectAllSheets(false)">Batal</button>
+      <button type="button" class="dak-dc-pill" onclick="app.renderSheetManager()"><i class="fas fa-sync-alt"></i> Muat Ulang</button>
+    </div>
+  </div>
+  <div class="max-h-64 sm:max-h-72 overflow-y-auto border border-slate-200 dark:border-slate-700 rounded-xl divide-y divide-slate-100 dark:divide-slate-700 bg-slate-50/80 dark:bg-slate-900/50 p-1.5 custom-scrollbar" id="sheetManagerList">
+    <div class="p-4 text-center text-[11px] font-bold text-slate-400">Memuat daftar snapshot…</div>
+  </div>
+  <button class="mt-3 w-full bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white py-3 rounded-xl text-[11px] font-black transition-all hidden active:scale-95 uppercase tracking-widest shadow-sm" id="btnDeleteSheets" onclick="app.executeDeleteSheets()">
+    HAPUS PERMANEN (<span id="countDelete">0</span>)
+  </button>
 </div>
 </div>
 </div>
@@ -2099,7 +2135,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1606"></script>
+<script defer src="app.js?v=1607"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {
