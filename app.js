@@ -1136,6 +1136,7 @@ window.setScenario = function(type) {
 
 
   function renderVintagePage(res) {
+    window.__dakLastVintage = res;
     // Hide Loader
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
 
@@ -2292,6 +2293,7 @@ function renderEmptyState() {
 // MENU CKPN FORECAST (MASTERPIECE UI)
 // =================================================================
 function renderCKPNPage(res) {
+    window.__dakLastCKPN = res;
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
     
     var container = document.getElementById('view-ckpn');
@@ -2508,6 +2510,7 @@ function renderCKPNRow(r, totalCKPN) {
 
 
   function renderTopObligorPage(res) {
+    window.__dakLastTop = Array.isArray(res) ? res : [];
     // Hide Loader
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
 
@@ -2580,6 +2583,7 @@ function renderCKPNRow(r, totalCKPN) {
 // =================================================================
 
 function renderRiskMatrix(res) {
+    window.__dakLastRisk = res;
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
     
     var container = document.getElementById('view-risk');
@@ -2761,6 +2765,7 @@ function initRiskChart(points) {
 
 
   function renderWriteOffPage(res) {
+    window.__dakLastWO = res;
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
     
     // --- INTEGRASI ANIMASI COUNTER PADA HEADER ---
@@ -2843,6 +2848,7 @@ function initRiskChart(points) {
 }
 
 function renderFreshDropPage(res) {
+    window.__dakLastFresh = res;
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
 
     // Handle Error jika data bulan lalu tidak ada
@@ -3116,6 +3122,7 @@ const fmtDate = (d) => {
 };
 
 function renderMutasiPage(res) {
+    window.__dakLastMutasi = res;
     if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
     if(res.error) { dakToastAlert(res.error); return; }
 
@@ -11133,5 +11140,615 @@ document.addEventListener('click',function(){});
     if (target) {
       new MutationObserver(() => setTimeout(injectDetailCrossLinks, 120)).observe(target, { childList: true, subtree: true });
     }
+  });
+})();
+
+
+// =========================================================================
+// DAKOPEN v1604 — PORTFOLIO INTELLIGENCE & CREDIT OPERATIONS INTERACTIVE SUITE
+// =========================================================================
+(function () {
+  if (window.dakOpsExecSuite) return;
+
+  const fmtRp = v => 'Rp ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0));
+  const fmtShort = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+  const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+  const parseNum = s => {
+    const n = Number(String(s || '').replace(/[^\d-]/g, ''));
+    return Number.isFinite(n) ? n : 0;
+  };
+  const downloadCSV = (filename, headers, rows) => {
+    if (!rows || !rows.length) {
+      if (window.showToast) window.showToast('Tidak ada data untuk diunduh.', 'warning');
+      return;
+    }
+    const escCsv = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const lines = [headers.join(',')].concat(rows.map(r => r.map(escCsv).join(',')));
+    const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    if (window.showToast) window.showToast('Berhasil mengunduh ' + rows.length + ' baris (' + filename + '.csv).', 'success');
+  };
+
+  // --- Daily Collection Tracker (localStorage) ---
+  const todayKey = () => 'dak_coll_done_' + new Date().toISOString().slice(0, 10);
+  function getCollDone() {
+    try { return new Set(JSON.parse(localStorage.getItem(todayKey()) || '[]')); } catch (e) { return new Set(); }
+  }
+  function saveCollDone(set) {
+    try { localStorage.setItem(todayKey(), JSON.stringify(Array.from(set))); } catch (e) {}
+  }
+
+  // =========================================================================
+  // A. PORTFOLIO INTELLIGENCE CENTER ENHANCERS
+  // =========================================================================
+
+  // 1. TOP OBLIGOR (view-top): Search + KOL Filter + Top Limit + CSV
+  function enhanceTopObligor() {
+    const view = document.getElementById('view-top');
+    const wrap = view && view.querySelector('.bk-tablewrap');
+    if (!view || !wrap || view.querySelector('#dakTopBar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakTopBar';
+    bar.className = 'dak-ops-bar';
+    bar.innerHTML = `
+      <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakTopQ" placeholder="Cari nama debitur / loan…" oninput="window.dakOpsExecSuite.filterTop()" autocomplete="off"/></div>
+      <div class="dak-dc-pills is-compact" role="group">
+        <button type="button" class="dak-dc-pill is-on" data-top-kol="ALL" onclick="window.dakOpsExecSuite.setTopKol('ALL')">Semua</button>
+        <button type="button" class="dak-dc-pill" data-top-kol="1" onclick="window.dakOpsExecSuite.setTopKol('1')">KOL 1</button>
+        <button type="button" class="dak-dc-pill" data-top-kol="2" onclick="window.dakOpsExecSuite.setTopKol('2')">KOL 2</button>
+        <button type="button" class="dak-dc-pill" data-top-kol="NPL" onclick="window.dakOpsExecSuite.setTopKol('NPL')">NPL (3–5)</button>
+      </div>
+      <div class="dak-ops-right">
+        <select id="dakTopLim" class="dak-ops-sel" onchange="window.dakOpsExecSuite.filterTop()" aria-label="Batas tampilan">
+          <option value="999">Semua</option>
+          <option value="10">Top 10</option>
+          <option value="25">Top 25</option>
+        </select>
+        <button type="button" class="dak-kr-exportbtn" onclick="window.dakOpsExecSuite.exportTop()"><i class="fas fa-file-csv"></i> CSV</button>
+      </div>`;
+    wrap.parentNode.insertBefore(bar, wrap);
+  }
+
+  // 2. RISK MATRIX (view-risk): Interactive Threshold Bar (OS & Tenor)
+  function enhanceRiskMatrix() {
+    const view = document.getElementById('view-risk');
+    if (!view || !window.__dakLastRisk || view.querySelector('#dakRiskBar')) return;
+    const firstChild = view.firstElementChild;
+    if (!firstChild) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakRiskBar';
+    bar.className = 'dak-ops-bar is-card';
+    bar.innerHTML = `
+      <div class="dak-ops-lbl"><i class="fas fa-sliders"></i> Batas Kuadran Risiko Tinggi:</div>
+      <div class="dak-dc-pills is-compact">
+        <span class="dak-ops-mini">OS &gt;</span>
+        <button type="button" class="dak-dc-pill" data-rk-os="50000000" onclick="window.dakOpsExecSuite.setRiskThresh(50000000, null)">50 Jt</button>
+        <button type="button" class="dak-dc-pill is-on" data-rk-os="100000000" onclick="window.dakOpsExecSuite.setRiskThresh(100000000, null)">100 Jt</button>
+        <button type="button" class="dak-dc-pill" data-rk-os="250000000" onclick="window.dakOpsExecSuite.setRiskThresh(250000000, null)">250 Jt</button>
+      </div>
+      <div class="dak-dc-pills is-compact">
+        <span class="dak-ops-mini">Tenor &gt;</span>
+        <button type="button" class="dak-dc-pill" data-rk-tn="24" onclick="window.dakOpsExecSuite.setRiskThresh(null, 24)">24 Bln</button>
+        <button type="button" class="dak-dc-pill is-on" data-rk-tn="36" onclick="window.dakOpsExecSuite.setRiskThresh(null, 36)">36 Bln</button>
+        <button type="button" class="dak-dc-pill" data-rk-tn="60" onclick="window.dakOpsExecSuite.setRiskThresh(null, 60)">60 Bln</button>
+      </div>
+      <div class="dak-ops-statpill" id="dakRiskSummary"></div>`;
+    firstChild.insertBefore(bar, firstChild.firstChild);
+    window.__dakRiskOS = 100000000;
+    window.__dakRiskTn = 36;
+    window.dakOpsExecSuite.updateRiskSummary();
+  }
+
+  // 3. VINTAGE (view-vintage): Interactive Cohort Summary Bar
+  function enhanceVintage() {
+    const view = document.getElementById('view-vintage');
+    const data = window.__dakLastVintage;
+    if (!view || !data || !Array.isArray(data.list) || view.querySelector('#dakVintageBar')) return;
+    const firstChild = view.firstElementChild;
+    if (!firstChild) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakVintageBar';
+    bar.className = 'dak-ops-bar is-card';
+    bar.innerHTML = `
+      <div class="dak-ops-lbl"><i class="fas fa-layer-group"></i> Ringkasan Cohort Tahun Pencairan:</div>
+      <div class="dak-dc-pills is-compact" id="dakVintagePills">
+        ${data.list.map(x => `<button type="button" class="dak-dc-pill" onclick="window.dakOpsExecSuite.showVintageCohort('${esc(x.year)}')"><b>${esc(x.year)}</b> · ${(Number(x.npl_pct)||0).toFixed(2)}%</button>`).join('')}
+      </div>
+      <div class="dak-ops-statpill" id="dakVintageInfo" hidden></div>`;
+    firstChild.insertBefore(bar, firstChild.children[1] || firstChild.firstChild);
+  }
+
+  // 4. STRESS TEST (view-stress): 1-Click Macro Scenario Presets
+  function enhanceStress() {
+    const view = document.getElementById('view-stress');
+    if (!view || view.querySelector('#dakStressPresets')) return;
+    const firstChild = view.firstElementChild;
+    if (!firstChild) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakStressPresets';
+    bar.className = 'dak-ops-bar is-card';
+    bar.innerHTML = `
+      <div class="dak-ops-lbl"><i class="fas fa-gauge-high"></i> Skenario Makro Cepat:</div>
+      <div class="dak-dc-pills is-compact">
+        <button type="button" class="dak-dc-pill is-on" onclick="window.dakOpsExecSuite.runStressPreset('normal', this)">Normal (Baseline)</button>
+        <button type="button" class="dak-dc-pill" onclick="window.dakOpsExecSuite.runStressPreset('moderate', this)">Moderat (+15%)</button>
+        <button type="button" class="dak-dc-pill" onclick="window.dakOpsExecSuite.runStressPreset('severe', this)">Berat (+35%)</button>
+        <button type="button" class="dak-dc-pill" onclick="window.dakOpsExecSuite.runStressPreset('crisis', this)">Krisis (+60%)</button>
+      </div>`;
+    firstChild.insertBefore(bar, firstChild.firstChild);
+  }
+
+  // 5. CKPN (view-ckpn): Interactive Rate Simulator
+  function enhanceCKPN() {
+    const view = document.getElementById('view-ckpn');
+    const data = window.__dakLastCKPN;
+    if (!view || !data || !Array.isArray(data.buckets) || view.querySelector('#dakCkpnSim')) return;
+    const firstChild = view.firstElementChild;
+    if (!firstChild) return;
+
+    const baseRates = data.buckets.map(b => Number(b.rate) || 0);
+    const totalOS = data.buckets.reduce((a, b) => a + (Number(b.os) || 0), 0);
+    const baseProv = data.buckets.reduce((a, b) => a + (Number(b.prov) || 0), 0);
+
+    const box = document.createElement('div');
+    box.id = 'dakCkpnSim';
+    box.className = 'dak-ops-bar is-card flex-col items-stretch';
+    box.innerHTML = `
+      <div class="flex flex-wrap items-center justify-between gap-2 w-full">
+        <div class="dak-ops-lbl"><i class="fas fa-calculator"></i> Simulasi Tarif Pencadangan CKPN (Interaktif)</div>
+        <button type="button" class="dak-dc-pill" onclick="window.dakOpsExecSuite.resetCKPN()"><i class="fas fa-rotate-left"></i> Reset Standar</button>
+      </div>
+      <div class="dak-ckpn-grid">
+        ${data.buckets.map((b, i) => `
+          <label class="dak-ckpn-item">
+            <span>KOL ${b.k} <small>(${fmtShort(b.os)})</small></span>
+            <div class="dak-ckpn-inp">
+              <input type="number" step="0.5" min="0" max="100" value="${Number(b.rate || 0)}" data-ckpn-idx="${i}" data-ckpn-os="${Number(b.os || 0)}" data-ckpn-base="${baseRates[i]}" oninput="window.dakOpsExecSuite.recalcCKPN()"/>
+              <span>%</span>
+            </div>
+          </label>`).join('')}
+      </div>
+      <div class="dak-ckpn-res" id="dakCkpnRes" data-base-prov="${baseProv}" data-total-os="${totalOS}">
+        <span>Proyeksi CKPN: <b>${fmtRp(baseProv)}</b></span>
+        <span>Coverage: <b>${totalOS > 0 ? (baseProv / totalOS * 100).toFixed(2) : '0.00'}%</b></span>
+        <span id="dakCkpnDelta">Selisih: Rp 0</span>
+      </div>`;
+    firstChild.insertBefore(box, firstChild.children[1] || firstChild.firstChild);
+  }
+
+  // =========================================================================
+  // B. CREDIT OPERATIONS CENTER ENHANCERS
+  // =========================================================================
+
+  // 6. MUTASI KREDIT (view-mutasi): Clickable KPI cards + Search + CSV
+  function enhanceMutasi() {
+    const view = document.getElementById('view-mutasi');
+    if (!view || view.querySelector('#dakMutasiBar')) return;
+    const cair = document.getElementById('m_val_cair');
+    const lunas = document.getElementById('m_val_lunas');
+    const drop = document.getElementById('m_val_drop');
+    [
+      [cair, 'NEW'],
+      [lunas, 'LUNAS'],
+      [drop, 'DROP']
+    ].forEach(([el, tab]) => {
+      const card = el && el.closest('.glass-card');
+      if (card && !card.dataset.dakJump) {
+        card.dataset.dakJump = tab;
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', () => {
+          const btn = view.querySelector(`[onclick*="'${tab}'"], [data-mut-tab="${tab}"]`);
+          if (btn) btn.click();
+          const list = view.querySelector('#mutasi-list-container, #mutasi_list, .bk-table, table');
+          if (list) list.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+      }
+    });
+
+    const firstChild = view.firstElementChild;
+    if (firstChild) {
+      const bar = document.createElement('div');
+      bar.id = 'dakMutasiBar';
+      bar.className = 'dak-ops-bar is-card';
+      bar.innerHTML = `
+        <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakMutQ" placeholder="Cari debitur di daftar mutasi…" oninput="window.dakOpsExecSuite.filterMutasi(this.value)" autocomplete="off"/></div>
+        <button type="button" class="dak-kr-exportbtn" onclick="window.dakOpsExecSuite.exportMutasi()"><i class="fas fa-file-csv"></i> Unduh CSV</button>`;
+      firstChild.appendChild(bar);
+    }
+  }
+
+  // 7. PENAGIHAN (view-collection): Priority Sort + Daily "Sudah Ditagih" Tracker
+  function enhanceCollection() {
+    const view = document.getElementById('view-collection');
+    const searchWrap = view && view.querySelector('.bk-coll-search-wrap');
+    if (!view || !searchWrap || view.querySelector('#dakCollTools')) return;
+
+    const tools = document.createElement('div');
+    tools.id = 'dakCollTools';
+    tools.className = 'dak-coll-tools';
+    tools.innerHTML = `
+      <select id="dakCollSort" class="dak-ops-sel" onchange="window.dakOpsExecSuite.sortCollection(this.value)" aria-label="Urutkan prioritas penagihan">
+        <option value="default">Urutan Default</option>
+        <option value="tgk">Tunggakan Terbesar</option>
+        <option value="os">Baki Debet Terbesar</option>
+        <option value="kol">KOL Tertinggi</option>
+      </select>
+      <span class="dak-coll-prog" id="dakCollProg">0 / 0 Dihubungi Hari Ini</span>`;
+    searchWrap.appendChild(tools);
+
+    // Decorate existing rows with daily done state & auto-mark on WA click
+    const done = getCollDone();
+    const rows = view.querySelectorAll('#collection_list_wrapper .bk-crow');
+    rows.forEach((row, idx) => {
+      const key = (row.querySelector('.bk-crow-name, h4, b, strong')?.textContent || ('row_' + idx)).trim();
+      row.dataset.collKey = key;
+      if (done.has(key)) row.classList.add('is-called-today');
+      const waBtn = row.querySelector('button[onclick*="WA"], button[onclick*="wa"], .bk-crow-act');
+      if (waBtn && !waBtn.dataset.dakTrack) {
+        waBtn.dataset.dakTrack = '1';
+        waBtn.addEventListener('click', () => {
+          const d = getCollDone();
+          d.add(key);
+          saveCollDone(d);
+          row.classList.add('is-called-today');
+          window.dakOpsExecSuite.syncCollProgress();
+        });
+      }
+    });
+    window.dakOpsExecSuite.syncCollProgress();
+  }
+
+  // 8. EARLY WARNING (view-watchlist): Risk Level Pills + Quick Search
+  function enhanceWatchlist() {
+    const view = document.getElementById('view-watchlist');
+    const grid = document.getElementById('watchlist-grid');
+    if (!view || !grid || view.querySelector('#dakWlBar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakWlBar';
+    bar.className = 'dak-ops-bar is-card';
+    bar.innerHTML = `
+      <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakWlQ" placeholder="Cari debitur early warning…" oninput="window.dakOpsExecSuite.filterWatchlist()" autocomplete="off"/></div>
+      <div class="dak-dc-pills is-compact">
+        <button type="button" class="dak-dc-pill is-on" data-wl-lv="ALL" onclick="window.dakOpsExecSuite.setWlLevel('ALL')">Semua</button>
+        <button type="button" class="dak-dc-pill" data-wl-lv="CRITICAL" onclick="window.dakOpsExecSuite.setWlLevel('CRITICAL')">Critical</button>
+        <button type="button" class="dak-dc-pill" data-wl-lv="WARNING" onclick="window.dakOpsExecSuite.setWlLevel('WARNING')">Warning</button>
+        <button type="button" class="dak-dc-pill" data-wl-lv="STABLE" onclick="window.dakOpsExecSuite.setWlLevel('STABLE')">Stable</button>
+      </div>`;
+    grid.parentNode.insertBefore(bar, grid);
+  }
+
+  // 9. FRESH DROP (view-freshdrop): Pattern Filter Pills + Search + CSV
+  function enhanceFreshDrop() {
+    const cont = document.getElementById('fresh_list_container');
+    if (!cont || !cont.querySelector('tbody tr') || cont.querySelector('#dakFreshBar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakFreshBar';
+    bar.className = 'dak-ops-bar';
+    bar.innerHTML = `
+      <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakFreshQ" placeholder="Cari debitur fresh drop…" oninput="window.dakOpsExecSuite.filterFresh()" autocomplete="off"/></div>
+      <div class="dak-dc-pills is-compact">
+        <button type="button" class="dak-dc-pill is-on" data-fr-p="ALL" onclick="window.dakOpsExecSuite.setFreshPat('ALL')">Semua</button>
+        <button type="button" class="dak-dc-pill" data-fr-p="DPK" onclick="window.dakOpsExecSuite.setFreshPat('DPK')">KOL 1→2</button>
+        <button type="button" class="dak-dc-pill" data-fr-p="NPL" onclick="window.dakOpsExecSuite.setFreshPat('NPL')">Jatuh NPL (≥3)</button>
+      </div>
+      <button type="button" class="dak-kr-exportbtn" onclick="window.dakOpsExecSuite.exportFresh()"><i class="fas fa-file-csv"></i> CSV</button>`;
+    cont.insertBefore(bar, cont.firstChild);
+  }
+
+  // 10. JATUH TEMPO (view-maturity): Status Filter Pills + Quick Search
+  function enhanceMaturity() {
+    const cont = document.getElementById('maturity_list_container');
+    if (!cont || !cont.querySelector('tbody tr') || cont.querySelector('#dakMatBar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'dakMatBar';
+    bar.className = 'dak-ops-bar';
+    bar.innerHTML = `
+      <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakMatQ" placeholder="Cari nama / No. PK jatuh tempo…" oninput="window.dakOpsExecSuite.filterMaturity()" autocomplete="off"/></div>
+      <div class="dak-dc-pills is-compact">
+        <button type="button" class="dak-dc-pill is-on" data-mat-s="ALL" onclick="window.dakOpsExecSuite.setMatStatus('ALL')">Semua</button>
+        <button type="button" class="dak-dc-pill" data-mat-s="OVER" onclick="window.dakOpsExecSuite.setMatStatus('OVER')">Lewat JT</button>
+        <button type="button" class="dak-dc-pill" data-mat-s="SOON" onclick="window.dakOpsExecSuite.setMatStatus('SOON')">≤ 30 Hari</button>
+        <button type="button" class="dak-dc-pill" data-mat-s="LATER" onclick="window.dakOpsExecSuite.setMatStatus('LATER')">&gt; 30 Hari</button>
+      </div>`;
+    cont.insertBefore(bar, cont.firstChild);
+  }
+
+  // 11. HAPUS BUKU (view-writeoff): Search + Year Filter + CSV
+  function enhanceWriteOff() {
+    const tbody = document.getElementById('tblWriteOff');
+    const card = tbody && tbody.closest('.glass-card');
+    if (!card || !tbody.querySelector('tr') || card.querySelector('#dakWoBar')) return;
+
+    const years = new Set();
+    tbody.querySelectorAll('tr').forEach(tr => {
+      const m = (tr.textContent || '').match(/\b(19|20)\d{2}\b/);
+      if (m) years.add(m[0]);
+    });
+    const yrList = Array.from(years).sort((a, b) => Number(b) - Number(a)).slice(0, 6);
+
+    const bar = document.createElement('div');
+    bar.id = 'dakWoBar';
+    bar.className = 'dak-ops-bar';
+    bar.innerHTML = `
+      <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakWoQ" placeholder="Cari debitur hapus buku…" oninput="window.dakOpsExecSuite.filterWO()" autocomplete="off"/></div>
+      <div class="dak-dc-pills is-compact">
+        <button type="button" class="dak-dc-pill is-on" data-wo-yr="ALL" onclick="window.dakOpsExecSuite.setWoYear('ALL')">Semua</button>
+        ${yrList.map(y => `<button type="button" class="dak-dc-pill" data-wo-yr="${y}" onclick="window.dakOpsExecSuite.setWoYear('${y}')">${y}</button>`).join('')}
+      </div>
+      <button type="button" class="dak-kr-exportbtn" onclick="window.dakOpsExecSuite.exportWO()"><i class="fas fa-file-csv"></i> CSV</button>`;
+    const scrollWrap = tbody.closest('.overflow-auto, .overflow-x-auto, .overflow-y-auto');
+    if (scrollWrap) scrollWrap.parentNode.insertBefore(bar, scrollWrap);
+  }
+
+  // =========================================================================
+  // PUBLIC API
+  // =========================================================================
+  window.dakOpsExecSuite = {
+    // Top Obligor
+    setTopKol(k) {
+      window.__dakTopKol = k;
+      document.querySelectorAll('#dakTopBar [data-top-kol]').forEach(b => b.classList.toggle('is-on', b.dataset.topKol === k));
+      this.filterTop();
+    },
+    filterTop() {
+      const q = (document.getElementById('dakTopQ')?.value || '').toLowerCase().trim();
+      const kol = window.__dakTopKol || 'ALL';
+      const lim = Number(document.getElementById('dakTopLim')?.value || 999);
+      let shown = 0;
+      document.querySelectorAll('#view-top tbody tr.bk-row').forEach(tr => {
+        const txt = (tr.textContent || '').toLowerCase();
+        const kMatch = (tr.querySelector('.bk-c-kol')?.textContent || '').match(/\d/);
+        const kVal = kMatch ? Number(kMatch[0]) : 1;
+        const okK = kol === 'ALL' ? true : (kol === 'NPL' ? kVal >= 3 : kVal === Number(kol));
+        const okQ = !q || txt.indexOf(q) >= 0;
+        const ok = okK && okQ && shown < lim;
+        tr.hidden = !ok;
+        if (ok) shown++;
+      });
+    },
+    exportTop() {
+      const list = window.__dakLastTop || [];
+      downloadCSV('Top_Obligor', ['Peringkat', 'Loan', 'Nama', 'Unit', 'KOL', 'Baki Debet'], list.map((r, i) => [i + 1, r.loan || '', r.nama || '', r.br || '', r.kol || '', Number(r.os || 0)]));
+    },
+
+    // Risk Matrix
+    setRiskThresh(os, tn) {
+      if (os != null) {
+        window.__dakRiskOS = os;
+        document.querySelectorAll('#dakRiskBar [data-rk-os]').forEach(b => b.classList.toggle('is-on', Number(b.dataset.rkOs) === os));
+      }
+      if (tn != null) {
+        window.__dakRiskTn = tn;
+        document.querySelectorAll('#dakRiskBar [data-rk-tn]').forEach(b => b.classList.toggle('is-on', Number(b.dataset.rkTn) === tn));
+      }
+      this.updateRiskSummary();
+    },
+    updateRiskSummary() {
+      const res = window.__dakLastRisk;
+      const pts = Array.isArray(res) ? res : ((res && res.points) || []);
+      const osT = window.__dakRiskOS || 100000000;
+      const tnT = window.__dakRiskTn || 36;
+      const hi = pts.filter(p => Number(p.x) > tnT && Number(p.y) > osT);
+      const sum = hi.reduce((a, b) => a + (Number(b.y) || 0), 0);
+      const el = document.getElementById('dakRiskSummary');
+      if (el) el.innerHTML = `<i class="fas fa-triangle-exclamation text-rose-500"></i> Risiko Tinggi: <b>${hi.length} Debitur</b> · ${fmtShort(sum)}`;
+    },
+
+    // Vintage
+    showVintageCohort(yr) {
+      const data = window.__dakLastVintage;
+      const item = data && Array.isArray(data.list) ? data.list.find(x => String(x.year) === String(yr)) : null;
+      const info = document.getElementById('dakVintageInfo');
+      if (!item || !info) return;
+      info.innerHTML = `Cohort <b>${esc(item.year)}</b>: Total OS <b>${fmtShort(item.os || item.total_os || 0)}</b> · NPL <b>${(Number(item.npl_pct) || 0).toFixed(2)}%</b> (${item.noa || item.count || 0} rek)`;
+      info.hidden = false;
+    },
+
+    // Stress Test
+    runStressPreset(mode, btn) {
+      document.querySelectorAll('#dakStressPresets .dak-dc-pill').forEach(b => b.classList.remove('is-on'));
+      if (btn) btn.classList.add('is-on');
+      if (typeof window.setScenario === 'function') {
+        const map = { normal: 'reset', moderate: 'moderate', severe: 'severe', crisis: 'crisis' };
+        try { window.setScenario(map[mode] || mode); } catch (e) {}
+      }
+      if (window.showToast) window.showToast('Skenario Stress Test: ' + mode.toUpperCase() + ' diterapkan.', 'info');
+    },
+
+    // CKPN Simulator
+    recalcCKPN() {
+      const resEl = document.getElementById('dakCkpnRes');
+      if (!resEl) return;
+      const baseProv = Number(resEl.dataset.baseProv) || 0;
+      const totalOS = Number(resEl.dataset.totalOs) || 0;
+      let proj = 0;
+      document.querySelectorAll('#dakCkpnSim input[data-ckpn-os]').forEach(inp => {
+        const os = Number(inp.dataset.ckpnOs) || 0;
+        const rate = Math.max(0, Math.min(100, Number(inp.value) || 0));
+        proj += os * (rate / 100);
+      });
+      const delta = proj - baseProv;
+      const cov = totalOS > 0 ? (proj / totalOS * 100) : 0;
+      const sign = delta > 0 ? '+' : '';
+      const cls = delta > 0 ? 'text-rose-600 dark:text-rose-400' : (delta < 0 ? 'text-emerald-600 dark:text-emerald-400' : '');
+      resEl.innerHTML = `
+        <span>Proyeksi CKPN: <b>${fmtRp(proj)}</b></span>
+        <span>Coverage: <b>${cov.toFixed(2)}%</b></span>
+        <span class="${cls}">Selisih: <b>${sign}${fmtShort(delta)}</b></span>`;
+    },
+    resetCKPN() {
+      document.querySelectorAll('#dakCkpnSim input[data-ckpn-base]').forEach(inp => { inp.value = inp.dataset.ckpnBase; });
+      this.recalcCKPN();
+    },
+
+    // Mutasi Kredit
+    filterMutasi(q) {
+      const term = String(q || '').toLowerCase().trim();
+      document.querySelectorAll('#view-mutasi .flex.flex-col.gap-3 > div').forEach(card => {
+        card.hidden = !!term && (card.textContent || '').toLowerCase().indexOf(term) < 0;
+      });
+    },
+    exportMutasi() {
+      const m = window.__dakLastMutasi;
+      const det = m && m.details;
+      const all = []
+        .concat((det && det.new_booking || []).map(x => ['NEW BOOKING', x.loan, x.nama, x.br, x.os]))
+        .concat((det && det.repayment || []).map(x => ['REPAYMENT', x.loan, x.nama, x.br, x.os]))
+        .concat((det && det.downgrade || []).map(x => ['QUALITY DROP', x.loan, x.nama, x.br, x.os]));
+      downloadCSV('Mutasi_Kredit', ['Kategori', 'Loan', 'Nama', 'Unit', 'Nominal'], all);
+    },
+
+    // Penagihan
+    sortCollection(by) {
+      const wrap = document.getElementById('collection_list_wrapper');
+      if (!wrap) return;
+      const rows = Array.from(wrap.querySelectorAll('.bk-crow'));
+      if (by === 'default') return;
+      rows.sort((a, b) => {
+        if (by === 'kol') {
+          const ka = Number((a.textContent.match(/Kol\s*(\d)/i) || [0, 0])[1]);
+          const kb = Number((b.textContent.match(/Kol\s*(\d)/i) || [0, 0])[1]);
+          return kb - ka;
+        }
+        const numsA = (a.textContent.match(/Rp\s*[\d.]+/g) || []).map(parseNum);
+        const numsB = (b.textContent.match(/Rp\s*[\d.]+/g) || []).map(parseNum);
+        const idx = by === 'os' ? 1 : 0;
+        return (numsB[idx] || 0) - (numsA[idx] || 0);
+      });
+      rows.forEach(r => wrap.appendChild(r));
+    },
+    syncCollProgress() {
+      const rows = document.querySelectorAll('#collection_list_wrapper .bk-crow');
+      const called = document.querySelectorAll('#collection_list_wrapper .bk-crow.is-called-today');
+      const el = document.getElementById('dakCollProg');
+      if (el) el.innerHTML = `<i class="fas fa-check-circle text-emerald-500"></i> <b>${called.length} / ${rows.length}</b> Dihubungi Hari Ini`;
+    },
+
+    // Watchlist
+    setWlLevel(lv) {
+      window.__dakWlLv = lv;
+      document.querySelectorAll('#dakWlBar [data-wl-lv]').forEach(b => b.classList.toggle('is-on', b.dataset.wlLv === lv));
+      this.filterWatchlist();
+    },
+    filterWatchlist() {
+      const q = (document.getElementById('dakWlQ')?.value || '').toLowerCase().trim();
+      const lv = window.__dakWlLv || 'ALL';
+      document.querySelectorAll('#watchlist-grid > .watchlist-card').forEach(card => {
+        const txt = (card.textContent || '').toUpperCase();
+        const okLv = lv === 'ALL' || txt.indexOf(lv) >= 0;
+        const okQ = !q || txt.toLowerCase().indexOf(q) >= 0;
+        card.hidden = !(okLv && okQ);
+      });
+    },
+
+    // Fresh Drop
+    setFreshPat(p) {
+      window.__dakFreshPat = p;
+      document.querySelectorAll('#dakFreshBar [data-fr-p]').forEach(b => b.classList.toggle('is-on', b.dataset.frP === p));
+      this.filterFresh();
+    },
+    filterFresh() {
+      const q = (document.getElementById('dakFreshQ')?.value || '').toLowerCase().trim();
+      const p = window.__dakFreshPat || 'ALL';
+      document.querySelectorAll('#fresh_list_container tbody tr').forEach(tr => {
+        const txt = (tr.textContent || '').toLowerCase();
+        const kolCell = tr.querySelector('td[data-label="Perubahan Kol"]')?.textContent || '';
+        const nums = kolCell.match(/\d/g) || [];
+        const kNew = nums.length ? Number(nums[nums.length - 1]) : 2;
+        const okP = p === 'ALL' ? true : (p === 'DPK' ? kNew === 2 : kNew >= 3);
+        const okQ = !q || txt.indexOf(q) >= 0;
+        tr.hidden = !(okP && okQ);
+      });
+    },
+    exportFresh() {
+      const list = (window.__dakLastFresh && window.__dakLastFresh.list) || [];
+      downloadCSV('Fresh_Drop', ['Loan', 'Nama', 'Unit', 'Kol Lama', 'Kol Baru', 'Tunggakan', 'Baki Debet'], list.map(r => [r.loan, r.nama, r.br, r.kol_old, r.kol_new, Number(r.tgk || 0), Number(r.os || 0)]));
+    },
+
+    // Maturity
+    setMatStatus(st) {
+      window.__dakMatSt = st;
+      document.querySelectorAll('#dakMatBar [data-mat-s]').forEach(b => b.classList.toggle('is-on', b.dataset.matS === st));
+      this.filterMaturity();
+    },
+    filterMaturity() {
+      const q = (document.getElementById('dakMatQ')?.value || '').toLowerCase().trim();
+      const st = window.__dakMatSt || 'ALL';
+      document.querySelectorAll('#maturity_list_container tbody tr').forEach(tr => {
+        const txt = (tr.textContent || '').toLowerCase();
+        const isOver = txt.indexOf('lewat') >= 0;
+        const dMatch = txt.match(/(\d+)\s*hari/);
+        const days = dMatch ? Number(dMatch[1]) : 999;
+        const okS = st === 'ALL' ? true : (st === 'OVER' ? isOver : (st === 'SOON' ? (!isOver && days <= 30) : (!isOver && days > 30)));
+        const okQ = !q || txt.indexOf(q) >= 0;
+        tr.hidden = !(okS && okQ);
+      });
+    },
+
+    // Write-Off
+    setWoYear(yr) {
+      window.__dakWoYr = yr;
+      document.querySelectorAll('#dakWoBar [data-wo-yr]').forEach(b => b.classList.toggle('is-on', b.dataset.woYr === yr));
+      this.filterWO();
+    },
+    filterWO() {
+      const q = (document.getElementById('dakWoQ')?.value || '').toLowerCase().trim();
+      const yr = window.__dakWoYr || 'ALL';
+      document.querySelectorAll('#tblWriteOff tr').forEach(tr => {
+        const txt = (tr.textContent || '').toLowerCase();
+        const okY = yr === 'ALL' || txt.indexOf(yr) >= 0;
+        const okQ = !q || txt.indexOf(q) >= 0;
+        tr.hidden = !(okY && okQ);
+      });
+    },
+    exportWO() {
+      const list = (window.__dakLastWO && window.__dakLastWO.list) || [];
+      downloadCSV('Hapus_Buku_WO', ['Loan', 'Nama', 'Unit', 'Tgl WO', 'Saldo'], list.map(r => [r.loan, r.nama, r.br, r.tgl_wo || r.tgl || '', Number(r.os || 0)]));
+    }
+  };
+
+  function runAllEnhancers() {
+    enhanceTopObligor();
+    enhanceRiskMatrix();
+    enhanceVintage();
+    enhanceStress();
+    enhanceCKPN();
+    enhanceMutasi();
+    enhanceCollection();
+    enhanceWatchlist();
+    enhanceFreshDrop();
+    enhanceMaturity();
+    enhanceWriteOff();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const sc = document.getElementById('bk-scroll') || document.body;
+    let timer = null;
+    new MutationObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(runAllEnhancers, 140);
+    }).observe(sc, { childList: true, subtree: true });
+    setTimeout(runAllEnhancers, 400);
   });
 })();
