@@ -1416,3 +1416,261 @@ html.dark .dak-npl-filterbar {
     font-size: 10.5px;
   }
 }
+
+/* =====================================================================
+   v1602 — NPL Intelligence Full Interactivity Suite (Presets, Target <3%, List Toolbar, Detail Btn)
+   ===================================================================== */
+/* 1. Preset Simulasi & Target <3% di kartu What-If */
+.dak-sim-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.dak-sim-pbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  min-height: 30px !important;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color .15s ease, transform .13s ease;
+}
+.dak-sim-pbtn:hover { background: rgba(255, 255, 255, 0.22); }
+.dak-sim-pbtn:active { transform: scale(0.96); }
+.dak-sim-pbtn.is-target {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(52, 211, 153, 0.55);
+  color: #a7f3d0;
+}
+.dak-sim-pbtn.is-reset {
+  margin-left: auto;
+  background: rgba(15, 23, 42, 0.35);
+  border-color: rgba(148, 163, 184, 0.3);
+  color: #cbd5e1;
+}
+
+/* 2. Box Hasil Kalkulator Target NPL < 3% */
+.dak-target-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.58);
+  border: 1px solid rgba(52, 211, 153, 0.38);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dak-target-box[hidden] { display: none !important; }
+.dak-target-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+  color: #6ee7b7;
+}
+.dak-target-close {
+  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  min-height: 22px !important;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.dak-target-ok {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #a7f3d0;
+}
+.dak-target-ok .dak-target-close { margin-left: auto; }
+.dak-target-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.dak-target-opt {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dak-target-opt small { font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: #94a3b8; }
+.dak-target-opt b { font-size: 13px; font-weight: 800; color: #ffffff; }
+.dak-target-opt span { font-size: 10px; color: #cbd5e1; }
+.dak-target-auto {
+  width: 100%;
+  border: 0;
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-height: 36px !important;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+.dak-target-auto:active { transform: scale(0.985); }
+
+/* 3. Mini-Toolbar Pencarian & Top 5 di atas NPL List / KKR List */
+.dak-npl-listbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+  background: rgba(248, 250, 252, 0.7);
+}
+html.dark .dak-npl-listbar {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(51, 65, 85, 0.75);
+}
+.dak-npl-listsearch {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  min-height: 34px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+html.dark .dak-npl-listsearch {
+  background: #1e293b;
+  border-color: #334155;
+}
+.dak-npl-listsearch i { font-size: 11px; color: #94a3b8; flex: none; }
+.dak-npl-listsearch input {
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+  outline: none !important;
+  font-size: 12px !important;
+  font-weight: 500;
+  color: #0f172a;
+  padding: 5px 0 !important;
+  min-height: 30px !important;
+}
+html.dark .dak-npl-listsearch input { color: #f1f5f9; }
+.dak-npl-listacts {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+}
+.dak-npl-cntbadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: #1d4ed8;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+html.dark .dak-npl-cntbadge {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+.dak-npl-actbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  min-height: 30px !important;
+  border-radius: 9px;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dak-npl-actbtn:hover { background: rgba(37, 99, 235, 0.16); }
+html.dark .dak-npl-actbtn {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.35);
+  color: #93c5fd;
+}
+.dak-npl-actbtn.is-clear {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+html.dark .dak-npl-actbtn.is-clear {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+.dak-npl-actbtn[hidden] { display: none !important; }
+
+/* 4. Tombol Detail presisi pada baris NPL/KKR agar tidak salah sentuh checkbox di HP */
+.dak-row-detailbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  min-height: 28px !important;
+  border-radius: 8px;
+  border: 1px solid rgba(37, 99, 235, 0.22);
+  background: rgba(37, 99, 235, 0.07);
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dak-row-detailbtn:hover { background: rgba(37, 99, 235, 0.15); }
+html.dark .dak-row-detailbtn {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.3);
+  color: #93c5fd;
+}
+
+/* 5. Petunjuk visual Drilldown pada Kartu KPI di NPL Intelligence Center */
+#view-nplall [onclick*="openPortfolioDrilldown"]::after,
+#view-nplkur [onclick*="openPortfolioDrilldown"]::after,
+#view-nplkonsumtif [onclick*="openPortfolioDrilldown"]::after,
+#view-nplprod [onclick*="openPortfolioDrilldown"]::after {
+  content: "Rincian →";
+  display: block;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #2563eb;
+  opacity: 0.78;
+}
+html.dark #view-nplall [onclick*="openPortfolioDrilldown"]::after,
+html.dark #view-nplkur [onclick*="openPortfolioDrilldown"]::after,
+html.dark #view-nplkonsumtif [onclick*="openPortfolioDrilldown"]::after,
+html.dark #view-nplprod [onclick*="openPortfolioDrilldown"]::after {
+  color: #60a5fa;
+}

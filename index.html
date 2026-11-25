@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1601 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1602 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1601" rel="stylesheet">
+<link href="dak-detail.css?v=1602" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -543,6 +543,13 @@
 <span class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10" id="sim_pct_ALL">0%</span>
 <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
 </div>
+<div class="dak-sim-presets" role="group" aria-label="Preset simulasi ALL">
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('ALL', 10)">+10% OS</button>
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('ALL', 25)">+25% OS</button>
+  <button type="button" class="dak-sim-pbtn is-target" onclick="window.dakNplSuite && window.dakNplSuite.calcTarget3('ALL','ALL')"><i class="fas fa-bullseye"></i> Target &lt;3%</button>
+  <button type="button" class="dak-sim-pbtn is-reset" onclick="window.dakNplSuite && window.dakNplSuite.resetAll('ALL','ALL')"><i class="fas fa-rotate-left"></i> Reset</button>
+</div>
+<div class="dak-target-box" id="dakTargetBox_ALL" hidden></div>
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL Total) -->
@@ -594,6 +601,17 @@
 </div>
 </div>
 </div>
+<div class="dak-npl-listbar" data-list-type="ALL" data-list-suffix="NPL">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_ALL_NPL" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('ALL','NPL',this.value)" autocomplete="off" aria-label="Cari di daftar NPL ALL"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_ALL_NPL">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('ALL','NPL')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_ALL_NPL" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('ALL','NPL')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
+</div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
 <thead class="sticky top-0 z-10">
@@ -619,6 +637,17 @@
 <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR List</div>
 </div>
 </div>
+</div>
+<div class="dak-npl-listbar" data-list-type="ALL" data-list-suffix="KKR">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_ALL_KKR" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('ALL','KKR',this.value)" autocomplete="off" aria-label="Cari di daftar KKR ALL"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_ALL_KKR">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('ALL','KKR')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_ALL_KKR" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('ALL','KKR')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
 </div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
@@ -727,6 +756,13 @@
 <span class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10" id="sim_pct_KUR">0%</span>
 <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
 </div>
+<div class="dak-sim-presets" role="group" aria-label="Preset simulasi KUR">
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('KUR', 10)">+10% OS</button>
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('KUR', 25)">+25% OS</button>
+  <button type="button" class="dak-sim-pbtn is-target" onclick="window.dakNplSuite && window.dakNplSuite.calcTarget3('KUR','KUR')"><i class="fas fa-bullseye"></i> Target &lt;3%</button>
+  <button type="button" class="dak-sim-pbtn is-reset" onclick="window.dakNplSuite && window.dakNplSuite.resetAll('KUR','KUR')"><i class="fas fa-rotate-left"></i> Reset</button>
+</div>
+<div class="dak-target-box" id="dakTargetBox_KUR" hidden></div>
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL KUR) -->
@@ -778,6 +814,17 @@
 </div>
 </div>
 </div>
+<div class="dak-npl-listbar" data-list-type="KUR" data-list-suffix="NPL">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_KUR_NPL" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('KUR','NPL',this.value)" autocomplete="off" aria-label="Cari di daftar NPL KUR"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_KUR_NPL">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('KUR','NPL')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_KUR_NPL" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('KUR','NPL')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
+</div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
 <thead class="sticky top-0 z-10">
@@ -803,6 +850,17 @@
 <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR KUR List</div>
 </div>
 </div>
+</div>
+<div class="dak-npl-listbar" data-list-type="KUR" data-list-suffix="KKR">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_KUR_KKR" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('KUR','KKR',this.value)" autocomplete="off" aria-label="Cari di daftar KKR KUR"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_KUR_KKR">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('KUR','KKR')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_KUR_KKR" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('KUR','KKR')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
 </div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
@@ -901,6 +959,13 @@
 <span class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10" id="sim_pct_KONS">0%</span>
 <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
 </div>
+<div class="dak-sim-presets" role="group" aria-label="Preset simulasi Kons">
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('KONS', 10)">+10% OS</button>
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('KONS', 25)">+25% OS</button>
+  <button type="button" class="dak-sim-pbtn is-target" onclick="window.dakNplSuite && window.dakNplSuite.calcTarget3('Kons','KONS')"><i class="fas fa-bullseye"></i> Target &lt;3%</button>
+  <button type="button" class="dak-sim-pbtn is-reset" onclick="window.dakNplSuite && window.dakNplSuite.resetAll('Kons','KONS')"><i class="fas fa-rotate-left"></i> Reset</button>
+</div>
+<div class="dak-target-box" id="dakTargetBox_Kons" hidden></div>
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL Konsumtif) -->
@@ -952,6 +1017,17 @@
 </div>
 </div>
 </div>
+<div class="dak-npl-listbar" data-list-type="Kons" data-list-suffix="NPL">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_Kons_NPL" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('Kons','NPL',this.value)" autocomplete="off" aria-label="Cari di daftar NPL Kons"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_Kons_NPL">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('Kons','NPL')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_Kons_NPL" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('Kons','NPL')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
+</div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
 <thead class="sticky top-0 z-10">
@@ -977,6 +1053,17 @@
 <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR Konsumtif List</div>
 </div>
 </div>
+</div>
+<div class="dak-npl-listbar" data-list-type="Kons" data-list-suffix="KKR">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_Kons_KKR" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('Kons','KKR',this.value)" autocomplete="off" aria-label="Cari di daftar KKR Kons"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_Kons_KKR">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('Kons','KKR')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_Kons_KKR" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('Kons','KKR')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
 </div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
@@ -1088,6 +1175,13 @@
 <span class="text-white bg-white/10 px-1.5 py-0.5 rounded border border-white/10" id="sim_pct_PROD">0%</span>
 <span class="bg-green-500/20 text-green-300 px-1 py-0.5 rounded">+100%</span>
 </div>
+<div class="dak-sim-presets" role="group" aria-label="Preset simulasi Prod">
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('PROD', 10)">+10% OS</button>
+  <button type="button" class="dak-sim-pbtn" onclick="window.dakNplSuite && window.dakNplSuite.setPreset('PROD', 25)">+25% OS</button>
+  <button type="button" class="dak-sim-pbtn is-target" onclick="window.dakNplSuite && window.dakNplSuite.calcTarget3('Prod','PROD')"><i class="fas fa-bullseye"></i> Target &lt;3%</button>
+  <button type="button" class="dak-sim-pbtn is-reset" onclick="window.dakNplSuite && window.dakNplSuite.resetAll('Prod','PROD')"><i class="fas fa-rotate-left"></i> Reset</button>
+</div>
+<div class="dak-target-box" id="dakTargetBox_Prod" hidden></div>
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL Produktif) -->
@@ -1139,6 +1233,17 @@
 </div>
 </div>
 </div>
+<div class="dak-npl-listbar" data-list-type="Prod" data-list-suffix="NPL">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_Prod_NPL" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('Prod','NPL',this.value)" autocomplete="off" aria-label="Cari di daftar NPL Prod"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_Prod_NPL">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('Prod','NPL')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_Prod_NPL" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('Prod','NPL')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
+</div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
 <thead class="sticky top-0 z-10">
@@ -1164,6 +1269,17 @@
 <div class="font-black text-[10px] uppercase tracking-widest leading-none">KKR Produktif List</div>
 </div>
 </div>
+</div>
+<div class="dak-npl-listbar" data-list-type="Prod" data-list-suffix="KKR">
+  <div class="dak-npl-listsearch">
+    <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+    <input type="search" id="dakListQ_Prod_KKR" placeholder="Cari nama, loan, unit…" oninput="window.dakNplSuite && window.dakNplSuite.searchList('Prod','KKR',this.value)" autocomplete="off" aria-label="Cari di daftar KKR Prod"/>
+  </div>
+  <div class="dak-npl-listacts">
+    <span class="dak-npl-cntbadge" id="dakCnt_Prod_KKR">0</span>
+    <button type="button" class="dak-npl-actbtn" onclick="window.dakNplSuite && window.dakNplSuite.selectTop5('Prod','KKR')" title="Simulasikan 5 debitur terbesar"><i class="fas fa-bolt"></i> Top 5</button>
+    <button type="button" class="dak-npl-actbtn is-clear" id="dakClrSim_Prod_KKR" hidden onclick="window.dakNplSuite && window.dakNplSuite.clearSimSuffix('Prod','KKR')" title="Hapus pilihan simulasi"><i class="fas fa-xmark"></i></button>
+  </div>
 </div>
 <div class="flex-1 overflow-auto custom-scrollbar px-1 pb-1 z-0">
 <table class="dak-sticky-c2 w-full text-[11px] md:text-sm text-left border-separate border-spacing-y-1 mt-1">
@@ -1918,7 +2034,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1601"></script>
+<script defer src="app.js?v=1602"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

@@ -1521,6 +1521,8 @@ function formatNumber(angka) {
 // --- 2. RENDER TABLE WITH CHECKLIST (FIX SIMULASI VISUAL) ---
 // --- UPDATE: RENDER TABLE (SUPPORT DETAIL KLIK NAMA) ---
     function renderSimTableHTML(elementId, rows, type, isSimulation, suffix) {
+    const cntEl = document.getElementById('dakCnt_' + type + '_' + suffix);
+    if (cntEl) cntEl.textContent = String((rows && rows.length) || 0);
     let tbody = el(elementId); 
     if (!tbody) return; 
     tbody.innerHTML = '';
@@ -1577,9 +1579,12 @@ function formatNumber(angka) {
             tr.innerHTML = `
                 <td data-label="" class="p-3 text-center">${checkHTML}</td>
                 <td data-label="Identitas" class="p-3">
-                    <div class="click-detail flex flex-col group/item" onclick="event.stopPropagation(); window.app.fetchDetail('${esc(r.loan)}')">
-                        <div class="truncate w-full md:w-48 font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight text-xs">${esc(r.nama || '-')}</div>
-                        <div class="text-[10px] font-bold font-mono text-slate-400 mt-0.5">${esc(r.loan)} | PK: ${esc(r.pk || '-')}</div>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="click-detail flex flex-col min-w-0 flex-1 group/item" onclick="event.stopPropagation(); window.app.fetchDetail('${esc(r.loan)}')">
+                            <div class="truncate w-full md:w-44 font-extrabold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 transition-colors uppercase tracking-tight text-xs">${esc(r.nama || '-')}</div>
+                            <div class="text-[10px] font-bold font-mono text-slate-400 mt-0.5">${esc(r.loan)} | PK: ${esc(r.pk || '-')}</div>
+                        </div>
+                        <button type="button" class="dak-row-detailbtn click-detail shrink-0" onclick="event.stopPropagation(); window.app.fetchDetail('${esc(r.loan)}')" aria-label="Buka detail ${esc(r.nama || 'debitur')}">Detail <i class="fas fa-chevron-right"></i></button>
                     </div>
                 </td>
                 <td data-label="Unit" class="p-3 hidden sm:table-cell"><span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">${esc(r.br || '-')}</span></td>
@@ -1832,8 +1837,12 @@ function renderSimTable(type) {
         let newNpl = realNpl - totalHeal + totalCrash; 
         if(newNpl < 0) newNpl = 0;
 
-        // OS Baru = OS Awal - Lunas (Asumsi crash tidak nambah OS)
-        let newOs = realOs - totalHeal; 
+        // Gabungkan efek Slider Pertumbuhan OS dengan Checkbox Debitur (v1602 Unified Sim)
+        let slKey = type === 'Kons' ? 'KONS' : (type === 'Prod' ? 'PROD' : type);
+        let slEl = document.getElementById('slide_os_' + slKey);
+        let slPct = slEl ? (parseInt(slEl.value, 10) || 0) : 0;
+        let sliderDeltaOs = realOs * (slPct / 100);
+        let newOs = Math.max(0, (realOs - totalHeal) + sliderDeltaOs);
         
         let newRatio = newOs > 0 ? (newNpl / newOs) * 100 : 0;
         let oldRatio = realOs > 0 ? (realNpl / realOs) * 100 : 0;
@@ -1861,6 +1870,10 @@ function renderSimTable(type) {
         
         let crashEl = el('ks_crash_' + type); 
         if(crashEl) crashEl.innerText = formatRupiah(totalCrash);
+        const clrN = document.getElementById('dakClrSim_' + type + '_NPL');
+        if (clrN) { clrN.hidden = !(sim.heal && sim.heal.length); clrN.innerHTML = '<i class="fas fa-xmark"></i> ' + (sim.heal ? sim.heal.length : 0); }
+        const clrK = document.getElementById('dakClrSim_' + type + '_KKR');
+        if (clrK) { clrK.hidden = !(sim.crash && sim.crash.length); clrK.innerHTML = '<i class="fas fa-xmark"></i> ' + (sim.crash ? sim.crash.length : 0); }
         if (window.dakNplCharts && typeof window.dakNplCharts.updateSim === 'function') {
             window.dakNplCharts.updateSim(type, {
                 oldRatio: oldRatio,
@@ -9145,6 +9158,7 @@ async function executeDeleteSheets() {
           document.getElementById('sim_pct_' + type).classList.replace('bg-emerald-500', 'bg-white/10');
           document.getElementById('sim_pct_' + type).classList.replace('bg-red-500', 'bg-white/10');
           if (diffBadge) diffBadge.innerHTML = '';
+          if (typeof updateSimStats === 'function') updateSimStats(ratioIdSuffix);
           return;
       }
 
@@ -9179,6 +9193,7 @@ async function executeDeleteSheets() {
       } else if (newRatio < baseRatio) {
           ratioEl.style.color = '#86efac'; // Membaik (Hijau Muda)
       }
+      if (typeof updateSimStats === 'function') updateSimStats(ratioIdSuffix);
   }
 
 
@@ -10757,6 +10772,172 @@ document.addEventListener('click',function(){});
       st.filter = null;
       applyTableFilter(type);
       render(type);
+    }
+  };
+})();
+
+
+// =========================================================================
+// DAKOPEN v1602 — NPL INTELLIGENCE INTERACTIVE SUITE (PRESETS, TARGET <3%, SEARCH, TOP 5)
+// =========================================================================
+(function () {
+  if (window.dakNplSuite) return;
+
+  const fmtShort = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+
+  function getBaseMetrics(simType) {
+    const st = window.app && window.app.state;
+    const key = simType === 'KUR' ? 'kur' : (simType === 'Kons' ? 'kons' : (simType === 'Prod' ? 'prod' : 'allnpl'));
+    const base = st && st[key];
+    if (!base) return null;
+    if (simType === 'ALL') return { os: Number(base.total_os) || 0, npl: Number(base.npl_os) || 0 };
+    if (simType === 'KUR') return { os: Number(base.kur_os) || 0, npl: Number(base.kur_npl) || 0 };
+    if (simType === 'Kons') return { os: Number(base.cons_os) || 0, npl: Number(base.cons_npl) || 0 };
+    if (simType === 'Prod') return { os: Number(base.prod_os) || 0, npl: Number(base.prod_npl) || 0 };
+    return null;
+  }
+
+  window.dakNplSuite = {
+    setPreset(slKey, pct) {
+      const sl = document.getElementById('slide_os_' + slKey);
+      if (!sl) return;
+      sl.value = String(pct);
+      if (window.app && typeof window.app.calcSim === 'function') window.app.calcSim(slKey);
+      const simType = slKey === 'KONS' ? 'Kons' : (slKey === 'PROD' ? 'Prod' : slKey);
+      if (window.dakNplCharts) window.dakNplCharts.setMode(simType, 'sim');
+    },
+
+    resetAll(simType, slKey) {
+      const sl = document.getElementById('slide_os_' + slKey);
+      if (sl) {
+        sl.value = '0';
+        if (window.app && typeof window.app.calcSim === 'function') window.app.calcSim(slKey);
+      }
+      this.clearSimSuffix(simType, 'NPL');
+      this.clearSimSuffix(simType, 'KKR');
+      const box = document.getElementById('dakTargetBox_' + simType);
+      if (box) box.hidden = true;
+      if (window.showToast) window.showToast('Simulasi ' + simType + ' direset ke posisi aktual.', 'info');
+    },
+
+    calcTarget3(simType, slKey) {
+      const box = document.getElementById('dakTargetBox_' + simType);
+      if (!box) return;
+      const m = getBaseMetrics(simType);
+      if (!m || m.os <= 0) {
+        if (window.showToast) window.showToast('Data belum termuat untuk menghitung target.', 'warning');
+        return;
+      }
+      const curRatio = (m.npl / m.os) * 100;
+      const target = 2.99;
+      if (curRatio < 3.0) {
+        box.innerHTML = `<div class="dak-target-ok"><i class="fas fa-circle-check"></i> <span>Rasio NPL saat ini <b>${curRatio.toFixed(2)}%</b> sudah berada di bawah batas sehat <b>3,00%</b>.</span> <button type="button" class="dak-target-close" onclick="this.closest('.dak-target-box').hidden=true">×</button></div>`;
+        box.hidden = false;
+        return;
+      }
+      // 1) Penyelamatan (NPL - X) / (OS - X) = t  =>  X = (NPL - t*OS) / (1 - t)
+      const t = target / 100;
+      const needHeal = Math.max(0, (m.npl - t * m.os) / (1 - t));
+      // 2) Ekspansi (NPL) / (OS + Y) = t  =>  Y = (NPL / t) - OS
+      const needExpand = Math.max(0, (m.npl / t) - m.os);
+
+      box.innerHTML = `
+        <div class="dak-target-head">
+          <span><i class="fas fa-bullseye"></i> Strategi Turunkan NPL (${curRatio.toFixed(2)}% → &lt;3,00%)</span>
+          <button type="button" class="dak-target-close" onclick="this.closest('.dak-target-box').hidden=true" aria-label="Tutup">×</button>
+        </div>
+        <div class="dak-target-grid">
+          <div class="dak-target-opt">
+            <small>Opsi 1 · Penyelamatan NPL</small>
+            <b>${fmtShort(needHeal)}</b>
+            <span>Pelunasan / restrukturisasi</span>
+          </div>
+          <div class="dak-target-opt">
+            <small>Opsi 2 · Ekspansi Kredit Baru</small>
+            <b>${fmtShort(needExpand)}</b>
+            <span>Penambahan baki debet lancar</span>
+          </div>
+        </div>
+        <button type="button" class="dak-target-auto" onclick="window.dakNplSuite.autoHealToTarget('${simType}', ${Math.ceil(needHeal)})">
+          <i class="fas fa-wand-magic-sparkles"></i> Centang Otomatis Debitur Terbesar
+        </button>`;
+      box.hidden = false;
+    },
+
+    autoHealToTarget(simType, needHeal) {
+      this.clearSimSuffix(simType, 'NPL');
+      const tbody = document.getElementById('tbl' + simType + 'Npl');
+      if (!tbody) return;
+      const chks = Array.from(tbody.querySelectorAll('input[type="checkbox"][id^="chk_' + simType + '_NPL_"]'));
+      if (!chks.length) {
+        if (window.showToast) window.showToast('Tidak ada debitur NPL untuk disimulasikan.', 'warning');
+        return;
+      }
+      let acc = 0, picked = 0;
+      for (let i = 0; i < chks.length; i++) {
+        if (acc >= needHeal) break;
+        const chk = chks[i];
+        const oc = chk.getAttribute('onclick') || '';
+        const m = oc.match(/toggleSim\([^,]+,\s*\d+,\s*([\d.]+)/);
+        const os = m ? Number(m[1]) : 0;
+        if (!chk.checked) {
+          chk.click();
+          acc += os;
+          picked++;
+        }
+      }
+      if (window.dakNplCharts) window.dakNplCharts.setMode(simType, 'sim');
+      if (window.showToast) window.showToast(`Otomatis memilih ${picked} debitur terbesar (${fmtShort(acc)}) untuk simulasi target <3%.`, 'success');
+    },
+
+    searchList(simType, suffix, query) {
+      const id = 'tbl' + simType + (suffix === 'NPL' ? 'Npl' : 'Kkr');
+      const tbody = document.getElementById(id);
+      if (!tbody) return;
+      const q = String(query || '').toLowerCase().trim();
+      let vis = 0;
+      tbody.querySelectorAll('tr').forEach(tr => {
+        if (tr.classList.contains('dak-loadmore-row')) {
+          tr.hidden = !!q;
+          return;
+        }
+        const ok = !q || (tr.textContent || '').toLowerCase().indexOf(q) >= 0;
+        tr.hidden = !ok;
+        if (ok) vis++;
+      });
+      const cntEl = document.getElementById('dakCnt_' + simType + '_' + suffix);
+      if (cntEl) cntEl.textContent = String(vis);
+    },
+
+    selectTop5(simType, suffix) {
+      const id = 'tbl' + simType + (suffix === 'NPL' ? 'Npl' : 'Kkr');
+      const tbody = document.getElementById(id);
+      if (!tbody) return;
+      const chks = Array.from(tbody.querySelectorAll('tr:not([hidden]) input[type="checkbox"][id^="chk_' + simType + '_' + suffix + '_"]')).slice(0, 5);
+      if (!chks.length) {
+        if (window.showToast) window.showToast('Tidak ada debitur yang dapat dipilih.', 'warning');
+        return;
+      }
+      let count = 0;
+      chks.forEach(c => { if (!c.checked) { c.click(); count++; } });
+      if (window.dakNplCharts) window.dakNplCharts.setMode(simType, 'sim');
+      if (window.showToast) {
+        window.showToast(count > 0 ? `Memilih ${count} debitur terbesar ke simulasi ${suffix}.` : '5 debitur teratas sudah terpilih.', 'info');
+      }
+    },
+
+    clearSimSuffix(simType, suffix) {
+      const id = 'tbl' + simType + (suffix === 'NPL' ? 'Npl' : 'Kkr');
+      const tbody = document.getElementById(id);
+      if (!tbody) return;
+      tbody.querySelectorAll('input[type="checkbox"][id^="chk_' + simType + '_' + suffix + '_"]:checked').forEach(c => c.click());
     }
   };
 })();
