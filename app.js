@@ -3400,7 +3400,16 @@ function renderKreditPage() {
 
         <!-- Table Daftar Debitur -->
         <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[400px] md:h-[500px] shadow-sm bg-white/80 dark:bg-slate-900/80 pb-1">
-            <div class="overflow-auto flex-1 custom-scrollbar px-1 pt-1">
+            <div class="dak-kr-toolbar" id="dakKrToolbar">
+                    <div class="dak-dc-pills is-compact" role="group" aria-label="Filter kolektibilitas master kredit">
+                        <button type="button" class="dak-dc-pill is-on" data-kr-kol="ALL" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('ALL')">Semua <b id="dakKrCntAll"></b></button>
+                        <button type="button" class="dak-dc-pill" data-kr-kol="1" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('1')">KOL 1 <b id="dakKrCnt1"></b></button>
+                        <button type="button" class="dak-dc-pill" data-kr-kol="2" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('2')">KOL 2 <b id="dakKrCnt2"></b></button>
+                        <button type="button" class="dak-dc-pill" data-kr-kol="NPL" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('NPL')">NPL (3–5) <b id="dakKrCntNpl"></b></button>
+                    </div>
+                    <button type="button" class="dak-kr-exportbtn" onclick="window.dakDataSuite && window.dakDataSuite.exportCreditCSV()"><i class="fas fa-file-csv"></i> Unduh Hasil</button>
+                </div>
+                <div class="overflow-auto flex-1 custom-scrollbar px-1 pt-1">
                 <table class="w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1">
                     <thead class="bg-slate-50/90 dark:bg-slate-800/90 text-slate-500 sticky top-0 z-10 shadow-sm rounded-md backdrop-blur-md">
                         <tr class="text-[10px] md:text-[10px] font-black uppercase tracking-widest">
@@ -3578,6 +3587,11 @@ window.resetSearchCredit = function() {
 // 3. RENDER ROWS & SORTING (MODERN PLAYFUL ROW)
 // =================================================================
 function renderCreditRows(data) {
+    if (!window.__dakKrFromFilter) {
+        window.__dakKrSourceRows = Array.isArray(data) ? data : [];
+        if (window.dakDataSuite && window.dakDataSuite.syncCreditCounts) window.dakDataSuite.syncCreditCounts(window.__dakKrSourceRows);
+    }
+    window.__dakKrVisibleRows = Array.isArray(data) ? data : [];
     var tbody = document.getElementById('creditTableBody');
     if(!tbody) return;
     
@@ -6136,7 +6150,10 @@ function renderJourneyPage() {
                               (d.nama && d.nama.toLowerCase().includes(keyword)) || 
                               (d.loan && d.loan.toLowerCase().includes(keyword));
 
-        return isBranchMatch && isSearchMatch;
+        const jf = window.__dakJourneyFilter || 'ALL';
+        const jKol = parseInt(d.kol, 10) || 0;
+        const isStatusMatch = jf === 'ALL' ? true : (jf === 'NPL' ? (jKol >= 3 && d.status_journey !== 'RECOVERY') : (jf === 'DPK' ? (jKol === 2 && d.status_journey !== 'RECOVERY') : (d.status_journey === 'RECOVERY' || jKol === 1)));
+        return isBranchMatch && isSearchMatch && isStatusMatch;
     });
 
     // 4. SORTING: Prioritas NPL (KOL Tinggi) di atas, Recovery di bawah
@@ -6313,7 +6330,7 @@ function executeRender(container) {
         const safeNama = (d.nama || '-').replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
         return `
-        <div onclick="app.showJourneyDetail('${d.loan}')" class="p-3 border-b border-slate-100 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 cursor-pointer transition-all duration-200 group">
+        <div data-jloan="${d.loan}" onclick="app.showJourneyDetail('${d.loan}')" class="dak-jn-item ${window.__dakActiveJourneyLoan === String(d.loan) ? 'is-selected' : ''} p-3 border-b border-slate-100 dark:border-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 cursor-pointer transition-all duration-200 group">
             <div class="flex justify-between items-center">
                 
                 <div class="flex-1 min-w-0 pr-3">
@@ -7070,8 +7087,15 @@ function showJourneyDetail(loanId) {
         debtor = journeyDataCache.find(x => String(x.loan).trim() === targetId);
     }
 
+    window.__dakActiveJourneyLoan = targetId;
+    document.querySelectorAll('#listDebtorJourney .dak-jn-item').forEach(el => {
+        el.classList.toggle('is-selected', el.getAttribute('data-jloan') === targetId);
+    });
     const detailArea = document.getElementById('detailJourneyArea');
     if (!detailArea) return;
+    if (window.innerWidth < 1024 && typeof detailArea.scrollIntoView === 'function') {
+        setTimeout(() => detailArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    }
 
     // UI Loader
     detailArea.innerHTML = `
@@ -7227,10 +7251,14 @@ function showJourneyDetail(loanId) {
         // RENDER HEADER
         detailArea.innerHTML = `
             <div class="glass-card rounded-3xl overflow-hidden animate-slide-up">
-                <div class="p-6 bg-slate-800 text-white flex justify-between items-center">
-                    <div>
+                <div class="p-4 sm:p-6 bg-slate-800 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                            <button type="button" class="lg:hidden dak-jn-backbtn" onclick="var l=document.getElementById('journey-list-container');if(l)l.scrollIntoView({behavior:'smooth',block:'start'});"><i class="fas fa-arrow-left"></i> Daftar Debitur</button>
+                            <button type="button" class="dak-jn-profbtn" onclick="if(window.app && window.app.fetchDetail) window.app.fetchDetail('${debtor.loan}')"><i class="fas fa-id-card"></i> Profil Lengkap</button>
+                        </div>
                         <div class="flex items-center">
-                            <h3 class="text-xl font-black uppercase tracking-tighter">${debtor.nama}</h3>
+                            <h3 class="text-lg sm:text-xl font-black uppercase tracking-tighter">${debtor.nama}</h3>
                             ${btnWA} 
                         </div>
                         <p class="text-[10px] opacity-60 font-bold uppercase mt-1">${debtor.loan} • ${debtor.br}</p>
@@ -8361,7 +8389,7 @@ function renderArchiveList(data) {
 
     // HEADER PAGER & TOOLS
     htmlParts.push(`
-    <div class="sticky top-0 z-20 flex justify-between items-center mb-4 bg-white/95 backdrop-blur-sm p-3 rounded-xl border border-slate-200 shadow-sm">
+    <div class="sticky top-0 z-20 flex justify-between items-center mb-4 bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm p-3 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <div class="flex items-center gap-3">
             <label class="group flex items-center gap-2 cursor-pointer bg-slate-100 hover:bg-blue-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-blue-200">
                 <input type="checkbox" id="checkAllPage" onchange="app.togglePageSelection(this)" class="w-4 h-4 text-blue-600 rounded cursor-pointer">
@@ -8384,7 +8412,7 @@ function renderArchiveList(data) {
         const isLunas = item.status === 'LUNAS' && !isHB;
 
         // Logika Visual Card
-        let cardBg = isHB ? 'bg-red-50' : (isLunas ? 'bg-slate-100' : 'bg-white');
+        let cardBg = isHB ? 'bg-red-50 dark:bg-red-950/30' : (isLunas ? 'bg-slate-100 dark:bg-slate-800/60' : 'bg-white dark:bg-slate-800/90');
         let cardBorder = isHB ? 'border-l-4 border-l-red-600 border-y border-r border-red-200' : 
                          (isLunas ? 'border-l-4 border-l-slate-500 border-y border-r border-slate-200' : 'border-y border-r border-slate-200');
         let opacityClass = isLunas ? 'opacity-80 grayscale hover:grayscale-0 transition-all' : '';
@@ -8452,7 +8480,8 @@ function renderArchiveList(data) {
                     <i class="fas ${isHB ? 'fa-undo' : 'fa-ban'}"></i>
                 </button>
 
-                <button onclick="event.stopPropagation(); app.printSingleLabel('${item.no_urut}', '${item.loan}', '${safeNama}', '${safeJenis}', '${tglFix}', '${safeCabang}')" 
+                <button type="button" onclick="event.stopPropagation(); if(window.app && window.app.fetchDetail) window.app.fetchDetail('${item.loan}')" class="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 hover:bg-blue-600 hover:text-white flex items-center justify-center transition shadow-sm shrink-0" title="Lihat Detail Debitur"><i class="fas fa-eye text-xs"></i></button>
+            <button onclick="event.stopPropagation(); app.printSingleLabel('${item.no_urut}', '${item.loan}', '${safeNama}', '${safeJenis}', '${tglFix}', '${safeCabang}')" 
                         class="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-800 hover:text-white hover:border-slate-800 transition-colors flex items-center justify-center shadow-sm" 
                         title="Cetak Label">
                     <i class="fas fa-print"></i>
@@ -8560,6 +8589,12 @@ function toggleSelect(loanId, checkbox) {
 }
 
 function updatePrintButton() {
+    const fbar = document.getElementById('dakArchiveFloatBar');
+    const fnum = document.getElementById('dakArcFloatNum');
+    if (fbar && fnum) {
+        fnum.textContent = String(selectedLabels.size);
+        fbar.hidden = selectedLabels.size === 0;
+    }
     const btn = document.getElementById('btnPrintSelected');
     const count = document.getElementById('countSelected');
     if (btn && count) {
@@ -10940,4 +10975,163 @@ document.addEventListener('click',function(){});
       tbody.querySelectorAll('input[type="checkbox"][id^="chk_' + simType + '_' + suffix + '_"]:checked').forEach(c => c.click());
     }
   };
+})();
+
+
+// =========================================================================
+// DAKOPEN v1603 — DEBTOR & PORTFOLIO DATA CENTER INTERACTIVE SUITE
+// =========================================================================
+(function () {
+  if (window.dakDataSuite) return;
+
+  function parseKolVal(r) {
+    const k = Number(r && r.kol);
+    return Number.isFinite(k) ? k : 1;
+  }
+
+  window.dakDataSuite = {
+    syncCreditCounts(rows) {
+      const list = Array.isArray(rows) ? rows : [];
+      const c1 = list.filter(r => parseKolVal(r) === 1).length;
+      const c2 = list.filter(r => parseKolVal(r) === 2).length;
+      const cn = list.filter(r => parseKolVal(r) >= 3).length;
+      const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v > 0 ? '(' + v + ')' : ''; };
+      set('dakKrCntAll', list.length);
+      set('dakKrCnt1', c1);
+      set('dakKrCnt2', c2);
+      set('dakKrCntNpl', cn);
+    },
+
+    filterCreditKol(kol) {
+      const src = window.__dakKrSourceRows || [];
+      document.querySelectorAll('#dakKrToolbar [data-kr-kol]').forEach(b => {
+        b.classList.toggle('is-on', b.dataset.krKol === kol);
+      });
+      let out = src;
+      if (kol === '1') out = src.filter(r => parseKolVal(r) === 1);
+      else if (kol === '2') out = src.filter(r => parseKolVal(r) === 2);
+      else if (kol === 'NPL') out = src.filter(r => parseKolVal(r) >= 3);
+      window.__dakKrFromFilter = true;
+      try {
+        if (typeof renderCreditRows === 'function') renderCreditRows(out);
+      } finally {
+        window.__dakKrFromFilter = false;
+      }
+    },
+
+    exportCreditCSV() {
+      const rows = window.__dakKrVisibleRows || window.__dakKrSourceRows || [];
+      if (!rows.length) {
+        if (window.showToast) window.showToast('Tidak ada data Master Kredit untuk diunduh.', 'warning');
+        return;
+      }
+      const headers = ['No Loan', 'Nama Debitur', 'No PK', 'Unit', 'KOL', 'Plafond', 'Baki Debet', 'Tunggakan'];
+      const escCsv = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const lines = [headers.join(',')];
+      rows.forEach(r => {
+        lines.push([
+          escCsv(r.loan || ''),
+          escCsv(r.nama || ''),
+          escCsv(r.pk || ''),
+          escCsv(r.br || ''),
+          escCsv(r.kol || ''),
+          Number(r.plafond || 0),
+          Number(r.os || 0),
+          Number(r.tgk || 0)
+        ].join(','));
+      });
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Master_Kredit_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (window.showToast) window.showToast('Berhasil mengunduh ' + rows.length + ' data Master Kredit (CSV).', 'success');
+    },
+
+    setArchiveCat(cat) {
+      document.querySelectorAll('#dakArchivePills [data-arc-cat]').forEach(b => {
+        b.classList.toggle('is-on', b.dataset.arcCat === cat);
+      });
+      if (cat === 'NEW') {
+        if (window.app && typeof window.app.filterNewFiles === 'function') window.app.filterNewFiles();
+        return;
+      }
+      const sel = document.getElementById('filterCategory');
+      if (sel) sel.value = cat;
+      if (window.app && typeof window.app.filterArchive === 'function') window.app.filterArchive();
+    },
+
+    clearArchiveSel() {
+      const chkAll = document.getElementById('checkAllPage');
+      if (chkAll && chkAll.checked) {
+        chkAll.checked = false;
+        if (window.app && typeof window.app.togglePageSelection === 'function') window.app.togglePageSelection(chkAll);
+      }
+      document.querySelectorAll('#archive-grid input[type="checkbox"]:checked').forEach(c => c.click());
+      const fbar = document.getElementById('dakArchiveFloatBar');
+      if (fbar) fbar.hidden = true;
+    },
+
+    setJourneyFilter(f) {
+      window.__dakJourneyFilter = f || 'ALL';
+      document.querySelectorAll('#dakJourneyPills [data-jn-f]').forEach(b => {
+        b.classList.toggle('is-on', b.dataset.jnF === window.__dakJourneyFilter);
+      });
+      if (typeof renderJourneyPage === 'function') renderJourneyPage();
+    },
+
+    openInArchive(nama) {
+      if (window.app && typeof window.app.closeModal === 'function') window.app.closeModal('modalDetail');
+      if (window.app && typeof window.app.switchTab === 'function') window.app.switchTab('view-archive');
+      setTimeout(() => {
+        const inp = document.getElementById('searchArchive');
+        if (inp) {
+          inp.value = String(nama || '').trim();
+          if (window.app && typeof window.app.filterArchive === 'function') window.app.filterArchive();
+        }
+      }, 260);
+    },
+
+    openInJourney(loanId) {
+      if (window.app && typeof window.app.closeModal === 'function') window.app.closeModal('modalDetail');
+      if (window.app && typeof window.app.switchTab === 'function') window.app.switchTab('view-journey');
+      setTimeout(() => {
+        if (window.app && typeof window.app.showJourneyDetail === 'function') window.app.showJourneyDetail(loanId);
+      }, 280);
+    }
+  };
+
+  function injectDetailCrossLinks() {
+    const modal = document.getElementById('modalDetail');
+    if (!modal || modal.classList.contains('hidden')) return;
+    const content = document.getElementById('detailContent') || modal.querySelector('.overflow-y-auto');
+    if (!content || content.querySelector('.dak-cross-links')) return;
+    const nameEl = modal.querySelector('#d_nama, .dd-name, h3');
+    const loanEl = modal.querySelector('#d_loan, .dd-loan, .font-mono');
+    const nama = nameEl ? nameEl.textContent.trim() : '';
+    const loanMatch = loanEl ? (loanEl.textContent.match(/[A-Z0-9]{5,}/) || [''])[0] : '';
+    if (!nama && !loanMatch) return;
+    const bar = document.createElement('div');
+    bar.className = 'dak-cross-links';
+    const safeN = nama.replace(/'/g, "\\'");
+    const safeL = loanMatch.replace(/'/g, "\\'");
+    bar.innerHTML = `
+      <span class="dak-cross-lbl"><i class="fas fa-link"></i> Akses Cepat Data:</span>
+      <div class="dak-cross-btns">
+        ${nama ? `<button type="button" class="dak-cross-btn" onclick="window.dakDataSuite.openInArchive('${safeN}')"><i class="fas fa-box-archive"></i> Posisi Arsip</button>` : ''}
+        ${loanMatch ? `<button type="button" class="dak-cross-btn" onclick="window.dakDataSuite.openInJourney('${safeL}')"><i class="fas fa-route"></i> Timeline Riwayat</button>` : ''}
+      </div>`;
+    content.appendChild(bar);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const target = document.getElementById('detailContent') || document.getElementById('modalDetail');
+    if (target) {
+      new MutationObserver(() => setTimeout(injectDetailCrossLinks, 120)).observe(target, { childList: true, subtree: true });
+    }
+  });
 })();
