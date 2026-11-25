@@ -2415,3 +2415,65 @@ html.dark #dak-tg-modal textarea {
   border-color: #334155 !important;
   color: #f8fafc !important;
 }
+
+/* =====================================================================
+   v1606 — Executive Dashboard Interactive Suite & Presentation Mode
+   ===================================================================== */
+.dak-kol-head-r {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dak-dash-minibar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+  background: rgba(248, 250, 252, 0.72);
+}
+.dak-dash-minibar.is-wrap {
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+html.dark .dak-dash-minibar {
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(51, 65, 85, 0.75);
+}
+
+/* Mode Presentasi Rapat (Executive Briefing Mode) */
+body.dak-present-mode #sidebar,
+body.dak-present-mode .dak-mobile-dock {
+  display: none !important;
+}
+body.dak-present-mode main {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  padding-bottom: 24px !important;
+}
+body.dak-present-mode #view-dash {
+  max-width: 1680px !important;
+  margin-inline: auto !important;
+}
+.dak-present-exit {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147482000;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  min-height: 40px !important;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.92);
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.35);
+  cursor: pointer;
+}
+.dak-present-exit:hover { background: #1e293b; }

@@ -1303,12 +1303,15 @@ function renderDashboard(res) {
     // Banking UI: lepas skeleton saat data tiba
     document.querySelectorAll('.bk-kpi.is-loading').forEach(c => c.classList.remove('is-loading'));
 
-    // A. Animasi Kartu Utama
-    document.querySelectorAll('.glass-card').forEach((card, index) => {
-        card.style.opacity = '0'; card.style.transform = 'translateY(20px)';
-        card.style.transition = `all 0.5s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.1}s`;
+    // A. Animasi Kartu Utama (v1606: scoped ke #view-dash & delay dibatasi maks 240ms)
+    document.querySelectorAll('#view-dash .glass-card').forEach((card, index) => {
+        card.style.opacity = '0'; card.style.transform = 'translateY(10px)';
+        card.style.transition = `opacity 0.28s ease-out ${Math.min(index * 0.04, 0.24)}s, transform 0.28s ease-out ${Math.min(index * 0.04, 0.24)}s`;
         requestAnimationFrame(() => { card.style.opacity = '1'; card.style.transform = 'translateY(0)'; });
     });
+    if (window.dakDashSuite && typeof window.dakDashSuite.onData === 'function') {
+        try { window.dakDashSuite.onData(res); } catch (e) { console.warn('dakDashSuite:', e); }
+    }
 
     // B. Update KPI Angka
     updateCard('v_os', k.total_os, d?.os, d?.prev_os, null);
@@ -11932,4 +11935,459 @@ document.addEventListener('click',function(){});
     }).observe(sc, { childList: true, subtree: true });
     setTimeout(runAllEnhancers, 400);
   });
+})();
+
+
+// =========================================================================
+// DAKOPEN v1606 — EXECUTIVE DASHBOARD INTERACTIVE SUITE
+// =========================================================================
+(function () {
+  if (window.dakDashSuite) return;
+
+  let dashData = null;
+  let vizChart = null;
+  let vizMode = 'unit';   // 'unit' | 'comp' | 'sektor'
+  let vizMetric = 'os';   // 'os' | 'npl' (for unit) or 'os' | 'noa' (for comp/sektor)
+  let kolMetric = 'os';   // 'os' | 'noa'
+  let topKolFilter = 'ALL';
+
+  const PALETTE = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+  const isDark = () => document.documentElement.classList.contains('dark');
+  const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+  const fmtRp = v => 'Rp ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0));
+  const fmtShort = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+  const shortUnit = name => String(name || 'Lainnya')
+    .replace(/KANTOR CABANG PENAJAM/i, 'KC PPU')
+    .replace(/CAPEM\s+/i, 'KCP ')
+    .replace(/\s+PENAJAM/i, '')
+    .trim();
+
+  const thresholdPlugin = {
+    id: 'dakDashThreshold',
+    afterDatasetsDraw(chart) {
+      const opts = chart.config.options && chart.config.options.plugins && chart.config.options.plugins.dakDashThresh;
+      if (!opts || !opts.enabled) return;
+      const { ctx, chartArea, scales } = chart;
+      const yScale = scales && scales.y;
+      if (!chartArea || !yScale) return;
+      const draw = (val, col, txt) => {
+        if (val < yScale.min || val > yScale.max) return;
+        const y = yScale.getPixelForValue(val);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([5, 4]);
+        ctx.lineWidth = 1.3;
+        ctx.strokeStyle = col;
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+        ctx.fillStyle = col;
+        ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(txt, chartArea.right - 4, y - 4);
+        ctx.restore();
+      };
+      draw(3, '#10b981', 'Sehat 3%');
+      draw(5, '#ef4444', 'Maks 5%');
+    }
+  };
+
+  function syncVizControls() {
+    document.querySelectorAll('#dakDashViz [data-dv-mode]').forEach(b => {
+      const on = b.dataset.dvMode === vizMode;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    const metWrap = document.getElementById('dakDashMetToggle');
+    if (metWrap) {
+      const b2 = metWrap.querySelector('button:nth-child(2)');
+      if (b2) {
+        if (vizMode === 'unit') {
+          b2.dataset.dvMet = 'npl';
+          b2.textContent = 'NPL %';
+          if (vizMetric === 'noa') vizMetric = 'npl';
+        } else {
+          b2.dataset.dvMet = 'noa';
+          b2.textContent = 'NOA';
+          if (vizMetric === 'npl') vizMetric = 'noa';
+        }
+      }
+      metWrap.querySelectorAll('button').forEach(b => b.classList.toggle('is-on', b.dataset.dvMet === vizMetric));
+    }
+    const sub = document.getElementById('dakDashVizSub');
+    if (sub) {
+      if (vizMode === 'unit') sub.textContent = 'Perbandingan ' + (vizMetric === 'npl' ? 'Rasio NPL (%)' : 'Baki Debet (Rp)') + ' antar-unit kerja · ketuk untuk rincian';
+      else if (vizMode === 'comp') sub.textContent = 'Komposisi Produktif vs Konsumtif berdasarkan ' + (vizMetric === 'noa' ? 'Jumlah Rekening (NOA)' : 'Nominal Baki Debet (Rp)');
+      else sub.textContent = 'Top 6 Sektor Ekonomi terbesar berdasarkan ' + (vizMetric === 'noa' ? 'Jumlah Rekening (NOA)' : 'Nominal Baki Debet (Rp)');
+    }
+  }
+
+  function renderViz() {
+    syncVizControls();
+    const canvas = document.getElementById('dakDashCanvas');
+    const side = document.getElementById('dakDashSide');
+    if (!canvas || !dashData || typeof Chart === 'undefined') return;
+
+    if (vizChart) {
+      try { vizChart.destroy(); } catch (e) {}
+      vizChart = null;
+    }
+
+    const dark = isDark();
+    const textCol = dark ? '#cbd5e1' : '#334155';
+    const gridCol = dark ? 'rgba(148,163,184,0.14)' : 'rgba(148,163,184,0.22)';
+
+    // MODE 1: PERFORMA UNIT / CABANG
+    if (vizMode === 'unit') {
+      const bp = dashData.branch_perf || {};
+      const list = Object.keys(bp).map(k => {
+        const o = bp[k] || {};
+        const os = Number(o.os) || 0;
+        const npl = Number(o.npl) || 0;
+        const noa = Number(o.noa) || 0;
+        const ratio = os > 0 ? (npl / os) * 100 : 0;
+        return { raw: k, name: shortUnit(k), os, npl, noa, ratio };
+      }).sort((a, b) => (vizMetric === 'npl' ? b.ratio - a.ratio : b.os - a.os)).slice(0, 8);
+
+      if (side) {
+        side.innerHTML = list.length ? list.map((u, idx) => `
+          <button type="button" class="dak-npl-legitem" onclick="if(window.app&&window.app.openBranchModal)window.app.openBranchModal();">
+            <span class="dak-npl-legdot" style="background:${vizMetric === 'npl' ? (u.ratio > 5 ? '#ef4444' : u.ratio > 3 ? '#f59e0b' : '#10b981') : PALETTE[idx % PALETTE.length]}"></span>
+            <span class="dak-npl-legname"><b>${esc(u.name)}</b><small>${u.noa ? u.noa + ' rek · ' : ''}NPL ${u.ratio.toFixed(2)}%</small></span>
+            <span class="dak-npl-legval">${vizMetric === 'npl' ? u.ratio.toFixed(2) + '%' : fmtShort(u.os)}</span>
+          </button>`).join('') : '<div class="dak-npl-empty">Data performa unit belum tersedia.</div>';
+      }
+
+      const isNpl = vizMetric === 'npl';
+      vizChart = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: list.map(u => u.name),
+          datasets: [{
+            label: isNpl ? 'Rasio NPL (%)' : 'Baki Debet',
+            data: list.map(u => isNpl ? Number(u.ratio.toFixed(2)) : u.os),
+            backgroundColor: list.map((u, i) => isNpl ? (u.ratio > 5 ? '#ef4444' : u.ratio > 3 ? '#f59e0b' : '#10b981') : PALETTE[i % PALETTE.length]),
+            borderRadius: 8,
+            maxBarThickness: 38
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: () => { if (window.app && window.app.openBranchModal) window.app.openBranchModal(); },
+          scales: {
+            y: {
+              beginAtZero: true,
+              suggestedMax: isNpl ? 6 : undefined,
+              grid: { color: gridCol },
+              ticks: { color: textCol, font: { size: 10, weight: '600' }, callback: v => isNpl ? v + '%' : fmtShort(v).replace('Rp ', '') }
+            },
+            x: { grid: { display: false }, ticks: { color: textCol, font: { size: 10, weight: '700' } } }
+          },
+          plugins: {
+            legend: { display: false },
+            dakDashThresh: { enabled: isNpl },
+            tooltip: {
+              backgroundColor: 'rgba(15,23,42,0.94)',
+              padding: 10,
+              cornerRadius: 10,
+              callbacks: {
+                label: ctx => {
+                  const u = list[ctx.dataIndex];
+                  return [' Baki Debet: ' + fmtRp(u.os), ' NPL: ' + fmtRp(u.npl) + ' (' + u.ratio.toFixed(2) + '%)'];
+                }
+              }
+            }
+          }
+        },
+        plugins: [thresholdPlugin]
+      });
+      return;
+    }
+
+    // MODE 2: KOMPOSISI PORTOFOLIO (PRODUKTIF vs KONSUMTIF)
+    if (vizMode === 'comp') {
+      const k = dashData.kpi || {};
+      const items = [
+        { label: 'Kredit Produktif', os: Number(k.prod_os) || 0, noa: Number(k.prod_noa) || 0, col: '#2563eb', view: 'view-nplprod' },
+        { label: 'Kredit Konsumtif', os: Number(k.cons_os) || 0, noa: Number(k.cons_noa) || 0, col: '#10b981', view: 'view-nplkonsumtif' }
+      ];
+      const vals = items.map(x => vizMetric === 'noa' ? x.noa : x.os);
+      const tot = vals.reduce((a, b) => a + b, 0);
+
+      if (side) {
+        side.innerHTML = items.map(x => {
+          const pct = tot > 0 ? ((vizMetric === 'noa' ? x.noa : x.os) / tot * 100).toFixed(1) : '0.0';
+          return `<button type="button" class="dak-npl-legitem" onclick="if(window.app)window.app.switchTab('${x.view}');">
+            <span class="dak-npl-legdot" style="background:${x.col}"></span>
+            <span class="dak-npl-legname"><b>${x.label}</b><small>${x.noa.toLocaleString('id-ID')} rek · ${pct}%</small></span>
+            <span class="dak-npl-legval">${vizMetric === 'noa' ? x.noa.toLocaleString('id-ID') + ' NOA' : fmtShort(x.os)}</span>
+          </button>`;
+        }).join('');
+      }
+
+      vizChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: items.map(x => x.label),
+          datasets: [{
+            data: tot > 0 ? vals : [1],
+            backgroundColor: tot > 0 ? items.map(x => x.col) : ['#e2e8f0'],
+            borderColor: dark ? '#1e293b' : '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '64%',
+          onClick: (evt, els) => {
+            if (els && els.length && items[els[0].index] && window.app) window.app.switchTab(items[els[0].index].view);
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15,23,42,0.94)',
+              padding: 10,
+              cornerRadius: 10,
+              callbacks: {
+                label: ctx => {
+                  const x = items[ctx.dataIndex];
+                  const pct = tot > 0 ? ((vizMetric === 'noa' ? x.noa : x.os) / tot * 100).toFixed(1) : '0.0';
+                  return [' Baki Debet: ' + fmtRp(x.os), ' Rekening: ' + x.noa.toLocaleString('id-ID') + ' (' + pct + '%)'];
+                }
+              }
+            }
+          }
+        }
+      });
+      return;
+    }
+
+    // MODE 3: TOP 6 SEKTOR EKONOMI
+    const rows = dashData.all_list || [];
+    const smap = {};
+    rows.forEach(r => {
+      const key = String(r.sektor || 'Lainnya').trim() || 'Lainnya';
+      if (!smap[key]) smap[key] = { key, os: 0, noa: 0 };
+      smap[key].os += Number(r.os) || 0;
+      smap[key].noa += 1;
+    });
+    const slist = Object.values(smap).sort((a, b) => (vizMetric === 'noa' ? b.noa - a.noa : b.os - a.os)).slice(0, 6);
+    const stot = slist.reduce((a, x) => a + (vizMetric === 'noa' ? x.noa : x.os), 0);
+
+    if (side) {
+      side.innerHTML = slist.length ? slist.map((x, i) => {
+        const pct = stot > 0 ? ((vizMetric === 'noa' ? x.noa : x.os) / stot * 100).toFixed(1) : '0.0';
+        const safeK = x.key.replace(/'/g, "\\'");
+        return `<button type="button" class="dak-npl-legitem" onclick="if(window.app&&window.app.openSectorModal)window.app.openSectorModal('${safeK}');">
+          <span class="dak-npl-legdot" style="background:${PALETTE[i % PALETTE.length]}"></span>
+          <span class="dak-npl-legname"><b>${esc(x.key)}</b><small>${x.noa.toLocaleString('id-ID')} rek · ${pct}%</small></span>
+          <span class="dak-npl-legval">${vizMetric === 'noa' ? x.noa.toLocaleString('id-ID') + ' NOA' : fmtShort(x.os)}</span>
+        </button>`;
+      }).join('') : '<div class="dak-npl-empty">Data sektor belum tersedia.</div>';
+    }
+
+    vizChart = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: slist.map(x => x.key.length > 18 ? x.key.slice(0, 17) + '…' : x.key),
+        datasets: [{
+          label: vizMetric === 'noa' ? 'NOA' : 'Baki Debet',
+          data: slist.map(x => vizMetric === 'noa' ? x.noa : x.os),
+          backgroundColor: slist.map((_, i) => PALETTE[i % PALETTE.length]),
+          borderRadius: 8,
+          maxBarThickness: 24
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        onClick: (evt, els) => {
+          if (els && els.length && slist[els[0].index] && window.app && window.app.openSectorModal) {
+            window.app.openSectorModal(slist[els[0].index].key);
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: gridCol },
+            ticks: { color: textCol, font: { size: 10, weight: '600' }, callback: v => vizMetric === 'noa' ? v : fmtShort(v).replace('Rp ', '') }
+          },
+          y: { grid: { display: false }, ticks: { color: textCol, font: { size: 10, weight: '700' } } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,0.94)',
+            padding: 10,
+            cornerRadius: 10,
+            callbacks: {
+              title: items => slist[items[0].dataIndex] ? slist[items[0].dataIndex].key : '',
+              label: ctx => {
+                const x = slist[ctx.dataIndex];
+                return [' Baki Debet: ' + fmtRp(x.os), ' Rekening: ' + x.noa.toLocaleString('id-ID')];
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  function renderKolStripMetric() {
+    if (!dashData || !dashData.all_list) return;
+    if (kolMetric === 'os') {
+      if (window.dakKolStrip) window.dakKolStrip(dashData);
+      return;
+    }
+    const rows = dashData.all_list || [];
+    const cnt = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    const sum = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let totCnt = 0;
+    rows.forEach(r => {
+      const k = Math.round(Number(r.kol));
+      if (k >= 1 && k <= 5) { cnt[k]++; sum[k] += Number(r.os) || 0; totCnt++; }
+    });
+    if (totCnt <= 0) return;
+    const bar = document.getElementById('bk-kolbar');
+    const leg = document.getElementById('bk-kollegend');
+    if (!bar || !leg) return;
+    [1, 2, 3, 4, 5].forEach((k, idx) => {
+      const p = cnt[k] / totCnt * 100;
+      const seg = bar.children[idx];
+      if (seg) seg.style.flexGrow = String(Math.max(p, 0.6));
+      const li = leg.children[idx];
+      if (li) {
+        const vEl = li.querySelector('.v');
+        const sEl = li.querySelector('.s');
+        if (vEl) vEl.textContent = p.toFixed(p < 10 ? 2 : 1).replace('.', ',') + '%';
+        if (sEl) sEl.textContent = cnt[k].toLocaleString('id-ID') + ' debitur · ' + fmtShort(sum[k]);
+      }
+    });
+  }
+
+  new MutationObserver(() => {
+    if (vizChart && dashData) renderViz();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  window.dakDashSuite = {
+    onData(res) {
+      dashData = res;
+      renderViz();
+      if (kolMetric === 'noa') setTimeout(renderKolStripMetric, 60);
+    },
+    setVizMode(m) {
+      vizMode = m;
+      renderViz();
+    },
+    setVizMetric(m) {
+      vizMetric = m;
+      renderViz();
+    },
+    setKolMetric(m) {
+      kolMetric = m;
+      document.querySelectorAll('#dakKolMetToggle button').forEach(b => b.classList.toggle('is-on', b.dataset.kolMet === m));
+      renderKolStripMetric();
+    },
+    filterSektor(q) {
+      const term = String(q || '').toLowerCase().trim();
+      const box = document.getElementById('list-sektor-container');
+      if (!box) return;
+      Array.from(box.children).forEach(el => {
+        el.hidden = !!term && (el.textContent || '').toLowerCase().indexOf(term) < 0;
+      });
+    },
+    setTopKol(k) {
+      topKolFilter = k;
+      document.querySelectorAll('#dakDashTopBar [data-dt-kol]').forEach(b => b.classList.toggle('is-on', b.dataset.dtKol === k));
+      this.filterTopNpl();
+    },
+    filterTopNpl() {
+      const q = (document.getElementById('dakDashTopQ')?.value || '').toLowerCase().trim();
+      const tbody = document.getElementById('tblTop');
+      if (!tbody) return;
+      tbody.querySelectorAll('tr').forEach(tr => {
+        const txt = (tr.textContent || '').toLowerCase();
+        const okK = topKolFilter === 'ALL' || txt.indexOf('kol ' + topKolFilter) >= 0;
+        const okQ = !q || txt.indexOf(q) >= 0;
+        tr.hidden = !(okK && okQ);
+      });
+    },
+    exportTopNpl() {
+      const list = (dashData && dashData.top_npl) || [];
+      if (!list.length) {
+        if (window.showToast) window.showToast('Daftar Top NPL belum tersedia.', 'warning');
+        return;
+      }
+      const escCsv = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+      const lines = ['No Loan,Nama Debitur,Unit,KOL,Plafond,Baki Debet'].concat(
+        list.map(r => [escCsv(r.loan), escCsv(r.nama), escCsv(r.br), escCsv(r.kol), Number(r.plafond || 0), Number(r.os || 0)].join(','))
+      );
+      const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Top_NPL_Global_' + new Date().toISOString().slice(0, 10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      if (window.showToast) window.showToast('Berhasil mengunduh ' + list.length + ' data Top NPL Global.', 'success');
+    },
+    copyBriefing() {
+      const k = dashData && dashData.kpi;
+      if (!k) {
+        if (window.showToast) window.showToast('Data dashboard belum selesai dimuat.', 'warning');
+        return;
+      }
+      const hdrDate = document.getElementById('headerDate')?.textContent?.trim() || new Date().toLocaleDateString('id-ID');
+      const nplPct = k.total_os > 0 ? (k.npl_os / k.total_os * 100).toFixed(2) : '0.00';
+      const topUnit = document.getElementById('v_branch_top')?.textContent?.trim() || '-';
+      const msg = [
+        `*BRIEFING PORTOFOLIO KREDIT — DaKOPen*`,
+        `Posisi Data: ${hdrDate}`,
+        ``,
+        `• Total Baki Debet: *${fmtRp(k.total_os)}* (${Number(k.noa || 0).toLocaleString('id-ID')} NOA)`,
+        `• Rasio NPL: *${nplPct}%* (${fmtShort(k.npl_os)})`,
+        `• Watchlist / KKR: *${fmtShort(k.kkr_os)}*`,
+        `• Total Tunggakan: *${fmtShort(k.tunggakan)}*`,
+        `• Produktif / Konsumtif: ${fmtShort(k.prod_os)} / ${fmtShort(k.cons_os)}`,
+        `• ${topUnit}`
+      ].join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(() => {
+          if (window.showToast) window.showToast('Ringkasan Briefing WA disalin ke clipboard!', 'success');
+        });
+      } else {
+        if (window.showToast) window.showToast('Clipboard tidak didukung browser ini.', 'warning');
+      }
+    },
+    togglePresentation() {
+      const on = document.body.classList.toggle('dak-present-mode');
+      const btn = document.getElementById('dakPresentBtn');
+      if (btn) btn.innerHTML = on ? '<i class="fas fa-compress"></i><span>Keluar Rapat</span>' : '<i class="fas fa-expand"></i><span>Mode Rapat</span>';
+      let pill = document.getElementById('dakPresentExit');
+      if (on && !pill) {
+        pill = document.createElement('button');
+        pill.id = 'dakPresentExit';
+        pill.type = 'button';
+        pill.className = 'dak-present-exit';
+        pill.innerHTML = '<i class="fas fa-compress"></i> Keluar Mode Rapat';
+        pill.onclick = () => this.togglePresentation();
+        document.body.appendChild(pill);
+      } else if (!on && pill) {
+        pill.remove();
+      }
+      setTimeout(() => { if (vizChart) vizChart.resize(); }, 220);
+    }
+  };
 })();

@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1605 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1606 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1605" rel="stylesheet">
+<link href="dak-detail.css?v=1606" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -231,11 +231,13 @@
 </div>
 <div class="dak-hero-actions">
 <button class="dak-hero-action" onclick="dakForceRefresh()" type="button"><i class="fas fa-rotate"></i><span>Perbarui data</span></button>
+<button class="dak-hero-action" onclick="window.dakDashSuite && window.dakDashSuite.copyBriefing()" type="button" title="Salin ringkasan briefing harian untuk WhatsApp"><i class="fab fa-whatsapp text-emerald-500"></i><span>Briefing WA</span></button>
+<button class="dak-hero-action" id="dakPresentBtn" onclick="window.dakDashSuite && window.dakDashSuite.togglePresentation()" type="button" title="Mode Presentasi Rapat"><i class="fas fa-expand"></i><span>Mode Rapat</span></button>
 <button class="dak-hero-action dak-hero-action-primary" onclick="app.switchTab('view-nplall')" type="button"><i class="fas fa-shield-halved"></i><span>Analisis risiko</span><i class="fas fa-arrow-up-right-from-square dak-action-arrow"></i></button>
 </div>
 </section>
 <section class="bk-kolstrip" id="bk-kolstrip" aria-labelledby="bk-kolstrip-title" hidden>
-<div class="bk-kolstrip-head"><h2 id="bk-kolstrip-title">Komposisi kolektibilitas</h2><span id="bk-kolstrip-note"></span></div>
+<div class="bk-kolstrip-head"><h2 id="bk-kolstrip-title">Komposisi kolektibilitas</h2><div class="dak-kol-head-r"><span id="bk-kolstrip-note"></span><div class="dak-npl-mettoggle" id="dakKolMetToggle"><button type="button" class="is-on" data-kol-met="os" onclick="window.dakDashSuite && window.dakDashSuite.setKolMetric('os')">Rp</button><button type="button" data-kol-met="noa" onclick="window.dakDashSuite && window.dakDashSuite.setKolMetric('noa')">NOA</button></div></div></div>
 <div class="bk-kolbar" id="bk-kolbar"></div>
 <ul class="bk-kollegend" id="bk-kollegend"></ul>
 </section>
@@ -284,6 +286,35 @@
 <div class="bk-kpi-value" id="v_branch_top" style="font-size:14px">Memuat data...</div>
 </article>
 </div>
+<!-- v1606 Executive Visual Analytics Panel -->
+<section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/85 dark:bg-slate-800/85 shadow-sm" id="dakDashViz">
+  <div class="dak-npl-viz-head">
+    <div class="dak-npl-viz-titlewrap">
+      <div class="dak-npl-viz-ico"><i class="fas fa-chart-column"></i></div>
+      <div>
+        <div class="dak-npl-viz-title">Analitik Visual Portofolio</div>
+        <div class="dak-npl-viz-sub" id="dakDashVizSub">Performa Baki Debet &amp; Rasio NPL antar-unit kerja</div>
+      </div>
+    </div>
+    <div class="dak-npl-viz-controls">
+      <div class="dak-npl-seg" role="tablist" aria-label="Mode grafik dashboard">
+        <button type="button" role="tab" class="is-on" data-dv-mode="unit" onclick="window.dakDashSuite && window.dakDashSuite.setVizMode('unit')">Performa Unit</button>
+        <button type="button" role="tab" data-dv-mode="comp" onclick="window.dakDashSuite && window.dakDashSuite.setVizMode('comp')">Komposisi</button>
+        <button type="button" role="tab" data-dv-mode="sektor" onclick="window.dakDashSuite && window.dakDashSuite.setVizMode('sektor')">Top 6 Sektor</button>
+      </div>
+      <div class="dak-npl-mettoggle" id="dakDashMetToggle">
+        <button type="button" class="is-on" data-dv-met="os" onclick="window.dakDashSuite && window.dakDashSuite.setVizMetric('os')">Rp</button>
+        <button type="button" data-dv-met="npl" onclick="window.dakDashSuite && window.dakDashSuite.setVizMetric('npl')">NPL %</button>
+      </div>
+    </div>
+  </div>
+  <div class="dak-npl-viz-body">
+    <div class="dak-npl-canvas-box">
+      <canvas id="dakDashCanvas"></canvas>
+    </div>
+    <div class="dak-npl-side" id="dakDashSide"></div>
+  </div>
+</section>
 <div class="dak-section-caption dak-section-caption-secondary"><div><span class="dak-section-kicker">Intelijen risiko</span><h2>Fokus perhatian</h2></div><span class="dak-section-hint">Indikator berbasis data aktif</span></div>
 <!-- CREDIT INTELLIGENCE CENTER V71 -->
 <section class="dak-intelligence glass-card rounded-2xl md:rounded-3xl border border-slate-200/80 dark:border-slate-700 bg-white/90 dark:bg-slate-900/85 overflow-hidden" id="dak-intelligence">
@@ -311,6 +342,9 @@
 <div class="text-[10px] font-bold text-slate-500 mt-0.5">Distribusi Portofolio</div>
 </div>
 </div>
+<div class="dak-dash-minibar">
+  <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakDashSekQ" placeholder="Cari sektor ekonomi…" oninput="window.dakDashSuite && window.dakDashSuite.filterSektor(this.value)" autocomplete="off" aria-label="Cari sektor ekonomi"/></div>
+</div>
 <div class="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1.5" id="list-sektor-container">
 <!-- Data JS -->
 </div>
@@ -326,6 +360,16 @@
 </div>
 </div>
 <span class="bg-red-100 dark:bg-red-900/40 text-red-600 px-2 py-0.5 rounded text-[10px] font-black uppercase shadow-sm border border-red-200 dark:border-red-800/50">Kritis</span>
+</div>
+<div class="dak-dash-minibar is-wrap" id="dakDashTopBar">
+  <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakDashTopQ" placeholder="Cari nama, loan, unit…" oninput="window.dakDashSuite && window.dakDashSuite.filterTopNpl()" autocomplete="off" aria-label="Cari top NPL"/></div>
+  <div class="dak-dc-pills is-compact" role="group" aria-label="Filter KOL Top NPL">
+    <button type="button" class="dak-dc-pill is-on" data-dt-kol="ALL" onclick="window.dakDashSuite && window.dakDashSuite.setTopKol('ALL')">Semua</button>
+    <button type="button" class="dak-dc-pill" data-dt-kol="3" onclick="window.dakDashSuite && window.dakDashSuite.setTopKol('3')">KOL 3</button>
+    <button type="button" class="dak-dc-pill" data-dt-kol="4" onclick="window.dakDashSuite && window.dakDashSuite.setTopKol('4')">KOL 4</button>
+    <button type="button" class="dak-dc-pill" data-dt-kol="5" onclick="window.dakDashSuite && window.dakDashSuite.setTopKol('5')">KOL 5</button>
+  </div>
+  <button type="button" class="dak-kr-exportbtn" onclick="window.dakDashSuite && window.dakDashSuite.exportTopNpl()"><i class="fas fa-file-csv"></i> CSV</button>
 </div>
 <div class="overflow-y-auto custom-scrollbar flex-1 px-1">
 <table class="dak-sticky-c1 w-full text-left text-[11px] md:text-sm whitespace-nowrap border-separate border-spacing-y-1 mt-1">
@@ -2055,7 +2099,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1605"></script>
+<script defer src="app.js?v=1606"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {
