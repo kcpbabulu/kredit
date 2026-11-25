@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1600 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1601 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1600" rel="stylesheet">
+<link href="dak-detail.css?v=1601" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -545,6 +545,45 @@
 </div>
 </div>
 </div>
+<!-- v1601 Interactive NPL Chart Panel (NPL Total) -->
+<section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="ALL" id="dakNplViz_ALL">
+  <div class="dak-npl-viz-head">
+    <div class="dak-npl-viz-titlewrap">
+      <div class="dak-npl-viz-ico"><i class="fas fa-chart-pie"></i></div>
+      <div>
+        <div class="dak-npl-viz-title">Analitik Visual NPL Total</div>
+        <div class="dak-npl-viz-sub" id="dakNplSub_ALL">Ketuk irisan atau batang untuk menyaring daftar debitur</div>
+      </div>
+    </div>
+    <div class="dak-npl-viz-controls">
+      <div class="dak-npl-seg" role="tablist" aria-label="Mode grafik NPL Total">
+        <button type="button" role="tab" class="is-on" data-viz-mode="kol" onclick="window.dakNplCharts && window.dakNplCharts.setMode('ALL','kol')">Kualitas</button>
+        <button type="button" role="tab" data-viz-mode="dim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('ALL','dim')">Sektor / Unit</button>
+        <button type="button" role="tab" data-viz-mode="sim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('ALL','sim')">Simulasi Live</button>
+      </div>
+      <div class="dak-npl-subctrl" id="dakNplSubCtrl_ALL">
+        <div class="dak-npl-dimtoggle" id="dakNplDimToggle_ALL" hidden>
+          <button type="button" class="is-on" data-viz-dim="sektor" onclick="window.dakNplCharts && window.dakNplCharts.setDim('ALL','sektor')">Sektor</button>
+          <button type="button" data-viz-dim="unit" onclick="window.dakNplCharts && window.dakNplCharts.setDim('ALL','unit')">Unit</button>
+        </div>
+        <div class="dak-npl-mettoggle" id="dakNplMetToggle_ALL">
+          <button type="button" class="is-on" data-viz-met="os" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('ALL','os')">Rp</button>
+          <button type="button" data-viz-met="noa" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('ALL','noa')">NOA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dak-npl-viz-body">
+    <div class="dak-npl-canvas-box">
+      <canvas id="dakNplCanvas_ALL"></canvas>
+    </div>
+    <div class="dak-npl-side" id="dakNplSide_ALL"></div>
+  </div>
+  <div class="dak-npl-filterbar" id="dakNplFilterBar_ALL" hidden>
+    <span class="dak-npl-filterchip" id="dakNplFilterTxt_ALL"></span>
+    <button type="button" class="dak-npl-filterreset" onclick="window.dakNplCharts && window.dakNplCharts.clearFilter('ALL')"><i class="fas fa-rotate-left"></i> Reset Filter</button>
+  </div>
+</section>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50 dark:bg-slate-800/70 dark:border-slate-700/60">
 <div class="p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
@@ -690,6 +729,45 @@
 </div>
 </div>
 </div>
+<!-- v1601 Interactive NPL Chart Panel (NPL KUR) -->
+<section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="KUR" id="dakNplViz_KUR">
+  <div class="dak-npl-viz-head">
+    <div class="dak-npl-viz-titlewrap">
+      <div class="dak-npl-viz-ico"><i class="fas fa-chart-pie"></i></div>
+      <div>
+        <div class="dak-npl-viz-title">Analitik Visual NPL KUR</div>
+        <div class="dak-npl-viz-sub" id="dakNplSub_KUR">Ketuk irisan atau batang untuk menyaring daftar debitur</div>
+      </div>
+    </div>
+    <div class="dak-npl-viz-controls">
+      <div class="dak-npl-seg" role="tablist" aria-label="Mode grafik NPL KUR">
+        <button type="button" role="tab" class="is-on" data-viz-mode="kol" onclick="window.dakNplCharts && window.dakNplCharts.setMode('KUR','kol')">Kualitas</button>
+        <button type="button" role="tab" data-viz-mode="dim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('KUR','dim')">Sektor / Unit</button>
+        <button type="button" role="tab" data-viz-mode="sim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('KUR','sim')">Simulasi Live</button>
+      </div>
+      <div class="dak-npl-subctrl" id="dakNplSubCtrl_KUR">
+        <div class="dak-npl-dimtoggle" id="dakNplDimToggle_KUR" hidden>
+          <button type="button" class="is-on" data-viz-dim="sektor" onclick="window.dakNplCharts && window.dakNplCharts.setDim('KUR','sektor')">Sektor</button>
+          <button type="button" data-viz-dim="unit" onclick="window.dakNplCharts && window.dakNplCharts.setDim('KUR','unit')">Unit</button>
+        </div>
+        <div class="dak-npl-mettoggle" id="dakNplMetToggle_KUR">
+          <button type="button" class="is-on" data-viz-met="os" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('KUR','os')">Rp</button>
+          <button type="button" data-viz-met="noa" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('KUR','noa')">NOA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dak-npl-viz-body">
+    <div class="dak-npl-canvas-box">
+      <canvas id="dakNplCanvas_KUR"></canvas>
+    </div>
+    <div class="dak-npl-side" id="dakNplSide_KUR"></div>
+  </div>
+  <div class="dak-npl-filterbar" id="dakNplFilterBar_KUR" hidden>
+    <span class="dak-npl-filterchip" id="dakNplFilterTxt_KUR"></span>
+    <button type="button" class="dak-npl-filterreset" onclick="window.dakNplCharts && window.dakNplCharts.clearFilter('KUR')"><i class="fas fa-rotate-left"></i> Reset Filter</button>
+  </div>
+</section>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50 dark:bg-slate-800/70 dark:border-slate-700/60">
 <div class="p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
@@ -825,6 +903,45 @@
 </div>
 </div>
 </div>
+<!-- v1601 Interactive NPL Chart Panel (NPL Konsumtif) -->
+<section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="Kons" id="dakNplViz_Kons">
+  <div class="dak-npl-viz-head">
+    <div class="dak-npl-viz-titlewrap">
+      <div class="dak-npl-viz-ico"><i class="fas fa-chart-pie"></i></div>
+      <div>
+        <div class="dak-npl-viz-title">Analitik Visual NPL Konsumtif</div>
+        <div class="dak-npl-viz-sub" id="dakNplSub_Kons">Ketuk irisan atau batang untuk menyaring daftar debitur</div>
+      </div>
+    </div>
+    <div class="dak-npl-viz-controls">
+      <div class="dak-npl-seg" role="tablist" aria-label="Mode grafik NPL Konsumtif">
+        <button type="button" role="tab" class="is-on" data-viz-mode="kol" onclick="window.dakNplCharts && window.dakNplCharts.setMode('Kons','kol')">Kualitas</button>
+        <button type="button" role="tab" data-viz-mode="dim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('Kons','dim')">Sektor / Unit</button>
+        <button type="button" role="tab" data-viz-mode="sim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('Kons','sim')">Simulasi Live</button>
+      </div>
+      <div class="dak-npl-subctrl" id="dakNplSubCtrl_Kons">
+        <div class="dak-npl-dimtoggle" id="dakNplDimToggle_Kons" hidden>
+          <button type="button" class="is-on" data-viz-dim="sektor" onclick="window.dakNplCharts && window.dakNplCharts.setDim('Kons','sektor')">Sektor</button>
+          <button type="button" data-viz-dim="unit" onclick="window.dakNplCharts && window.dakNplCharts.setDim('Kons','unit')">Unit</button>
+        </div>
+        <div class="dak-npl-mettoggle" id="dakNplMetToggle_Kons">
+          <button type="button" class="is-on" data-viz-met="os" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('Kons','os')">Rp</button>
+          <button type="button" data-viz-met="noa" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('Kons','noa')">NOA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dak-npl-viz-body">
+    <div class="dak-npl-canvas-box">
+      <canvas id="dakNplCanvas_Kons"></canvas>
+    </div>
+    <div class="dak-npl-side" id="dakNplSide_Kons"></div>
+  </div>
+  <div class="dak-npl-filterbar" id="dakNplFilterBar_Kons" hidden>
+    <span class="dak-npl-filterchip" id="dakNplFilterTxt_Kons"></span>
+    <button type="button" class="dak-npl-filterreset" onclick="window.dakNplCharts && window.dakNplCharts.clearFilter('Kons')"><i class="fas fa-rotate-left"></i> Reset Filter</button>
+  </div>
+</section>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50 dark:bg-slate-800/70 dark:border-slate-700/60">
 <div class="p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
@@ -973,6 +1090,45 @@
 </div>
 </div>
 </div>
+<!-- v1601 Interactive NPL Chart Panel (NPL Produktif) -->
+<section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="Prod" id="dakNplViz_Prod">
+  <div class="dak-npl-viz-head">
+    <div class="dak-npl-viz-titlewrap">
+      <div class="dak-npl-viz-ico"><i class="fas fa-chart-pie"></i></div>
+      <div>
+        <div class="dak-npl-viz-title">Analitik Visual NPL Produktif</div>
+        <div class="dak-npl-viz-sub" id="dakNplSub_Prod">Ketuk irisan atau batang untuk menyaring daftar debitur</div>
+      </div>
+    </div>
+    <div class="dak-npl-viz-controls">
+      <div class="dak-npl-seg" role="tablist" aria-label="Mode grafik NPL Produktif">
+        <button type="button" role="tab" class="is-on" data-viz-mode="kol" onclick="window.dakNplCharts && window.dakNplCharts.setMode('Prod','kol')">Kualitas</button>
+        <button type="button" role="tab" data-viz-mode="dim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('Prod','dim')">Sektor / Unit</button>
+        <button type="button" role="tab" data-viz-mode="sim" onclick="window.dakNplCharts && window.dakNplCharts.setMode('Prod','sim')">Simulasi Live</button>
+      </div>
+      <div class="dak-npl-subctrl" id="dakNplSubCtrl_Prod">
+        <div class="dak-npl-dimtoggle" id="dakNplDimToggle_Prod" hidden>
+          <button type="button" class="is-on" data-viz-dim="sektor" onclick="window.dakNplCharts && window.dakNplCharts.setDim('Prod','sektor')">Sektor</button>
+          <button type="button" data-viz-dim="unit" onclick="window.dakNplCharts && window.dakNplCharts.setDim('Prod','unit')">Unit</button>
+        </div>
+        <div class="dak-npl-mettoggle" id="dakNplMetToggle_Prod">
+          <button type="button" class="is-on" data-viz-met="os" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('Prod','os')">Rp</button>
+          <button type="button" data-viz-met="noa" onclick="window.dakNplCharts && window.dakNplCharts.setMetric('Prod','noa')">NOA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="dak-npl-viz-body">
+    <div class="dak-npl-canvas-box">
+      <canvas id="dakNplCanvas_Prod"></canvas>
+    </div>
+    <div class="dak-npl-side" id="dakNplSide_Prod"></div>
+  </div>
+  <div class="dak-npl-filterbar" id="dakNplFilterBar_Prod" hidden>
+    <span class="dak-npl-filterchip" id="dakNplFilterTxt_Prod"></span>
+    <button type="button" class="dak-npl-filterreset" onclick="window.dakNplCharts && window.dakNplCharts.clearFilter('Prod')"><i class="fas fa-rotate-left"></i> Reset Filter</button>
+  </div>
+</section>
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 <div class="glass-card rounded-[1.2rem] overflow-hidden flex flex-col h-[350px] md:h-[450px] border border-white/40 shadow-sm bg-white/50 dark:bg-slate-800/70 dark:border-slate-700/60">
 <div class="p-3 bg-gradient-to-r from-red-600 to-rose-700 text-white shadow-sm flex justify-between items-center z-10 shrink-0">
@@ -1762,7 +1918,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1600"></script>
+<script defer src="app.js?v=1601"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

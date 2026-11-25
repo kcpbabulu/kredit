@@ -1504,6 +1504,7 @@ function formatNumber(angka) {
       safeTxt('prodScopeExplanation', scope==='all'?'Menampilkan seluruh kredit produktif, termasuk KUR.':scope==='kur'?'Menampilkan subset KUR yang sama dengan cakupan halaman NPL KUR.':'Menampilkan kredit produktif selain KUR.');
       document.querySelectorAll('[data-prod-scope]').forEach(b=>{const active=b.dataset.prodScope===scope;b.classList.toggle('active',active);b.classList.toggle('bg-emerald-600',active);b.classList.toggle('text-white',active);b.classList.toggle('border-emerald-500',active);});
       if(typeof renderSimTableHTML==='function') { renderSimTableHTML('tblProdNpl',nplRows,'Prod',true,'NPL'); renderSimTableHTML('tblProdKkr',kkrRows,'Prod',true,'KKR'); }
+      if(window.dakNplCharts && typeof window.dakNplCharts.setData==='function') { window.dakNplCharts.setData('Prod', { nplRows: nplRows, kkrRows: kkrRows, totalOs: os, nplOs: npl, kkrOs: kkrRows.reduce((a,x)=>a+(Number(x.os)||0),0), ratio: os>0?(npl/os*100):0 }); }
       const sectors={}; scoped.filter(r=>r.kol>=3).forEach(r=>{const k=String(r.sektor||'Lainnya').trim()||'Lainnya';sectors[k]=(sectors[k]||0)+(Number(r.os)||0);});
       const sorted=Object.entries(sectors).sort((a,b)=>b[1]-a[1]).slice(0,6); const host=el('prodSectorBreakdown');
       if(host) host.innerHTML=sorted.length?sorted.map(([name,value])=>`<button type="button" onclick="app.setProdSector(decodeURIComponent('${encodeURIComponent(name)}'))" class="text-left rounded-xl border ${app.state.prodSector===name?'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20':'border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60'} p-2"><div class="flex justify-between gap-2 text-[10px] font-bold"><span class="truncate">${escapeProdText(name)}</span><span>${formatRupiah(value)}</span></div><div class="h-1.5 rounded-full bg-slate-100 dark:bg-slate-700 mt-2 overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:${Math.max(2,value/(sorted[0][1]||1)*100)}%"></div></div></button>`).join(''):'<div class="text-xs text-slate-400">Tidak ada data sektor pada cakupan ini.</div>';
@@ -1711,8 +1712,18 @@ function renderSimTable(type) {
         let tableKkr = filteredRows.filter(r => r.kol === 2);
         
         if (typeof renderSimTableHTML === 'function') {
-            renderSimTableHTML('tbl'+type+'Npl', tableNpl.slice(0,50), type, true, 'NPL'); 
-            renderSimTableHTML('tbl'+type+'Kkr', tableKkr.slice(0,50), type, true, 'KKR'); 
+            renderSimTableHTML('tbl'+type+'Npl', tableNpl, type, true, 'NPL'); 
+            renderSimTableHTML('tbl'+type+'Kkr', tableKkr, type, true, 'KKR'); 
+        }
+        if (window.dakNplCharts && typeof window.dakNplCharts.setData === 'function') {
+            window.dakNplCharts.setData(type, {
+                nplRows: tableNpl,
+                kkrRows: tableKkr,
+                totalOs: den,
+                nplOs: num,
+                kkrOs: tableKkr.reduce((acc, x) => acc + (Number(x.os) || 0), 0),
+                ratio: r
+            });
         }
 
         // --- 2. BUKA KUNCI MENU (Debounce Navigasi) ---
@@ -1850,6 +1861,19 @@ function renderSimTable(type) {
         
         let crashEl = el('ks_crash_' + type); 
         if(crashEl) crashEl.innerText = formatRupiah(totalCrash);
+        if (window.dakNplCharts && typeof window.dakNplCharts.updateSim === 'function') {
+            window.dakNplCharts.updateSim(type, {
+                oldRatio: oldRatio,
+                newRatio: newRatio,
+                realNpl: realNpl,
+                newNpl: newNpl,
+                totalHeal: totalHeal,
+                totalCrash: totalCrash,
+                realOs: realOs,
+                newOs: newOs,
+                diff: diff
+            });
+        }
     }
 
 
@@ -10247,3 +10271,492 @@ window.dakOpenAdmin = function(){
 
 /* V136 Telegram discovery layout and lifecycle fix */
 document.addEventListener('click',function(){});
+
+
+// =========================================================================
+// DAKOPEN v1601 — INTERACTIVE NPL INTELLIGENCE CHARTS (CLIENT-SIDE ENGINE)
+// =========================================================================
+(function () {
+  if (window.dakNplCharts) return;
+
+  const store = {};
+  const instances = {};
+
+  const KOL_META = {
+    2: { label: 'KOL 2 (DPK)', short: 'KOL 2', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.88)' },
+    3: { label: 'KOL 3 (Kurang Lancar)', short: 'KOL 3', color: '#f97316', bg: 'rgba(249, 115, 22, 0.90)' },
+    4: { label: 'KOL 4 (Diragukan)', short: 'KOL 4', color: '#ef4444', bg: 'rgba(239, 68, 68, 0.90)' },
+    5: { label: 'KOL 5 (Macet)', short: 'KOL 5', color: '#991b1b', bg: 'rgba(153, 27, 27, 0.92)' }
+  };
+
+  const BAR_PALETTE = ['#ef4444', '#f97316', '#f59e0b', '#3b82f6', '#8b5cf6', '#06b6d4'];
+
+  const isDark = () => document.documentElement.classList.contains('dark');
+  const fmtRp = v => 'Rp ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0));
+  const fmtShort = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+  const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+
+  function ensureState(type) {
+    if (!store[type]) {
+      store[type] = {
+        mode: 'kol',     // 'kol' | 'dim' | 'sim'
+        dim: 'sektor',   // 'sektor' | 'unit'
+        metric: 'os',    // 'os' | 'noa'
+        filter: null,    // { kind: 'kol'|'sektor'|'unit', value: any, label: string }
+        nplRows: [],
+        kkrRows: [],
+        totalOs: 0,
+        nplOs: 0,
+        kkrOs: 0,
+        ratio: 0,
+        sim: null
+      };
+    }
+    return store[type];
+  }
+
+  function applyTableFilter(type) {
+    const st = ensureState(type);
+    const f = st.filter;
+    let npl = st.nplRows || [];
+    let kkr = st.kkrRows || [];
+
+    if (f) {
+      const match = r => {
+        if (f.kind === 'kol') return Number(r.kol) === Number(f.value);
+        if (f.kind === 'sektor') return (String(r.sektor || 'Lainnya').trim() || 'Lainnya') === f.value;
+        if (f.kind === 'unit') return (String(r.br || 'Lainnya').trim() || 'Lainnya') === f.value;
+        return true;
+      };
+      npl = npl.filter(match);
+      kkr = kkr.filter(match);
+    }
+
+    if (typeof renderSimTableHTML === 'function') {
+      renderSimTableHTML('tbl' + type + 'Npl', npl, type, true, 'NPL');
+      renderSimTableHTML('tbl' + type + 'Kkr', kkr, type, true, 'KKR');
+    }
+
+    const bar = document.getElementById('dakNplFilterBar_' + type);
+    const txt = document.getElementById('dakNplFilterTxt_' + type);
+    if (bar && txt) {
+      if (f) {
+        const totalVis = npl.length + kkr.length;
+        txt.innerHTML = `<i class="fas fa-filter"></i> Filter aktif: <b>${esc(f.label)}</b> · ${totalVis} debitur`;
+        bar.hidden = false;
+      } else {
+        bar.hidden = true;
+      }
+    }
+  }
+
+  function toggleFilter(type, kind, value, label) {
+    const st = ensureState(type);
+    if (st.filter && st.filter.kind === kind && String(st.filter.value) === String(value)) {
+      st.filter = null;
+    } else {
+      st.filter = { kind, value, label };
+    }
+    applyTableFilter(type);
+    render(type);
+  }
+
+  // Custom Plugin: Center KPI text for Doughnut
+  const centerTextPlugin = {
+    id: 'dakNplCenterText',
+    afterDraw(chart) {
+      const opts = chart.config.options && chart.config.options.plugins && chart.config.options.plugins.dakCenter;
+      if (!opts || !opts.value) return;
+      const { ctx, chartArea } = chart;
+      if (!chartArea) return;
+      const cx = (chartArea.left + chartArea.right) / 2;
+      const cy = (chartArea.top + chartArea.bottom) / 2;
+      ctx.save();
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = isDark() ? '#f8fafc' : '#0f172a';
+      ctx.font = '800 18px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(opts.value, cx, cy - 7);
+      ctx.fillStyle = isDark() ? '#94a3b8' : '#64748b';
+      ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(opts.label || 'Rasio NPL', cx, cy + 12);
+      ctx.restore();
+    }
+  };
+
+  // Custom Plugin: Healthy & Warning Threshold Lines (3% & 5%) for Sim Bar
+  const thresholdPlugin = {
+    id: 'dakNplThreshold',
+    afterDatasetsDraw(chart) {
+      const opts = chart.config.options && chart.config.options.plugins && chart.config.options.plugins.dakThreshold;
+      if (!opts || !opts.enabled) return;
+      const { ctx, chartArea, scales } = chart;
+      const yScale = scales && scales.y;
+      if (!chartArea || !yScale) return;
+      const drawLine = (val, color, text) => {
+        if (val < yScale.min || val > yScale.max) return;
+        const y = yScale.getPixelForValue(val);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([5, 4]);
+        ctx.lineWidth = 1.4;
+        ctx.strokeStyle = color;
+        ctx.moveTo(chartArea.left, y);
+        ctx.lineTo(chartArea.right, y);
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.font = '700 10px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(text, chartArea.right - 4, y - 4);
+        ctx.restore();
+      };
+      drawLine(3, '#10b981', 'Batas Sehat 3%');
+      drawLine(5, '#ef4444', 'Batas Maks 5%');
+    }
+  };
+
+  function syncButtons(type) {
+    const st = ensureState(type);
+    const root = document.getElementById('dakNplViz_' + type);
+    if (!root) return;
+    root.querySelectorAll('[data-viz-mode]').forEach(b => {
+      const on = b.dataset.vizMode === st.mode;
+      b.classList.toggle('is-on', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    root.querySelectorAll('[data-viz-dim]').forEach(b => b.classList.toggle('is-on', b.dataset.vizDim === st.dim));
+    root.querySelectorAll('[data-viz-met]').forEach(b => b.classList.toggle('is-on', b.dataset.vizMet === st.metric));
+
+    const dimToggle = document.getElementById('dakNplDimToggle_' + type);
+    const metToggle = document.getElementById('dakNplMetToggle_' + type);
+    const sub = document.getElementById('dakNplSub_' + type);
+    if (dimToggle) dimToggle.hidden = st.mode !== 'dim';
+    if (metToggle) metToggle.hidden = st.mode === 'sim';
+    if (sub) {
+      if (st.mode === 'kol') sub.textContent = 'Ketuk irisan atau kartu KOL untuk menyaring daftar debitur';
+      else if (st.mode === 'dim') sub.textContent = 'Top 6 ' + (st.dim === 'sektor' ? 'Sektor Ekonomi' : 'Unit Kerja') + ' penyumbang NPL · ketuk batang untuk menyaring';
+      else sub.textContent = 'Centang debitur pada daftar NPL / KKR di bawah untuk simulasi dampak real-time';
+    }
+  }
+
+  function render(type) {
+    const st = ensureState(type);
+    syncButtons(type);
+
+    const canvas = document.getElementById('dakNplCanvas_' + type);
+    const side = document.getElementById('dakNplSide_' + type);
+    if (!canvas || typeof Chart === 'undefined') return;
+
+    if (instances[type]) {
+      try { instances[type].destroy(); } catch (e) {}
+      instances[type] = null;
+    }
+
+    const dark = isDark();
+    const textCol = dark ? '#cbd5e1' : '#334155';
+    const gridCol = dark ? 'rgba(148, 163, 184, 0.14)' : 'rgba(148, 163, 184, 0.22)';
+    const allRows = (st.kkrRows || []).concat(st.nplRows || []);
+    const met = st.metric;
+
+    // MODE 1: KOMPOSISI KUALITAS (KOL 2, 3, 4, 5)
+    if (st.mode === 'kol') {
+      const buckets = [2, 3, 4, 5].map(k => {
+        const rows = allRows.filter(r => Number(r.kol) === k);
+        const os = rows.reduce((a, r) => a + (Number(r.os) || 0), 0);
+        return { kol: k, meta: KOL_META[k], os, noa: rows.length };
+      });
+      const vals = buckets.map(b => met === 'noa' ? b.noa : b.os);
+      const totalVal = vals.reduce((a, b) => a + b, 0);
+
+      if (side) {
+        side.innerHTML = buckets.map(b => {
+          const active = st.filter && st.filter.kind === 'kol' && Number(st.filter.value) === b.kol;
+          const pct = totalVal > 0 ? ((met === 'noa' ? b.noa : b.os) / totalVal * 100).toFixed(1) : '0.0';
+          return `<button type="button" class="dak-npl-legitem ${active ? 'is-active' : ''}" onclick="window.dakNplCharts.toggleFilter('${type}','kol',${b.kol},'${b.meta.short}')">
+            <span class="dak-npl-legdot" style="background:${b.meta.color}"></span>
+            <span class="dak-npl-legname"><b>${b.meta.short}</b><small>${b.noa} debitur · ${pct}%</small></span>
+            <span class="dak-npl-legval">${met === 'noa' ? b.noa + ' NOA' : fmtShort(b.os)}</span>
+          </button>`;
+        }).join('');
+      }
+
+      instances[type] = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+          labels: buckets.map(b => b.meta.label),
+          datasets: [{
+            data: totalVal > 0 ? vals : [1],
+            backgroundColor: totalVal > 0 ? buckets.map(b => {
+              const dimOut = st.filter && st.filter.kind === 'kol' && Number(st.filter.value) !== b.kol;
+              return dimOut ? (dark ? 'rgba(71,85,105,0.35)' : 'rgba(203,213,225,0.55)') : b.meta.bg;
+            }) : [dark ? '#334155' : '#e2e8f0'],
+            borderColor: dark ? '#1e293b' : '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '66%',
+          onClick: (evt, els) => {
+            if (!totalVal || !els || !els.length) return;
+            const b = buckets[els[0].index];
+            if (b) toggleFilter(type, 'kol', b.kol, b.meta.short);
+          },
+          plugins: {
+            legend: { display: false },
+            dakCenter: { value: (Number(st.ratio) || 0).toFixed(2) + '%', label: 'Rasio NPL' },
+            tooltip: {
+              enabled: totalVal > 0,
+              backgroundColor: dark ? 'rgba(15,23,42,0.95)' : 'rgba(15,23,42,0.92)',
+              padding: 10,
+              cornerRadius: 10,
+              callbacks: {
+                label: ctx => {
+                  const b = buckets[ctx.dataIndex];
+                  const pct = totalVal > 0 ? ((met === 'noa' ? b.noa : b.os) / totalVal * 100).toFixed(1) : '0.0';
+                  return [
+                    ' Baki Debet: ' + fmtRp(b.os),
+                    ' Jumlah: ' + b.noa + ' Debitur (' + pct + '%)'
+                  ];
+                }
+              }
+            }
+          }
+        },
+        plugins: [centerTextPlugin]
+      });
+      return;
+    }
+
+    // MODE 2: SEBARAN NPL PER SEKTOR / UNIT (HORIZONTAL BAR)
+    if (st.mode === 'dim') {
+      const src = st.nplRows && st.nplRows.length ? st.nplRows : allRows;
+      const map = {};
+      src.forEach(r => {
+        const key = st.dim === 'sektor'
+          ? (String(r.sektor || 'Lainnya').trim() || 'Lainnya')
+          : (String(r.br || 'Lainnya').trim() || 'Lainnya');
+        if (!map[key]) map[key] = { key, os: 0, noa: 0 };
+        map[key].os += Number(r.os) || 0;
+        map[key].noa += 1;
+      });
+      const list = Object.values(map)
+        .sort((a, b) => (met === 'noa' ? b.noa - a.noa : b.os - a.os))
+        .slice(0, 6);
+      const totalVal = list.reduce((a, x) => a + (met === 'noa' ? x.noa : x.os), 0);
+
+      if (side) {
+        if (!list.length) {
+          side.innerHTML = '<div class="dak-npl-empty">Tidak ada data NPL pada segmen ini.</div>';
+        } else {
+          side.innerHTML = list.map((item, idx) => {
+            const active = st.filter && st.filter.kind === st.dim && st.filter.value === item.key;
+            const pct = totalVal > 0 ? ((met === 'noa' ? item.noa : item.os) / totalVal * 100).toFixed(1) : '0.0';
+            const col = BAR_PALETTE[idx % BAR_PALETTE.length];
+            const safeVal = item.key.replace(/'/g, "\\'");
+            return `<button type="button" class="dak-npl-legitem ${active ? 'is-active' : ''}" onclick="window.dakNplCharts.toggleFilter('${type}','${st.dim}','${safeVal}','${safeVal}')">
+              <span class="dak-npl-legdot" style="background:${col}"></span>
+              <span class="dak-npl-legname"><b>${esc(item.key)}</b><small>${item.noa} debitur · ${pct}%</small></span>
+              <span class="dak-npl-legval">${met === 'noa' ? item.noa + ' NOA' : fmtShort(item.os)}</span>
+            </button>`;
+          }).join('');
+        }
+      }
+
+      instances[type] = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: list.map(x => x.key.length > 18 ? x.key.slice(0, 17) + '…' : x.key),
+          datasets: [{
+            label: met === 'noa' ? 'Jumlah Debitur (NOA)' : 'Baki Debet NPL',
+            data: list.map(x => met === 'noa' ? x.noa : x.os),
+            backgroundColor: list.map((x, idx) => {
+              const dimOut = st.filter && st.filter.kind === st.dim && st.filter.value !== x.key;
+              return dimOut ? (dark ? 'rgba(71,85,105,0.35)' : 'rgba(203,213,225,0.6)') : BAR_PALETTE[idx % BAR_PALETTE.length];
+            }),
+            borderRadius: 8,
+            maxBarThickness: 24
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (evt, els) => {
+            if (!els || !els.length) return;
+            const item = list[els[0].index];
+            if (item) toggleFilter(type, st.dim, item.key, item.key);
+          },
+          scales: {
+            x: {
+              grid: { color: gridCol },
+              ticks: {
+                color: textCol,
+                font: { size: 10, weight: '600' },
+                callback: v => met === 'noa' ? v : fmtShort(v).replace('Rp ', '')
+              }
+            },
+            y: {
+              grid: { display: false },
+              ticks: { color: textCol, font: { size: 10, weight: '700' } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(15,23,42,0.94)',
+              padding: 10,
+              cornerRadius: 10,
+              callbacks: {
+                title: items => list[items[0].dataIndex] ? list[items[0].dataIndex].key : '',
+                label: ctx => {
+                  const item = list[ctx.dataIndex];
+                  const pct = totalVal > 0 ? ((met === 'noa' ? item.noa : item.os) / totalVal * 100).toFixed(1) : '0.0';
+                  return [
+                    ' Baki Debet: ' + fmtRp(item.os),
+                    ' Jumlah: ' + item.noa + ' Debitur (' + pct + '%)'
+                  ];
+                }
+              }
+            }
+          }
+        }
+      });
+      return;
+    }
+
+    // MODE 3: SIMULASI DAMPAK NPL (AKTUAL VS PROYEKSI LIVE)
+    const sim = st.sim || {
+      oldRatio: st.ratio || 0,
+      newRatio: st.ratio || 0,
+      realNpl: st.nplOs || 0,
+      newNpl: st.nplOs || 0,
+      totalHeal: 0,
+      totalCrash: 0,
+      diff: 0
+    };
+    const maxY = Math.max(6, Math.ceil(Math.max(sim.oldRatio, sim.newRatio) + 1.5));
+    const projColor = sim.newRatio < sim.oldRatio ? '#10b981' : (sim.newRatio > sim.oldRatio ? '#ef4444' : '#3b82f6');
+
+    if (side) {
+      const dSign = sim.diff > 0 ? '+' : '';
+      const dCls = sim.diff < 0 ? 'is-good' : (sim.diff > 0 ? 'is-bad' : '');
+      side.innerHTML = `
+        <div class="dak-npl-simcard">
+          <div class="dak-npl-simrow"><span>NPL Aktual</span><b>${sim.oldRatio.toFixed(2)}% <small>(${fmtShort(sim.realNpl)})</small></b></div>
+          <div class="dak-npl-simrow"><span>NPL Proyeksi</span><b class="${dCls}">${sim.newRatio.toFixed(2)}% <small>(${fmtShort(sim.newNpl)})</small></b></div>
+          <div class="dak-npl-simrow"><span>Perubahan Rasio</span><b class="${dCls}">${dSign}${sim.diff.toFixed(2)} pp</b></div>
+          <div class="dak-npl-simgrid">
+            <div class="is-heal"><span>Diselamatkan</span><b>${fmtShort(sim.totalHeal)}</b></div>
+            <div class="is-crash"><span>Potensi Jatuh</span><b>${fmtShort(sim.totalCrash)}</b></div>
+          </div>
+        </div>`;
+    }
+
+    instances[type] = new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: ['NPL Aktual', 'NPL Proyeksi'],
+        datasets: [{
+          label: 'Rasio NPL (%)',
+          data: [Number(sim.oldRatio.toFixed(2)), Number(sim.newRatio.toFixed(2))],
+          backgroundColor: ['#64748b', projColor],
+          borderRadius: 10,
+          maxBarThickness: 52
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            suggestedMax: maxY,
+            grid: { color: gridCol },
+            ticks: { color: textCol, font: { size: 10, weight: '600' }, callback: v => v + '%' }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: textCol, font: { size: 11, weight: '700' } }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          dakThreshold: { enabled: true },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,0.94)',
+            padding: 10,
+            cornerRadius: 10,
+            callbacks: {
+              label: ctx => {
+                const isProj = ctx.dataIndex === 1;
+                const nom = isProj ? sim.newNpl : sim.realNpl;
+                return [' Rasio: ' + ctx.parsed.y.toFixed(2) + '%', ' Nominal: ' + fmtRp(nom)];
+              }
+            }
+          }
+        }
+      },
+      plugins: [thresholdPlugin]
+    });
+  }
+
+  // Auto-sync chart colors on Dark Mode toggle
+  new MutationObserver(() => {
+    Object.keys(store).forEach(t => {
+      if (instances[t]) render(t);
+    });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+  window.dakNplCharts = {
+    setData(type, payload) {
+      const st = ensureState(type);
+      st.nplRows = Array.isArray(payload.nplRows) ? payload.nplRows : [];
+      st.kkrRows = Array.isArray(payload.kkrRows) ? payload.kkrRows : [];
+      st.totalOs = Number(payload.totalOs) || 0;
+      st.nplOs = Number(payload.nplOs) || 0;
+      st.kkrOs = Number(payload.kkrOs) || 0;
+      st.ratio = Number(payload.ratio) || 0;
+      st.filter = null;
+      const bar = document.getElementById('dakNplFilterBar_' + type);
+      if (bar) bar.hidden = true;
+      render(type);
+    },
+    updateSim(type, simData) {
+      const st = ensureState(type);
+      st.sim = simData;
+      if (st.mode === 'sim') render(type);
+    },
+    setMode(type, mode) {
+      const st = ensureState(type);
+      st.mode = mode;
+      render(type);
+    },
+    setDim(type, dim) {
+      const st = ensureState(type);
+      st.dim = dim;
+      render(type);
+    },
+    setMetric(type, metric) {
+      const st = ensureState(type);
+      st.metric = metric;
+      render(type);
+    },
+    toggleFilter: toggleFilter,
+    clearFilter(type) {
+      const st = ensureState(type);
+      st.filter = null;
+      applyTableFilter(type);
+      render(type);
+    }
+  };
+})();
