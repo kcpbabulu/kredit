@@ -10218,19 +10218,111 @@ window.dakApplyPermissions = function() {
 };
 window.dakOpenSettingsCenter = function(){
  if(!window.DAK_AUTH||!window.DAK_AUTH.user||window.DAK_AUTH.user.role!=='admin'){window.showAppNotice('Pengaturan ini hanya tersedia untuk Administrator.','error');return;}
+ if(window.matchMedia('(max-width: 1023px), (hover: none) and (pointer: coarse)').matches) window.app?.toggleSidebar(true);
  const old=document.getElementById('dak-settings-center');if(old)old.remove();
  const wrap=document.createElement('div');wrap.id='dak-settings-center';wrap.className='dak-admin-backdrop';
- wrap.innerHTML=`<section class="dak-settings-shell" role="dialog" aria-modal="true" aria-labelledby="dak-settings-title"><header><div><span class="dak-settings-eyebrow">SYSTEM CONTROL CENTER · V122</span><h2 id="dak-settings-title">Pengaturan Aplikasi</h2><p>Kelola akses pengguna dan automasi pelaporan dari satu tempat.</p></div><button type="button" id="dak-settings-close" aria-label="Tutup">×</button></header><div class="dak-settings-grid"><button type="button" data-settings-open="users"><span class="dak-settings-icon users"><i class="fas fa-users-gear"></i></span><b>Pengguna & Hak Akses</b><small>Kelola akun, status, cakupan cabang, dan izin modul pusat kerja.</small><span class="dak-settings-link">Kelola pengguna <i class="fas fa-arrow-right"></i></span></button><button type="button" data-settings-open="telegram"><span class="dak-settings-icon telegram"><i class="fab fa-telegram"></i></span><b>Automasi Laporan Telegram</b><small>Kelola bot, grup, topik, jenis laporan, jadwal, dan riwayat pengiriman.</small><span class="dak-settings-link">Buka Telegram Center <i class="fas fa-arrow-right"></i></span></button></div><div class="dak-settings-foot"><i class="fas fa-shield-halved"></i> Perubahan pengaturan mengikuti otorisasi Administrator.</div></section>`;
- document.body.appendChild(wrap);wrap.querySelector('#dak-settings-close').onclick=()=>wrap.remove();wrap.addEventListener('click',e=>{if(e.target===wrap)wrap.remove();});
- wrap.querySelectorAll('[data-settings-open]').forEach(b=>b.onclick=()=>{const type=b.dataset.settingsOpen;wrap.remove();if(type==='users')window.dakOpenAdmin();else window.dakOpenTelegramConfig();});
+ const userLabel=(window.DAK_AUTH.user.name||window.DAK_AUTH.user.username||'Admin');
+ const onlineTxt=navigator.onLine?'Online':'Offline';
+ wrap.innerHTML=`<section class="dak-settings-shell" role="dialog" aria-modal="true" aria-labelledby="dak-settings-title">
+   <header>
+     <div>
+       <span class="dak-settings-eyebrow">SYSTEM CONTROL CENTER · v1605</span>
+       <h2 id="dak-settings-title">Pengaturan Aplikasi</h2>
+       <p>Pusat kendali Administrator untuk akses pengguna, automasi Telegram, upload data, dan utilitas sistem.</p>
+     </div>
+     <button type="button" id="dak-settings-close" aria-label="Tutup">×</button>
+   </header>
+   <div class="dak-settings-grid">
+     <button type="button" data-settings-open="users">
+       <span class="dak-settings-icon users"><i class="fas fa-users-gear"></i></span>
+       <b>Pengguna &amp; Hak Akses</b>
+       <small>Kelola akun, status, cakupan cabang, preset peran, dan izin modul pusat kerja.</small>
+       <span class="dak-settings-link">Kelola pengguna <i class="fas fa-arrow-right"></i></span>
+     </button>
+     <button type="button" data-settings-open="telegram">
+       <span class="dak-settings-icon telegram"><i class="fab fa-telegram"></i></span>
+       <b>Automasi Laporan Telegram</b>
+       <small>Kelola bot, grup, topik, registrasi personal, jadwal backend, dan audit pengiriman.</small>
+       <span class="dak-settings-link">Buka Telegram Center <i class="fas fa-arrow-right"></i></span>
+     </button>
+     <button type="button" data-settings-open="upload">
+       <span class="dak-settings-icon upload"><i class="fas fa-cloud-arrow-up"></i></span>
+       <b>Upload Data &amp; Manajemen Sheet</b>
+       <small>Unggah snapshot harian Excel/CSV, kelola arsip tanggal, dan sinkronisasi data.</small>
+       <span class="dak-settings-link">Buka Upload Data <i class="fas fa-arrow-right"></i></span>
+     </button>
+     <button type="button" data-settings-open="system" id="dak-settings-sysbtn">
+       <span class="dak-settings-icon system"><i class="fas fa-microchip"></i></span>
+       <b>Status Sistem &amp; Utilitas</b>
+       <small>Cek latensi server Apps Script, status koneksi (${onlineTxt}), dan bersihkan cache PWA.</small>
+       <span class="dak-settings-link">Buka utilitas <i class="fas fa-chevron-down"></i></span>
+     </button>
+   </div>
+   <div id="dak-settings-syspanel" class="dak-settings-syspanel" hidden>
+     <div class="dak-sys-meta">
+       <span><i class="fas fa-user-shield"></i> Sesi: <b>${String(userLabel).replace(/</g,'&lt;')}</b></span>
+       <span><i class="fas fa-code-branch"></i> Versi: <b>v1605</b></span>
+       <span id="dak-sys-net"><i class="fas fa-wifi"></i> Status: <b>${onlineTxt}</b></span>
+       <span id="dak-sys-ping"><i class="fas fa-bolt"></i> Server: <b>Belum diuji</b></span>
+     </div>
+     <div class="dak-sys-actions">
+       <button type="button" id="dak-sys-testping" class="dak-sys-btn is-primary"><i class="fas fa-stethoscope"></i> Cek Koneksi Server</button>
+       <button type="button" id="dak-sys-clearcache" class="dak-sys-btn is-danger"><i class="fas fa-broom"></i> Bersihkan Cache PWA &amp; Muat Ulang</button>
+     </div>
+   </div>
+   <div class="dak-settings-foot"><i class="fas fa-shield-halved"></i> Seluruh perubahan mengikuti otorisasi Administrator aktif.</div>
+ </section>`;
+ document.body.appendChild(wrap);
+ wrap.querySelector('#dak-settings-close').onclick=()=>wrap.remove();
+ wrap.addEventListener('click',e=>{if(e.target===wrap)wrap.remove();});
+ wrap.querySelectorAll('[data-settings-open]').forEach(b=>b.onclick=()=>{
+   const type=b.dataset.settingsOpen;
+   if(type==='system'){
+     const p=document.getElementById('dak-settings-syspanel');
+     if(p){p.hidden=!p.hidden;if(!p.hidden)p.scrollIntoView({behavior:'smooth',block:'nearest'});}
+     return;
+   }
+   wrap.remove();
+   if(type==='users')window.dakOpenAdmin();
+   else if(type==='telegram')window.dakOpenTelegramConfig();
+   else if(type==='upload'){if(window.app&&typeof window.app.openUploadModal==='function')window.app.openUploadModal();}
+ });
+ const pingBtn=wrap.querySelector('#dak-sys-testping');
+ if(pingBtn) pingBtn.onclick=()=>{
+   const out=wrap.querySelector('#dak-sys-ping');
+   if(out) out.innerHTML='<i class="fas fa-spinner fa-spin"></i> Server: <b>Menguji…</b>';
+   const t0=performance.now();
+   window.google.script.run.withSuccessHandler(()=>{
+     const ms=Math.round(performance.now()-t0);
+     if(out) out.innerHTML=`<i class="fas fa-circle-check text-emerald-500"></i> Server: <b>Terhubung (${ms} ms)</b>`;
+     if(window.showToast) window.showToast('Koneksi server normal ('+ms+' ms).','success');
+   }).withFailureHandler(err=>{
+     if(out) out.innerHTML='<i class="fas fa-triangle-exclamation text-rose-500"></i> Server: <b>Gagal terhubung</b>';
+     if(window.showToast) window.showToast('Gagal menghubungi server: '+(err&&err.message?err.message:err),'error');
+   }).getAvailableSnapshots();
+ };
+ const cacheBtn=wrap.querySelector('#dak-sys-clearcache');
+ if(cacheBtn) cacheBtn.onclick=async()=>{
+   try{
+     if('caches' in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)));}
+     if('serviceWorker' in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()));}
+     if(window.showToast) window.showToast('Cache PWA dibersihkan. Memuat ulang…','success');
+     setTimeout(()=>window.location.reload(),400);
+   }catch(e){window.location.reload();}
+ };
 };
 window.dakOpenTelegramConfig = function() {
   if(!window.DAK_AUTH || !window.DAK_AUTH.user || window.DAK_AUTH.user.role!=='admin'){window.showAppNotice('Hanya Administrator yang dapat mengelola Telegram.','error');return;}
   const old=document.getElementById('dak-tg-modal');if(old)old.remove();
   const wrap=document.createElement('div');wrap.id='dak-tg-modal';wrap.className='dak-admin-backdrop';
-  wrap.innerHTML=`<section class="dak-admin-card dak-tg-card"><header><div><span class="text-xs font-black text-sky-600 uppercase">Automasi laporan</span><h2>Telegram Center · DaKOPen</h2><p>Kelola beberapa bot, grup, topik, jenis laporan, cakupan cabang, jadwal backend, pengujian koneksi, dan audit pengiriman. Token disimpan di Script Properties dan tidak pernah ditampilkan kembali.</p></div><button type="button" id="dak-tg-close" aria-label="Tutup">×</button></header>
+  wrap.innerHTML=`<section class="dak-admin-card dak-tg-card"><header><div class="dak-adm-hdr-l"><button type="button" class="dak-back-settings-btn is-dark" onclick="var m=document.getElementById('dak-tg-modal');if(m)m.remove();if(window.dakOpenSettingsCenter)window.dakOpenSettingsCenter();"><i class="fas fa-arrow-left"></i> Pengaturan</button><div><span class="text-xs font-black text-sky-300 uppercase">Automasi laporan</span><h2>Telegram Center · DaKOPen</h2><p>Kelola beberapa bot, grup, topik, jenis laporan, cakupan cabang, jadwal backend, pengujian koneksi, dan audit pengiriman. Token disimpan di Script Properties dan tidak pernah ditampilkan kembali.</p></div></div><button type="button" id="dak-tg-close" aria-label="Tutup">×</button></header>
   <section class="dak-tg-ux-overview" aria-label="Ringkasan Telegram Center"><div class="dak-tg-ux-head"><div><span>UNIFIED TELEGRAM CONTROL</span><h3>Ringkasan operasional</h3><p>Kelola bot, grup, topic, akses, dan laporan dari satu tempat.</p></div><button type="button" id="dak-tg-diagnostics-refresh" class="secondary">↻ Periksa sistem</button></div><div class="dak-tg-ux-stats"><article><small>Konfigurasi aktif</small><b id="dak-tg-stat-config">—</b></article><article><small>Bot terhubung</small><b id="dak-tg-stat-bots">—</b></article><article><small>Registrasi menunggu</small><b id="dak-tg-stat-pending">—</b></article><article><small>Pending updates</small><b id="dak-tg-stat-updates">—</b></article></div><div id="dak-tg-diagnostics-status" class="dak-tg-diagnostics-status" role="status">Memuat diagnosis Telegram…</div><div id="dak-tg-bot-diagnostics" class="dak-tg-bot-diagnostics"></div><section class="dak-tg-cleanup-diagnostics"><div class="dak-tg-ux-head"><div><h3>Smart Auto Cleanup · Session Monitor</h3><p>Ringkasan registry pesan interaktif, hasil penghapusan, dan sesi aktif.</p></div><button type="button" id="dak-tg-cleanup-refresh" class="secondary">↻ Periksa cleanup</button></div><div id="dak-tg-cleanup-status" role="status">Memuat diagnostik cleanup…</div><div class="dak-tg-ux-stats"><article><small>Sesi aktif</small><b id="dak-tg-cleanup-sessions">—</b></article><article><small>Pesan tercatat</small><b id="dak-tg-cleanup-tracked">—</b></article><article><small>Berhasil dihapus</small><b id="dak-tg-cleanup-deleted">—</b></article><article><small>Gagal dihapus</small><b id="dak-tg-cleanup-failed">—</b></article></div><small id="dak-tg-cleanup-last"></small><div class="dak-tg-cleanup-failures"><h4>Cleanup Failure Inspector</h4><p>Alasan kegagalan penghapusan terbaru. Data dibatasi untuk Administrator.</p><div id="dak-tg-cleanup-failure-list" role="status">Belum ada data kegagalan.</div></div></section></section>
-  <nav class="dak-tg-quicknav" aria-label="Navigasi Telegram Center"><a href="#dak-tg-pending-title">Registrasi</a><a href="#dak-tg-discovery-title">Deteksi grup/topic</a><a href="#dak-tg-list">Konfigurasi</a><a href="#dak-tg-form">Pengaturan akses grup & pengguna</a></nav>
+  <nav class="dak-tg-quicknav dak-tg-tabs" role="tablist" aria-label="Tab Telegram Center">
+  <button type="button" role="tab" class="dak-tg-tab is-on" data-tg-tabbtn="overview"><i class="fas fa-heart-pulse"></i> Ringkasan &amp; Diagnostik</button>
+  <button type="button" role="tab" class="dak-tg-tab" data-tg-tabbtn="reg"><i class="fas fa-user-check"></i> Registrasi &amp; Personal</button>
+  <button type="button" role="tab" class="dak-tg-tab" data-tg-tabbtn="config"><i class="fas fa-sliders"></i> Konfigurasi &amp; Jadwal</button>
+  <button type="button" role="tab" class="dak-tg-tab" data-tg-tabbtn="audit"><i class="fas fa-paper-plane"></i> Kirim &amp; Audit</button>
+</nav>
   <section class="dak-tg-discovery dak-tg-discovery-panel" aria-labelledby="dak-tg-pending-title"><div class="dak-tg-discovery-heading"><div><h3 id="dak-tg-pending-title">Registrasi grup otomatis · V145</h3><p>Admin grup mengetik <code>/daftar</code>. Chat ID dan Topic ID dibaca otomatis. Tinjau permintaan sebelum mengaktifkan akses.</p></div><button type="button" id="dak-tg-pending-refresh" class="secondary">Muat permintaan</button></div><div id="dak-tg-pending-list" role="status">Memuat permintaan registrasi…</div></section>
   <section class="dak-tg-discovery dak-tg-discovery-panel" aria-labelledby="dak-tg-personal-title"><div class="dak-tg-discovery-heading"><div><h3 id="dak-tg-personal-title">Personal User Management · V150</h3><p>Setujui registrasi chat pribadi dengan memetakan Telegram User ID ke akun pegawai DaKOPen yang aktif dan memiliki tepat satu cabang penugasan. Cabang tidak dapat dipilih manual.</p></div><button type="button" id="dak-tg-personal-refresh" class="secondary">↻ Muat pengguna</button></div><div class="dak-tg-personal-columns"><div><h4>Permohonan menunggu</h4><div id="dak-tg-personal-requests" role="status">Memuat permohonan personal…</div></div><div><h4>Pengguna personal aktif</h4><div id="dak-tg-personal-users" role="status">Memuat pengguna…</div></div></div></section>
   <section class="dak-tg-discovery dak-tg-discovery-panel" aria-labelledby="dak-tg-discovery-title"><div class="dak-tg-discovery-heading"><div><h3 id="dak-tg-discovery-title">Deteksi otomatis tujuan Telegram</h3><p>Masukkan token bot, kirim pesan baru ke grup/topik, lalu deteksi Chat ID dan Topic ID.</p><label class="dak-tg-discovery-token">Token bot Telegram<input id="dak-tg-token" type="password" autocomplete="new-password" placeholder="Tempel token bot di sini; token tersimpan tidak ditampilkan"></label></div><button type="button" id="dak-tg-discover" class="secondary"><i class="fas fa-radar"></i> Deteksi tujuan</button></div><p id="dak-tg-discovery-note" role="status" aria-live="polite">Bot harus menjadi anggota grup dan memiliki izin membaca pesan.</p><div id="dak-tg-discovery-results"></div></section>
@@ -10242,6 +10334,43 @@ window.dakOpenTelegramConfig = function() {
   <h3>5 · Mekanisme pengiriman laporan</h3><div class="dak-admin-fields"><label>Frekuensi<select id="dak-tg-schedule"><option value="manual">Manual saja</option><option value="daily">Setiap hari</option><option value="weekdays">Hari kerja (Senin–Jumat)</option><option value="weekly">Mingguan (Senin)</option></select></label><label>Jam eksekusi (zona waktu project)<select id="dak-tg-hour">${Array.from({length:24},(_,h)=>`<option value="${h}">${String(h).padStart(2,'0')}:00</option>`).join('')}</select></label></div><label class="dak-tg-active"><input type="checkbox" id="dak-tg-schedule-enabled"> Aktifkan jadwal laporan backend</label><label class="dak-tg-active"><input type="checkbox" id="dak-tg-event-enabled"> Antrekan laporan otomatis setelah upload data selesai (event)</label><div class="dak-tg-schedule-note"><b>Mode ganda V143:</b> <b>Event</b> memasukkan laporan terpilih ke antrean setelah finalisasi upload; worker memproses antrean maksimal sekitar 5 menit. <b>Jadwal Harian</b> memeriksa snapshot setiap 5 menit dan hanya mengirim jika fingerprint data berubah. <b>Hari Kerja/Mingguan</b> memeriksa pada jam yang dipilih. Deduplikasi mencegah event dan scheduler mengirim snapshot yang sama dua kali. PDF Kredit Utama tetap manual. Trigger Apps Script harus diotorisasi Administrator.</div>
   <label class="dak-tg-active"><input type="checkbox" id="dak-tg-active" checked> Konfigurasi aktif</label><div class="dak-admin-actions"><button type="button" id="dak-tg-test" class="secondary">Uji bot + tujuan</button><button type="button" id="dak-tg-webhook-all" class="secondary">Aktifkan webhook semua bot</button><button type="submit" class="primary">Simpan konfigurasi</button></div><h3>6 · Jalankan laporan backend sekarang</h3><div class="dak-admin-actions dak-tg-run-grid"><button type="button" data-tg-run="npl_total" class="secondary">Kirim NPL Total</button><button type="button" data-tg-run="npl_kur" class="secondary">Kirim NPL KUR</button><button type="button" data-tg-run="npl_segments" class="secondary">Kirim NPL Konsumtif & Produktif</button><button type="button" data-tg-run="movement" class="secondary">Kirim Mutasi Kredit</button><button type="button" data-tg-run="collection_ews" class="secondary">Kirim Penagihan & EWS</button><button type="button" data-tg-run="maturity" class="secondary">Kirim Jatuh Tempo</button><button type="button" data-tg-run="quality_change" class="secondary">Kirim Perubahan Kualitas</button><button type="button" data-tg-run="concentration" class="secondary">Kirim Konsentrasi Debitur</button><button type="button" data-tg-run="ckpn" class="secondary">Kirim Proyeksi CKPN</button></div><div class="dak-admin-actions"><button type="button" id="dak-tg-send" class="primary">Buat PDF Kredit Utama & kirim</button></div><div id="dak-tg-message" role="status" class="dak-tg-message" aria-live="polite"></div></form></div></section>`;
   document.body.appendChild(wrap);
+  wrap.setAttribute('data-tg-tab', 'overview');
+  wrap.querySelectorAll('[data-tg-tabbtn]').forEach(btn => btn.addEventListener('click', () => {
+    const t = btn.dataset.tgTabbtn;
+    wrap.setAttribute('data-tg-tab', t);
+    wrap.querySelectorAll('[data-tg-tabbtn]').forEach(b => b.classList.toggle('is-on', b.dataset.tgTabbtn === t));
+    const card = wrap.querySelector('.dak-tg-card');
+    if (card) card.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+  // Quick Search for Tujuan Telegram & Personal Users
+  (function injectTgSearches() {
+    const tgList = wrap.querySelector('#dak-tg-list');
+    if (tgList && !wrap.querySelector('#dak-tg-list-q')) {
+      const box = document.createElement('div');
+      box.className = 'dak-ul-search mb-2';
+      box.innerHTML = '<i class="fas fa-magnifying-glass"></i><input type="search" id="dak-tg-list-q" placeholder="Cari grup / tujuan Telegram…" autocomplete="off">';
+      tgList.parentNode.insertBefore(box, tgList);
+      box.querySelector('input').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase().trim();
+        tgList.querySelectorAll('button, .dak-user-item, .dak-tg-item').forEach(el => {
+          el.hidden = !!q && (el.textContent || '').toLowerCase().indexOf(q) < 0;
+        });
+      });
+    }
+    const pUsers = wrap.querySelector('#dak-tg-personal-users');
+    if (pUsers && !wrap.querySelector('#dak-tg-pu-q')) {
+      const box2 = document.createElement('div');
+      box2.className = 'dak-ul-search mb-2';
+      box2.innerHTML = '<i class="fas fa-magnifying-glass"></i><input type="search" id="dak-tg-pu-q" placeholder="Cari pengguna personal…" autocomplete="off">';
+      pUsers.parentNode.insertBefore(box2, pUsers);
+      box2.querySelector('input').addEventListener('input', e => {
+        const q = e.target.value.toLowerCase().trim();
+        Array.from(pUsers.children).forEach(el => {
+          el.hidden = !!q && (el.textContent || '').toLowerCase().indexOf(q) < 0;
+        });
+      });
+    }
+  })();
   const $=id=>wrap.querySelector('#'+CSS.escape(id)); let configs=[],branches=[]; const message=(m,err=false)=>{const node=$('dak-tg-message');if(!node||!wrap.isConnected)return;node.textContent=String(m??'');node.className='dak-tg-message '+(err?'error':'');};
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function reset(){ $('dak-tg-id').value='';$('dak-tg-name').value='';$('dak-tg-label').value='Bot Telegram';$('dak-tg-token').value='';$('dak-tg-token').placeholder='Token bot wajib untuk konfigurasi baru';$('dak-tg-chat').value='';$('dak-tg-topic').value='';$('dak-tg-active').checked=true;$('dak-tg-interactive-enabled').checked=false;$('dak-tg-group-search').checked=true;$('dak-tg-group-detail').checked=true;$('dak-tg-event-enabled').checked=false;$('dak-tg-schedule-enabled').checked=false;$('dak-tg-schedule').value='manual';$('dak-tg-hour').value='7';wrap.querySelectorAll('[data-tg-menu-permission]').forEach(x=>x.checked=true);wrap.querySelectorAll('[data-tg-report]').forEach(x=>x.checked=x.dataset.tgReport==='credit');wrap.querySelectorAll('[name="dak-tg-mode"]').forEach(x=>x.checked=x.value==='current');wrap.querySelectorAll('[data-tg-branch]').forEach(x=>x.checked=false);message(''); }
@@ -10294,11 +10423,63 @@ window.dakOpenTelegramConfig = function() {
 };
 window.dakOpenAdmin = function(){
  if(window.matchMedia('(max-width: 1023px), (hover: none) and (pointer: coarse)').matches) window.app?.toggleSidebar(true);
- const old=document.getElementById('dak-admin-modal');if(old)old.remove();const wrap=document.createElement('div');wrap.id='dak-admin-modal';wrap.className='dak-admin-backdrop';wrap.innerHTML=`<section class="dak-admin-card"><header><div><span class="text-xs font-black text-blue-600 uppercase">Kontrol akses</span><h2>Pengaturan Administrator</h2><p>Atur pengguna, menu yang terlihat, dan izin upload.</p></div><button id="dak-admin-close" aria-label="Tutup">×</button></header><div class="dak-admin-layout"><aside id="dak-user-list"><p>Memuat pengguna…</p></aside><form id="dak-user-form"><div class="dak-admin-fields"><label>Username<input id="dak-u-username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+"></label><label>Nama tampilan<input id="dak-u-name" required maxlength="100"></label><label>Password baru <small>(kosongkan saat mengedit agar tidak berubah)</small><input id="dak-u-password" type="password" minlength="10" autocomplete="new-password"></label><label class="dak-active-label"><input id="dak-u-active" type="checkbox" checked> Akun aktif</label></div><h3>Jangkauan cabang</h3><div class="dak-branch-scope"><label><input type="radio" name="dak-branch-scope" value="all" checked> Seluruh cabang</label><label><input type="radio" name="dak-branch-scope" value="selected"> Cabang tertentu</label></div><div id="dak-branch-grid" class="dak-branch-grid"><span class="dak-muted">Memuat daftar cabang…</span></div><h3>Hak akses per menu</h3><div id="dak-permission-grid" class="dak-permission-grid"></div><div class="dak-admin-actions"><button type="button" id="dak-user-new" class="secondary">Pengguna baru</button><button type="submit" class="primary">Simpan pengguna</button></div><div id="dak-admin-message" role="status"></div></form></div></section>`;document.body.appendChild(wrap);
+ const old=document.getElementById('dak-admin-modal');if(old)old.remove();const wrap=document.createElement('div');wrap.id='dak-admin-modal';wrap.className='dak-admin-backdrop';wrap.innerHTML=`<section class="dak-admin-card"><header><div class="dak-adm-hdr-l"><button type="button" class="dak-back-settings-btn" onclick="var m=document.getElementById('dak-admin-modal');if(m)m.remove();if(window.dakOpenSettingsCenter)window.dakOpenSettingsCenter();"><i class="fas fa-arrow-left"></i> Pengaturan</button><div><span class="text-xs font-black text-blue-600 uppercase">Kontrol akses</span><h2>Pengaturan Administrator</h2><p>Atur pengguna, cakupan cabang, preset peran, dan izin modul.</p></div></div><button id="dak-admin-close" aria-label="Tutup">×</button></header><div class="dak-admin-layout"><aside id="dak-user-list"><p>Memuat pengguna…</p></aside><form id="dak-user-form"><div class="dak-admin-fields"><label>Username<input id="dak-u-username" required minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+"></label><label>Nama tampilan<input id="dak-u-name" required maxlength="100"></label><label>Password baru <small>(kosongkan saat mengedit agar tidak berubah)</small><div class="dak-pw-wrap"><input id="dak-u-password" type="password" minlength="10" autocomplete="new-password"><button type="button" id="dak-pw-eye" class="dak-pw-btn" title="Tampilkan/Sembunyikan" aria-label="Tampilkan password"><i class="fas fa-eye"></i></button><button type="button" id="dak-pw-gen" class="dak-pw-btn is-gen" title="Buat password acak 12 karakter"><i class="fas fa-wand-magic-sparkles"></i> Buat</button><button type="button" id="dak-pw-copy" class="dak-pw-btn" title="Salin password" aria-label="Salin password"><i class="fas fa-copy"></i></button></div></label><label class="dak-active-label"><input id="dak-u-active" type="checkbox" checked> Akun aktif</label></div><h3>Jangkauan cabang</h3><div class="dak-branch-scope"><label><input type="radio" name="dak-branch-scope" value="all" checked> Seluruh cabang</label><label><input type="radio" name="dak-branch-scope" value="selected"> Cabang tertentu</label></div><div id="dak-branch-grid" class="dak-branch-grid"><span class="dak-muted">Memuat daftar cabang…</span></div><h3>Hak akses per menu</h3><div class="dak-perm-presets" role="group" aria-label="Template hak akses"><button type="button" data-perm-preset="pimpinan"><i class="fas fa-chart-line"></i> Pimpinan / Analis</button><button type="button" data-perm-preset="ao"><i class="fas fa-headset"></i> AO / Collection</button><button type="button" data-perm-preset="arsip"><i class="fas fa-box-archive"></i> Admin Arsip</button><button type="button" data-perm-preset="all">Pilih Semua</button><button type="button" data-perm-preset="none">Kosongkan</button></div><div id="dak-permission-grid" class="dak-permission-grid"></div><div class="dak-admin-actions"><button type="button" id="dak-user-new" class="secondary">Pengguna baru</button><button type="submit" class="primary">Simpan pengguna</button></div><div id="dak-admin-message" role="status"></div></form></div></section>`;document.body.appendChild(wrap);
  const menuLabels={dashboard:'Dashboard',journey:'Data Center · Riwayat Debitur',archive:'Data Center · Arsip Kredit',report:'Cetak Laporan',map:'Peta Sebaran NPL',nplall:'NPL Center · Total',nplkur:'NPL Center · KUR',nplkonsumtif:'NPL Center · Konsumtif',nplprod:'NPL Center · Produktif',collection:'Operasional · Penagihan',watchlist:'Operasional · Early Warning',freshdrop:'Operasional · Perubahan Kualitas',maturity:'Operasional · Jatuh Tempo',writeoff:'Operasional · Hapus Buku',top:'Executive · Konsentrasi Debitur',risk:'Executive · Peta Risiko',vintage:'Executive · Kualitas Vintage',stress:'Executive · Simulasi Risiko',ckpn:'Executive · Proyeksi CKPN',kredit:'Data Center · Master Kredit',mutasi:'Data Center · Mutasi Kredit',upload:'Upload Data'};
  const grid=document.getElementById('dak-permission-grid');const branchGrid=document.getElementById('dak-branch-grid');let availableBranches=[];window.google.script.run.withSuccessHandler(list=>{availableBranches=list||[];branchGrid.innerHTML=availableBranches.map(b=>`<label><input type="checkbox" data-branch="${String(b).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}"><span>${String(b).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</span></label>`).join('')||'<span class="dak-muted">Tidak ada daftar cabang pada snapshot terbaru.</span>';if(selected)formUser(selected);}).withFailureHandler(()=>{branchGrid.innerHTML='<span class="dak-muted">Daftar cabang belum dapat dimuat.</span>';}).adminListBranches();(function(){const groups={};Object.entries(menuLabels).forEach(([k,v])=>{const p=v.split(' · ');const g=p.length>1?p[0]:'Umum';(groups[g]=groups[g]||[]).push([k,p.length>1?p.slice(1).join(' · '):v]);});Object.entries(groups).forEach(([g,items],gi)=>{const id='dak-pg-'+gi;grid.insertAdjacentHTML('beforeend',`<fieldset class="dak-perm-group"><legend><span>${g}</span><button type="button" class="dak-perm-all" data-group="${id}">Pilih semua</button></legend><div id="${id}" class="dak-perm-items">${items.map(([k,v])=>`<label><input type="checkbox" data-permission="${k}" checked> <span>${v}</span></label>`).join('')}</div></fieldset>`);});grid.querySelectorAll('.dak-perm-all').forEach(b=>b.addEventListener('click',()=>{const boxes=grid.querySelectorAll('#'+b.dataset.group+' input');const all=Array.from(boxes).every(x=>x.checked);boxes.forEach(x=>x.checked=!all);b.textContent=all?'Pilih semua':'Kosongkan';}));})();
  let users=[],selected=null;const list=document.getElementById('dak-user-list');function formUser(u){selected=u||null;document.getElementById('dak-u-username').value=u?u.username:'';document.getElementById('dak-u-username').readOnly=!!u;document.getElementById('dak-u-name').value=u?u.name:'';document.getElementById('dak-u-password').value='';document.getElementById('dak-u-active').checked=u?u.active:true;document.querySelectorAll('[name="dak-branch-scope"]').forEach(r=>r.checked=(u?u.branchScope||'all':'all')===r.value);branchGrid.querySelectorAll('[data-branch]').forEach(c=>c.checked=!!(u&&u.branches&&u.branches.includes(c.dataset.branch)));branchGrid.classList.toggle('is-disabled',(u?u.branchScope||'all':'all')==='all');grid.querySelectorAll('[data-permission]').forEach(c=>c.checked?c.checked=!u||!!(u.permissions&&u.permissions[c.dataset.permission]):c.checked=!!(u&&u.permissions&&u.permissions[c.dataset.permission]));document.getElementById('dak-admin-message').textContent='';}
- function renderList(){list.innerHTML='<h3>Daftar pengguna</h3>'+users.map(u=>`<button type="button" data-user="${u.username.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" class="dak-user-item ${selected&&selected.username===u.username?'selected':''}"><strong>${u.name}</strong><small>@${u.username} · ${u.role==='admin'?'Administrator':u.active?'Aktif':'Nonaktif'}</small></button>`).join('');list.querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>{formUser(users.find(u=>u.username===b.dataset.user));renderList();});}
+ let uQuery='', uFilter='all';
+ function renderList(){
+   const filtered=users.filter(u=>{
+     const okSt=uFilter==='all'?true:(uFilter==='active'?!!u.active:!u.active);
+     const okQ=!uQuery||(String(u.name||'').toLowerCase().includes(uQuery)||String(u.username||'').toLowerCase().includes(uQuery));
+     return okSt&&okQ;
+   });
+   list.innerHTML=`<div class="dak-ul-head"><h3>Daftar pengguna <span class="dak-ul-cnt">${filtered.length}/${users.length}</span></h3>
+     <div class="dak-ul-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dak-ul-q" placeholder="Cari nama / username…" value="${uQuery.replace(/"/g,'&quot;')}" autocomplete="off"></div>
+     <div class="dak-ul-pills">
+       <button type="button" data-ul-f="all" class="${uFilter==='all'?'is-on':''}">Semua</button>
+       <button type="button" data-ul-f="active" class="${uFilter==='active'?'is-on':''}">Aktif</button>
+       <button type="button" data-ul-f="inactive" class="${uFilter==='inactive'?'is-on':''}">Nonaktif</button>
+     </div></div><div class="dak-ul-items">`+(filtered.map(u=>`<button type="button" data-user="${u.username.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" class="dak-user-item ${selected&&selected.username===u.username?'selected':''}"><strong>${u.name}</strong><small>@${u.username} · ${u.role==='admin'?'Administrator':u.active?'Aktif':'Nonaktif'}</small></button>`).join('')||'<p class="dak-muted text-xs py-3 text-center">Pengguna tidak ditemukan.</p>')+'</div>';
+   const qEl=list.querySelector('#dak-ul-q');
+   if(qEl){qEl.oninput=()=>{uQuery=qEl.value.toLowerCase().trim();const pos=qEl.selectionStart;renderList();const nq=list.querySelector('#dak-ul-q');if(nq){nq.focus();try{nq.setSelectionRange(pos,pos);}catch(e){}}};}
+   list.querySelectorAll('[data-ul-f]').forEach(b=>b.onclick=()=>{uFilter=b.dataset.ulF;renderList();});
+   list.querySelectorAll('[data-user]').forEach(b=>b.onclick=()=>{
+     formUser(users.find(u=>u.username===b.dataset.user));renderList();
+     if(window.innerWidth<768){const f=document.getElementById('dak-user-form');if(f)f.scrollIntoView({behavior:'smooth',block:'start'});}
+   });
+ }
+ (function wireAdminExtras(){
+   const pw=document.getElementById('dak-u-password');
+   const eye=document.getElementById('dak-pw-eye');
+   const gen=document.getElementById('dak-pw-gen');
+   const cpy=document.getElementById('dak-pw-copy');
+   if(eye&&pw) eye.onclick=()=>{const show=pw.type==='password';pw.type=show?'text':'password';eye.innerHTML=show?'<i class="fas fa-eye-slash"></i>':'<i class="fas fa-eye"></i>';};
+   if(gen&&pw) gen.onclick=()=>{
+     const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789@#%!';
+     let out='';for(let i=0;i<12;i++) out+=chars[Math.floor(Math.random()*chars.length)];
+     pw.value=out;pw.type='text';if(eye)eye.innerHTML='<i class="fas fa-eye-slash"></i>';
+     if(window.showToast) window.showToast('Password acak 12 karakter dibuat.','info');
+   };
+   if(cpy&&pw) cpy.onclick=()=>{
+     if(!pw.value){if(window.showToast)window.showToast('Password masih kosong.','warning');return;}
+     navigator.clipboard?.writeText(pw.value).then(()=>{if(window.showToast)window.showToast('Password disalin ke clipboard.','success');});
+   };
+   const PRESETS={
+     pimpinan:['dashboard','nplall','nplkur','nplkonsumtif','nplprod','top','risk','vintage','stress','ckpn','report','map'],
+     ao:['dashboard','mutasi','collection','watchlist','freshdrop','maturity','writeoff','kredit','journey','archive'],
+     arsip:['dashboard','kredit','archive','journey','upload']
+   };
+   wrap.querySelectorAll('[data-perm-preset]').forEach(btn=>btn.onclick=()=>{
+     const p=btn.dataset.permPreset;
+     grid.querySelectorAll('[data-permission]').forEach(c=>{
+       if(p==='all') c.checked=true;
+       else if(p==='none') c.checked=false;
+       else c.checked=(PRESETS[p]||[]).includes(c.dataset.permission);
+     });
+     if(window.showToast) window.showToast('Preset hak akses diterapkan: '+btn.textContent.trim(),'info');
+   });
+ })();
  function load(){window.google.script.run.withSuccessHandler(r=>{users=r||[];renderList();if(!selected)formUser(null);}).withFailureHandler(e=>{list.textContent=e.message;}) .adminListUsers();}
  document.querySelectorAll('[name="dak-branch-scope"]').forEach(r=>r.addEventListener('change',()=>branchGrid.classList.toggle('is-disabled',r.value!=='selected'||!r.checked)));document.getElementById('dak-admin-close').onclick=()=>wrap.remove();document.getElementById('dak-user-new').onclick=()=>{formUser(null);document.getElementById('dak-u-username').readOnly=false;renderList();};document.getElementById('dak-user-form').onsubmit=e=>{e.preventDefault();const data={username:document.getElementById('dak-u-username').value,name:document.getElementById('dak-u-name').value,password:document.getElementById('dak-u-password').value,active:document.getElementById('dak-u-active').checked,role:document.getElementById('dak-u-username').value.toLowerCase()==='admin'?'admin':'user',permissions:{}};grid.querySelectorAll('[data-permission]').forEach(c=>data.permissions[c.dataset.permission]=c.checked);data.branchScope=document.querySelector('[name="dak-branch-scope"]:checked')?.value||'all';data.branches=Array.from(branchGrid.querySelectorAll('[data-branch]:checked')).map(c=>c.dataset.branch);if(data.branchScope==='selected'&&!data.branches.length){document.getElementById('dak-admin-message').textContent='Pilih minimal satu cabang untuk mode Cabang tertentu.';return;}window.google.script.run.withSuccessHandler(()=>{document.getElementById('dak-admin-message').textContent='Pengguna berhasil disimpan.';selected=null;load();}).withFailureHandler(err=>document.getElementById('dak-admin-message').textContent=err.message).adminSaveUser(data);};load();
 };

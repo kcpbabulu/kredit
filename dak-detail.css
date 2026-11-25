@@ -2093,3 +2093,325 @@ html.dark .dak-coll-prog { color: #cbd5e1; }
 html.dark #collection_list_wrapper .bk-crow.is-called-today::after {
   color: #34d399;
 }
+
+/* =====================================================================
+   v1605 — Pengaturan Aplikasi: Interactive Admin Hub, User Manager & 4-Tab Telegram Center
+   ===================================================================== */
+/* 1. Control Center Hub 4-Card Icons & System Utilities Panel */
+.dak-settings-icon.upload { background: #ecfdf5; color: #059669; }
+.dak-settings-icon.system { background: #f5f3ff; color: #7c3aed; }
+html.dark .dak-settings-icon.users { background: rgba(37, 99, 235, 0.22); color: #60a5fa; }
+html.dark .dak-settings-icon.telegram { background: rgba(2, 132, 199, 0.22); color: #38bdf8; }
+html.dark .dak-settings-icon.upload { background: rgba(16, 185, 129, 0.22); color: #34d399; }
+html.dark .dak-settings-icon.system { background: rgba(124, 58, 237, 0.22); color: #a78bfa; }
+
+.dak-settings-syspanel {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dak-settings-syspanel[hidden] { display: none !important; }
+html.dark .dak-settings-syspanel {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: #334155;
+}
+.dak-sys-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 8px;
+  font-size: 11.5px;
+  color: #475569;
+}
+html.dark .dak-sys-meta { color: #cbd5e1; }
+.dak-sys-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+html.dark .dak-sys-meta span {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: #334155;
+}
+.dak-sys-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.dak-sys-btn {
+  flex: 1 1 180px;
+  min-height: 40px !important;
+  padding: 8px 14px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+.dak-sys-btn.is-primary { background: #2563eb; color: #fff; }
+.dak-sys-btn.is-danger { background: rgba(239, 68, 68, 0.12); color: #dc2626; border-color: rgba(239, 68, 68, 0.3); }
+html.dark .dak-sys-btn.is-danger { background: rgba(239, 68, 68, 0.22); color: #fca5a5; }
+
+/* 2. Back-to-Settings Button */
+.dak-adm-hdr-l {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+.dak-back-settings-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  min-height: 30px !important;
+  border-radius: 9px;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+html.dark .dak-back-settings-btn {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: rgba(96, 165, 250, 0.35);
+  color: #93c5fd;
+}
+.dak-back-settings-btn.is-dark {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+}
+
+/* 3. Pengguna & Hak Akses: Search, Filter Pills, Password Assistant, Role Presets & Sticky Actions */
+.dak-ul-head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.dak-ul-cnt {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+}
+html.dark .dak-ul-cnt { background: rgba(59, 130, 246, 0.24); color: #93c5fd; }
+.dak-ul-search {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 10px;
+  min-height: 36px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+}
+html.dark .dak-ul-search { background: #0f172a; border-color: #334155; }
+.dak-ul-search i { font-size: 11px; color: #94a3b8; flex: none; }
+.dak-ul-search input {
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: transparent !important;
+  outline: none !important;
+  min-height: 32px !important;
+  padding: 4px 0 !important;
+  font-size: 12px !important;
+  color: #0f172a;
+}
+html.dark .dak-ul-search input { color: #f8fafc; }
+.dak-ul-pills {
+  display: flex;
+  gap: 5px;
+}
+.dak-ul-pills button {
+  flex: 1;
+  min-height: 30px !important;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dak-ul-pills button.is-on { background: #2563eb; border-color: #2563eb; color: #fff; }
+html.dark .dak-ul-pills button { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+html.dark .dak-ul-pills button.is-on { background: #2563eb; border-color: #3b82f6; color: #fff; }
+
+.dak-pw-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dak-pw-wrap input { flex: 1; min-width: 0; }
+.dak-pw-btn {
+  min-height: 38px !important;
+  padding: 0 10px;
+  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.dak-pw-btn.is-gen { background: rgba(37, 99, 235, 0.1); border-color: rgba(37, 99, 235, 0.3); color: #1d4ed8; }
+html.dark .dak-pw-btn { background: #1e293b; border-color: #334155; color: #e2e8f0; }
+html.dark .dak-pw-btn.is-gen { background: rgba(59, 130, 246, 0.22); color: #93c5fd; }
+
+.dak-perm-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.dak-perm-presets button {
+  min-height: 32px !important;
+  padding: 5px 10px;
+  border-radius: 9px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: rgba(37, 99, 235, 0.07);
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dak-perm-presets button:hover { background: rgba(37, 99, 235, 0.15); }
+html.dark .dak-perm-presets button {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.32);
+  color: #93c5fd;
+}
+
+#dak-admin-modal .dak-admin-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  padding: 10px 0 calc(6px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.96) 75%, rgba(255, 255, 255, 0));
+}
+html.dark #dak-admin-modal .dak-admin-actions {
+  background: linear-gradient(to top, rgba(15, 23, 42, 0.96) 75%, rgba(15, 23, 42, 0));
+}
+
+/* 4. Telegram Center: 4 Interactive Tabs & Clean Section Filtering */
+.dak-tg-tabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  scrollbar-width: none;
+  gap: 6px !important;
+  padding: 10px 16px !important;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.7);
+  background: rgba(248, 250, 252, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+.dak-tg-tabs::-webkit-scrollbar { display: none; }
+html.dark .dak-tg-tabs {
+  background: rgba(15, 23, 42, 0.92);
+  border-color: rgba(51, 65, 85, 0.85);
+}
+.dak-tg-tab {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 13px;
+  min-height: 36px !important;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s ease;
+}
+.dak-tg-tab.is-on {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(2, 132, 199, 0.28);
+}
+html.dark .dak-tg-tab {
+  background: #1e293b;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+html.dark .dak-tg-tab.is-on {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+/* Visibility rules per active Telegram tab (preserves all DOM listeners) */
+#dak-tg-modal[data-tg-tab="overview"] .dak-tg-discovery-panel,
+#dak-tg-modal[data-tg-tab="overview"] .dak-tg-layout { display: none !important; }
+
+#dak-tg-modal[data-tg-tab="reg"] .dak-tg-ux-overview,
+#dak-tg-modal[data-tg-tab="reg"] [aria-labelledby="dak-tg-discovery-title"],
+#dak-tg-modal[data-tg-tab="reg"] .dak-tg-layout { display: none !important; }
+
+#dak-tg-modal[data-tg-tab="config"] .dak-tg-ux-overview,
+#dak-tg-modal[data-tg-tab="config"] [aria-labelledby="dak-tg-pending-title"],
+#dak-tg-modal[data-tg-tab="config"] [aria-labelledby="dak-tg-personal-title"] { display: none !important; }
+
+#dak-tg-modal[data-tg-tab="audit"] .dak-tg-ux-overview,
+#dak-tg-modal[data-tg-tab="audit"] .dak-tg-discovery-panel { display: none !important; }
+
+/* 5. Full Dark Mode support for Telegram Center & Admin Modal */
+html.dark #dak-tg-modal .dak-tg-ux-overview,
+html.dark #dak-tg-modal .dak-tg-discovery-panel,
+html.dark #dak-tg-modal .dak-tg-cleanup-diagnostics,
+html.dark #dak-tg-modal .dak-tg-ux-stats article,
+html.dark #dak-tg-modal .dak-tg-layout > aside,
+html.dark #dak-tg-modal #dak-tg-form fieldset,
+html.dark #dak-tg-modal .dak-tg-logs {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border-color: rgba(51, 65, 85, 0.85) !important;
+  color: #e2e8f0 !important;
+}
+html.dark #dak-tg-modal h3,
+html.dark #dak-tg-modal h4,
+html.dark #dak-tg-modal legend,
+html.dark #dak-tg-modal label,
+html.dark #dak-tg-modal b {
+  color: #f8fafc !important;
+}
+html.dark #dak-tg-modal input,
+html.dark #dak-tg-modal select,
+html.dark #dak-tg-modal textarea {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
