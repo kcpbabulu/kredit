@@ -366,7 +366,7 @@
       plainRow('Jangka waktu', esc(r.mulai) + ' – ' + esc(r.selesai) + (tenorM ? ' <small>(' + tenorM + ' bln)</small>' : '')) +
       plainRow('Suku bunga', esc(r.bunga) + (r.bunga && r.bunga !== '-' ? '%' : '')) +
       plainRow('Sektor', esc(r.sektor || 'Umum')) + copyRow('No arsip', r.noArsip) +
-      '<div class="bk-d-addr"><i class="fas fa-location-dot" aria-hidden="true"></i><span>' + esc(r.alamat) + '</span><button type="button" class="bk-btn-ghost" data-act="map">Buka peta</button></div>';
+      ((r.alamat && String(r.alamat).trim() && String(r.alamat).trim() !== '-') ? '<div class="bk-d-addr"><i class="fas fa-location-dot" aria-hidden="true"></i><span>' + esc(r.alamat) + '</span><button type="button" class="bk-btn-ghost" data-act="map">Buka peta</button></div>' : '<div class="bk-d-addr is-empty"><i class="fas fa-location-dot" aria-hidden="true"></i><span>Alamat belum tersedia</span></div>');
   }
   function tabTunggakan(r) {
     const pk = Number(r.tgk_pokok) || 0, bg = Number(r.tgk_bunga) || 0, tot = pk + bg;
@@ -375,7 +375,21 @@
     if (tot > 0) h += '<div class="bk-stack" role="img" aria-label="Pokok ' + pp.toFixed(0) + ' persen, bunga ' + (100 - pp).toFixed(0) + ' persen"><i class="a" style="width:' + pp.toFixed(1) + '%"></i><i class="b" style="width:' + (100 - pp).toFixed(1) + '%"></i></div>' +
       '<div class="bk-stack-leg"><span><i class="a"></i>Pokok ' + rp(pk) + '</span><span><i class="b"></i>Bunga ' + rp(bg) + '</span></div>';
     else h += '<p class="bk-d-ok">Tidak ada tunggakan pada snapshot ini.</p>';
-    h += '</div>' + plainRow('Tgl bayar / jatuh tempo', esc(r.tgl_bayar && r.tgl_bayar !== '-' ? r.tgl_bayar : '-'));
+    h += '</div>';
+    if (tot > 0) {
+      h += '<div class="dak-pay-sim" id="dakPaySim" data-tot="' + tot + '" data-bg="' + bg + '">' +
+        '<div class="dak-pay-sim-head"><span><i class="fas fa-calculator"></i> Simulasi Bayar Cepat</span><b id="dakPayRem">Sisa: ' + rp(tot) + '</b></div>' +
+        '<div class="dak-pay-presets">' +
+          '<button type="button" data-pay-preset="bunga">Bayar Bunga</button>' +
+          '<button type="button" data-pay-preset="half">50% Tunggakan</button>' +
+          '<button type="button" data-pay-preset="full">Lunasi Tunggakan</button>' +
+        '</div>' +
+        '<div class="dak-pay-inp-row">' +
+          '<input type="number" id="dakPayInput" min="0" step="50000" placeholder="Nominal bayar (Rp)…" aria-label="Nominal simulasi bayar">' +
+          '<button type="button" class="dak-pay-wa" data-act="paywa"><i class="fab fa-whatsapp"></i> Kirim ke WA</button>' +
+        '</div></div>';
+    }
+    h += plainRow('Tgl bayar / jatuh tempo', esc(r.tgl_bayar && r.tgl_bayar !== '-' ? r.tgl_bayar : '-'));
     const kol = Math.min(5, Math.max(1, Number(r.kol) || 1));
     h += '<div class="bk-d-saran"><h4>Saran penanganan <small>(Kol ' + kol + ' · ' + KOLNAME[kol] + ')</small></h4><ul>' + SARAN[kol].map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>';
     return h;
@@ -387,7 +401,7 @@
       '<label>Jenis tindakan<select id="bk-fu-aksi"><option>Telepon</option><option>WhatsApp</option><option>Kunjungan</option><option>Surat</option><option>Lainnya</option></select></label>' +
       '<div class="bk-fu-chips" aria-label="Isi cepat">' + chips.map(c => '<button type="button" class="bk-chip" data-fill="' + esc(c) + '">' + esc(c) + '</button>').join('') + '</div>' +
       '<label>Hasil kontak<textarea id="bk-fu-note" rows="3" maxlength="600" placeholder="Tulis hasil kontak singkat…"></textarea></label>' +
-      '<label>Janji bayar <small>(opsional)</small><input id="bk-fu-date" type="date"></label>' +
+      '<label>Janji bayar <small>(opsional)</small><input id="bk-fu-date" type="date"></label><div class="dak-fu-dpresets" role="group" aria-label="Preset tanggal janji bayar"><button type="button" data-fu-date="1">Besok</button><button type="button" data-fu-date="3">+3 Hari</button><button type="button" data-fu-date="7">+7 Hari</button><button type="button" data-fu-date="eom">Akhir Bulan</button></div>' +
       '<div class="bk-fu-msg" id="bk-fu-msg" role="status"></div>' +
       '<button type="submit" class="bk-fu-save">Simpan catatan</button></form>' +
       '<h4 class="bk-fu-h">Riwayat tindak lanjut</h4><div id="bk-fu-list" class="bk-fu-list"><div class="bk-d-skel bk-d-skel--s"></div></div>';
@@ -403,7 +417,7 @@
       const a = parseDMY(r.mulai), b = parseDMY(r.selesai); const tenorM = a && b && b > a ? Math.round((b - a) / 2629800000) : 0;
       const hasHp = !!phoneIntl(r.hp);
       const nav = D.ids && D.ids.length > 1 ?
-        '<div class="bk-d-nav" role="group" aria-label="Debitur lain di daftar"><button type="button" data-act="prev" aria-label="Debitur sebelumnya"' + (D.idx <= 0 ? ' disabled' : '') + '>‹</button><span>' + (D.idx + 1) + ' / ' + D.ids.length + '</span><button type="button" data-act="next" aria-label="Debitur berikutnya"' + (D.idx >= D.ids.length - 1 ? ' disabled' : '') + '>›</button></div>' : '';
+        '<div class="bk-d-nav" role="group" aria-label="Debitur lain di daftar"><button type="button" data-act="prev" aria-label="Debitur sebelumnya"' + (D.idx <= 0 ? ' disabled' : '') + '>‹</button><span>' + (D.idx + 1) + ' / ' + D.ids.length + ' <small class="dak-swipe-hint">· Geser / Alt+←→</small></span><button type="button" data-act="next" aria-label="Debitur berikutnya"' + (D.idx >= D.ids.length - 1 ? ' disabled' : '') + '>›</button></div>' : '';
       host.innerHTML =
         '<div class="bk-d" data-kol="' + kol + '" data-loan="' + esc(id) + '">' +
         '<header class="bk-d-head bk-d-k' + kol + '"><span class="bk-d-strip" aria-hidden="true"></span><div class="bk-d-id"><h3>' + esc(r.nama) + '</h3>' +
@@ -412,6 +426,12 @@
         '<div id="bk-d-flags">' + histChip(r) + '</div>' +
         '<div class="bk-d-kpis"><div><span>Baki debet</span><b>' + rp(r.os) + '</b></div><div class="is-tgk"><span>Tunggakan</span><b>' + rp(r.total_tgk) + '</b></div><div><span>Plafond</span><b>' + rp(r.plafond) + '</b></div></div>' +
         progress(r) +
+        '<div class="dak-d-qchips" role="group" aria-label="Pintasan cepat debitur">' +
+          '<button type="button" data-act="arsip"><i class="fas fa-box-archive"></i> Posisi Arsip</button>' +
+          '<button type="button" data-act="journey"><i class="fas fa-route"></i> Timeline</button>' +
+          '<button type="button" data-act="logwa"><i class="fas fa-pen-to-square"></i> + Catat WA</button>' +
+          (hasHp ? '<button type="button" data-copy="' + esc(String(r.hp || '').trim()) + '"><i class="fas fa-phone"></i> Salin HP</button>' : '') +
+        '</div>' +
         '<div class="bk-d-tabs" role="tablist" aria-label="Bagian detail">' +
         [['ringkasan', 'Ringkasan'], ['tunggakan', 'Tunggakan'], ['riwayat', 'Riwayat'], ['tindakan', 'Tindakan']].map(t => '<button type="button" role="tab" id="bk-t-' + t[0] + '" data-tab="' + t[0] + '" aria-controls="bk-p-' + t[0] + '" aria-selected="' + (t[0] === 'ringkasan') + '" tabindex="' + (t[0] === 'ringkasan' ? 0 : -1) + '">' + t[1] + (t[0] === 'tindakan' ? '<span id="bk-fu-count"></span>' : '') + '</button>').join('') + '</div>' +
         '<section id="bk-p-ringkasan" class="bk-d-panel" role="tabpanel" aria-labelledby="bk-t-ringkasan">' + tabRingkasan(r, tenorM) + '</section>' +
@@ -443,6 +463,7 @@
       e.preventDefault(); list[n].focus(); setTab(list[n].dataset.tab);
     });
     const form = $('bk-fu-form'); if (form) form.addEventListener('submit', onSaveFollow);
+    const payInp = $('dakPayInput'); if (payInp) payInp.addEventListener('input', updatePaySim);
     // geser pada kepala debitur untuk pindah debitur (HP)
     const head = root.querySelector('.bk-d-head'); let x0 = 0, y0 = 0;
     head.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
@@ -462,12 +483,35 @@
     if (window.app && app.fetchDetail) app.fetchDetail(D.ids[n]);
   }
   function onClick(e) {
-    const t = e.target.closest('[data-tab],[data-act],[data-copy],[data-fill],[data-tpl]'); if (!t) return;
+    if (!e.target.closest('.bk-split') && !e.target.closest('#bk-wa-menu')) toggleMenu(false);
+    const t = e.target.closest('[data-tab],[data-act],[data-copy],[data-fill],[data-tpl],[data-pay-preset],[data-fu-date]'); if (!t) return;
     const r = D.r; if (!r) return;
     if (t.dataset.tab) { setTab(t.dataset.tab); return; }
     if (t.dataset.copy) { copyText(t.dataset.copy); return; }
     if (t.dataset.fill) { const n = $('bk-fu-note'); if (n) { n.value = (n.value ? n.value.replace(/\s*$/, '') + '. ' : '') + t.dataset.fill; n.focus(); } return; }
     if (t.dataset.tpl) { waTemplate(t.dataset.tpl); toggleMenu(false); return; }
+    if (t.dataset.payPreset) {
+      const box = $('dakPaySim'), inp = $('dakPayInput');
+      if (box && inp) {
+        const tot = Number(box.dataset.tot) || 0, bg = Number(box.dataset.bg) || 0;
+        const val = t.dataset.payPreset === 'bunga' ? Math.round(bg) : (t.dataset.payPreset === 'half' ? Math.round(tot / 2) : Math.round(tot));
+        inp.value = String(val);
+        updatePaySim();
+      }
+      return;
+    }
+    if (t.dataset.fuDate) {
+      const dInp = $('bk-fu-date');
+      if (dInp) {
+        const now = new Date();
+        let target = new Date(now);
+        if (t.dataset.fuDate === 'eom') target = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        else target.setDate(now.getDate() + Number(t.dataset.fuDate));
+        const y = target.getFullYear(), m = String(target.getMonth() + 1).padStart(2, '0'), d = String(target.getDate()).padStart(2, '0');
+        dInp.value = y + '-' + m + '-' + d;
+      }
+      return;
+    }
     switch (t.dataset.act) {
       case 'prev': go(-1); break;
       case 'next': go(1); break;
@@ -476,6 +520,32 @@
       case 'map': window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(r.alamat || ''), '_blank', 'noopener'); break;
       case 'share': copyText(r.nama + ' · ' + r.loan + ' · Kol ' + r.kol + ' · Baki debet ' + rp(r.os) + ' · Tunggakan ' + rp(r.total_tgk)); break;
       case 'tel': break;
+      case 'arsip':
+        if (window.dakDataSuite && window.dakDataSuite.openInArchive) window.dakDataSuite.openInArchive(r.nama);
+        break;
+      case 'journey':
+        if (window.dakDataSuite && window.dakDataSuite.openInJourney) window.dakDataSuite.openInJourney(r.loan);
+        break;
+      case 'logwa':
+        setTab('tindakan');
+        setTimeout(() => {
+          const sel = $('bk-fu-aksi'), note = $('bk-fu-note');
+          if (sel) sel.value = 'WhatsApp';
+          if (note) { if (!note.value) note.value = 'Telah dikirim pesan penagihan via WhatsApp. '; note.focus(); }
+        }, 50);
+        break;
+      case 'paywa': {
+        const inp = $('dakPayInput'), box = $('dakPaySim');
+        const pay = Math.max(0, Number(inp && inp.value) || 0);
+        const tot = Number(box && box.dataset.tot) || Number(r.total_tgk) || 0;
+        const rem = Math.max(0, tot - pay);
+        const nama = String(r.nama || 'Nasabah').replace(/\s+/g, ' ').trim();
+        const msg = 'Selamat siang,\nKepada Yth Sdr/i *' + nama + '*,\n\nBerdasarkan kesepakatan pembayaran kredit (PK ' + (r.pk || '-') + '), nominal pembayaran yang disepakati sebesar *' + rp(pay || tot) + '*' + (rem > 0 ? ' (sisa tunggakan ' + rp(rem) + ')' : ' (melunasi seluruh tunggakan)') + '. Mohon konfirmasinya.\n\nTerima kasih.\nBankaltimtara';
+        const num = phoneIntl(r.hp);
+        if (!num) copyText(msg);
+        else window.open('https://wa.me/' + num + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+        break;
+      }
     }
   }
   function toggleMenu(force) {
@@ -633,4 +703,44 @@
     setInterval(() => { initCalendars(); buildBar(); syncBar(); const a = $('selDate'), c = $('selComp'); if (a) syncButton(a); if (c) syncButton(c); }, 900);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+  function updatePaySim() {
+    const box = $('dakPaySim'), inp = $('dakPayInput'), remEl = $('dakPayRem');
+    if (!box || !inp || !remEl) return;
+    const tot = Number(box.dataset.tot) || 0;
+    const pay = Math.max(0, Number(inp.value) || 0);
+    const rem = Math.max(0, tot - pay);
+    remEl.textContent = rem === 0 && pay > 0 ? 'Tunggakan Lunas ✓' : 'Sisa: ' + rp(rem);
+    remEl.classList.toggle('is-lunas', rem === 0 && pay > 0);
+  }
+
+  // Keyboard Alt+ArrowLeft / Alt+ArrowRight untuk pindah debitur cepat di PC
+  document.addEventListener('keydown', e => {
+    if (!e.altKey) return;
+    const m = $('modalDetail');
+    if (!m || m.classList.contains('hidden')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
+  });
+
+  // Instant 0ms Preview sebelum balasan server getDebtorDetailFull tiba
+  window.dakRenderInstantPreview = function (item) {
+    const modal = $('modalDetail'), host = $('detailContent');
+    if (!modal || !host || !item) return false;
+    modal.classList.remove('hidden');
+    modal.style.zIndex = '10050';
+    modal.setAttribute('aria-hidden', 'false');
+    const kol = Math.min(5, Math.max(1, Number(item.kol) || 1));
+    const id = String(item.loan || item.pk || '-');
+    host.innerHTML =
+      '<div class="bk-d" data-kol="' + kol + '">' +
+      '<header class="bk-d-head bk-d-k' + kol + '"><span class="bk-d-strip" aria-hidden="true"></span><div class="bk-d-id"><h3>' + esc(item.nama || 'Memuat...') + '</h3>' +
+      '<div class="bk-d-meta"><span class="font-mono">' + esc(id) + '</span><span>' + esc(item.br || '') + '</span></div></div>' +
+      '<span class="bk-kol bk-kol-' + kol + ' bk-kol--lg">Kol ' + kol + '</span></header>' +
+      '<div class="bk-d-kpis"><div><span>Baki debet</span><b>' + rp(item.os || 0) + '</b></div><div class="is-tgk"><span>Tunggakan</span><b>' + rp(item.tgk || item.total_tgk || 0) + '</b></div><div><span>Plafond</span><b>' + rp(item.plafond || 0) + '</b></div></div>' +
+      '<div class="p-4 space-y-2.5"><div class="bk-d-skel"></div><div class="bk-d-skel bk-d-skel--s"></div><div class="bk-d-skel"></div></div>' +
+      '</div>';
+    return true;
+  };
+
 })();

@@ -3848,7 +3848,29 @@ function renderTrend(res) {
   function fetchDetail(loanId) {
     const requestId = ++detailRequestSequence;
     const dateSnapshot = s.filter.d;
-    renderDetailSkeleton();
+    const __inst = (function findInstantDebtor(lid) {
+      const target = String(lid || '').trim();
+      if (!target) return null;
+      const pools = [
+        s && s.data && s.data.all_list,
+        s && s.data && s.data.npl_list,
+        s && s.data && s.data.top_npl,
+        window.__dakKrSourceRows,
+        typeof journeyDataCache !== 'undefined' ? journeyDataCache : null
+      ];
+      for (let i = 0; i < pools.length; i++) {
+        const arr = pools[i];
+        if (!Array.isArray(arr)) continue;
+        const found = arr.find(x => x && (String(x.loan || '').trim() === target || String(x.pk || '').trim() === target));
+        if (found) return found;
+      }
+      return null;
+    })(loanId);
+    if (__inst && window.dakRenderInstantPreview) {
+      window.dakRenderInstantPreview(__inst);
+    } else {
+      renderDetailSkeleton();
+    }
     google.script.run
       .withSuccessHandler(function(result) {
         if (requestId !== detailRequestSequence) return;
@@ -11323,7 +11345,7 @@ document.addEventListener('click',function(){});
     const modal = document.getElementById('modalDetail');
     if (!modal || modal.classList.contains('hidden')) return;
     const content = document.getElementById('detailContent') || modal.querySelector('.overflow-y-auto');
-    if (!content || content.querySelector('.dak-cross-links')) return;
+    if (!content || content.querySelector('.dak-cross-links') || content.querySelector('.dak-d-qchips')) return;
     const nameEl = modal.querySelector('#d_nama, .dd-name, h3');
     const loanEl = modal.querySelector('#d_loan, .dd-loan, .font-mono');
     const nama = nameEl ? nameEl.textContent.trim() : '';

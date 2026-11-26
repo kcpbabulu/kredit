@@ -3095,3 +3095,163 @@ html.dark #loader.dak-loader-v1609 .dak-loader-foot { color: #94a3b8 !important;
   flex: none;
 }
 @keyframes dakSpin { to { transform: rotate(360deg); } }
+
+/* =====================================================================
+   v1610 — Detail Debitur: Desktop 2-Col, Quick Chips, Pay Simulator & Smart Follow-Up
+   ===================================================================== */
+.dak-d-qchips {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 6px;
+  padding: 0 16px 10px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.dak-d-qchips::-webkit-scrollbar { display: none; }
+.dak-d-qchips button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  min-height: 30px !important;
+  border-radius: 999px;
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: rgba(37, 99, 235, 0.07);
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color .15s ease, transform .13s ease;
+}
+.dak-d-qchips button:hover { background: rgba(37, 99, 235, 0.14); }
+.dak-d-qchips button:active { transform: scale(0.96); }
+html.dark .dak-d-qchips button {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.32);
+  color: #93c5fd;
+}
+
+.dak-swipe-hint {
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* Desktop 2-column grid for Ringkasan rows */
+@media (min-width: 640px) {
+  #bk-p-ringkasan {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 20px;
+  }
+  #bk-p-ringkasan[hidden] { display: none !important; }
+  #bk-p-ringkasan .bk-d-addr {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Kalkulator Simulasi Bayar Cepat di Tab Tunggakan */
+.dak-pay-sim {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid var(--dd-line, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+html.dark .dak-pay-sim {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: #334155;
+}
+.dak-pay-sim-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--dd-ink, #0f172a);
+}
+.dak-pay-sim-head b { color: #dc2626; font-variant-numeric: tabular-nums; }
+.dak-pay-sim-head b.is-lunas { color: #059669; }
+html.dark .dak-pay-sim-head b { color: #fca5a5; }
+html.dark .dak-pay-sim-head b.is-lunas { color: #34d399; }
+.dak-pay-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dak-pay-presets button {
+  flex: 1 1 auto;
+  min-height: 30px !important;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dak-pay-presets button:hover { border-color: #2563eb; color: #2563eb; }
+html.dark .dak-pay-presets button { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+.dak-pay-inp-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.dak-pay-inp-row input {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px !important;
+  padding: 6px 10px !important;
+  border-radius: 9px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 12px !important;
+  font-weight: 700;
+}
+html.dark .dak-pay-inp-row input { background: #0f172a; border-color: #334155; color: #f8fafc; }
+.dak-pay-wa {
+  min-height: 36px !important;
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 0;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dak-pay-wa:hover { background: #15803d; }
+
+/* Preset Tanggal Janji Bayar di Tab Tindakan */
+.dak-fu-dpresets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: -4px;
+}
+.dak-fu-dpresets button {
+  padding: 4px 10px;
+  min-height: 28px !important;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dak-fu-dpresets button:hover { border-color: #2563eb; color: #2563eb; }
+html.dark .dak-fu-dpresets button { background: #1e293b; border-color: #334155; color: #cbd5e1; }
