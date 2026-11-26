@@ -3622,6 +3622,7 @@ window.resetSearchCredit = function() {
 // =================================================================
 // 3. RENDER ROWS & SORTING (MODERN PLAYFUL ROW)
 // =================================================================
+window.renderCreditRows = renderCreditRows;
 function renderCreditRows(data) {
     if (!window.__dakKrFromFilter) {
         window.__dakKrSourceRows = Array.isArray(data) ? data : [];
@@ -11270,7 +11271,7 @@ document.addEventListener('click',function(){});
       else if (kol === 'NPL') out = src.filter(r => parseKolVal(r) >= 3);
       window.__dakKrFromFilter = true;
       try {
-        if (typeof renderCreditRows === 'function') renderCreditRows(out);
+        if (typeof window.renderCreditRows === 'function') window.renderCreditRows(out);
       } finally {
         window.__dakKrFromFilter = false;
       }
@@ -13120,7 +13121,17 @@ document.addEventListener('click',function(){});
   };
 
   function getCompLabel(r) {
-    return String(r.gol || r.type || r.jenis || 'Lainnya').trim() || 'Lainnya';
+    if (r.gol || r.type || r.jenis) return String(r.gol || r.type || r.jenis).trim();
+    const rawTags = Array.isArray(r.tags) ? r.tags.join(' ') : String(r.tags || '');
+    const t = rawTags.toUpperCase();
+    if (t.includes('KUR')) return 'Kredit KUR';
+    if (t.includes('MIKRO')) return 'Produktif · Mikro';
+    if (t.includes('KECIL')) return 'Produktif · Kecil';
+    if (t.includes('MENENGAH')) return 'Produktif · Menengah';
+    if (t.includes('PROD')) return 'Kredit Produktif';
+    if (t.includes('KONS') || t.includes('CONS')) return 'Kredit Konsumtif';
+    if (rawTags.trim()) return rawTags.trim();
+    return 'Lainnya';
   }
   function getSecLabel(r) {
     return String(r.sektor || 'Lainnya').trim() || 'Lainnya';
@@ -13309,9 +13320,11 @@ document.addEventListener('click',function(){});
 
   function renderSlice() {
     const slice = lastFiltered.slice(0, limit);
+    const tbPre = document.getElementById('creditTableBody');
+    if (tbPre) tbPre.innerHTML = '';
     window.__dakKrFromFilter = true;
     try {
-      if (typeof renderCreditRows === 'function') renderCreditRows(slice);
+      if (typeof window.renderCreditRows === 'function') window.renderCreditRows(slice);
     } finally {
       window.__dakKrFromFilter = false;
     }
