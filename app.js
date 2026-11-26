@@ -3372,7 +3372,7 @@ function renderKreditPage() {
                     <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-[10px] md:text-xs"></i>
                 </div>
                 <button onclick="app.handleSearchEnter({key:'Enter'})" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-2xl text-xs md:text-sm font-black uppercase tracking-wider transition-all shadow-md active:scale-95 shrink-0">Cari</button>
-                <button id="btnResetSearch" onclick="app.resetSearchCredit()" class="hidden bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-600 px-3 py-2 rounded-full text-[10px] md:text-xs transition-all active:scale-95 shrink-0"><i class="fas fa-times"></i></button>
+                <button id="btnResetSearch" onclick="window.dakMasterKredit ? window.dakMasterKredit.resetAll() : app.resetSearchCredit()" class="hidden bg-rose-50 dark:bg-rose-900/30 hover:bg-rose-100 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-800 px-3.5 py-2.5 rounded-2xl text-[11px] font-black transition-all active:scale-95 shrink-0"><i class="fas fa-rotate-left mr-1"></i>Reset</button>
             </div>
         </div>
 
@@ -3396,19 +3396,29 @@ function renderKreditPage() {
                 </div>
             </div>
 
-            <!-- Charts Kanan -->
+            <!-- Charts Kanan (v1612 Live Synchronized Interactive) -->
             <div class="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[270px] sm:h-[290px] md:h-[320px] shadow-sm">
+                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/85 dark:bg-slate-800/85 flex flex-col min-h-[260px] md:h-[290px] shadow-sm">
                     <div class="text-[10px] md:text-xs font-black mb-2 flex items-center gap-2 text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
-                        <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-sm"><i class="fas fa-chart-pie"></i></div><span>Komposisi Kredit</span><span class="ml-auto text-[10px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik irisan</span>
+                        <div class="w-7 h-7 rounded-lg bg-purple-100 dark:bg-purple-900/40 text-purple-600 flex items-center justify-center text-sm shrink-0"><i class="fas fa-chart-pie"></i></div>
+                        <span class="truncate">Komposisi Kredit</span>
+                        <div class="dak-npl-mettoggle ml-auto" id="dakKrMetToggle">
+                            <button type="button" class="is-on" data-kr-met="os" onclick="window.dakMasterKredit && window.dakMasterKredit.setMetric('os')">Rp</button>
+                            <button type="button" data-kr-met="noa" onclick="window.dakMasterKredit && window.dakMasterKredit.setMetric('noa')">NOA</button>
+                        </div>
                     </div>
-                    <div class="flex-1 relative w-full h-full"><canvas id="chKr1"></canvas></div>
+                    <div class="dak-kr-vizsplit flex-1 min-h-0">
+                        <div class="dak-kr-doughnut-wrap"><canvas id="chKr1"></canvas></div>
+                        <div class="dak-kr-sideleg" id="dakKrCompLeg"></div>
+                    </div>
                 </div>
-                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/80 dark:bg-slate-800/80 flex flex-col h-[270px] sm:h-[290px] md:h-[320px] shadow-sm">
+                <div class="glass-card p-3 md:p-4 rounded-[1.2rem] md:rounded-[1.5rem] bg-white/85 dark:bg-slate-800/85 flex flex-col min-h-[260px] md:h-[290px] shadow-sm">
                     <div class="text-[10px] md:text-xs font-black mb-2 flex items-center gap-2 text-slate-700 dark:text-slate-200 uppercase tracking-wider shrink-0">
-                        <div class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-sm"><i class="fas fa-chart-bar"></i></div><span>Sektor Ekonomi</span><span class="ml-auto text-[10px] font-semibold normal-case tracking-normal text-slate-400">Sentuh/klik batang</span>
+                        <div class="w-7 h-7 rounded-lg bg-orange-100 dark:bg-orange-900/40 text-orange-600 flex items-center justify-center text-sm shrink-0"><i class="fas fa-chart-bar"></i></div>
+                        <span class="truncate">Top 6 Sektor</span>
+                        <button type="button" id="dakKrExclLain" class="dak-kr-minitoggle ml-auto" onclick="window.dakMasterKredit && window.dakMasterKredit.toggleExclLain()" title="Sembunyikan Sektor Lainnya agar sektor spesifik terlihat jelas">Tanpa "Lainnya"</button>
                     </div>
-                    <div class="flex-1 relative w-full h-full"><canvas id="chKr2"></canvas></div>
+                    <div class="flex-1 relative w-full min-h-[185px]"><canvas id="chKr2"></canvas></div>
                 </div>
             </div>
         </div>
@@ -3418,7 +3428,8 @@ function renderKreditPage() {
         </div>
 
         <!-- Table Daftar Debitur -->
-        <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col h-[400px] md:h-[500px] shadow-sm bg-white/80 dark:bg-slate-900/80 pb-1">
+        <div id="dakKrActiveChips" class="dak-kr-chips" hidden></div>
+        <div class="glass-card rounded-[1.2rem] md:rounded-[1.5rem] overflow-hidden flex flex-col min-h-[380px] max-h-[640px] shadow-sm bg-white/85 dark:bg-slate-900/85 pb-1">
             <div class="dak-kr-toolbar" id="dakKrToolbar">
                     <div class="dak-dc-pills is-compact" role="group" aria-label="Filter kolektibilitas master kredit">
                         <button type="button" class="dak-dc-pill is-on" data-kr-kol="ALL" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('ALL')">Semua <b id="dakKrCntAll"></b></button>
@@ -3471,22 +3482,18 @@ function renderKreditPage() {
              var tb = document.getElementById('creditTableBody');
              if(tb) tb.innerHTML = `<tr><td colspan="5" class="p-10 text-center text-red-500 font-bold bg-red-50 rounded-xl m-4 inline-block">${res.error}</td></tr>`;
         } else {
+             window.allCreditData = res.list || [];
+             // v1612 Guard: jika data lokal sudah aktif atau user sudah mengetik pencarian, JANGAN timpa tabel/KPI!
+             const curQ = (document.getElementById('searchCreditInput')?.value || '').trim();
+             if ((window.dakMasterKredit && window.dakMasterKredit.hasLocal()) || curQ) {
+                return;
+             }
              const totalOS = res.totalOS || 0; 
              const totalNOA = res.totalNOA || 0;
-
-             if (typeof animateValue === 'function') {
-                animateValue('kr_os', 0, totalOS, 800, true);
-                animateValue('kr_noa', 0, totalNOA, 800, false);
-             } else {
-                document.getElementById('kr_os').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalOS);
-                document.getElementById('kr_noa').innerText = totalNOA.toLocaleString('id-ID');
-             }
-
+             document.getElementById('kr_os').innerText = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(totalOS);
+             document.getElementById('kr_noa').innerText = totalNOA.toLocaleString('id-ID');
              document.getElementById('creditInfoStatus').innerHTML = `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded shadow-inner">Live</span> ${totalNOA.toLocaleString('id-ID')} Rekening`;
-
              renderCreditRows(res.list);
-             window.allCreditData = res.list; 
-
              if (typeof updateCreditCharts === 'function') updateCreditCharts(res.list);
         }
     })
@@ -3503,6 +3510,7 @@ function renderKreditPage() {
 
 // V63: Grafik Data Kredit dirender eksplisit setelah data berhasil dimuat.
 function updateCreditCharts(rows) {
+    if (window.dakMasterKredit && window.dakMasterKredit.hasLocal()) { window.dakMasterKredit.renderCharts(); return; }
     window.creditChartSourceRows = Array.isArray(rows) ? rows : [];
     const branch=document.getElementById('selBranch')?.value||'ALL';
     const date=document.getElementById('selDate')?.value||'';
@@ -3669,9 +3677,10 @@ function renderCreditRows(data) {
                         <i class="fas fa-user text-xs"></i>
                     </div>
                     <div class="min-w-0">
-                        <div class="font-black text-[10px] md:text-[11px] text-slate-800 dark:text-white uppercase truncate">${window.escapeHTML ? window.escapeHTML(r.nama || "-") : (r.nama || "-")}</div>
-                        <div class="text-[10px] md:text-[10px] font-bold text-slate-400 mt-0.5 flex items-center gap-1">
-                            <span class="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded border border-slate-200/50"><i class="fas fa-fingerprint text-blue-400"></i> ${r.loan}</span>
+                        <div class="font-black text-[11px] md:text-xs text-slate-800 dark:text-white uppercase truncate">${window.dakMasterKredit ? window.dakMasterKredit.hi(r.nama || '-') : (window.escapeHTML ? window.escapeHTML(r.nama || '-') : (r.nama || '-'))}</div>
+                        <div class="text-[10px] font-bold text-slate-400 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                            <span class="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded border border-slate-200/60 dark:border-slate-700 font-mono"><i class="fas fa-fingerprint text-blue-400"></i> ${window.dakMasterKredit ? window.dakMasterKredit.hi(r.loan || '-') : (r.loan || '-')}</span>
+                            ${r.br ? `<span class="bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 px-1.5 py-0.5 rounded text-[9.5px] font-extrabold uppercase">${window.escapeHTML ? window.escapeHTML(r.br) : r.br}</span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -3695,8 +3704,9 @@ function renderCreditRows(data) {
             
             <td class="p-2 md:p-3 text-right align-middle rounded-r-md">
                 <div class="font-mono font-black ${bakiColor} text-[11px] md:text-[13px] group-hover:text-blue-600 transition-colors tracking-tighter">${fmtIDR(r.os)}</div>
-                <div class="text-[10px] md:text-[10px] font-bold text-slate-400 mt-0.5 flex justify-end items-center gap-1">
-                    <i class="far fa-calendar-alt"></i> JT: ${r.tgl_jt || '-'}
+                <div class="text-[10px] font-bold text-slate-400 mt-0.5 flex justify-end items-center gap-1.5">
+                    <span><i class="far fa-calendar-alt"></i> ${r.tgl_jt || r.jt || '-'}</span>
+                    <button type="button" class="dak-row-detailbtn" onclick="event.stopPropagation();if(window.app&&window.app.fetchDetail)window.app.fetchDetail('${r.loan}')">Detail ›</button>
                 </div>
             </td>
         </tr>`;
@@ -13080,17 +13090,41 @@ document.addEventListener('click',function(){});
 
 
 // =========================================================================
-// DAKOPEN v1611 — INSTANT MASTER KREDIT ENGINE (0ms LOCAL SEARCH, FILTER, SORT, LOAD MORE)
+// DAKOPEN v1612 — ULTRA-INTERACTIVE MASTER KREDIT ENGINE (0ms SEARCH, LIVE SYNCED CHARTS, CROSS-FILTER)
 // =========================================================================
 (function () {
-  if (window.dakMasterKredit) return;
+  window.dakMasterKredit = null;
 
   let curKol = 'ALL';
+  let curComp = '';
+  let curSector = '';
+  let chartMetric = 'os'; // 'os' | 'noa'
+  let exclLain = false;
   let limit = 50;
   let lastFiltered = [];
   let sortOverride = null;
+  let compChart = null;
+  let secChart = null;
 
+  const PAL = ['#7c3aed', '#2563eb', '#10b981', '#f59e0b', '#e11d48', '#64748b'];
+  const isDark = () => document.documentElement.classList.contains('dark');
+  const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
   const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0));
+  const fmtShort = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+
+  function getCompLabel(r) {
+    return String(r.gol || r.type || r.jenis || 'Lainnya').trim() || 'Lainnya';
+  }
+  function getSecLabel(r) {
+    return String(r.sektor || 'Lainnya').trim() || 'Lainnya';
+  }
 
   function getLocalPool() {
     const d = window.app && window.app.state && window.app.state.data;
@@ -13108,6 +13142,168 @@ document.addEventListener('click',function(){});
       opt.value = u;
       opt.textContent = u;
       sel.appendChild(opt);
+    });
+  }
+
+  function renderActiveChips(q, unitVal) {
+    const box = document.getElementById('dakKrActiveChips');
+    if (!box) return;
+    const chips = [];
+    if (q) chips.push(`<button type="button" class="dak-kr-chip" onclick="var i=document.getElementById('searchCreditInput');if(i)i.value='';window.dakMasterKredit.apply();">Cari: <b>"${esc(q)}"</b> <span>×</span></button>`);
+    if (curKol !== 'ALL') chips.push(`<button type="button" class="dak-kr-chip" onclick="window.dakMasterKredit.setKol('ALL')">KOL: <b>${curKol}</b> <span>×</span></button>`);
+    if (unitVal && unitVal !== 'ALL') chips.push(`<button type="button" class="dak-kr-chip" onclick="var u=document.getElementById('dakKrUnitSel');if(u)u.value='ALL';window.dakMasterKredit.apply();">Unit: <b>${esc(unitVal)}</b> <span>×</span></button>`);
+    if (curComp) chips.push(`<button type="button" class="dak-kr-chip is-purple" onclick="window.dakMasterKredit.toggleComp('')">Komposisi: <b>${esc(curComp)}</b> <span>×</span></button>`);
+    if (curSector) chips.push(`<button type="button" class="dak-kr-chip is-orange" onclick="window.dakMasterKredit.toggleSector('')">Sektor: <b>${esc(curSector)}</b> <span>×</span></button>`);
+    if (!chips.length) { box.hidden = true; box.innerHTML = ''; return; }
+    box.innerHTML = `<span class="dak-kr-chiplbl"><i class="fas fa-filter"></i> Filter aktif:</span>` + chips.join('') + `<button type="button" class="dak-kr-chipreset" onclick="window.dakMasterKredit.resetAll()">Reset Semua</button>`;
+    box.hidden = false;
+  }
+
+  function renderLiveCharts(rows) {
+    if (typeof Chart === 'undefined') return;
+    const c1 = document.getElementById('chKr1');
+    const c2 = document.getElementById('chKr2');
+    const leg1 = document.getElementById('dakKrCompLeg');
+    if (!c1 || !c2) return;
+
+    const dark = isDark();
+    const txtCol = dark ? '#cbd5e1' : '#334155';
+    const gridCol = dark ? 'rgba(148,163,184,0.14)' : 'rgba(148,163,184,0.22)';
+    const isNoa = chartMetric === 'noa';
+
+    // 1. Komposisi Kredit (Top 5 + Lainnya)
+    const cmap = {};
+    rows.forEach(r => {
+      const k = getCompLabel(r);
+      if (!cmap[k]) cmap[k] = { label: k, os: 0, noa: 0 };
+      cmap[k].os += Number(r.os) || 0;
+      cmap[k].noa += 1;
+    });
+    const cSorted = Object.values(cmap).sort((a, b) => (isNoa ? b.noa - a.noa : b.os - a.os));
+    let cItems = cSorted.slice(0, 5);
+    if (cSorted.length > 5) {
+      const rest = cSorted.slice(5).reduce((acc, x) => { acc.os += x.os; acc.noa += x.noa; return acc; }, { label: 'Lainnya', os: 0, noa: 0, isRest: true });
+      cItems.push(rest);
+    }
+    const cTot = cItems.reduce((a, x) => a + (isNoa ? x.noa : x.os), 0);
+
+    if (leg1) {
+      leg1.innerHTML = cItems.length ? cItems.map((x, i) => {
+        const val = isNoa ? x.noa : x.os;
+        const pct = cTot > 0 ? (val / cTot * 100).toFixed(1) : '0.0';
+        const on = curComp && curComp === x.label;
+        const safeL = x.label.replace(/'/g, "\\'");
+        return `<button type="button" class="dak-kr-legbtn ${on ? 'is-active' : ''}" ${x.isRest ? 'disabled' : `onclick="window.dakMasterKredit.toggleComp('${safeL}')"`}>
+          <span class="dak-kr-legdot" style="background:${PAL[i % PAL.length]}"></span>
+          <span class="dak-kr-legtxt"><b>${esc(x.label)}</b><small>${pct}% · ${isNoa ? x.noa + ' rek' : fmtShort(x.os)}</small></span>
+        </button>`;
+      }).join('') : '<div class="text-[11px] text-slate-400 p-3 text-center">Tidak ada data</div>';
+    }
+
+    if (compChart) { try { compChart.destroy(); } catch (e) {} compChart = null; }
+    if (typeof charts !== 'undefined' && charts.chKr1) { try { charts.chKr1.destroy(); } catch (e) {} delete charts.chKr1; }
+    compChart = new Chart(c1.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: cItems.map(x => x.label),
+        datasets: [{
+          data: cTot > 0 ? cItems.map(x => isNoa ? x.noa : x.os) : [1],
+          backgroundColor: cTot > 0 ? cItems.map((_, i) => PAL[i % PAL.length]) : ['#e2e8f0'],
+          borderColor: dark ? '#1e293b' : '#ffffff',
+          borderWidth: 2,
+          hoverOffset: 7
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '64%',
+        onClick: (evt, els) => {
+          if (!els || !els.length) return;
+          const it = cItems[els[0].index];
+          if (it && !it.isRest) window.dakMasterKredit.toggleComp(it.label);
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,0.94)',
+            padding: 10,
+            cornerRadius: 10,
+            callbacks: {
+              label: ctx => {
+                const it = cItems[ctx.dataIndex];
+                if (!it) return '';
+                return [' ' + fmtIDR(it.os), ' ' + it.noa.toLocaleString('id-ID') + ' rekening'];
+              }
+            }
+          }
+        }
+      }
+    });
+
+    // 2. Top 6 Sektor Ekonomi (with optional exclude "Sektor Lain")
+    const smap = {};
+    rows.forEach(r => {
+      const k = getSecLabel(r);
+      if (exclLain && /LAIN/i.test(k)) return;
+      if (!smap[k]) smap[k] = { label: k, os: 0, noa: 0 };
+      smap[k].os += Number(r.os) || 0;
+      smap[k].noa += 1;
+    });
+    const sItems = Object.values(smap).sort((a, b) => (isNoa ? b.noa - a.noa : b.os - a.os)).slice(0, 6);
+
+    if (secChart) { try { secChart.destroy(); } catch (e) {} secChart = null; }
+    if (typeof charts !== 'undefined' && charts.chKr2) { try { charts.chKr2.destroy(); } catch (e) {} delete charts.chKr2; }
+    secChart = new Chart(c2.getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: sItems.map(x => x.label.length > 20 ? x.label.slice(0, 19) + '…' : x.label),
+        datasets: [{
+          label: isNoa ? 'NOA' : 'Baki Debet',
+          data: sItems.map(x => isNoa ? x.noa : x.os),
+          backgroundColor: sItems.map((x, i) => curSector && curSector === x.label ? '#ea580c' : PAL[i % PAL.length]),
+          borderRadius: 7,
+          maxBarThickness: 22
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        onClick: (evt, els) => {
+          if (!els || !els.length) return;
+          const it = sItems[els[0].index];
+          if (it) window.dakMasterKredit.toggleSector(it.label);
+        },
+        onHover: (evt, els) => { c2.style.cursor = els && els.length ? 'pointer' : 'default'; },
+        scales: {
+          x: {
+            beginAtZero: true,
+            grid: { color: gridCol },
+            ticks: { color: txtCol, font: { size: 10, weight: '600' }, callback: v => isNoa ? v : fmtShort(v).replace('Rp ', '') }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: txtCol, font: { size: 10, weight: '700' } }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(15,23,42,0.94)',
+            padding: 10,
+            cornerRadius: 10,
+            callbacks: {
+              title: items => sItems[items[0].dataIndex] ? sItems[items[0].dataIndex].label : '',
+              label: ctx => {
+                const it = sItems[ctx.dataIndex];
+                if (!it) return '';
+                return [' ' + fmtIDR(it.os), ' ' + it.noa.toLocaleString('id-ID') + ' rekening'];
+              }
+            }
+          }
+        }
+      }
     });
   }
 
@@ -13135,6 +13331,39 @@ document.addEventListener('click',function(){});
       return getLocalPool().length > 0;
     },
 
+    hi(text) {
+      const safe = esc(text);
+      const q = (document.getElementById('searchCreditInput')?.value || '').trim();
+      if (!q || q.length < 2) return safe;
+      try {
+        const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+        return safe.replace(re, '<mark class="dak-hl">$1</mark>');
+      } catch (e) { return safe; }
+    },
+
+    setMetric(m) {
+      chartMetric = m === 'noa' ? 'noa' : 'os';
+      document.querySelectorAll('#dakKrMetToggle button').forEach(b => b.classList.toggle('is-on', b.dataset.krMet === chartMetric));
+      renderLiveCharts(lastFiltered);
+    },
+
+    toggleExclLain() {
+      exclLain = !exclLain;
+      const btn = document.getElementById('dakKrExclLain');
+      if (btn) btn.classList.toggle('is-on', exclLain);
+      renderLiveCharts(lastFiltered);
+    },
+
+    toggleComp(label) {
+      curComp = (label && curComp !== label) ? label : '';
+      this.apply();
+    },
+
+    toggleSector(label) {
+      curSector = (label && curSector !== label) ? label : '';
+      this.apply();
+    },
+
     setKol(k) {
       curKol = k || 'ALL';
       document.querySelectorAll('#dakKrToolbar [data-kr-kol]').forEach(b => b.classList.toggle('is-on', b.dataset.krKol === curKol));
@@ -13149,9 +13378,27 @@ document.addEventListener('click',function(){});
       this.apply();
     },
 
+    resetAll() {
+      curKol = 'ALL';
+      curComp = '';
+      curSector = '';
+      const inp = document.getElementById('searchCreditInput');
+      if (inp) inp.value = '';
+      const uSel = document.getElementById('dakKrUnitSel');
+      if (uSel) uSel.value = 'ALL';
+      const sSel = document.getElementById('dakKrSortSel');
+      if (sSel) sSel.value = 'os_desc';
+      document.querySelectorAll('#dakKrToolbar [data-kr-kol]').forEach(b => b.classList.toggle('is-on', b.dataset.krKol === 'ALL'));
+      this.apply('');
+    },
+
     loadMore() {
       limit += 50;
       renderSlice();
+    },
+
+    renderCharts() {
+      renderLiveCharts(lastFiltered.length ? lastFiltered : getLocalPool());
     },
 
     apply(explicitQuery) {
@@ -13167,12 +13414,13 @@ document.addEventListener('click',function(){});
       const sortVal = sortOverride || document.getElementById('dakKrSortSel')?.value || 'os_desc';
       sortOverride = null;
 
-      // Base scoped by global branch & unit & search (for accurate KOL pill counts)
       const base = pool.filter(r => {
         if (brGlobal !== 'ALL' && String(r.br || '').trim() !== brGlobal) return false;
         if (unitVal !== 'ALL' && String(r.br || '').trim() !== unitVal) return false;
+        if (curComp && getCompLabel(r) !== curComp) return false;
+        if (curSector && getSecLabel(r) !== curSector) return false;
         if (q) {
-          const hay = (String(r.nama || '') + ' ' + String(r.loan || '') + ' ' + String(r.pk || '') + ' ' + String(r.br || '') + ' ' + String(r.sektor || '')).toLowerCase();
+          const hay = (String(r.nama || '') + ' ' + String(r.loan || '') + ' ' + String(r.pk || '') + ' ' + String(r.br || '') + ' ' + String(r.sektor || '') + ' ' + String(r.gol || '')).toLowerCase();
           if (!hay.includes(q)) return false;
         }
         return true;
@@ -13202,15 +13450,16 @@ document.addEventListener('click',function(){});
       lastFiltered = out;
       limit = 50;
       renderSlice();
+      renderLiveCharts(out);
+      renderActiveChips(q, unitVal);
 
-      // Dynamic KPI update
       const totPoolOs = pool.reduce((a, r) => a + (Number(r.os) || 0), 0);
       const sumOs = out.reduce((a, r) => a + (Number(r.os) || 0), 0);
       const osEl = document.getElementById('kr_os');
       const noaEl = document.getElementById('kr_noa');
       const infoEl = document.getElementById('creditInfoStatus');
       const btnReset = document.getElementById('btnResetSearch');
-      const isFiltered = !!(q || curKol !== 'ALL' || unitVal !== 'ALL');
+      const isFiltered = !!(q || curKol !== 'ALL' || unitVal !== 'ALL' || curComp || curSector);
       if (osEl) osEl.textContent = fmtIDR(sumOs);
       if (noaEl) noaEl.textContent = out.length.toLocaleString('id-ID') + (isFiltered && totPoolOs > 0 ? ` (${(sumOs / totPoolOs * 100).toFixed(1)}%)` : '');
       if (infoEl) {
@@ -13222,7 +13471,10 @@ document.addEventListener('click',function(){});
     }
   };
 
-  // Auto-init Master Kredit whenever #dakKrToolbar appears in DOM
+  new MutationObserver(() => {
+    if (lastFiltered.length && document.getElementById('chKr1')) renderLiveCharts(lastFiltered);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
   document.addEventListener('DOMContentLoaded', () => {
     const view = document.getElementById('view-kredit');
     if (!view) return;

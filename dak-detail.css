@@ -3369,3 +3369,129 @@ html.dark .dak-loadmore-btn {
     width: 100% !important;
   }
 }
+
+/* =====================================================================
+   v1612 — Master Kredit: Live Synchronized Charts, Active Chips & Match Highlight
+   ===================================================================== */
+.dak-kr-vizsplit {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.92fr) minmax(0, 1.08fr);
+  gap: 10px;
+  align-items: center;
+}
+@media (max-width: 480px) {
+  .dak-kr-vizsplit { grid-template-columns: 1fr; }
+}
+.dak-kr-doughnut-wrap {
+  position: relative;
+  height: 185px;
+  width: 100%;
+}
+.dak-kr-sideleg {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 205px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.dak-kr-legbtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 8px;
+  min-height: 32px !important;
+  border-radius: 9px;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  background: rgba(248, 250, 252, 0.85);
+  text-align: left;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.dak-kr-legbtn:hover:not(:disabled) { border-color: #7c3aed; background: rgba(124, 58, 237, 0.06); }
+.dak-kr-legbtn.is-active { border-color: #7c3aed; background: rgba(124, 58, 237, 0.14); box-shadow: 0 0 0 1px #7c3aed; }
+.dak-kr-legbtn:disabled { opacity: 0.72; cursor: default; }
+html.dark .dak-kr-legbtn { background: rgba(15, 23, 42, 0.6); border-color: #334155; }
+html.dark .dak-kr-legbtn.is-active { background: rgba(124, 58, 237, 0.25); border-color: #a78bfa; }
+.dak-kr-legdot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.dak-kr-legtxt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.dak-kr-legtxt b { font-size: 10px; font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dak-kr-legtxt small { font-size: 9.5px; font-weight: 600; color: #64748b; }
+html.dark .dak-kr-legtxt b { color: #f1f5f9; }
+html.dark .dak-kr-legtxt small { color: #94a3b8; }
+
+.dak-kr-minitoggle {
+  padding: 3px 9px;
+  min-height: 26px !important;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: none;
+  letter-spacing: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dak-kr-minitoggle.is-on {
+  background: #ea580c;
+  border-color: #ea580c;
+  color: #ffffff;
+}
+html.dark .dak-kr-minitoggle { background: #1e293b; border-color: #334155; color: #cbd5e1; }
+html.dark .dak-kr-minitoggle.is-on { background: #ea580c; border-color: #fb923c; color: #ffffff; }
+
+.dak-kr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(239, 246, 255, 0.9);
+  border: 1px solid rgba(191, 219, 254, 0.9);
+}
+.dak-kr-chips[hidden] { display: none !important; }
+html.dark .dak-kr-chips { background: rgba(30, 58, 138, 0.22); border-color: rgba(59, 130, 246, 0.35); }
+.dak-kr-chiplbl { font-size: 10.5px; font-weight: 800; color: #1d4ed8; margin-right: 2px; }
+html.dark .dak-kr-chiplbl { color: #93c5fd; }
+.dak-kr-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  min-height: 28px !important;
+  border-radius: 999px;
+  border: 1px solid rgba(37, 99, 235, 0.3);
+  background: #ffffff;
+  color: #1e3a8a;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dak-kr-chip.is-purple { border-color: rgba(124, 58, 237, 0.35); color: #6d28d9; }
+.dak-kr-chip.is-orange { border-color: rgba(234, 88, 12, 0.35); color: #c2410c; }
+.dak-kr-chip span { font-weight: 900; opacity: 0.7; }
+html.dark .dak-kr-chip { background: #0f172a; color: #e2e8f0; border-color: #475569; }
+.dak-kr-chipreset {
+  margin-left: auto;
+  padding: 4px 10px;
+  min-height: 28px !important;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(225, 29, 72, 0.12);
+  color: #be123c;
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+html.dark .dak-kr-chipreset { background: rgba(225, 29, 72, 0.25); color: #fda4af; }
+
+mark.dak-hl {
+  background: #fef08a;
+  color: #0f172a;
+  padding: 0 2px;
+  border-radius: 3px;
+}
+html.dark mark.dak-hl { background: #ca8a04; color: #ffffff; }
