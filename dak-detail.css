@@ -2882,3 +2882,216 @@ html.dark .dak-br-compact-card {
   justify-content: space-between;
   gap: 10px;
 }
+
+/* =====================================================================
+   v1609 — Adaptive Frosted-Glass Splash, Top Progress Bar & Non-Blocking Sync Pill
+   ===================================================================== */
+#loader.dak-loader-v1609 {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99990 !important;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(241, 245, 249, 0.72) !important;
+  backdrop-filter: blur(14px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(150%) !important;
+}
+html.dark #loader.dak-loader-v1609 {
+  background: rgba(2, 6, 23, 0.76) !important;
+}
+#loader.dak-loader-v1609 .dak-loader-backdrop {
+  display: none !important;
+}
+#loader.dak-loader-v1609 .dak-loader-card {
+  width: min(360px, 92vw) !important;
+  padding: 22px 22px 18px !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid rgba(203, 213, 225, 0.85) !important;
+  box-shadow: 0 22px 54px rgba(15, 23, 42, 0.12) !important;
+  color: #0f172a !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+html.dark #loader.dak-loader-v1609 .dak-loader-card {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-color: rgba(51, 65, 85, 0.9) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45) !important;
+  color: #f8fafc !important;
+}
+#loader.dak-loader-v1609 .dak-loader-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+#loader.dak-loader-v1609 .dak-loader-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #0284c7);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+#loader.dak-loader-v1609 .dak-loader-brand {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a !important;
+}
+#loader.dak-loader-v1609 .dak-loader-brand b { color: #2563eb !important; }
+html.dark #loader.dak-loader-v1609 .dak-loader-brand { color: #f8fafc !important; }
+html.dark #loader.dak-loader-v1609 .dak-loader-brand b { color: #60a5fa !important; }
+#loader.dak-loader-v1609 .dak-loader-live {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+#loader.dak-loader-v1609 .dak-loader-live i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  display: inline-block;
+}
+html.dark #loader.dak-loader-v1609 .dak-loader-live {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
+#loader.dak-loader-v1609 .dak-loader-eyebrow {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #2563eb !important;
+}
+html.dark #loader.dak-loader-v1609 .dak-loader-eyebrow { color: #60a5fa !important; }
+#loader.dak-loader-v1609 .dak-loader-title {
+  font-size: 17px;
+  font-weight: 900;
+  color: #0f172a !important;
+  margin-top: 3px;
+}
+html.dark #loader.dak-loader-v1609 .dak-loader-title { color: #f8fafc !important; }
+#loader.dak-loader-v1609 .dak-loader-description {
+  font-size: 11.5px;
+  color: #64748b !important;
+  margin-top: 3px;
+}
+html.dark #loader.dak-loader-v1609 .dak-loader-description { color: #94a3b8 !important; }
+
+.dak-loader-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.dak-loader-steps span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 6px;
+  border-radius: 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  transition: all .2s ease;
+}
+html.dark .dak-loader-steps span {
+  background: #1e293b;
+  color: #94a3b8;
+  border-color: #334155;
+}
+.dak-loader-steps span.is-active {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: #2563eb;
+  color: #1d4ed8;
+}
+.dak-loader-steps span.is-done {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: #10b981;
+  color: #047857;
+}
+html.dark .dak-loader-steps span.is-active { color: #93c5fd; }
+html.dark .dak-loader-steps span.is-done { color: #6ee7b7; }
+
+#loader.dak-loader-v1609 .dak-loader-progress {
+  height: 4px !important;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.12) !important;
+  overflow: hidden;
+}
+#loader.dak-loader-v1609 .dak-loader-progress > span {
+  display: block;
+  height: 100%;
+  width: 45%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2563eb, #06b6d4);
+  animation: dakIndetBar 1.2s ease-in-out infinite;
+}
+@keyframes dakIndetBar {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(260%); }
+}
+#loader.dak-loader-v1609 .dak-loader-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #64748b !important;
+}
+html.dark #loader.dak-loader-v1609 .dak-loader-foot { color: #94a3b8 !important; }
+
+/* Floating Non-Blocking Sync Pill */
+.dak-sync-pill {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  color: #f8fafc;
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+.dak-sync-pill[hidden] { display: none !important; }
+@media (max-width: 767px) {
+  .dak-sync-pill {
+    right: auto;
+    left: 50%;
+    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%);
+    font-size: 11px;
+    padding: 7px 13px;
+  }
+}
+.dak-sync-spinner {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #38bdf8;
+  animation: dakSpin .75s linear infinite;
+  flex: none;
+}
+@keyframes dakSpin { to { transform: rotate(360deg); } }

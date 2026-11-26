@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1608 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1609 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1608" rel="stylesheet">
+<link href="dak-detail.css?v=1609" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -86,36 +86,36 @@
 <div class="absolute top-0 -right-4 w-72 h-72 bg-emerald-300 dark:bg-emerald-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
 <div class="absolute -bottom-8 left-20 w-72 h-72 bg-blue-300 dark:bg-blue-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
 </div>
-<!-- DA KOPEN V78 · PREMIUM GLOBAL LOADING EXPERIENCE -->
-<div aria-atomic="true" aria-label="Memproses data" aria-live="polite" class="dak-loader" id="loader" role="status" style="display:none">
-<div aria-hidden="true" class="dak-loader-backdrop">
-<span class="dak-loader-orb dak-loader-orb-a"></span>
-<span class="dak-loader-orb dak-loader-orb-b"></span>
-<span class="dak-loader-grid"></span>
+<!-- DA KOPEN v1609 · ADAPTIVE FROSTED-GLASS SPLASH & NON-BLOCKING SYNC -->
+<div aria-atomic="true" aria-label="Memproses data" aria-live="polite" class="dak-loader dak-loader-v1609" id="loader" role="status" style="display:none">
+  <div aria-hidden="true" class="dak-loader-backdrop"></div>
+  <div class="dak-loader-card">
+    <div class="dak-loader-brand-row">
+      <span class="dak-loader-brand-mark"><i class="fas fa-shield-halved"></i></span>
+      <span class="dak-loader-brand">DaKOPen <b>PPU</b></span>
+      <span class="dak-loader-live"><i></i> LIVE</span>
+    </div>
+    <div class="dak-loader-copy">
+      <div class="dak-loader-eyebrow">CREDIT INTELLIGENCE CENTER</div>
+      <div class="dak-loader-title" id="loader-text">Menyiapkan portofolio...</div>
+      <p class="dak-loader-description">Menyinkronkan data kredit secara aman dengan server.</p>
+    </div>
+    <div class="dak-loader-steps" id="dakLoaderSteps" aria-hidden="true">
+      <span class="is-active" data-lstep="1"><i class="fas fa-lock"></i> Sesi</span>
+      <span data-lstep="2"><i class="fas fa-database"></i> Portofolio</span>
+      <span data-lstep="3"><i class="fas fa-chart-pie"></i> Analitik</span>
+    </div>
+    <div aria-hidden="true" class="dak-loader-progress"><span></span></div>
+    <div class="dak-loader-foot">
+      <span><i class="fas fa-shield-check"></i> Koneksi aman</span>
+      <span class="dak-loader-wait">Menyinkronkan<i>.</i><i>.</i><i>.</i></span>
+    </div>
+  </div>
 </div>
-<div class="dak-loader-card">
-<div class="dak-loader-brand-row">
-<span class="dak-loader-brand-mark"><i class="fas fa-chart-pie"></i></span>
-<span class="dak-loader-brand">DaKOPen <b>PPU</b></span>
-<span class="dak-loader-live"><i></i> LIVE</span>
-</div>
-<div aria-hidden="true" class="dak-loader-visual">
-<span class="dak-loader-ring dak-loader-ring-outer"></span>
-<span class="dak-loader-ring dak-loader-ring-middle"></span>
-<span class="dak-loader-ring dak-loader-ring-inner"></span>
-<span class="dak-loader-core"><i class="fas fa-chart-line"></i></span>
-<span class="dak-loader-spark dak-loader-spark-a"></span>
-<span class="dak-loader-spark dak-loader-spark-b"></span>
-<span class="dak-loader-spark dak-loader-spark-c"></span>
-</div>
-<div class="dak-loader-copy">
-<div class="dak-loader-eyebrow">CREDIT INTELLIGENCE CENTER</div>
-<div class="dak-loader-title" id="loader-text">Menyiapkan data...</div>
-<p class="dak-loader-description">Mohon tunggu, kami sedang menyinkronkan informasi Anda.</p>
-</div>
-<div aria-hidden="true" class="dak-loader-progress"><span></span></div>
-<div class="dak-loader-foot"><span><i class="fas fa-shield-alt"></i> Koneksi aman</span><span class="dak-loader-wait">Memproses <i></i><i></i><i></i></span></div>
-</div>
+<!-- Floating Non-Blocking Sync Pill (v1609) -->
+<div id="dak-sync-pill" class="dak-sync-pill" role="status" aria-live="polite" hidden>
+  <span class="dak-sync-spinner" aria-hidden="true"></span>
+  <span id="dak-sync-pill-txt">Menyinkronkan data…</span>
 </div>
 <!-- END PREMIUM GLOBAL LOADER -->
 <!-- Overlay untuk menutup drawer/sidebar pada perangkat sentuh -->
@@ -2164,7 +2164,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1590"></script>
-<script defer src="app.js?v=1608"></script>
+<script defer src="app.js?v=1609"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

@@ -8,13 +8,19 @@ window.google = { script: { run: null } };
 // Membuat objek palsu yang mencegat perintah google.script.run
 // v1595 UX Helpers: Non-blocking Top Progress, Skeleton Shimmer & Data Freshness
 window.__dakPendingReq = 0;
-window.dakSetBusy = function(delta) {
+window.dakSetBusy = function(delta, label) {
     window.__dakPendingReq = Math.max(0, (window.__dakPendingReq || 0) + delta);
+    const busy = window.__dakPendingReq > 0;
     const bar = document.getElementById('dak-top-progress');
-    if (bar) bar.classList.toggle('is-active', window.__dakPendingReq > 0);
-    if (window.__dakPendingReq === 0) {
-        document.querySelectorAll('.tab-view[aria-busy="true"]').forEach(el => el.removeAttribute('aria-busy'));
+    if (bar) bar.classList.toggle('is-active', busy);
+    const pill = document.getElementById('dak-sync-pill');
+    const txt = document.getElementById('dak-sync-pill-txt');
+    if (pill) {
+        if (busy && label && txt) txt.textContent = label;
+        else if (busy && txt && !txt.dataset.locked) txt.textContent = 'Menyinkronkan data…';
+        pill.hidden = !busy;
     }
+    if (!busy && txt) delete txt.dataset.locked;
 };
 window.dakMarkFresh = function(ts) {
     try {
@@ -1296,7 +1302,10 @@ window.setScenario = function(type) {
 }
 
 function renderDashboard(res) {
-    s.data = res; 
+    s.data = res;
+    if (window.dakInstantUX && typeof window.dakInstantUX.onDashboardReady === 'function') {
+        window.dakInstantUX.onDashboardReady(res);
+    } 
     if(el('loader')) el('loader').style.display='none';
     
     const k = res.kpi; const d = res.diff;
@@ -8934,7 +8943,7 @@ window.syncArchiveData = function(btnEl) {
     const loaderText = document.getElementById('loader-text');
     
     if (loader) loader.style.display = 'flex';
-    if (loaderText) loaderText.innerText = "Meracik Database...";
+    if (loaderText) loaderText.innerText = "Menyinkronkan Portofolio...";
 
     // 3. Panggil fungsi sapu jagat di Server (Code.gs)
     google.script.run
@@ -12898,4 +12907,140 @@ document.addEventListener('click',function(){});
       }).join('');
     }
   };
+})();
+
+
+// =========================================================================
+// DAKOPEN v1609 — INSTANT UX ENGINE (NON-BLOCKING LOADER, SKELETON & SWR CACHE)
+// =========================================================================
+(function () {
+  if (window.dakInstantUX) return;
+
+  const SWR_KEY = 'dakopen_swr_dash_v1609';
+  let stepTimer = null;
+
+  function setSplashStep(step) {
+    const wrap = document.getElementById('dakLoaderSteps');
+    if (!wrap) return;
+    wrap.querySelectorAll('[data-lstep]').forEach(el => {
+      const n = Number(el.dataset.lstep);
+      el.classList.toggle('is-done', n < step);
+      el.classList.toggle('is-active', n === step);
+    });
+  }
+
+  function startSplashProgress() {
+    clearInterval(stepTimer);
+    let cur = 1;
+    setSplashStep(1);
+    const title = document.getElementById('loader-text');
+    const msgs = {
+      1: 'Memverifikasi sesi…',
+      2: 'Memuat data portofolio…',
+      3: 'Menyiapkan analitik kredit…'
+    };
+    if (title && (!title.textContent || title.textContent.includes('Menyiapkan'))) {
+      title.textContent = msgs[1];
+    }
+    stepTimer = setInterval(() => {
+      if (cur < 3) {
+        cur++;
+        setSplashStep(cur);
+        if (title) title.textContent = msgs[cur];
+      } else {
+        clearInterval(stepTimer);
+      }
+    }, 900);
+  }
+
+  // Non-blocking conversion: once app shell has rendered data, never block the whole screen with #loader
+  function enforceNonBlockingLoader() {
+    const loader = document.getElementById('loader');
+    if (!loader) return;
+    const obs = new MutationObserver(() => {
+      const shown = loader.style.display && loader.style.display !== 'none';
+      if (!shown) {
+        clearInterval(stepTimer);
+        return;
+      }
+      if (document.body.classList.contains('dak-app-ready')) {
+        // Redirect blocking loader to Top Progress Bar + Sync Pill!
+        loader.style.display = 'none';
+        const txt = document.getElementById('loader-text')?.textContent?.trim();
+        const pill = document.getElementById('dak-sync-pill');
+        const pTxt = document.getElementById('dak-sync-pill-txt');
+        const bar = document.getElementById('dak-top-progress');
+        if (bar) bar.classList.add('is-active');
+        if (pill) {
+          if (pTxt && txt) pTxt.textContent = txt;
+          pill.hidden = false;
+        }
+      } else {
+        startSplashProgress();
+      }
+    });
+    obs.observe(loader, { attributes: true, attributeFilter: ['style'] });
+  }
+
+  // Stale-While-Revalidate: render last cached KPI & branch summary immediately on boot
+  function hydrateFromCache() {
+    try {
+      const raw = localStorage.getItem(SWR_KEY);
+      if (!raw) return false;
+      const cached = JSON.parse(raw);
+      if (!cached || !cached.kpi || !cached.ts) return false;
+      // Ignore cache older than 7 days
+      if (Date.now() - cached.ts > 7 * 86400000) return false;
+      const fmtIDR = v => 'Rp ' + new Intl.NumberFormat('id-ID', { maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0));
+      const k = cached.kpi;
+      const setT = (id, v) => { const e = document.getElementById(id); if (e && v) e.textContent = v; };
+      setT('v_os', fmtIDR(k.total_os));
+      setT('v_tgk', fmtIDR(k.tunggakan));
+      setT('v_noa', Number(k.noa || 0).toLocaleString('id-ID'));
+      setT('v_prod', fmtIDR(k.prod_os));
+      setT('v_cons', fmtIDR(k.cons_os));
+      if (k.total_os > 0) setT('v_npl', ((Number(k.npl_os) || 0) / Number(k.total_os) * 100).toFixed(2) + '%');
+      setT('v_kkr', fmtIDR(k.kkr_os));
+      document.querySelectorAll('.bk-kpi.is-loading').forEach(c => c.classList.remove('is-loading'));
+      document.body.classList.add('dak-app-ready');
+      const loader = document.getElementById('loader');
+      if (loader) loader.style.display = 'none';
+      const pTxt = document.getElementById('dak-sync-pill-txt');
+      if (pTxt) {
+        pTxt.textContent = 'Menampilkan data terakhir · Memperbarui…';
+        pTxt.dataset.locked = '1';
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  window.dakInstantUX = {
+    onDashboardReady(res) {
+      document.body.classList.add('dak-app-ready');
+      clearInterval(stepTimer);
+      const loader = document.getElementById('loader');
+      if (loader) loader.style.display = 'none';
+      const pTxt = document.getElementById('dak-sync-pill-txt');
+      if (pTxt) delete pTxt.dataset.locked;
+      // Save compact KPI + branch_perf snapshot for instant next boot
+      try {
+        if (res && res.kpi) {
+          localStorage.setItem(SWR_KEY, JSON.stringify({
+            ts: Date.now(),
+            kpi: res.kpi
+          }));
+        }
+      } catch (e) {}
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    enforceNonBlockingLoader();
+    // Only hydrate cache if session token exists (user already logged in)
+    if (localStorage.getItem('dakopen_token_v64')) {
+      hydrateFromCache();
+    }
+  });
 })();
