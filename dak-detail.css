@@ -3495,3 +3495,305 @@ mark.dak-hl {
   border-radius: 3px;
 }
 html.dark mark.dak-hl { background: #ca8a04; color: #ffffff; }
+
+/* =====================================================================
+   v1614 — Ultra-Interactive Peta Sebaran NPL Suite
+   ===================================================================== */
+.dak-map-topctrl {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 420;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  pointer-events: none;
+}
+.dak-map-basemap,
+.dak-map-actbtns {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: auto;
+}
+.dak-map-basemap {
+  padding: 3px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(10px);
+}
+html.dark .dak-map-basemap {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(51, 65, 85, 0.9);
+}
+.dak-map-basemap button {
+  padding: 5px 9px;
+  min-height: 28px !important;
+  border-radius: 9px;
+  border: 0;
+  background: transparent;
+  color: #475569;
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dak-map-basemap button.is-on {
+  background: #059669;
+  color: #ffffff;
+}
+html.dark .dak-map-basemap button { color: #cbd5e1; }
+html.dark .dak-map-basemap button.is-on { background: #10b981; color: #ffffff; }
+
+.dak-map-chipbtn {
+  padding: 5px 10px;
+  min-height: 30px !important;
+  border-radius: 10px;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  background: rgba(255, 255, 255, 0.92);
+  color: #1e293b;
+  font-size: 10.5px;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dak-map-chipbtn.is-warn {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+}
+.dak-map-chipbtn[hidden] { display: none !important; }
+html.dark .dak-map-chipbtn { background: rgba(15, 23, 42, 0.9); border-color: #334155; color: #f1f5f9; }
+
+.dak-map-panelwrap {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 410;
+  width: min(370px, calc(100% - 24px));
+  max-height: calc(100% - 24px);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+@media (max-width: 767px) {
+  .dak-map-topctrl { top: auto; bottom: 88px; right: 10px; }
+  .dak-map-panelwrap { max-height: 58vh; }
+}
+.dak-map-panel {
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.16);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+  max-height: 100%;
+}
+html.dark .dak-map-panel {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(51, 65, 85, 0.9);
+}
+.dak-map-panelhead {
+  padding: 12px 14px;
+  background: linear-gradient(120deg, #059669, #0d9488);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  cursor: pointer;
+}
+.dak-map-headico {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  flex: none;
+}
+.dak-map-headbtn {
+  width: 30px;
+  height: 30px;
+  min-height: 30px !important;
+  border-radius: 9px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .2s ease;
+}
+.dak-map-panelbody {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  transition: max-height .25s ease, opacity .2s ease;
+}
+.dak-map-panelbody.is-collapsed {
+  max-height: 0 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+.dak-map-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 8px 10px 4px;
+}
+.dak-map-kpis > div {
+  padding: 6px 8px;
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+}
+html.dark .dak-map-kpis > div {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: #334155;
+}
+.dak-map-kpis span { display: block; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+.dak-map-kpis b { display: block; font-size: 11px; font-weight: 900; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.dak-map-tools {
+  padding: 6px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+}
+html.dark .dak-map-tools { border-color: #334155; }
+.dak-map-filterrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.dak-map-reglist {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 120px;
+}
+.dak-map-regcard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 13px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-left-width: 5px;
+  cursor: pointer;
+  transition: transform .13s ease, box-shadow .15s ease;
+}
+.dak-map-regcard:hover { transform: translateX(2px); }
+.dak-map-regcard.is-selected {
+  box-shadow: 0 0 0 2px #059669 !important;
+}
+html.dark .dak-map-regcard { border-color: rgba(51, 65, 85, 0.9); }
+
+.dak-map-drawer {
+  border-top: 2px solid #059669;
+  background: #ffffff;
+  max-height: 195px;
+  display: flex;
+  flex-direction: column;
+}
+.dak-map-drawer[hidden] { display: none !important; }
+html.dark .dak-map-drawer { background: #0f172a; }
+.dak-map-drhead {
+  padding: 8px 11px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(5, 150, 105, 0.08);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  font-size: 11px;
+}
+.dak-map-drhead b { color: #065f46; font-weight: 900; }
+.dak-map-drhead small { color: #64748b; font-size: 10px; }
+html.dark .dak-map-drhead b { color: #34d399; }
+.dak-map-drhead button {
+  width: 24px; height: 24px; min-height: 24px !important;
+  border-radius: 50%; border: 0; background: rgba(148, 163, 184, 0.2);
+  color: #475569; font-size: 15px; cursor: pointer; flex: none;
+}
+.dak-map-drlist { overflow-y: auto; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+.dak-map-drrow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 9px;
+  border-radius: 9px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 11px;
+  cursor: pointer;
+}
+.dak-map-drrow:hover { border-color: #2563eb; background: rgba(37, 99, 235, 0.05); }
+html.dark .dak-map-drrow { background: #1e293b; border-color: #334155; color: #f1f5f9; }
+.dak-map-drrow small { color: #64748b; font-size: 9.5px; }
+
+.dak-map-legend {
+  position: absolute;
+  bottom: 14px;
+  left: 396px;
+  z-index: 400;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #334155;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+}
+html.dark .dak-map-legend { background: rgba(15, 23, 42, 0.9); border-color: #334155; color: #e2e8f0; }
+.dak-map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.dak-map-legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+/* Rich Leaflet Popup */
+.dak-mpop { min-width: 215px; font-family: "Plus Jakarta Sans", sans-serif; padding: 2px; }
+.dak-mpop-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px; }
+.dak-mpop-area { font-size: 9.5px; font-weight: 800; color: #059669; text-transform: uppercase; }
+.dak-mpop-kol { font-size: 9.5px; font-weight: 900; color: #fff; padding: 2px 7px; border-radius: 999px; }
+.dak-mpop-name { font-size: 13px; font-weight: 900; color: #0f172a; line-height: 1.25; }
+.dak-mpop-addr { font-size: 10px; color: #64748b; margin-top: 3px; line-height: 1.35; }
+.dak-mpop-os { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding: 6px 8px; border-radius: 8px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); font-size: 10.5px; }
+.dak-mpop-os span { font-weight: 700; color: #dc2626; }
+.dak-mpop-os b { font-family: ui-monospace, monospace; font-weight: 900; color: #991b1b; }
+.dak-mpop-acts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.dak-mpop-acts button, .dak-mpop-acts a {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  padding: 6px 8px; min-height: 30px !important; border-radius: 8px;
+  font-size: 10.5px; font-weight: 800; text-decoration: none; cursor: pointer;
+  border: 1px solid #cbd5e1; background: #f8fafc; color: #1e293b;
+}
+.dak-mpop-acts button.is-pri { background: #2563eb; border-color: #2563eb; color: #ffffff; }

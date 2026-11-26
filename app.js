@@ -265,6 +265,11 @@ const cityCoords = {
     "DESA SUMBER SARI": [-1.4900, 116.5100],
     "DESA GUNUNG INTAN": [-1.4800, 116.5300],
     "DESA SRI RAHARJA": [-1.4700, 116.5400],
+    "DESA RINTIK": [-1.5050, 116.4720],
+    "DESA LABANGKA BARAT": [-1.5680, 116.5250],
+    "DESA GUNUNG MULIA": [-1.4880, 116.4920],
+    "DESA SEBAKUNG": [-1.5450, 116.4400],
+    "DESA SEBAKUNG MAKMUR": [-1.5580, 116.4050],
 
     // === KEC SEPAKU (IKN) ===
     "DESA SEPAKU": [-0.9258, 116.7725],
@@ -294,192 +299,406 @@ var mapInstance = null;
 var mapMarkers = [];
 
 function renderMapPage(res) {
-    if(document.getElementById('loader')) document.getElementById('loader').style.display='none';
-    
-    var container = document.getElementById('view-map');
-    var fmtIDR = function(v) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(v); };
+    if (document.getElementById('loader')) document.getElementById('loader').style.display = 'none';
+    if (!res || res.error) {
+        if (window.showToast) window.showToast((res && res.error) || 'Data peta belum tersedia.', 'error');
+        if (typeof unlockMenu === 'function') unlockMenu();
+        return;
+    }
 
-    // 1. RENDER UI MODERN PLAYFUL (Floating Panel & Full Map)
+    window.__dakMapData = {
+        regions: Array.isArray(res.regions) ? res.regions : [],
+        points: Array.isArray(res.points) ? res.points : []
+    };
+
+    var container = document.getElementById('view-map');
+    if (!container) return;
+
+    const regs = window.__dakMapData.regions;
+    const pts = window.__dakMapData.points;
+    const totNplOs = regs.reduce((a, r) => a + (Number(r.npl) || 0), 0);
+    const highRiskCnt = regs.filter(r => (Number(r.npl_pct) || 0) > 5).length;
+    const fmtShort = v => {
+        const n = Number(v) || 0, a = Math.abs(n);
+        if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+        if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+        return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    };
+
     container.innerHTML = `
     <!-- Layer Peta Latar Belakang -->
     <div class="absolute inset-0 z-0 bg-slate-100 dark:bg-slate-900">
         <div id="map_canvas" class="w-full h-full"></div>
     </div>
 
-    <!-- Floating Glass Panel (Daftar Wilayah) -->
-    <div class="absolute top-4 left-4 right-4 md:right-auto z-[400] md:w-[380px] flex flex-col max-h-[50vh] md:max-h-[calc(100%-2rem)] pointer-events-none">
-        
-        <div class="glass-card rounded-[2rem] border border-white/50 shadow-2xl flex flex-col overflow-hidden backdrop-blur-2xl bg-white/80 dark:bg-slate-900/80 pointer-events-auto transition-all duration-500">
-            
-            <!-- Header Panel (Bisa diklik di HP untuk melipat/collapse) -->
-            <div class="p-5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white flex justify-between items-center cursor-pointer shadow-md group" onclick="toggleMapList()">
-                <div class="flex items-center gap-3">
-                    <div class="bg-white/20 p-2 rounded-xl backdrop-blur-md shadow-inner text-lg group-hover:scale-110 transition-transform"><i class="fas fa-map-marked-alt"></i></div>
-                    <div>
-                        <h3 class="font-black text-sm uppercase tracking-[0.15em] drop-shadow-sm">Sebaran Wilayah</h3>
-                        <div class="text-[10px] text-emerald-100 mt-0.5 font-bold tracking-widest">Pilih Titik Kordinat</div>
+    <!-- Floating Map Controls (Kanan Atas: Basemap Switcher + Fit All + Reset) -->
+    <div class="dak-map-topctrl">
+        <div class="dak-map-basemap" role="group" aria-label="Gaya peta">
+            <button type="button" class="is-on" data-bm="osm" onclick="window.dakMapSuite.setBasemap('osm')"><i class="fas fa-map"></i> Standar</button>
+            <button type="button" data-bm="sat" onclick="window.dakMapSuite.setBasemap('sat')"><i class="fas fa-satellite"></i> Satelit</button>
+            <button type="button" data-bm="dark" onclick="window.dakMapSuite.setBasemap('dark')"><i class="fas fa-moon"></i> Gelap</button>
+        </div>
+        <div class="dak-map-actbtns">
+            <button type="button" class="dak-map-chipbtn" onclick="window.dakMapSuite.fitAll()" title="Tampilkan seluruh titik NPL"><i class="fas fa-expand-arrows-alt"></i> Fit Semua</button>
+            <button type="button" id="dakMapClearRegionBtn" class="dak-map-chipbtn is-warn" hidden onclick="window.dakMapSuite.selectRegion('')"><i class="fas fa-times"></i> Semua Wilayah</button>
+        </div>
+    </div>
+
+    <!-- Floating Glass Panel (Kiri: Sebaran Wilayah Interaktif) -->
+    <div class="dak-map-panelwrap" id="dakMapPanelWrap">
+        <div class="dak-map-panel glass-card">
+            <div class="dak-map-panelhead" onclick="toggleMapList()">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="dak-map-headico"><i class="fas fa-map-location-dot"></i></div>
+                    <div class="min-w-0">
+                        <h3 class="font-black text-xs sm:text-sm uppercase tracking-wider leading-none truncate">Sebaran Wilayah NPL</h3>
+                        <div class="text-[10px] text-emerald-100/90 mt-1 font-bold truncate">${regs.length} Wilayah · ${pts.length} Titik NPL</div>
                     </div>
                 </div>
-                <div class="bg-white/20 w-8 h-8 rounded-full flex items-center justify-center md:hidden transition-transform duration-300" id="map-chevron">
-                    <i class="fas fa-chevron-up"></i>
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" class="dak-map-headbtn" onclick="event.stopPropagation();window.dakMapSuite.exportCSV()" title="Unduh CSV Sebaran Wilayah"><i class="fas fa-file-csv"></i></button>
+                    <button type="button" class="dak-map-headbtn md:hidden" id="map-chevron" aria-label="Lipat panel"><i class="fas fa-chevron-up"></i></button>
                 </div>
             </div>
-            
-            <!-- Daftar Kartu Wilayah -->
-            <div id="map_region_list" class="overflow-y-auto custom-scrollbar p-3 space-y-3 transition-all duration-500">
-                ${res.regions.map(function(reg, idx) {
-                    var isHighRisk = reg.npl_pct > 5;
-                    var riskTheme = isHighRisk 
-                        ? 'border-red-400 bg-gradient-to-r from-red-500/10 to-rose-500/5 hover:from-red-500/20 text-red-700 dark:text-red-400 shadow-[0_4px_15px_-3px_rgba(239,68,68,0.2)]' 
-                        : (reg.npl_pct > 2 ? 'border-amber-400 bg-gradient-to-r from-amber-500/10 to-orange-500/5 hover:from-amber-500/20 text-orange-700 dark:text-orange-400 shadow-[0_4px_15px_-3px_rgba(245,158,11,0.2)]' : 'border-emerald-400 bg-gradient-to-r from-emerald-500/10 to-teal-500/5 hover:from-emerald-500/20 text-emerald-700 dark:text-emerald-400 shadow-[0_4px_15px_-3px_rgba(16,185,129,0.2)]');
-                    
-                    var badgeTheme = isHighRisk ? 'bg-red-500 text-white' : (reg.npl_pct > 2 ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white');
 
-                    return `
-                    <div class="p-4 rounded-2xl border-l-[6px] border border-white/60 dark:border-slate-700/50 backdrop-blur-md transition-all duration-500 cursor-pointer group transform translate-x-[-20px] opacity-0 region-card ${riskTheme}"
-                         style="transition-delay: ${idx * 50}ms"
-                         onclick="zoomToRegion('${reg.name}')">
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <div class="font-black text-sm text-slate-800 dark:text-white group-hover:translate-x-1 transition-transform">${reg.name}</div>
-                                <div class="text-[10px] opacity-70 font-bold mt-1 text-slate-500"><i class="fas fa-users mr-1"></i> ${reg.count} Debitur</div>
-                                <div class="text-xs font-black font-mono mt-0.5 text-slate-700 dark:text-slate-300">${fmtIDR(reg.os)}</div>
-                            </div>
-                            <div class="text-right flex flex-col items-end">
-                                <div class="text-xs font-black px-3 py-1 rounded-full shadow-inner ${badgeTheme}">${reg.npl_pct.toFixed(2)}%</div>
-                                <div class="text-[10px] font-bold uppercase tracking-widest mt-1 opacity-60 text-slate-600">Ratio</div>
-                            </div>
+            <div id="dakMapPanelBody" class="dak-map-panelbody">
+                <!-- Summary KPI Strip -->
+                <div class="dak-map-kpis">
+                    <div><span>Wilayah Kritis</span><b class="text-rose-600 dark:text-rose-400">${highRiskCnt} Area</b></div>
+                    <div><span>Total Titik NPL</span><b class="text-amber-600 dark:text-amber-400">${pts.length} Debitur</b></div>
+                    <div><span>Eksposur NPL</span><b class="text-blue-600 dark:text-blue-400">${fmtShort(totNplOs)}</b></div>
+                </div>
+
+                <!-- Search + Filter + Sort -->
+                <div class="dak-map-tools">
+                    <div class="dak-ops-search"><i class="fas fa-magnifying-glass"></i><input type="search" id="dakMapSearch" placeholder="Cari desa, RT, atau nama debitur…" oninput="window.dakMapSuite.renderList()" autocomplete="off"/></div>
+                    <div class="dak-map-filterrow">
+                        <div class="dak-dc-pills is-compact">
+                            <button type="button" class="dak-dc-pill is-on" data-mrisk="ALL" onclick="window.dakMapSuite.setRisk('ALL')">Semua</button>
+                            <button type="button" class="dak-dc-pill" data-mrisk="HIGH" onclick="window.dakMapSuite.setRisk('HIGH')">&gt;5%</button>
+                            <button type="button" class="dak-dc-pill" data-mrisk="MID" onclick="window.dakMapSuite.setRisk('MID')">2–5%</button>
+                            <button type="button" class="dak-dc-pill" data-mrisk="LOW" onclick="window.dakMapSuite.setRisk('LOW')">Sehat</button>
                         </div>
-                    </div>`;
-                }).join('')}
+                        <select id="dakMapSort" class="dak-ops-sel" onchange="window.dakMapSuite.renderList()" aria-label="Urutkan wilayah">
+                            <option value="ratio">Rasio NPL</option>
+                            <option value="npl">Nominal NPL</option>
+                            <option value="os">OS Terbesar</option>
+                            <option value="cnt">Debitur</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Daftar Kartu Wilayah -->
+                <div id="map_region_list" class="dak-map-reglist custom-scrollbar"></div>
+
+                <!-- Drawer Debitur Wilayah Terpilih -->
+                <div id="dakMapRegionDrawer" class="dak-map-drawer" hidden></div>
             </div>
         </div>
     </div>
 
-    <!-- Map Loader Kaca -->
-    <div id="map_loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-slate-900/60 z-[500] backdrop-blur-xl transition-opacity duration-500 rounded-[2.5rem]">
-        <div class="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin shadow-lg"></div>
-        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-800 dark:text-emerald-400 mt-5 bg-white/50 px-4 py-1 rounded-full shadow-sm">Memuat Peta...</span>
+    <!-- Map Legend (Kiri Bawah Desktop) -->
+    <div class="dak-map-legend hidden md:flex" aria-label="Legenda warna titik">
+        <span><i style="background:#991b1b"></i>KOL 5</span>
+        <span><i style="background:#ef4444"></i>KOL 4</span>
+        <span><i style="background:#f97316"></i>KOL 3</span>
+    </div>
+
+    <!-- Map Loader -->
+    <div id="map_loader" class="absolute inset-0 flex flex-col items-center justify-center bg-white/60 dark:bg-slate-900/60 z-[500] backdrop-blur-md transition-opacity duration-300">
+        <div class="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin shadow-lg"></div>
+        <span class="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-800 dark:text-emerald-300 mt-3 bg-white/80 dark:bg-slate-800/80 px-3.5 py-1 rounded-full">Memuat Peta…</span>
     </div>
     `;
 
-    setTimeout(function() { initLeafletMap(res.points); }, 300);
-    unlockMenu();
+    setTimeout(function() {
+        initLeafletMap(pts);
+        if (window.dakMapSuite) window.dakMapSuite.renderList();
+    }, 180);
+    if (typeof unlockMenu === 'function') unlockMenu();
 }
 
-// --- FUNGSI TOGGLE UNTUK MOBILE UX ---
-window.toggleMapList = function() {
-    // Fungsi ini hanya berefek jika layar sempit (Mobile)
-    if(window.innerWidth > 768) return; 
-    
-    var listContainer = document.getElementById('map_region_list');
+window.toggleMapList = function(forceCollapse) {
+    if (window.innerWidth >= 768) return;
+    var body = document.getElementById('dakMapPanelBody');
     var chevron = document.getElementById('map-chevron');
-    
-    if (listContainer.style.maxHeight === '0px') {
-        listContainer.style.maxHeight = '50vh';
-        listContainer.style.opacity = '1';
-        listContainer.style.padding = '12px';
-        chevron.style.transform = 'rotate(0deg)';
-    } else {
-        listContainer.style.maxHeight = '0px';
-        listContainer.style.opacity = '0';
-        listContainer.style.padding = '0 12px';
-        chevron.style.transform = 'rotate(180deg)';
-    }
+    if (!body) return;
+    var isCollapsed = body.classList.contains('is-collapsed');
+    var nextCollapsed = typeof forceCollapse === 'boolean' ? forceCollapse : !isCollapsed;
+    body.classList.toggle('is-collapsed', nextCollapsed);
+    if (chevron) chevron.style.transform = nextCollapsed ? 'rotate(180deg)' : 'rotate(0deg)';
 };
 
-// --- LOGIKA UTAMA LEAFLET JS ---
+var __dakMapTileLayer = null;
+var __dakMapClusterGroup = null;
+var __dakMapRiskFilter = 'ALL';
+var __dakMapSelectedRegion = '';
+
 function initLeafletMap(points) {
-    // Animasi Kartu Masuk Bergilir
-    document.querySelectorAll('.region-card').forEach(el => {
-        el.classList.remove('opacity-0', 'translate-x-[-20px]');
-    });
+    if (mapInstance) { try { mapInstance.remove(); } catch (e) {} mapInstance = null; }
 
-    if (mapInstance) { mapInstance.remove(); mapInstance = null; }
-
-    var centerPPU = [-1.3093, 116.7274]; 
+    var centerPPU = [-1.35, 116.65];
     mapInstance = L.map('map_canvas', { zoomControl: false }).setView(centerPPU, 10);
-
-    // Style Peta Bersih (CartoDB Positron)
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-    }).addTo(mapInstance);
-
     L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
 
-    const markerClusterGroup = L.markerClusterGroup({
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        maxClusterRadius: 40 // Radius yang ideal untuk HP & PC
-    });
-
-    points.forEach(function(p) {
-        var baseCoord = getCoordByRegion(p.area);
-        var lat = baseCoord.lat + (Math.random() - 0.5) * 0.005;
-        var lng = baseCoord.lng + (Math.random() - 0.5) * 0.005;
-        
-        var targetRadius = p.os > 500000000 ? 10 : 7; 
-
-        // Warna marker playful
-        var marker = L.circleMarker([lat, lng], {
-            color: '#ffffff', weight: 2, fillColor: '#ef4444',
-            fillOpacity: 0.85, radius: targetRadius
-        });
-
-        var content = `
-            <div class="p-3 min-w-[200px] font-sans bg-white/50 backdrop-blur-md rounded-xl">
-                <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1"><i class="fas fa-map-pin text-emerald-500 mr-1"></i> ${p.area}</div>
-                <div class="font-black text-slate-800 text-sm leading-tight mb-3">${p.nama}</div>
-                <div class="flex justify-between items-center bg-red-500/10 p-2.5 rounded-lg border border-red-500/20">
-                    <span class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Outstanding</span>
-                    <span class="font-black font-mono text-red-700 text-xs">Rp ${new Intl.NumberFormat('id-ID').format(p.os)}</span>
-                </div>
-            </div>`;
-        
-        marker.bindPopup(content, { className: 'playful-popup' });
-        markerClusterGroup.addLayer(marker); 
-    });
-
-    mapInstance.addLayer(markerClusterGroup);
+    window.dakMapSuite.setBasemap(document.documentElement.classList.contains('dark') ? 'dark' : 'osm');
+    window.dakMapSuite.renderMarkers(points, true);
 
     var loader = document.getElementById('map_loader');
-    if(loader) {
+    if (loader) {
         loader.classList.add('opacity-0');
-        setTimeout(() => { loader.style.display = 'none'; }, 500);
+        setTimeout(() => { loader.style.display = 'none'; }, 320);
     }
 }
 
-// --- FUNGSI ZOOM KE WILAYAH ---
-window.zoomToRegion = function(regionName) {
-    if(!mapInstance) return;
-    
-    var coord = getCoordByRegion(regionName);
-    mapInstance.flyTo([coord.lat, coord.lng], 13, { duration: 1.5 });
+window.dakMapSuite = {
+    setBasemap(kind) {
+        if (!mapInstance) return;
+        const urls = {
+            osm: ['https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', '&copy; OpenStreetMap'],
+            sat: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', '&copy; Esri'],
+            dark: ['https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', '&copy; CARTO']
+        };
+        const cfg = urls[kind] || urls.osm;
+        if (__dakMapTileLayer) { try { mapInstance.removeLayer(__dakMapTileLayer); } catch (e) {} }
+        __dakMapTileLayer = L.tileLayer(cfg[0], { maxZoom: 19, attribution: cfg[1] }).addTo(mapInstance);
+        document.querySelectorAll('.dak-map-basemap [data-bm]').forEach(b => b.classList.toggle('is-on', b.dataset.bm === kind));
+    },
 
-    // UX Tambahan: Otomatis lipat menu di HP saat wilayah diklik agar peta terlihat
-    if(window.innerWidth <= 768) {
-        toggleMapList();
+    findLoanByName(nama) {
+        const target = String(nama || '').trim().toUpperCase();
+        const pool = (window.app && window.app.state && window.app.state.data && window.app.state.data.all_list) || [];
+        const hit = pool.find(x => String(x.nama || '').trim().toUpperCase() === target);
+        return hit ? String(hit.loan || hit.pk || '') : '';
+    },
+
+    openDebtorFromMap(nama) {
+        const lid = this.findLoanByName(nama);
+        if (lid && window.app && typeof window.app.fetchDetail === 'function') {
+            window.app.fetchDetail(lid);
+        } else if (window.app && typeof window.app.switchTab === 'function') {
+            window.__dakPendingCreditQuery = nama;
+            window.app.switchTab('view-kredit');
+        }
+    },
+
+    renderMarkers(points, autoFit) {
+        if (!mapInstance) return;
+        if (__dakMapClusterGroup) { try { mapInstance.removeLayer(__dakMapClusterGroup); } catch (e) {} }
+        __dakMapClusterGroup = L.markerClusterGroup({
+            spiderfyOnMaxZoom: true,
+            showCoverageOnHover: false,
+            zoomToBoundsOnClick: true,
+            maxClusterRadius: 42
+        });
+
+        const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+        const fmtRp = v => 'Rp ' + Math.round(Number(v) || 0).toLocaleString('id-ID');
+        const bounds = [];
+
+        (points || []).forEach(function (p, idx) {
+            var baseCoord = getCoordByRegion(p.area);
+            // Deterministic micro-spread so markers don't jump randomly on re-render
+            var angle = (idx * 137.5) * Math.PI / 180;
+            var dist = 0.0012 + ((idx % 7) * 0.0007);
+            var lat = baseCoord.lat + Math.cos(angle) * dist;
+            var lng = baseCoord.lng + Math.sin(angle) * dist;
+            bounds.push([lat, lng]);
+
+            var k = parseInt(p.kol) || 3;
+            var col = k >= 5 ? '#991b1b' : (k === 4 ? '#ef4444' : '#f97316');
+            var targetRadius = (Number(p.os) || 0) > 500000000 ? 10 : ((Number(p.os) || 0) > 150000000 ? 8.5 : 7);
+
+            var marker = L.circleMarker([lat, lng], {
+                color: '#ffffff', weight: 2, fillColor: col, fillOpacity: 0.9, radius: targetRadius
+            });
+
+            var safeNama = String(p.nama || '').replace(/'/g, "\\'");
+            var mapQuery = encodeURIComponent((p.address ? p.address + ', ' : '') + (p.area || '') + ', Penajam Paser Utara');
+            var content = `
+                <div class="dak-mpop">
+                    <div class="dak-mpop-top">
+                        <span class="dak-mpop-area"><i class="fas fa-map-pin"></i> ${esc(p.area || '-')}</span>
+                        <span class="dak-mpop-kol" style="background:${col}">KOL ${k}</span>
+                    </div>
+                    <div class="dak-mpop-name">${esc(p.nama || '-')}</div>
+                    ${p.address ? `<div class="dak-mpop-addr">${esc(p.address)}</div>` : ''}
+                    <div class="dak-mpop-os"><span>Outstanding</span><b>${fmtRp(p.os)}</b></div>
+                    <div class="dak-mpop-acts">
+                        <button type="button" class="is-pri" onclick="window.dakMapSuite.openDebtorFromMap('${safeNama}')"><i class="fas fa-id-card"></i> Detail</button>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${mapQuery}" target="_blank" rel="noopener"><i class="fas fa-diamond-turn-right"></i> Rute</a>
+                    </div>
+                </div>`;
+            marker.bindPopup(content, { className: 'playful-popup', maxWidth: 270 });
+            __dakMapClusterGroup.addLayer(marker);
+        });
+
+        mapInstance.addLayer(__dakMapClusterGroup);
+        if (autoFit && bounds.length) {
+            try { mapInstance.fitBounds(bounds, { padding: [45, 45], maxZoom: 13 }); } catch (e) {}
+        }
+    },
+
+    fitAll() {
+        const pts = (__dakMapSelectedRegion
+            ? (window.__dakMapData.points || []).filter(p => String(p.area || '').trim() === __dakMapSelectedRegion)
+            : (window.__dakMapData.points || []));
+        this.renderMarkers(pts, true);
+    },
+
+    setRisk(r) {
+        __dakMapRiskFilter = r;
+        document.querySelectorAll('#dakMapPanelBody [data-mrisk]').forEach(b => b.classList.toggle('is-on', b.dataset.mrisk === r));
+        this.renderList();
+    },
+
+    selectRegion(regionName) {
+        __dakMapSelectedRegion = regionName || '';
+        const clrBtn = document.getElementById('dakMapClearRegionBtn');
+        if (clrBtn) clrBtn.hidden = !__dakMapSelectedRegion;
+
+        const allPts = (window.__dakMapData && window.__dakMapData.points) || [];
+        const filteredPts = __dakMapSelectedRegion
+            ? allPts.filter(p => String(p.area || '').trim() === __dakMapSelectedRegion)
+            : allPts;
+
+        this.renderMarkers(filteredPts, false);
+        if (__dakMapSelectedRegion && mapInstance) {
+            var coord = getCoordByRegion(__dakMapSelectedRegion);
+            mapInstance.flyTo([coord.lat, coord.lng], 13, { duration: 1.1 });
+        } else if (mapInstance) {
+            this.fitAll();
+        }
+        this.renderList();
+        this.renderRegionDrawer(__dakMapSelectedRegion, filteredPts);
+        if (__dakMapSelectedRegion && window.innerWidth < 768) toggleMapList(true);
+    },
+
+    renderRegionDrawer(regionName, pts) {
+        const box = document.getElementById('dakMapRegionDrawer');
+        if (!box) return;
+        if (!regionName) { box.hidden = true; box.innerHTML = ''; return; }
+        const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+        const fmtRp = v => 'Rp ' + Math.round(Number(v) || 0).toLocaleString('id-ID');
+        box.innerHTML = `
+            <div class="dak-map-drhead">
+                <div class="min-w-0"><b class="truncate block">${esc(regionName)}</b><small>${pts.length} Debitur NPL di wilayah ini</small></div>
+                <button type="button" onclick="window.dakMapSuite.selectRegion('')" aria-label="Tutup">×</button>
+            </div>
+            <div class="dak-map-drlist custom-scrollbar">
+                ${pts.length ? pts.map(p => {
+                    const sn = String(p.nama || '').replace(/'/g, "\\'");
+                    return `<button type="button" class="dak-map-drrow" onclick="window.dakMapSuite.openDebtorFromMap('${sn}')">
+                        <span class="min-w-0 text-left"><b class="truncate block">${esc(p.nama || '-')}</b><small>KOL ${p.kol || 3}</small></span>
+                        <span class="font-mono font-black text-rose-600 dark:text-rose-400 shrink-0">${fmtRp(p.os)}</span>
+                    </button>`;
+                }).join('') : '<div class="text-[11px] text-slate-400 p-3 text-center">Tidak ada debitur NPL di wilayah ini.</div>'}
+            </div>`;
+        box.hidden = false;
+    },
+
+    renderList() {
+        const listEl = document.getElementById('map_region_list');
+        if (!listEl || !window.__dakMapData) return;
+        const q = (document.getElementById('dakMapSearch')?.value || '').toLowerCase().trim();
+        const sortBy = document.getElementById('dakMapSort')?.value || 'ratio';
+        const pts = window.__dakMapData.points || [];
+        const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(v) || 0);
+        const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+
+        let list = window.__dakMapData.regions.filter(reg => {
+            const pct = Number(reg.npl_pct) || 0;
+            if (__dakMapRiskFilter === 'HIGH' && pct <= 5) return false;
+            if (__dakMapRiskFilter === 'MID' && (pct <= 2 || pct > 5)) return false;
+            if (__dakMapRiskFilter === 'LOW' && pct > 2) return false;
+            if (q) {
+                const matchReg = String(reg.name || '').toLowerCase().includes(q);
+                const matchDeb = pts.some(p => String(p.area || '').trim() === reg.name && String(p.nama || '').toLowerCase().includes(q));
+                if (!matchReg && !matchDeb) return false;
+            }
+            return true;
+        });
+
+        list.sort((a, b) => {
+            if (sortBy === 'npl') return (Number(b.npl) || 0) - (Number(a.npl) || 0);
+            if (sortBy === 'os') return (Number(b.os) || 0) - (Number(a.os) || 0);
+            if (sortBy === 'cnt') return (Number(b.count) || 0) - (Number(a.count) || 0);
+            return (Number(b.npl_pct) || 0) - (Number(a.npl_pct) || 0);
+        });
+
+        if (!list.length) {
+            listEl.innerHTML = '<div class="p-6 text-center text-xs font-bold text-slate-400">Tidak ada wilayah yang cocok.</div>';
+            return;
+        }
+
+        listEl.innerHTML = list.map(reg => {
+            const pct = Number(reg.npl_pct) || 0;
+            const isHigh = pct > 5;
+            const isSel = __dakMapSelectedRegion === reg.name;
+            const riskTheme = isHigh
+                ? 'border-l-red-500 bg-red-50/70 dark:bg-red-950/25'
+                : (pct > 2 ? 'border-l-amber-500 bg-amber-50/70 dark:bg-amber-950/25' : 'border-l-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/25');
+            const badgeTheme = isHigh ? 'bg-red-500 text-white' : (pct > 2 ? 'bg-amber-500 text-white' : 'bg-emerald-500 text-white');
+            const safeReg = String(reg.name || '').replace(/'/g, "\\'");
+            return `
+            <button type="button" class="dak-map-regcard ${riskTheme} ${isSel ? 'is-selected' : ''}" onclick="window.dakMapSuite.selectRegion('${safeReg}')">
+                <div class="min-w-0 text-left">
+                    <div class="font-black text-xs text-slate-800 dark:text-white truncate">${esc(reg.name)}</div>
+                    <div class="text-[10px] font-bold text-slate-500 mt-0.5"><i class="fas fa-users mr-1"></i>${reg.count} Debitur</div>
+                    <div class="text-[11px] font-black font-mono mt-0.5 text-slate-700 dark:text-slate-200">${fmtIDR(reg.os)}</div>
+                </div>
+                <div class="text-right shrink-0">
+                    <div class="text-[11px] font-black px-2.5 py-0.5 rounded-full ${badgeTheme}">${pct.toFixed(2)}%</div>
+                    <div class="text-[9.5px] font-bold uppercase tracking-wider mt-1 text-slate-400">Ratio</div>
+                </div>
+            </button>`;
+        }).join('');
+    },
+
+    exportCSV() {
+        const regs = (window.__dakMapData && window.__dakMapData.regions) || [];
+        if (!regs.length) return;
+        const escCsv = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+        const lines = ['Wilayah,Jumlah Debitur,Total OS,OS NPL,Rasio NPL (%)'].concat(
+            regs.map(r => [escCsv(r.name), Number(r.count || 0), Math.round(Number(r.os || 0)), Math.round(Number(r.npl || 0)), (Number(r.npl_pct) || 0).toFixed(2)].join(','))
+        );
+        const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Sebaran_Wilayah_NPL_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        if (window.showToast) window.showToast('Berhasil mengunduh ' + regs.length + ' wilayah (CSV).', 'success');
     }
 };
 
-// --- FUNGSI PENCARIAN KOORDINAT PERBAIKAN ---
+window.zoomToRegion = function(regionName) {
+    if (window.dakMapSuite) window.dakMapSuite.selectRegion(regionName);
+};
+
 function getCoordByRegion(name) {
-    var n = String(name).toUpperCase().trim();
-    
-    // Cari di kamus utama (cityCoords) terlebih dahulu
-    if (cityCoords[n]) {
-        return { lat: cityCoords[n][0], lng: cityCoords[n][1] };
+    var n = String(name || '').toUpperCase().trim();
+    if (cityCoords[n]) return { lat: cityCoords[n][0], lng: cityCoords[n][1] };
+
+    // Smart partial matching (stripping DESA/KEL./RT so "DESA BABULU DARAT RT 005" -> "DESA BABULU DARAT")
+    var cleaned = n.replace(/\b(RT|RW|NO|JL|JALAN)\.?\s*\d+/g, '').replace(/\s+/g, ' ').trim();
+    var keys = Object.keys(cityCoords);
+    for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        if (k.includes('(UMUM)') || k === 'DEFAULT') continue;
+        var base = k.replace(/^(DESA|KEL\.?)\s+/, '').trim();
+        if (base.length >= 4 && (cleaned.includes(base) || n.includes(base))) {
+            return { lat: cityCoords[k][0], lng: cityCoords[k][1] };
+        }
     }
-    
-    // Fallback jika desa spesifik tidak ditemukan, cari kecamatannya saja
+
     if (n.includes('PENAJAM')) return { lat: cityCoords["KEC. PENAJAM (UMUM)"][0], lng: cityCoords["KEC. PENAJAM (UMUM)"][1] };
     if (n.includes('WARU')) return { lat: cityCoords["KEC. WARU (UMUM)"][0], lng: cityCoords["KEC. WARU (UMUM)"][1] };
     if (n.includes('BABULU')) return { lat: cityCoords["KEC. BABULU (UMUM)"][0], lng: cityCoords["KEC. BABULU (UMUM)"][1] };
     if (n.includes('SEPAKU')) return { lat: cityCoords["KEC. SEPAKU (UMUM)"][0], lng: cityCoords["KEC. SEPAKU (UMUM)"][1] };
-    
-    // Fallback absolut
     return { lat: cityCoords["DEFAULT"][0], lng: cityCoords["DEFAULT"][1] };
 }
 
@@ -3527,7 +3746,7 @@ function updateCreditCharts(rows) {
             const old=canvas.parentElement?.querySelector('.chart-empty-state');if(old)old.remove();
             if(!items?.length){const n=document.createElement('div');n.className='chart-empty-state absolute inset-0 flex items-center justify-center text-center text-xs text-slate-400 p-4';n.textContent='Tidak ada data untuk divisualisasikan';canvas.parentElement?.appendChild(n);return;}
             const labels=items.map(x=>x.label), values=items.map(x=>x.os);
-            charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels,datasets:[{label,data:values,backgroundColor:['#7c3aed','#2563eb','#0d9488','#f59e0b','#e11d48','#64748b','#0891b2','#9333ea','#14b8a6','#f97316','#64748b','#0ea5e9'],borderColor:'#fff',borderWidth:2,borderRadius:type==='bar'?7:0,hoverOffset:type==='doughnut'?12:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:type==='bar'?'y':'x',onClick:(evt,active)=>{if(!active?.length)return;const item=items[active[0].index];window.loadCreditPortfolioDrilldown(field,item.label,item);},onHover:(evt,active)=>{canvas.style.cursor=active?.length?'pointer':'default';},plugins:{legend:{display:type!=='bar',position:'bottom',onClick:(evt,item,legend)=>{const d=items[item.index];window.loadCreditPortfolioDrilldown(field,d.label,d);},labels:{boxWidth:11,padding:12,font:{size:10},usePointStyle:true}},tooltip:{callbacks:{label:c=>`${fmt(c.parsed.y??c.parsed)} · ${money(c.parsed.y??c.parsed)}`}}},scales:type==='bar'?{x:{beginAtZero:true,ticks:{callback:v=>fmt(v)}},y:{ticks:{font:{size:10}}}}:{}}});
+            charts[id]=new Chart(canvas.getContext('2d'),{type,data:{labels,datasets:[{label,data:values,backgroundColor:['#7c3aed','#2563eb','#0d9488','#f59e0b','#e11d48','#64748b','#0891b2','#9333ea','#14b8a6','#f97316','#64748b','#0ea5e9'],borderColor:'#fff',borderWidth:2,borderRadius:type==='bar'?7:0,hoverOffset:type==='doughnut'?12:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:type==='bar'?'y':'x',onClick:(evt,active)=>{if(!active?.length)return;const item=items[active[0].index];setTimeout(()=>window.loadCreditPortfolioDrilldown(field,item.label,item),0);},onHover:(evt,active)=>{canvas.style.cursor=active?.length?'pointer':'default';},plugins:{legend:{display:type!=='bar',position:'bottom',onClick:(evt,item,legend)=>{const d=items[item.index];window.loadCreditPortfolioDrilldown(field,d.label,d);},labels:{boxWidth:11,padding:12,font:{size:10},usePointStyle:true}},tooltip:{callbacks:{label:c=>`${fmt(c.parsed.y??c.parsed)} · ${money(c.parsed.y??c.parsed)}`}}},scales:type==='bar'?{x:{beginAtZero:true,ticks:{callback:v=>fmt(v)}},y:{ticks:{font:{size:10}}}}:{}}});
         };
         draw('chKr1','doughnut',res.composition||[],'Outstanding','composition');
         draw('chKr2','bar',res.sectors||[],'Outstanding','sektor');
@@ -10816,7 +11035,7 @@ document.addEventListener('click',function(){});
           onClick: (evt, els) => {
             if (!totalVal || !els || !els.length) return;
             const b = buckets[els[0].index];
-            if (b) toggleFilter(type, 'kol', b.kol, b.meta.short);
+            if (b) setTimeout(() => toggleFilter(type, 'kol', b.kol, b.meta.short), 0);
           },
           plugins: {
             legend: { display: false },
@@ -10901,7 +11120,7 @@ document.addEventListener('click',function(){});
           onClick: (evt, els) => {
             if (!els || !els.length) return;
             const item = list[els[0].index];
-            if (item) toggleFilter(type, st.dim, item.key, item.key);
+            if (item) setTimeout(() => toggleFilter(type, st.dim, item.key, item.key), 0);
           },
           scales: {
             x: {
@@ -12217,7 +12436,7 @@ document.addEventListener('click',function(){});
           maintainAspectRatio: false,
           cutout: '64%',
           onClick: (evt, els) => {
-            if (els && els.length && items[els[0].index] && window.app) window.app.switchTab(items[els[0].index].view);
+            if (els && els.length && items[els[0].index] && window.app) { const vw = items[els[0].index].view; setTimeout(() => window.app.switchTab(vw), 0); }
           },
           plugins: {
             legend: { display: false },
@@ -13232,7 +13451,7 @@ document.addEventListener('click',function(){});
         onClick: (evt, els) => {
           if (!els || !els.length) return;
           const it = cItems[els[0].index];
-          if (it && !it.isRest) window.dakMasterKredit.toggleComp(it.label);
+          if (it && !it.isRest) setTimeout(() => window.dakMasterKredit.toggleComp(it.label), 0);
         },
         plugins: {
           legend: { display: false },
@@ -13284,7 +13503,7 @@ document.addEventListener('click',function(){});
         onClick: (evt, els) => {
           if (!els || !els.length) return;
           const it = sItems[els[0].index];
-          if (it) window.dakMasterKredit.toggleSector(it.label);
+          if (it) setTimeout(() => window.dakMasterKredit.toggleSector(it.label), 0);
         },
         onHover: (evt, els) => { c2.style.cursor = els && els.length ? 'pointer' : 'default'; },
         scales: {
