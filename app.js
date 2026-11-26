@@ -3426,7 +3426,16 @@ function renderKreditPage() {
                         <button type="button" class="dak-dc-pill" data-kr-kol="2" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('2')">KOL 2 <b id="dakKrCnt2"></b></button>
                         <button type="button" class="dak-dc-pill" data-kr-kol="NPL" onclick="window.dakDataSuite && window.dakDataSuite.filterCreditKol('NPL')">NPL (3–5) <b id="dakKrCntNpl"></b></button>
                     </div>
-                    <button type="button" class="dak-kr-exportbtn" onclick="window.dakDataSuite && window.dakDataSuite.exportCreditCSV()"><i class="fas fa-file-csv"></i> Unduh Hasil</button>
+                    <div class="dak-kr-right">
+                        <select id="dakKrUnitSel" class="dak-ops-sel" onchange="window.dakMasterKredit && window.dakMasterKredit.apply()" aria-label="Filter unit kerja"><option value="ALL">Semua Unit</option></select>
+                        <select id="dakKrSortSel" class="dak-ops-sel" onchange="window.dakMasterKredit && window.dakMasterKredit.apply()" aria-label="Urutkan master kredit">
+                            <option value="os_desc">OS Terbesar</option>
+                            <option value="tgk_desc">Tunggakan Terbesar</option>
+                            <option value="kol_desc">KOL Tertinggi</option>
+                            <option value="nama_asc">Nama A–Z</option>
+                        </select>
+                        <button type="button" class="dak-kr-exportbtn" onclick="window.dakDataSuite && window.dakDataSuite.exportCreditCSV()"><i class="fas fa-file-csv"></i> CSV</button>
+                    </div>
                 </div>
                 <div class="overflow-auto flex-1 custom-scrollbar px-1 pt-1">
                 <table class="w-full text-left text-[10px] md:text-xs whitespace-nowrap border-separate border-spacing-y-1">
@@ -3534,8 +3543,8 @@ window.clearCreditChartFilter=function(){window.creditChartFilter=null;const pan
 // =================================================================
 // 2. HANDLER SEARCH & UTILITIES
 // =================================================================
-window.handleCreditLiveSearch=function(e){const input=e?.target?.id==='searchCreditInput'?e.target:document.getElementById('searchCreditInput');if(!input)return;const keyword=String(input.value||'').trim();clearTimeout(window.creditLiveSearchTimer);if(!keyword){window.resetSearchCredit();return;}window.creditLiveSearchTimer=setTimeout(()=>window.runCreditLiveSearch(keyword),280);};
-window.runCreditLiveSearch=function(keyword){keyword=String(keyword||'').trim();if(!keyword){window.resetSearchCredit();return;}const seq=window.creditSearchSequence=(window.creditSearchSequence||0)+1;isSearching=true;const input=document.getElementById('searchCreditInput');if(input)input.classList.add('ring-2','ring-blue-500/20');const info=document.getElementById('creditInfoStatus');if(info)info.textContent='Mencari "'+keyword+'"…';const tbody=document.getElementById('creditTableBody');if(tbody)tbody.innerHTML='<tr><td colspan="5" class="p-10 md:p-16 text-center"><div class="inline-flex items-center gap-3 text-blue-600 font-bold"><i class="fas fa-circle-notch fa-spin text-xl"></i><span>Mencari data kredit…</span></div></td></tr>';const branch=document.getElementById('selBranch')?.value||'ALL',date=document.getElementById('selDate')?.value||'';google.script.run.withSuccessHandler(res=>{if(seq!==window.creditSearchSequence)return;window.onSearchResult(res);}).withFailureHandler(err=>{if(seq!==window.creditSearchSequence)return;window.onSearchFail(err);}).searchCreditGlobal(branch,date,keyword);};
+window.handleCreditLiveSearch=function(e){const input=e?.target?.id==='searchCreditInput'?e.target:document.getElementById('searchCreditInput');if(!input)return;const keyword=String(input.value||'').trim();clearTimeout(window.creditLiveSearchTimer);if(!keyword){window.resetSearchCredit();return;}window.creditLiveSearchTimer=setTimeout(()=>window.runCreditLiveSearch(keyword),(window.dakMasterKredit&&window.dakMasterKredit.hasLocal())?60:240);};
+window.runCreditLiveSearch=function(keyword){keyword=String(keyword||'').trim();if(window.dakMasterKredit&&window.dakMasterKredit.hasLocal()){window.dakMasterKredit.apply(keyword);return;}if(!keyword){window.resetSearchCredit();return;}const seq=window.creditSearchSequence=(window.creditSearchSequence||0)+1;isSearching=true;const input=document.getElementById('searchCreditInput');if(input)input.classList.add('ring-2','ring-blue-500/20');const info=document.getElementById('creditInfoStatus');if(info)info.textContent='Mencari "'+keyword+'"…';const tbody=document.getElementById('creditTableBody');if(tbody)tbody.innerHTML='<tr><td colspan="5" class="p-10 md:p-16 text-center"><div class="inline-flex items-center gap-3 text-blue-600 font-bold"><i class="fas fa-circle-notch fa-spin text-xl"></i><span>Mencari data kredit…</span></div></td></tr>';const branch=document.getElementById('selBranch')?.value||'ALL',date=document.getElementById('selDate')?.value||'';google.script.run.withSuccessHandler(res=>{if(seq!==window.creditSearchSequence)return;window.onSearchResult(res);}).withFailureHandler(err=>{if(seq!==window.creditSearchSequence)return;window.onSearchFail(err);}).searchCreditGlobal(branch,date,keyword);};
 window.handleSearchEnter=function(e){if(e?.key!=='Enter')return;if(typeof e.preventDefault==='function')e.preventDefault();clearTimeout(window.creditLiveSearchTimer);const keyword=document.getElementById('searchCreditInput')?.value?.trim()||'';if(keyword)window.runCreditLiveSearch(keyword);else window.resetSearchCredit();};
 
 window.onSearchResult = function(res) {
@@ -3709,6 +3718,7 @@ window.filterCreditTable = function(keyword) {
 };
 
 window.sortKredit = function(key) {
+    if(window.dakMasterKredit && window.dakMasterKredit.hasLocal()) { window.dakMasterKredit.toggleSort(key); return; }
     if(!window.allCreditData) return;
     
     // Init state jika belum ada
@@ -11239,6 +11249,7 @@ document.addEventListener('click',function(){});
     },
 
     filterCreditKol(kol) {
+      if (window.dakMasterKredit && window.dakMasterKredit.hasLocal()) { window.dakMasterKredit.setKol(kol); return; }
       const src = window.__dakKrSourceRows || [];
       document.querySelectorAll('#dakKrToolbar [data-kr-kol]').forEach(b => {
         b.classList.toggle('is-on', b.dataset.krKol === kol);
@@ -13064,5 +13075,165 @@ document.addEventListener('click',function(){});
     if (localStorage.getItem('dakopen_token_v64')) {
       hydrateFromCache();
     }
+  });
+})();
+
+
+// =========================================================================
+// DAKOPEN v1611 — INSTANT MASTER KREDIT ENGINE (0ms LOCAL SEARCH, FILTER, SORT, LOAD MORE)
+// =========================================================================
+(function () {
+  if (window.dakMasterKredit) return;
+
+  let curKol = 'ALL';
+  let limit = 50;
+  let lastFiltered = [];
+  let sortOverride = null;
+
+  const fmtIDR = v => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Math.round(Number(v) || 0));
+
+  function getLocalPool() {
+    const d = window.app && window.app.state && window.app.state.data;
+    if (d && Array.isArray(d.all_list) && d.all_list.length) return d.all_list;
+    if (Array.isArray(window.allCreditData) && window.allCreditData.length) return window.allCreditData;
+    return [];
+  }
+
+  function populateUnits(pool) {
+    const sel = document.getElementById('dakKrUnitSel');
+    if (!sel || sel.options.length > 1) return;
+    const units = Array.from(new Set(pool.map(r => String(r.br || '').trim()).filter(Boolean))).sort();
+    units.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u;
+      opt.textContent = u;
+      sel.appendChild(opt);
+    });
+  }
+
+  function renderSlice() {
+    const slice = lastFiltered.slice(0, limit);
+    window.__dakKrFromFilter = true;
+    try {
+      if (typeof renderCreditRows === 'function') renderCreditRows(slice);
+    } finally {
+      window.__dakKrFromFilter = false;
+    }
+    window.__dakKrVisibleRows = lastFiltered;
+    const tbody = document.getElementById('creditTableBody');
+    if (tbody && lastFiltered.length > limit) {
+      const rem = lastFiltered.length - limit;
+      const tr = document.createElement('tr');
+      tr.className = 'dak-loadmore-row';
+      tr.innerHTML = `<td colspan="5" class="p-3 text-center"><button type="button" class="dak-loadmore-btn" onclick="window.dakMasterKredit.loadMore()">Tampilkan 50 Berikutnya (${rem.toLocaleString('id-ID')} tersisa)</button></td>`;
+      tbody.appendChild(tr);
+    }
+  }
+
+  window.dakMasterKredit = {
+    hasLocal() {
+      return getLocalPool().length > 0;
+    },
+
+    setKol(k) {
+      curKol = k || 'ALL';
+      document.querySelectorAll('#dakKrToolbar [data-kr-kol]').forEach(b => b.classList.toggle('is-on', b.dataset.krKol === curKol));
+      this.apply();
+    },
+
+    toggleSort(key) {
+      const sel = document.getElementById('dakKrSortSel');
+      if (key === 'nama') sortOverride = sortOverride === 'nama_asc' ? 'nama_desc' : 'nama_asc';
+      else sortOverride = sortOverride === 'os_desc' ? 'os_asc' : 'os_desc';
+      if (sel && (sortOverride === 'os_desc' || sortOverride === 'nama_asc')) sel.value = sortOverride;
+      this.apply();
+    },
+
+    loadMore() {
+      limit += 50;
+      renderSlice();
+    },
+
+    apply(explicitQuery) {
+      const pool = getLocalPool();
+      if (!pool.length) return;
+      populateUnits(pool);
+
+      const inp = document.getElementById('searchCreditInput');
+      if (explicitQuery !== undefined && inp) inp.value = explicitQuery;
+      const q = String(explicitQuery !== undefined ? explicitQuery : (inp ? inp.value : '')).trim().toLowerCase();
+      const brGlobal = document.getElementById('selBranch')?.value || 'ALL';
+      const unitVal = document.getElementById('dakKrUnitSel')?.value || 'ALL';
+      const sortVal = sortOverride || document.getElementById('dakKrSortSel')?.value || 'os_desc';
+      sortOverride = null;
+
+      // Base scoped by global branch & unit & search (for accurate KOL pill counts)
+      const base = pool.filter(r => {
+        if (brGlobal !== 'ALL' && String(r.br || '').trim() !== brGlobal) return false;
+        if (unitVal !== 'ALL' && String(r.br || '').trim() !== unitVal) return false;
+        if (q) {
+          const hay = (String(r.nama || '') + ' ' + String(r.loan || '') + ' ' + String(r.pk || '') + ' ' + String(r.br || '') + ' ' + String(r.sektor || '')).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      if (window.dakDataSuite && window.dakDataSuite.syncCreditCounts) {
+        window.dakDataSuite.syncCreditCounts(base);
+      }
+
+      const out = base.filter(r => {
+        const k = parseInt(r.kol) || 1;
+        if (curKol === '1') return k === 1;
+        if (curKol === '2') return k === 2;
+        if (curKol === 'NPL') return k >= 3;
+        return true;
+      });
+
+      out.sort((a, b) => {
+        if (sortVal === 'os_asc') return (Number(a.os) || 0) - (Number(b.os) || 0);
+        if (sortVal === 'tgk_desc') return (Number(b.tgk) || 0) - (Number(a.tgk) || 0);
+        if (sortVal === 'kol_desc') return (parseInt(b.kol) || 1) - (parseInt(a.kol) || 1) || (Number(b.os) || 0) - (Number(a.os) || 0);
+        if (sortVal === 'nama_asc') return String(a.nama || '').localeCompare(String(b.nama || ''), 'id');
+        if (sortVal === 'nama_desc') return String(b.nama || '').localeCompare(String(a.nama || ''), 'id');
+        return (Number(b.os) || 0) - (Number(a.os) || 0);
+      });
+
+      lastFiltered = out;
+      limit = 50;
+      renderSlice();
+
+      // Dynamic KPI update
+      const totPoolOs = pool.reduce((a, r) => a + (Number(r.os) || 0), 0);
+      const sumOs = out.reduce((a, r) => a + (Number(r.os) || 0), 0);
+      const osEl = document.getElementById('kr_os');
+      const noaEl = document.getElementById('kr_noa');
+      const infoEl = document.getElementById('creditInfoStatus');
+      const btnReset = document.getElementById('btnResetSearch');
+      const isFiltered = !!(q || curKol !== 'ALL' || unitVal !== 'ALL');
+      if (osEl) osEl.textContent = fmtIDR(sumOs);
+      if (noaEl) noaEl.textContent = out.length.toLocaleString('id-ID') + (isFiltered && totPoolOs > 0 ? ` (${(sumOs / totPoolOs * 100).toFixed(1)}%)` : '');
+      if (infoEl) {
+        infoEl.innerHTML = isFiltered
+          ? `<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 px-2 py-0.5 rounded">Instan</span> <b>${out.length.toLocaleString('id-ID')}</b> dari ${pool.length.toLocaleString('id-ID')} rekening`
+          : `Portofolio penuh · ${out.length.toLocaleString('id-ID')} rekening`;
+      }
+      if (btnReset) btnReset.classList.toggle('hidden', !isFiltered);
+    }
+  };
+
+  // Auto-init Master Kredit whenever #dakKrToolbar appears in DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    const view = document.getElementById('view-kredit');
+    if (!view) return;
+    new MutationObserver(() => {
+      const tb = document.getElementById('dakKrToolbar');
+      if (tb && !tb.dataset.mkInit && window.dakMasterKredit.hasLocal()) {
+        tb.dataset.mkInit = '1';
+        const pending = window.__dakPendingCreditQuery || '';
+        window.__dakPendingCreditQuery = '';
+        setTimeout(() => window.dakMasterKredit.apply(pending), 40);
+      }
+    }).observe(view, { childList: true, subtree: true });
   });
 })();

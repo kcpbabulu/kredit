@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1610 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1611 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1610" rel="stylesheet">
+<link href="dak-detail.css?v=1611" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -2164,7 +2164,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1610"></script>
-<script defer src="app.js?v=1610"></script>
+<script defer src="app.js?v=1611"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {
@@ -2250,40 +2250,79 @@
       ['Stress Test','Simulasi tekanan portofolio','view-stress','fa-gauge-high'],
       ['CKPN','Analisis CKPN','view-ckpn','fa-calculator'],
       ['Mutasi Kredit','Pergerakan portofolio kredit','view-mutasi','fa-arrows-rotate'],
-      ['Data Kredit','Data dan pencarian kredit','view-kredit','fa-database']
+      ['Master Kredit','Data dan pencarian kredit','view-kredit','fa-database']
     ];
     let activeIndex=0, filtered=entries, lastQuery='', extra=[], seq=0, timer=null, lastFocus=null, busy=false;
     const modal=()=>document.getElementById('dak-command-palette');
     const input=()=>document.getElementById('dak-command-input');
     function entryAllowed(item){
+      if(!item) return true;
       if(item[2]==='__upload__') return !document.querySelector('#sidebar button[onclick*="openUploadModal"]')?.classList.contains('hidden');
       if(item[2]==='view-archive') { const btn=document.querySelector('#sidebar .nav-btn[onclick*="loadArchiveData"]'); return !btn || !btn.classList.contains('hidden'); }
       if(item[2]==='view-journey') { const btn=document.querySelector('#sidebar .nav-btn[onclick*="view-journey"]'); return !btn || !btn.classList.contains('hidden'); }
       const btn=document.querySelector(`#sidebar .nav-btn[onclick*="${item[2]}"]`);
       return !btn || !btn.classList.contains('hidden');
     }
-    window.dakOpenCommandPalette=function(){const m=modal();if(!m)return;lastFocus=document.activeElement;extra=[];busy=false;m.hidden=false;document.body.classList.add('dak-command-open');const i=input();if(i){i.value='';i.setAttribute('role','combobox');i.setAttribute('aria-expanded','true');i.setAttribute('aria-controls','dak-command-results');i.setAttribute('aria-autocomplete','list');}activeIndex=0;render('');setTimeout(()=>input().focus(),30)};
+    function getLocalDebtors(){
+      const st = window.app && window.app.state;
+      const d = st && st.data;
+      if(d && Array.isArray(d.all_list) && d.all_list.length) return d.all_list;
+      if(Array.isArray(window.__dakKrSourceRows) && window.__dakKrSourceRows.length) return window.__dakKrSourceRows;
+      if(d && Array.isArray(d.npl_list) && d.npl_list.length) return d.npl_list;
+      return [];
+    }
+    function searchLocalDebtors(q){
+      const raw=(q||'').trim(), term=raw.toLocaleLowerCase('id');
+      if(term.length<2) return [];
+      const list=getLocalDebtors();
+      if(!list.length) return [];
+      const brEl=document.getElementById('selBranch');
+      const brVal=(brEl&&brEl.value)||'ALL';
+      const hits=[];
+      for(let i=0;i<list.length;i++){
+        const r=list[i]; if(!r) continue;
+        if(brVal!=='ALL' && String(r.br||'').trim()!==brVal) continue;
+        const hay=(String(r.nama||'')+' '+String(r.loan||'')+' '+String(r.pk||'')+' '+String(r.br||'')).toLocaleLowerCase('id');
+        const idx=hay.indexOf(term);
+        if(idx>=0){
+          const starts=String(r.nama||'').toLocaleLowerCase('id').startsWith(term)?0:1;
+          hits.push({r, score:starts*1000+idx, os:Number(r.os)||0});
+        }
+      }
+      hits.sort((a,b)=>a.score-b.score || b.os-a.os);
+      return hits.slice(0,8).map(h=>{
+        const r=h.r, k=parseInt(r.kol)||1;
+        const osStr='Rp '+Math.round(Number(r.os)||0).toLocaleString('id-ID');
+        return [String(r.nama||'-'), `${String(r.loan||'-')} · ${String(r.br||'-')} · KOL ${k} · ${osStr}`, '__debtor__', 'fa-user', String(r.loan||r.pk||'')];
+      });
+    }
+    window.dakOpenCommandPalette=function(){const m=modal();if(!m)return;lastFocus=document.activeElement;extra=[];busy=false;m.hidden=false;document.body.classList.add('dak-command-open');const i=input();if(i){i.value='';i.setAttribute('role','combobox');i.setAttribute('aria-expanded','true');i.setAttribute('aria-controls','dak-command-results');i.setAttribute('aria-autocomplete','list');}activeIndex=0;render('');setTimeout(()=>input()&&input().focus(),30)};
     window.dakCloseCommandPalette=function(){const m=modal();seq++;clearTimeout(timer);if(m)m.hidden=true;document.body.classList.remove('dak-command-open');if(lastFocus&&lastFocus.focus&&document.contains(lastFocus))try{lastFocus.focus()}catch(e){}};
     function render(q){
       const raw=(q||'').trim(), term=raw.toLocaleLowerCase('id');
       const menus=entries.filter(x=>entryAllowed(x)&&(!term||(x[0]+' '+x[1]).toLocaleLowerCase('id').includes(term)));
       const canSearchDebtor=entryAllowed(entries.find(x=>x[2]==='view-kredit'));
-      const quick=(raw.length>=3&&canSearchDebtor)?[[`Cari data debitur: ${raw}`,'Cari nama, nomor PK, atau rekening pada Data Kredit','__debtor_search__','fa-user-magnifying-glass',raw]]:[];
-      filtered=[...quick,...extra,...menus]; lastQuery=raw;
+      const localDebtors=canSearchDebtor?searchLocalDebtors(raw):[];
+      const debtorList=localDebtors.length?localDebtors:extra;
+      const quick=(raw.length>=2&&canSearchDebtor)?[[`Lihat semua hasil "${raw}" di Master Kredit`,'Buka Master Kredit dengan filter nama, PK, atau rekening','__debtor_search__','fa-magnifying-glass-arrow-right',raw]]:[];
+      // Debitur cocok langsung muncul paling atas agar Enter/klik langsung membuka data tujuan!
+      filtered=[...debtorList,...menus,...quick]; lastQuery=raw;
       activeIndex=Math.min(activeIndex,Math.max(0,filtered.length-1));
       const host=document.getElementById('dak-command-results');if(!host)return;
-      host.innerHTML=filtered.length?filtered.map((x,i)=>`<button type="button" role="option" id="dak-opt-${i}" aria-selected="${i===activeIndex}" class="dak-command-result ${i===activeIndex?'is-active':''} ${x[2]==='__debtor_search__'?'dak-command-debtor-action':''}" data-index="${i}"><span class="dak-command-result-icon"><i class="fas ${x[3]}"></i></span><span class="dak-command-result-copy"><strong>${escapeHtml(x[0])}</strong><small>${escapeHtml(x[1])}</small></span><i class="fas fa-arrow-turn-down dak-command-enter"></i></button>`).join(''):'<div class="dak-command-empty"><i class="fas fa-magnifying-glass"></i><strong>Menu tidak ditemukan</strong><span>Coba kata kunci lain atau gunakan minimal 3 karakter untuk mencari debitur.</span></div>';
+      host.innerHTML=filtered.length?filtered.map((x,i)=>`<button type="button" role="option" id="dak-opt-${i}" aria-selected="${i===activeIndex}" class="dak-command-result ${i===activeIndex?'is-active':''} ${x[2]==='__debtor_search__'?'dak-command-debtor-action':''}" data-index="${i}"><span class="dak-command-result-icon"><i class="fas ${x[3]}"></i></span><span class="dak-command-result-copy"><strong>${escapeHtml(x[0])}</strong><small>${escapeHtml(x[1])}</small></span><i class="fas fa-arrow-turn-down dak-command-enter"></i></button>`).join(''):'<div class="dak-command-empty"><i class="fas fa-magnifying-glass"></i><strong>Tidak ditemukan</strong><span>Coba kata kunci lain (minimal 2 huruf untuk mencari debitur).</span></div>';
       const inp0=input();if(inp0)inp0.setAttribute('aria-activedescendant',filtered.length?'dak-opt-'+activeIndex:'');host.setAttribute('aria-busy',busy?'true':'false');
       host.querySelectorAll('[data-index]').forEach(b=>b.addEventListener('click',()=>openEntry(Number(b.dataset.index))));
     }
     function remote(q){
       clearTimeout(timer);const raw=(q||'').trim(),my=++seq;busy=false;
-      if(raw.length<3||!entryAllowed(entries.find(x=>x[2]==='view-kredit'))||!window.google||!google.script||!google.script.run)return;
+      // Jika data lokal sudah ada, tidak perlu membebani server!
+      if(getLocalDebtors().length>0) return;
+      if(raw.length<2||!entryAllowed(entries.find(x=>x[2]==='view-kredit'))||!window.google||!google.script||!google.script.run)return;
       timer=setTimeout(()=>{busy=true;render(raw);const b=document.getElementById('selBranch'),d=document.getElementById('selDate');
-        google.script.run.withSuccessHandler(res=>{if(my!==seq)return;busy=false;const list=(res&&Array.isArray(res.list))?res.list.slice(0,6):[];
+        google.script.run.withSuccessHandler(res=>{if(my!==seq)return;busy=false;const list=(res&&Array.isArray(res.list))?res.list.slice(0,8):[];
           extra=list.map(r=>[String(r.nama||'-'),String(r.loan||'-')+' · KOL '+(r.kol==null?'-':r.kol)+' · Rp '+Math.round(Number(r.os)||0).toLocaleString('id-ID'),'__debtor__','fa-user',String(r.loan)]);render(raw);})
         .withFailureHandler(()=>{if(my===seq){busy=false;render(raw);}})
-        .searchCreditGlobal((b&&b.value)||'ALL',(d&&d.value)||'',raw);},280);
+        .searchCreditGlobal((b&&b.value)||'ALL',(d&&d.value)||'',raw);},240);
     }
     function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
     function openEntry(i){
@@ -2291,11 +2330,15 @@
       if(item[2]==='__debtor__'){if(window.app&&typeof app.fetchDetail==='function')app.fetchDetail(item[4]);return;}
       if(item[2]==='__debtor_search__'){
         const keyword=item[4]||lastQuery;
+        window.__dakPendingCreditQuery=keyword;
         if(window.app&&typeof app.switchTab==='function')app.switchTab('view-kredit');
         window.setTimeout(()=>{
           const inp=document.getElementById('searchCreditInput');
-          if(inp){inp.value=keyword;inp.disabled=false;if(window.app&&typeof app.handleSearchEnter==='function')app.handleSearchEnter({key:'Enter',preventDefault:function(){}});else if(typeof window.handleSearchEnter==='function')window.handleSearchEnter({key:'Enter',preventDefault:function(){}});}
-        },450);
+          if(inp){inp.value=keyword;inp.disabled=false;}
+          if(window.dakMasterKredit&&typeof window.dakMasterKredit.apply==='function') window.dakMasterKredit.apply();
+          else if(window.runCreditLiveSearch) window.runCreditLiveSearch(keyword);
+          window.__dakPendingCreditQuery='';
+        },180);
       } else if(item[2]==='__upload__'&&window.app&&typeof app.openUploadModal==='function')app.openUploadModal();
       else if(item[2]==='view-archive'&&window.app&&typeof app.loadArchiveData==='function')app.loadArchiveData();
       else if(item[2]==='view-journey'&&window.app&&app.state&&app.state.data&&app.state.data.npl_list){app.switchTab(item[2]);app.renderJourneyPage();}
