@@ -8,7 +8,7 @@
 <script>(function(){var r=document.documentElement;r.classList.add('dak-booting');var done=function(){r.classList.remove('dak-booting');};window.addEventListener('DOMContentLoaded',function(){requestAnimationFrame(done);});setTimeout(done,350);})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/><link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin/><link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" name="viewport"/>
-<title>DaKOPen PPU v1614 — Credit Intelligence SuperApp</title>
+<title>DaKOPen PPU v1615 — Credit Intelligence SuperApp</title>
 <!-- PWA Meta Tags -->
 <link href="manifest.json" rel="manifest"/>
 <meta content="#f8fafc" media="(prefers-color-scheme: light)" name="theme-color"/>
@@ -44,7 +44,7 @@
 <link href="dak-interact.css?v=1590" rel="stylesheet">
 <link href="dak-polish.css?v=1590" rel="stylesheet">
 <style>#bk-filterwrap .bk-sheet-head,#bk-filterwrap .bk-fl,#bk-filterwrap .bk-grab{display:none}select.bk-cal-src{display:none!important}@media(max-width:767px){body.bk-filter-open #bk-filterwrap .bk-sheet-head{display:flex}body.bk-filter-open #bk-filterwrap .bk-fl{display:block}body.bk-filter-open #bk-filterwrap .bk-grab{display:block}}</style>
-<link href="dak-detail.css?v=1614" rel="stylesheet">
+<link href="dak-detail.css?v=1615" rel="stylesheet">
 <!-- Tailwind Configuration Baru -->
 <script>
     tailwind.config = {
@@ -597,6 +597,30 @@
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL Total) -->
+<!-- v1615 Interactive KOL 1 Debtor Simulation Panel (ALL) -->
+<section class="dak-k1-card glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/85 dark:bg-slate-800/85 shadow-sm" id="dakKol1Sim_ALL" data-k1-type="ALL">
+  <div class="dak-k1-head">
+    <div class="dak-k1-titlewrap">
+      <div class="dak-k1-ico"><i class="fas fa-user-plus"></i></div>
+      <div>
+        <div class="dak-k1-title">Simulasi Debitur KOL 1 <span class="dak-k1-badge" id="dakK1Badge_ALL" hidden>0</span></div>
+        <div class="dak-k1-sub">Cari debitur lancar (Seluruh Portofolio) untuk uji skenario <b>Jatuh NPL</b> atau <b>Lunas / Take Over</b></div>
+      </div>
+    </div>
+    <div class="dak-k1-headacts">
+      <button type="button" class="dak-k1-wabtn" onclick="window.dakKol1Sim && window.dakKol1Sim.copyWA('ALL')" title="Salin ringkasan skenario simulasi ke WhatsApp"><i class="fab fa-whatsapp"></i> <span>Ringkasan WA</span></button>
+      <button type="button" class="dak-k1-clrbtn" id="dakK1Clr_ALL" hidden onclick="window.dakKol1Sim && window.dakKol1Sim.clear('ALL')"><i class="fas fa-rotate-left"></i> Reset KOL 1</button>
+    </div>
+  </div>
+  <div class="dak-k1-searchbox">
+    <div class="dak-k1-inpwrap">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" id="dakK1Search_ALL" placeholder="Cari nama, No. Loan, PK, atau unit debitur KOL 1… (klik untuk Top 5 Obligor)" onfocus="window.dakKol1Sim && window.dakKol1Sim.openSuggest('ALL')" oninput="window.dakKol1Sim && window.dakKol1Sim.onInput('ALL', this.value)" autocomplete="off" aria-label="Cari debitur KOL 1 untuk simulasi Seluruh Portofolio"/>
+    </div>
+    <div class="dak-k1-suggest" id="dakK1Suggest_ALL" hidden role="listbox" aria-label="Saran debitur KOL 1"></div>
+  </div>
+  <div class="dak-k1-basket" id="dakK1Basket_ALL" hidden></div>
+</section>
 <section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="ALL" id="dakNplViz_ALL">
   <div class="dak-npl-viz-head">
     <div class="dak-npl-viz-titlewrap">
@@ -810,6 +834,30 @@
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL KUR) -->
+<!-- v1615 Interactive KOL 1 Debtor Simulation Panel (KUR) -->
+<section class="dak-k1-card glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/85 dark:bg-slate-800/85 shadow-sm" id="dakKol1Sim_KUR" data-k1-type="KUR">
+  <div class="dak-k1-head">
+    <div class="dak-k1-titlewrap">
+      <div class="dak-k1-ico"><i class="fas fa-user-plus"></i></div>
+      <div>
+        <div class="dak-k1-title">Simulasi Debitur KOL 1 <span class="dak-k1-badge" id="dakK1Badge_KUR" hidden>0</span></div>
+        <div class="dak-k1-sub">Cari debitur lancar (Segmen KUR) untuk uji skenario <b>Jatuh NPL</b> atau <b>Lunas / Take Over</b></div>
+      </div>
+    </div>
+    <div class="dak-k1-headacts">
+      <button type="button" class="dak-k1-wabtn" onclick="window.dakKol1Sim && window.dakKol1Sim.copyWA('KUR')" title="Salin ringkasan skenario simulasi ke WhatsApp"><i class="fab fa-whatsapp"></i> <span>Ringkasan WA</span></button>
+      <button type="button" class="dak-k1-clrbtn" id="dakK1Clr_KUR" hidden onclick="window.dakKol1Sim && window.dakKol1Sim.clear('KUR')"><i class="fas fa-rotate-left"></i> Reset KOL 1</button>
+    </div>
+  </div>
+  <div class="dak-k1-searchbox">
+    <div class="dak-k1-inpwrap">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" id="dakK1Search_KUR" placeholder="Cari nama, No. Loan, PK, atau unit debitur KOL 1… (klik untuk Top 5 Obligor)" onfocus="window.dakKol1Sim && window.dakKol1Sim.openSuggest('KUR')" oninput="window.dakKol1Sim && window.dakKol1Sim.onInput('KUR', this.value)" autocomplete="off" aria-label="Cari debitur KOL 1 untuk simulasi Segmen KUR"/>
+    </div>
+    <div class="dak-k1-suggest" id="dakK1Suggest_KUR" hidden role="listbox" aria-label="Saran debitur KOL 1"></div>
+  </div>
+  <div class="dak-k1-basket" id="dakK1Basket_KUR" hidden></div>
+</section>
 <section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="KUR" id="dakNplViz_KUR">
   <div class="dak-npl-viz-head">
     <div class="dak-npl-viz-titlewrap">
@@ -1013,6 +1061,30 @@
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL Konsumtif) -->
+<!-- v1615 Interactive KOL 1 Debtor Simulation Panel (Kons) -->
+<section class="dak-k1-card glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/85 dark:bg-slate-800/85 shadow-sm" id="dakKol1Sim_Kons" data-k1-type="Kons">
+  <div class="dak-k1-head">
+    <div class="dak-k1-titlewrap">
+      <div class="dak-k1-ico"><i class="fas fa-user-plus"></i></div>
+      <div>
+        <div class="dak-k1-title">Simulasi Debitur KOL 1 <span class="dak-k1-badge" id="dakK1Badge_Kons" hidden>0</span></div>
+        <div class="dak-k1-sub">Cari debitur lancar (Segmen Konsumtif) untuk uji skenario <b>Jatuh NPL</b> atau <b>Lunas / Take Over</b></div>
+      </div>
+    </div>
+    <div class="dak-k1-headacts">
+      <button type="button" class="dak-k1-wabtn" onclick="window.dakKol1Sim && window.dakKol1Sim.copyWA('Kons')" title="Salin ringkasan skenario simulasi ke WhatsApp"><i class="fab fa-whatsapp"></i> <span>Ringkasan WA</span></button>
+      <button type="button" class="dak-k1-clrbtn" id="dakK1Clr_Kons" hidden onclick="window.dakKol1Sim && window.dakKol1Sim.clear('Kons')"><i class="fas fa-rotate-left"></i> Reset KOL 1</button>
+    </div>
+  </div>
+  <div class="dak-k1-searchbox">
+    <div class="dak-k1-inpwrap">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" id="dakK1Search_Kons" placeholder="Cari nama, No. Loan, PK, atau unit debitur KOL 1… (klik untuk Top 5 Obligor)" onfocus="window.dakKol1Sim && window.dakKol1Sim.openSuggest('Kons')" oninput="window.dakKol1Sim && window.dakKol1Sim.onInput('Kons', this.value)" autocomplete="off" aria-label="Cari debitur KOL 1 untuk simulasi Segmen Konsumtif"/>
+    </div>
+    <div class="dak-k1-suggest" id="dakK1Suggest_Kons" hidden role="listbox" aria-label="Saran debitur KOL 1"></div>
+  </div>
+  <div class="dak-k1-basket" id="dakK1Basket_Kons" hidden></div>
+</section>
 <section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="Kons" id="dakNplViz_Kons">
   <div class="dak-npl-viz-head">
     <div class="dak-npl-viz-titlewrap">
@@ -1229,6 +1301,30 @@
 </div>
 </div>
 <!-- v1601 Interactive NPL Chart Panel (NPL Produktif) -->
+<!-- v1615 Interactive KOL 1 Debtor Simulation Panel (Prod) -->
+<section class="dak-k1-card glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/85 dark:bg-slate-800/85 shadow-sm" id="dakKol1Sim_Prod" data-k1-type="Prod">
+  <div class="dak-k1-head">
+    <div class="dak-k1-titlewrap">
+      <div class="dak-k1-ico"><i class="fas fa-user-plus"></i></div>
+      <div>
+        <div class="dak-k1-title">Simulasi Debitur KOL 1 <span class="dak-k1-badge" id="dakK1Badge_Prod" hidden>0</span></div>
+        <div class="dak-k1-sub">Cari debitur lancar (Segmen Produktif) untuk uji skenario <b>Jatuh NPL</b> atau <b>Lunas / Take Over</b></div>
+      </div>
+    </div>
+    <div class="dak-k1-headacts">
+      <button type="button" class="dak-k1-wabtn" onclick="window.dakKol1Sim && window.dakKol1Sim.copyWA('Prod')" title="Salin ringkasan skenario simulasi ke WhatsApp"><i class="fab fa-whatsapp"></i> <span>Ringkasan WA</span></button>
+      <button type="button" class="dak-k1-clrbtn" id="dakK1Clr_Prod" hidden onclick="window.dakKol1Sim && window.dakKol1Sim.clear('Prod')"><i class="fas fa-rotate-left"></i> Reset KOL 1</button>
+    </div>
+  </div>
+  <div class="dak-k1-searchbox">
+    <div class="dak-k1-inpwrap">
+      <i class="fas fa-magnifying-glass"></i>
+      <input type="search" id="dakK1Search_Prod" placeholder="Cari nama, No. Loan, PK, atau unit debitur KOL 1… (klik untuk Top 5 Obligor)" onfocus="window.dakKol1Sim && window.dakKol1Sim.openSuggest('Prod')" oninput="window.dakKol1Sim && window.dakKol1Sim.onInput('Prod', this.value)" autocomplete="off" aria-label="Cari debitur KOL 1 untuk simulasi Segmen Produktif"/>
+    </div>
+    <div class="dak-k1-suggest" id="dakK1Suggest_Prod" hidden role="listbox" aria-label="Saran debitur KOL 1"></div>
+  </div>
+  <div class="dak-k1-basket" id="dakK1Basket_Prod" hidden></div>
+</section>
 <section class="dak-npl-viz glass-card rounded-[1.25rem] p-3.5 md:p-4 border border-white/60 dark:border-slate-700/60 bg-white/80 dark:bg-slate-800/80 shadow-sm" data-npl-type="Prod" id="dakNplViz_Prod">
   <div class="dak-npl-viz-head">
     <div class="dak-npl-viz-titlewrap">
@@ -2164,7 +2260,7 @@
 <!-- App Javascript -->
 <script defer src="dak-interact.js?v=1600"></script>
 <script defer src="dak-detail.js?v=1610"></script>
-<script defer src="app.js?v=1614"></script>
+<script defer src="app.js?v=1615"></script>
 <!-- Service Worker Registration & Auto-Update Catcher (GLASSMORPHISM STYLE) -->
 <script>
     if ('serviceWorker' in navigator) {

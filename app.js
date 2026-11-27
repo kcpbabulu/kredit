@@ -2032,6 +2032,7 @@ function renderSimTable(type) {
     // =================================================================
     
     // --- UPDATE: HITUNG STATISTIK SIMULASI (SUPPORT PRODUKTIF) ---
+    window.dakUpdateSimStats = updateSimStats;
     function updateSimStats(type) {
         // 1. Tentukan Variabel Data Dasar (Base)
         // Tambahkan 'prod' ke dalam logika pemilihan variabel
@@ -2059,22 +2060,25 @@ function renderSimTable(type) {
             realOs = base.fours_os; realNpl = base.fours_npl; 
         }
 
-        // 3. Hitung Total Simulasi (Heal & Crash)
+        // 3. Hitung Total Simulasi (Heal, Crash KKR, & Simulasi Debitur KOL 1 v1615)
         let sim = s['sim'+type] || { heal:[], crash:[] };
-        let totalHeal = (sim.heal || []).reduce((a,b)=>a+b, 0);   // Pelunasan
-        let totalCrash = (sim.crash || []).reduce((a,b)=>a+b, 0); // Downgrade
-        
+        let totalHeal = (sim.heal || []).reduce((a,b)=>a+b, 0);   // Pelunasan NPL
+        let k1 = (window.dakKol1Sim && typeof window.dakKol1Sim.getTotals === 'function')
+            ? window.dakKol1Sim.getTotals(type)
+            : { crash: 0, payoff: 0, count: 0 };
+        let totalCrash = (sim.crash || []).reduce((a,b)=>a+b, 0) + (k1.crash || 0); // Downgrade KKR + KOL 1
+        let totalPayoffK1 = k1.payoff || 0; // Pelunasan / Take Over KOL 1 (mengurangi pembagi OS)
+
         // 4. Hitung Proyeksi Baru
-        // NPL Baru = NPL Awal - Lunas + Jatuh Baru
         let newNpl = realNpl - totalHeal + totalCrash; 
         if(newNpl < 0) newNpl = 0;
 
-        // Gabungkan efek Slider Pertumbuhan OS dengan Checkbox Debitur (v1602 Unified Sim)
+        // Gabungkan efek Slider Pertumbuhan OS dengan Checkbox Debitur & KOL 1 (v1615 Unified Sim)
         let slKey = type === 'Kons' ? 'KONS' : (type === 'Prod' ? 'PROD' : type);
         let slEl = document.getElementById('slide_os_' + slKey);
         let slPct = slEl ? (parseInt(slEl.value, 10) || 0) : 0;
         let sliderDeltaOs = realOs * (slPct / 100);
-        let newOs = Math.max(0, (realOs - totalHeal) + sliderDeltaOs);
+        let newOs = Math.max(0, (realOs - totalHeal - totalPayoffK1) + sliderDeltaOs);
         
         let newRatio = newOs > 0 ? (newNpl / newOs) * 100 : 0;
         let oldRatio = realOs > 0 ? (realNpl / realOs) * 100 : 0;
@@ -11333,6 +11337,7 @@ document.addEventListener('click',function(){});
       }
       this.clearSimSuffix(simType, 'NPL');
       this.clearSimSuffix(simType, 'KKR');
+      if (window.dakKol1Sim && typeof window.dakKol1Sim.clear === 'function') window.dakKol1Sim.clear(simType, true);
       const box = document.getElementById('dakTargetBox_' + simType);
       if (box) box.hidden = true;
       if (window.showToast) window.showToast('Simulasi ' + simType + ' direset ke posisi aktual.', 'info');
@@ -11346,7 +11351,10 @@ document.addEventListener('click',function(){});
         if (window.showToast) window.showToast('Data belum termuat untuk menghitung target.', 'warning');
         return;
       }
-      const curRatio = (m.npl / m.os) * 100;
+      const k1 = (window.dakKol1Sim && window.dakKol1Sim.getTotals) ? window.dakKol1Sim.getTotals(simType) : { crash: 0, payoff: 0, count: 0 };
+      const effNpl = Math.max(0, m.npl + (k1.crash || 0));
+      const effOs = Math.max(1, m.os - (k1.payoff || 0));
+      const curRatio = (effNpl / effOs) * 100;
       const target = 2.99;
       if (curRatio < 3.0) {
         box.innerHTML = `<div class="dak-target-ok"><i class="fas fa-circle-check"></i> <span>Rasio NPL saat ini <b>${curRatio.toFixed(2)}%</b> sudah berada di bawah batas sehat <b>3,00%</b>.</span> <button type="button" class="dak-target-close" onclick="this.closest('.dak-target-box').hidden=true">×</button></div>`;
@@ -11355,9 +11363,9 @@ document.addEventListener('click',function(){});
       }
       // 1) Penyelamatan (NPL - X) / (OS - X) = t  =>  X = (NPL - t*OS) / (1 - t)
       const t = target / 100;
-      const needHeal = Math.max(0, (m.npl - t * m.os) / (1 - t));
+      const needHeal = Math.max(0, (effNpl - t * effOs) / (1 - t));
       // 2) Ekspansi (NPL) / (OS + Y) = t  =>  Y = (NPL / t) - OS
-      const needExpand = Math.max(0, (m.npl / t) - m.os);
+      const needExpand = Math.max(0, (effNpl / t) - effOs);
 
       box.innerHTML = `
         <div class="dak-target-head">
@@ -13720,4 +13728,276 @@ document.addEventListener('click',function(){});
       }
     }).observe(view, { childList: true, subtree: true });
   });
+})();
+
+
+// =========================================================================
+// DAKOPEN v1615 — INTERACTIVE KOL 1 DEBTOR SIMULATION SUITE (0ms SEARCH & SCENARIO BASKET)
+// =========================================================================
+(function () {
+  if (window.dakKol1Sim) return;
+
+  // State per NPL tab: { ALL: [ { loan, nama, br, os, mode: 'crash'|'payoff' } ], KUR: [], Kons: [], Prod: [] }
+  const baskets = { ALL: [], KUR: [], Kons: [], Prod: [] };
+
+  const esc = s => (window.escapeHTML ? window.escapeHTML(s) : String(s == null ? '' : s));
+  const fmtRp = v => 'Rp ' + Math.round(Number(v) || 0).toLocaleString('id-ID');
+  const fmtShort = v => {
+    const n = Number(v) || 0, a = Math.abs(n);
+    if (a >= 1e12) return 'Rp ' + (n / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (a >= 1e9) return 'Rp ' + (n / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (a >= 1e6) return 'Rp ' + (n / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    if (a >= 1e3) return 'Rp ' + (n / 1e3).toFixed(0) + ' Rb';
+    return 'Rp ' + Math.round(n);
+  };
+
+  function getBaseMetrics(type) {
+    const st = window.app && window.app.state;
+    const key = type === 'KUR' ? 'kur' : (type === 'Kons' ? 'kons' : (type === 'Prod' ? 'prod' : 'allnpl'));
+    const base = st && st[key];
+    if (!base) return null;
+    if (type === 'ALL') return { os: Number(base.total_os) || 0, npl: Number(base.npl_os) || 0 };
+    if (type === 'KUR') return { os: Number(base.kur_os) || 0, npl: Number(base.kur_npl) || 0 };
+    if (type === 'Kons') return { os: Number(base.cons_os) || 0, npl: Number(base.cons_npl) || 0 };
+    if (type === 'Prod') return { os: Number(base.prod_os) || 0, npl: Number(base.prod_npl) || 0 };
+    return null;
+  }
+
+  function matchSegment(r, type) {
+    if (type === 'ALL') return true;
+    const rawTags = Array.isArray(r.tags) ? r.tags.join(' ') : String(r.tags || '');
+    const t = rawTags.toUpperCase();
+    if (type === 'KUR') return t.includes('KUR');
+    if (type === 'Kons') return t.includes('KONS') || t.includes('CONS');
+    if (type === 'Prod') return t.includes('PROD') || t.includes('KUR') || t.includes('MIKRO') || t.includes('KECIL') || t.includes('MENENGAH');
+    return true;
+  }
+
+  function getKol1Pool(type) {
+    const d = window.app && window.app.state && window.app.state.data;
+    const all = (d && Array.isArray(d.all_list) && d.all_list) || window.allCreditData || [];
+    const brVal = document.getElementById('selBranch')?.value || 'ALL';
+    return all.filter(r => {
+      if (!r) return false;
+      if ((parseInt(r.kol, 10) || 1) !== 1) return false;
+      if (brVal !== 'ALL' && String(r.br || '').trim() !== brVal) return false;
+      return matchSegment(r, type);
+    });
+  }
+
+  function calcItemDeltaPct(type, os, mode) {
+    const m = getBaseMetrics(type);
+    if (!m || m.os <= 0) return 0;
+    const baseR = (m.npl / m.os) * 100;
+    const nextR = mode === 'payoff'
+      ? (m.os > os ? (m.npl / (m.os - os)) * 100 : 100)
+      : ((m.npl + os) / m.os) * 100;
+    return nextR - baseR;
+  }
+
+  function renderBasket(type) {
+    const list = baskets[type] || [];
+    const box = document.getElementById('dakK1Basket_' + type);
+    const badge = document.getElementById('dakK1Badge_' + type);
+    const clr = document.getElementById('dakK1Clr_' + type);
+    if (badge) {
+      badge.textContent = String(list.length);
+      badge.hidden = !list.length;
+    }
+    if (clr) clr.hidden = !list.length;
+    if (!box) return;
+    if (!list.length) {
+      box.hidden = true;
+      box.innerHTML = '';
+      return;
+    }
+    box.hidden = false;
+    box.innerHTML = list.map(item => {
+      const isCrash = item.mode === 'crash';
+      const delta = calcItemDeltaPct(type, item.os, item.mode);
+      const safeLoan = String(item.loan).replace(/'/g, "\\'");
+      return `
+      <div class="dak-k1-chip ${isCrash ? 'is-crash' : 'is-payoff'}">
+        <div class="dak-k1-chip-info">
+          <b>${esc(item.nama)}</b>
+          <small>${esc(item.br || '-')} · ${fmtShort(item.os)}</small>
+        </div>
+        <div class="dak-k1-chip-acts">
+          <button type="button" class="dak-k1-modebtn" onclick="window.dakKol1Sim.toggleMode('${type}','${safeLoan}')" title="Klik untuk ganti skenario (Jatuh NPL ↔ Lunas)">
+            <i class="fas ${isCrash ? 'fa-arrow-trend-down' : 'fa-door-open'}"></i>
+            ${isCrash ? 'Jatuh NPL' : 'Lunas'}
+          </button>
+          <span class="dak-k1-delta">+${delta.toFixed(2)}%</span>
+          <button type="button" class="dak-k1-rmbtn" onclick="window.dakKol1Sim.remove('${type}','${safeLoan}')" aria-label="Hapus dari simulasi">×</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function renderSuggestions(type, query) {
+    const sug = document.getElementById('dakK1Suggest_' + type);
+    if (!sug) return;
+    const pool = getKol1Pool(type);
+    const q = String(query || '').trim().toLowerCase();
+    const existing = new Set((baskets[type] || []).map(x => String(x.loan)));
+
+    let hits = [];
+    if (!q) {
+      // Top 5 Obligor KOL 1 terbesar
+      hits = pool.slice().sort((a, b) => (Number(b.os) || 0) - (Number(a.os) || 0)).slice(0, 5);
+    } else {
+      hits = pool.filter(r => {
+        const hay = (String(r.nama || '') + ' ' + String(r.loan || '') + ' ' + String(r.pk || '') + ' ' + String(r.br || '') + ' ' + String(r.sektor || '')).toLowerCase();
+        return hay.includes(q);
+      }).sort((a, b) => (Number(b.os) || 0) - (Number(a.os) || 0)).slice(0, 8);
+    }
+
+    if (!hits.length) {
+      sug.innerHTML = `<div class="dak-k1-empty">${pool.length ? 'Debitur KOL 1 tidak ditemukan untuk kata kunci tersebut.' : 'Data KOL 1 belum termuat (buka Dashboard terlebih dahulu).'}</div>`;
+      sug.hidden = false;
+      return;
+    }
+
+    const headLabel = !q
+      ? `<div class="dak-k1-sughead"><i class="fas fa-ranking-star text-amber-500"></i> Top 5 Obligor KOL 1 Terbesar (1-Klik Uji Dampak)</div>`
+      : `<div class="dak-k1-sughead"><i class="fas fa-bolt text-blue-500"></i> Ditemukan ${hits.length} debitur KOL 1 cocok</div>`;
+
+    sug.innerHTML = headLabel + hits.map(r => {
+      const lid = String(r.loan || r.pk || '');
+      const safeLid = lid.replace(/'/g, "\\'");
+      const added = existing.has(lid);
+      return `
+      <div class="dak-k1-sugrow ${added ? 'is-added' : ''}">
+        <div class="dak-k1-sugmeta">
+          <b>${esc(r.nama || '-')}</b>
+          <small>${esc(lid)} · ${esc(r.br || '-')} · <span class="font-mono font-bold">${fmtRp(r.os)}</span></small>
+        </div>
+        <div class="dak-k1-sugbtns">
+          ${added
+            ? `<span class="dak-k1-addedtag"><i class="fas fa-check"></i> Masuk</span>`
+            : `<button type="button" class="is-crash" onclick="window.dakKol1Sim.add('${type}','${safeLid}','crash')" title="Simulasikan jatuh ke NPL">+ Jatuh NPL</button>
+               <button type="button" class="is-payoff" onclick="window.dakKol1Sim.add('${type}','${safeLid}','payoff')" title="Simulasikan lunas / take over">+ Lunas</button>`
+          }
+        </div>
+      </div>`;
+    }).join('');
+    sug.hidden = false;
+  }
+
+  function syncAll(type) {
+    renderBasket(type);
+    if (typeof window.dakUpdateSimStats === 'function') window.dakUpdateSimStats(type);
+    if (window.dakNplCharts && typeof window.dakNplCharts.setMode === 'function') {
+      const list = baskets[type] || [];
+      if (list.length) window.dakNplCharts.setMode(type, 'sim');
+    }
+    // Re-sync Target <3% box if currently open
+    const tBox = document.getElementById('dakTargetBox_' + type);
+    if (tBox && !tBox.hidden && window.dakNplSuite && typeof window.dakNplSuite.calcTarget3 === 'function') {
+      const slKey = type === 'Kons' ? 'KONS' : (type === 'Prod' ? 'PROD' : type);
+      window.dakNplSuite.calcTarget3(type, slKey);
+    }
+  }
+
+  // Close suggestion dropdown when clicking outside
+  document.addEventListener('click', e => {
+    if (e.target.closest('.dak-k1-searchbox')) return;
+    document.querySelectorAll('.dak-k1-suggest').forEach(el => { el.hidden = true; });
+  });
+
+  window.dakKol1Sim = {
+    openSuggest(type) {
+      const inp = document.getElementById('dakK1Search_' + type);
+      renderSuggestions(type, inp ? inp.value : '');
+    },
+
+    onInput(type, val) {
+      renderSuggestions(type, val);
+    },
+
+    add(type, loanId, mode) {
+      if (!baskets[type]) baskets[type] = [];
+      if (baskets[type].some(x => String(x.loan) === String(loanId))) return;
+      const pool = getKol1Pool(type);
+      const found = pool.find(r => String(r.loan || r.pk || '') === String(loanId));
+      if (!found) return;
+      baskets[type].push({
+        loan: String(found.loan || found.pk || ''),
+        nama: String(found.nama || '-'),
+        br: String(found.br || '-'),
+        os: Number(found.os) || 0,
+        mode: mode === 'payoff' ? 'payoff' : 'crash'
+      });
+      const inp = document.getElementById('dakK1Search_' + type);
+      if (inp) inp.value = '';
+      const sug = document.getElementById('dakK1Suggest_' + type);
+      if (sug) sug.hidden = true;
+      syncAll(type);
+      if (window.showToast) {
+        window.showToast(`${found.nama} ditambahkan (${mode === 'payoff' ? 'Lunas / Keluar' : 'Jatuh NPL'}).`, 'info');
+      }
+    },
+
+    toggleMode(type, loanId) {
+      const item = (baskets[type] || []).find(x => String(x.loan) === String(loanId));
+      if (!item) return;
+      item.mode = item.mode === 'crash' ? 'payoff' : 'crash';
+      syncAll(type);
+    },
+
+    remove(type, loanId) {
+      baskets[type] = (baskets[type] || []).filter(x => String(x.loan) !== String(loanId));
+      syncAll(type);
+    },
+
+    clear(type, silent) {
+      baskets[type] = [];
+      const inp = document.getElementById('dakK1Search_' + type);
+      if (inp) inp.value = '';
+      const sug = document.getElementById('dakK1Suggest_' + type);
+      if (sug) sug.hidden = true;
+      renderBasket(type);
+      if (!silent) {
+        if (typeof window.dakUpdateSimStats === 'function') window.dakUpdateSimStats(type);
+        if (window.showToast) window.showToast('Simulasi debitur KOL 1 direset.', 'info');
+      }
+    },
+
+    getTotals(type) {
+      const list = baskets[type] || [];
+      let crash = 0, payoff = 0;
+      list.forEach(x => {
+        if (x.mode === 'payoff') payoff += Number(x.os) || 0;
+        else crash += Number(x.os) || 0;
+      });
+      return { crash, payoff, count: list.length };
+    },
+
+    copyWA(type) {
+      const m = getBaseMetrics(type);
+      const list = baskets[type] || [];
+      const ratioNow = document.getElementById('k_npl_rat_' + type)?.innerText?.trim() || '-';
+      const healTxt = document.getElementById('ks_heal_' + type)?.innerText?.trim() || 'Rp 0';
+      const crashTxt = document.getElementById('ks_crash_' + type)?.innerText?.trim() || 'Rp 0';
+      const baseR = m && m.os > 0 ? ((m.npl / m.os) * 100).toFixed(2) + '%' : '-';
+      const lines = [
+        `*SIMULASI PROYEKSI RASIO NPL (${type})*`,
+        `• Rasio Aktual: *${baseR}* → Proyeksi: *${ratioNow}*`,
+        `• NPL Sembuh/Lunas: ${healTxt}`,
+        `• Total Downgrade (KKR + KOL 1): ${crashTxt}`
+      ];
+      if (list.length) {
+        lines.push('', `*Skenario Debitur KOL 1 (${list.length} Debitur):*`);
+        list.forEach((x, i) => {
+          lines.push(`${i + 1}. ${x.nama} (${fmtShort(x.os)}) — ${x.mode === 'payoff' ? 'Lunas/Take Over' : 'Jatuh NPL'}`);
+        });
+      }
+      const msg = lines.join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(() => {
+          if (window.showToast) window.showToast('Ringkasan skenario simulasi disalin ke clipboard!', 'success');
+        });
+      }
+    }
+  };
 })();
